@@ -1,0 +1,15 @@
+{
+  "name": "hardhat-project",
+  "scripts": {
+    "deploy_br": "hardhat run ./scripts/deploy_br.ts --network local",
+    "deploy_vs": "hardhat run ./scripts/deploy_vs.ts --network local",
+    "test": "hardhat run ./scripts/test.ts --network local"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "@openzeppelin/contracts": "^4.1.0",
+    "openzeppelin-solidity": "^1.12.0",
+
+    "hardhat": "^2.12.6"
+  }
+}
