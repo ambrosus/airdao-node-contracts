@@ -2,6 +2,7 @@
 base_path = "/opt/apollo"
 mode = "active"
 chain = "/opt/apollo/chain.json"
+# chain = "chain.json"
 
 [footprint]
 cache_size_db = 100
@@ -9,7 +10,7 @@ pruning = "fast"
 
 [network]
 warp = false
-nat = "extip:10.0.0.12"
+nat = "extip:10.0.0.14"
 # reserved_peers = "/opt/apollo/reserved.txt"
 
 [rpc]
@@ -27,9 +28,10 @@ disable = true
 
 [account]
 password = ["/opt/apollo/password"]
+# password = ["password"]
 
 [mining]
-engine_signer = "0xAccdb7a2268BC4Af0a1898e725138888ba1Ca6Fc"
+engine_signer = "0xacab1bd4578cc8b7cd553a31724456f8f7a222b5"
 reseal_on_txs = "none"
 force_sealing = true
 extra_data = "Apollo v3.3.3-amb1.0.1"

@@ -39,6 +39,110 @@ services:
     volumes:
       - ./amb/apollo2/:/opt/apollo
 
+  apollo3:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.13
+    ports:
+      - 30306:30303
+      - 8551:8545
+      - 8552:8546
+    volumes:
+      - ./amb/apollo3/:/opt/apollo
+
+  apollo4:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.14
+    ports:
+      - 30307:30303
+      - 8553:8545
+      - 8554:8546
+    volumes:
+      - ./amb/apollo4/:/opt/apollo
+
+  apollo5:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.15
+    ports:
+      - 30308:30303
+      - 8555:8545
+      - 8556:8546
+    volumes:
+      - ./amb/apollo5/:/opt/apollo
+
+  apollo6:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.16
+    ports:
+      - 30309:30303
+      - 8557:8545
+      - 8558:8546
+    volumes:
+      - ./amb/apollo6/:/opt/apollo
+
+  apollo7:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.17
+    ports:
+      - 30310:30303
+      - 8559:8545
+      - 8560:8546
+    volumes:
+      - ./amb/apollo7/:/opt/apollo
+
+  apollo8:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.18
+    ports:
+      - 30311:30303
+      - 8561:8545
+      - 8562:8546
+    volumes:
+      - ./amb/apollo8/:/opt/apollo
+
+  apollo9:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.19
+    ports:
+      - 30312:30303
+      - 8563:8545
+      - 8564:8546
+    volumes:
+      - ./amb/apollo9/:/opt/apollo
+
+  apollo10:
+    image: ghcr.io/ambrosus/openethereum:v3.3.3-amb1.0.1
+    command: --config /opt/apollo/config.toml
+    networks:
+      amb-eth-net:
+        ipv4_address: 10.0.0.20
+    ports:
+      - 30313:30303
+      - 8565:8545
+      - 8566:8546
+    volumes:
+      - ./amb/apollo10/:/opt/apollo
+
 networks:
   amb-eth-net:
     driver: bridge

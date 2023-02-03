@@ -98,4 +98,19 @@ contract ValidatorSet is ValidatorSetBase, ConstructorOwnable {
         }
         return false;
     }
+
+
+
+    mapping(address => uint) public benignValidators;
+    mapping(address => uint) public maliciousValidators;
+    event ReportBenign(address indexed reporter, address indexed validator, uint256 indexed blockNumber);
+    function reportBenign(address validator, uint256 blockNumber) {
+        benignValidators[validator] += 1;
+        emit ReportBenign(msg.sender, validator, blockNumber);
+    }
+    event ReportMalicious(address indexed reporter, address indexed validator, uint256 indexed blockNumber, bytes proof);
+    function reportMalicious(address validator, uint256 blockNumber, bytes proof) {
+        maliciousValidators[validator] += 1;
+        emit ReportMalicious(msg.sender, validator, blockNumber, proof);
+    }
 }

@@ -10,7 +10,7 @@ pruning = "fast"
 [network]
 warp = false
 nat = "extip:10.0.0.11"
-reserved_peers = "/opt/apollo/reserved.txt"
+# reserved_peers = "/opt/apollo/reserved.txt"
 
 [rpc]
 apis = ["web3", "eth", "net", "parity", "traces"]
