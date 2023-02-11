@@ -18,26 +18,16 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.6",
+        version: "0.8.17",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,  // todo bigger
+            runs: 1000,  // todo bigger
           },
           // Note: for amb deploy
-          evmVersion: "byzantium"
+          // evmVersion: "byzantium"  // coverage don't work with byzantium
         },
-      }, {
-        version: "0.4.24",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-          // Note: for amb deploy
-          evmVersion: "byzantium"
-        },
-      },
+      }
     ],
   },
 };
