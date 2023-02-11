@@ -190,17 +190,8 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
 
     function _addStake(address nodeAddress) internal {
-        // if no space in topStakes - add to queuedStakes
-        queuedStakes.push(nodeAddress);
-
-        if (queuedStakes.length == 1) {
-            // if current node is the only one in queuedStakes - set highestStakeIndex to index of current node
-            _highestStakeIndex = 0;
-        } else if (_compareWithHighestStake(nodeAddress) > 0) {
-            // current node now has highest stake, set highestStakeIndex to index of current node
-            _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
-        }
-
+        // add to queue and call _update() to move it to topStakes if needed
+        _addToQueue(nodeAddress);
         _update();
     }
 
@@ -209,63 +200,41 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         delete stakes[nodeAddress];
 
         if (isInTop) {
-            uint index = _findIndexByValue(topStakes, nodeAddress);
-            _removeByIndex(topStakes, index);
-            _topValidatorsChanged();
-
-            if (_lowestStakeIndex == index) {
-                _findLowestStakeIndex();
-            } else if (_lowestStakeIndex == topStakes.length) {
-                // if lowestStakeIndex was last in topStakes - now it moved to `index`
-                _lowestStakeIndex = index;
-            }
-
+            _removeFromTop(nodeAddress);
             // we have free space in topStakes, need to move node from queuedStakes to topStakes
             _update();
         } else {
-            uint index = _findIndexByValue(queuedStakes, nodeAddress);
-            _removeByIndex(queuedStakes, index);
-
-            if (_highestStakeIndex == index) {
-                // need to find new highestStakeIndex
-                _findHighestStakeIndex();
-            } else if (_highestStakeIndex == queuedStakes.length) {
-                // if highestStakeIndex was last in queue - now it moved to `index`
-                _highestStakeIndex = index;
-            }
+            _removeFromQueue(nodeAddress);
         }
 
     }
 
     function _increaseStake(address nodeAddress, bool isInTop) internal {
         if (isInTop) {
-            if (nodeAddress != topStakes[_lowestStakeIndex]) return;
-
-            // lowest stake in top increased his stake, need to find new lowestStakeIndex
-            _findLowestStakeIndex();
+            if (nodeAddress == topStakes[_lowestStakeIndex]) {// lowest stake in top increased his stake, need to find new lowestStakeIndex
+                _findLowestStakeIndex();
+                _update();
+            }
         } else {
-            if (_compareWithHighestStake(nodeAddress) < 0) return;
-            // current node now has highest stake in queue, set highestStakeIndex to index of current node
-            _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
+            if (_compareWithHighestStake(nodeAddress) >= 0) {// current node now has highest stake in queue, set highestStakeIndex to index of current node
+                _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
+                _update();
+            }
         }
-
-        _update();
     }
 
     function _decreaseStake(address nodeAddress, bool isInTop) internal {
         if (isInTop) {
-            if (_compareWithLowestStake(nodeAddress) > 0) return;
-
-            // current node now has lowest stake in top, set lowestStakeIndex to index of current node
-            _lowestStakeIndex = _findIndexByValue(topStakes, nodeAddress);
+            if (_compareWithLowestStake(nodeAddress) <= 0) {// current node now has lowest stake in top, set lowestStakeIndex to index of current node
+                _lowestStakeIndex = _findIndexByValue(topStakes, nodeAddress);
+                _update();
+            }
         } else {
-            if (nodeAddress != queuedStakes[_highestStakeIndex]) return;
-
-            // highest stake in queue decreased his stake, need to find new highestStakeIndex
-            _findHighestStakeIndex();
+            if (nodeAddress != queuedStakes[_highestStakeIndex]) {// highest stake in queue decreased his stake, need to find new highestStakeIndex
+                _findHighestStakeIndex();
+                _update();
+            }
         }
-
-        _update();
     }
 
     function _update() internal {
@@ -273,16 +242,11 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
         if (topStakes.length < topStakesCount) {
             // move highest stake in queue to topStakes
-            topStakes.push(queuedStakes[_highestStakeIndex]);
-            _topValidatorsChanged();
+            _addToTop(queuedStakes[_highestStakeIndex]);
 
             // remove it from queuedStakes
             _removeByIndex(queuedStakes, _highestStakeIndex);
             _findHighestStakeIndex();
-
-            // check if new node is now  _lowestStakeIndex
-            if (_compareWithLowestStake(topStakes[topStakes.length - 1]) < 0)
-                _lowestStakeIndex = topStakes.length - 1;
 
         } else if (topStakes.length == topStakesCount) {
             if (_compareWithLowestStake(queuedStakes[_highestStakeIndex]) > 0) {
@@ -295,6 +259,48 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         }
 
     }
+
+    // MORE LOW LEVEL HELPERS
+
+    function _addToQueue(address nodeAddress) internal {
+        queuedStakes.push(nodeAddress);
+
+        if (queuedStakes.length == 1) // if current node is the only one in queuedStakes - it is highestStakeIndex
+            _highestStakeIndex = 0;
+        else if (_compareWithHighestStake(nodeAddress) > 0) // current node now has highest stake
+            _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
+    }
+
+    function _addToTop(address nodeAddress) internal {
+        topStakes.push(nodeAddress);
+        _topValidatorsChanged();
+
+        if (_compareWithLowestStake(topStakes[topStakes.length - 1]) < 0) // check if new node is now  _lowestStakeIndex
+            _lowestStakeIndex = topStakes.length - 1;
+    }
+
+    function _removeFromQueue(address nodeAddress) internal {
+        uint index = _findIndexByValue(queuedStakes, nodeAddress);
+        _removeByIndex(queuedStakes, index);
+
+        if (_highestStakeIndex == index)  // need to find new highestStakeIndex
+            _findHighestStakeIndex();
+        else if (_highestStakeIndex == queuedStakes.length)  // if highestStakeIndex was last in queue - now it moved to `index`
+            _highestStakeIndex = index;
+    }
+
+    function _removeFromTop(address nodeAddress) internal {
+        uint index = _findIndexByValue(topStakes, nodeAddress);
+        _removeByIndex(topStakes, index);
+        _topValidatorsChanged();
+
+        if (_lowestStakeIndex == index) // need to find new lowestStakeIndex
+            _findLowestStakeIndex();
+        else if (_lowestStakeIndex == topStakes.length) // if lowestStakeIndex was last in topStakes - now it moved to `index`
+            _lowestStakeIndex = index;
+    }
+
+    // ANOTHER TYPE OF HELPERS
 
     function _findLowestStakeIndex() internal {
         //        uint lowestStakeIndex = 0;
@@ -345,6 +351,7 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         if (a.amount < b.amount) return - 1;
 
         return 0;
+        // todo
         // compare timestamps
         //        return (a.timestampStake > b.timestampStake) ? int(1) : - 1;
     }
@@ -354,10 +361,6 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         for (uint i = 0; i < array.length; i++)
             if (array[i] == value) return i;
         revert("Value not found");
-    }
-
-    function _removeByValue(address[] storage array, address value) internal {
-        _removeByIndex(array, _findIndexByValue(array, value));
     }
 
     function _removeByIndex(address[] storage array, uint i) internal {
