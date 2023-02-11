@@ -1,0 +1,53 @@
+@startuml
+
+hide empty members
+
+
+struct Stake {
+    uint stake
+    uint timestampStake
+    address stakingContact
+    bool isAlwaysInTop
+}
+
+
+map "mapping(address => Stake)" as stakes {
+ nodeAddress => Stake
+}
+
+
+object "address[] queueStakes" as queueStakes {
+    nodeAddress3
+    nodeAddress4
+    nodeAddress5
+}
+
+
+object "address[] topStakes" as topStakes {
+    nodeAddress1
+    nodeAddress2
+}
+
+
+queueStakes <.> topStakes : addresses move between \n those two arrays when\n  stakes are changed
+
+object "address[] finalizedValidators" as finalizedValidators {
+    nodeAddress1
+    nodeAddress2
+}
+
+finalizedValidators <.- topStakes : topStakes become validators \n when  **finalizeChange()** called
+
+
+map Contract{
+    stakes *--> stakes
+
+    finalizedValidators *-> finalizedValidators
+    topStakes *--> topStakes
+    queueStakes  *--> queueStakes
+
+}
+stakes --> Stake
+
+
+@enduml
