@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./IStaking.sol";
 import "../consensus/IValidatorSet.sol";
-import "../LockKeeper.sol";
 
 contract TestPool is IStaking {
     IValidatorSet public validatorSet; // contract that manages validator set
@@ -37,9 +35,4 @@ contract TestPool is IStaking {
     function report(address nodeAddress) external {
 
     }
-
-    function validatorStatusChanged(address nodeAddress, bool nowValidator) external {
-
-    }
-
 }

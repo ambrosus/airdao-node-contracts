@@ -59,7 +59,7 @@ class BaseNodes {
     + no limits
 }
 
-class NodesStaking {
+class ServerNodes {
     + **one user = one node**
     - **can be slashed**
     + receives 100% reward
@@ -77,12 +77,12 @@ ValidatorSet --> IStaking
 ValidatorSet <-- IValidatorSet
 
 IStaking --> BaseNodes
-IStaking --> NodesStaking
+IStaking --> ServerNodes
 IStaking --> AirdaoStaking
 IStaking --> LiquidStaking
 
 IValidatorSet <-- BaseNodes
-IValidatorSet <-- NodesStaking
+IValidatorSet <-- ServerNodes
 IValidatorSet <-- AirdaoStaking
 IValidatorSet <-- LiquidStaking
 
