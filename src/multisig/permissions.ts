@@ -1,5 +1,27 @@
 import {MasterMultisig, Multisig} from "../../typechain-types";
 import {Contracts} from "../contracts/contracts";
+import {ContractNames} from "../contracts/names";
+
+
+interface Perm {
+  // address is
+  //  - user address for list of users in group modal
+  //  - multisig (group) address for list of groups in user modal
+  address: string,
+  isInitiator: boolean
+}
+
+interface Group {
+  multisig: string,
+  users: Perm[],
+  thresholdPercent: number,
+  threshold: number,
+}
+
+interface User {
+  address: string,
+  groups: Perm[],
+}
 
 
 export async function getPermissions(contracts: Contracts, multisigAddresses: string[]) {
@@ -12,7 +34,33 @@ export async function getPermissions(contracts: Contracts, multisigAddresses: st
   return {groups, users};
 }
 
-// todo provide convenient interface for frontend
+
+// more convenient interface for frontend
+// oldGroups is list of user groups that come from contract and shows in modal BEFORE ANY UPDATES by admin
+// newGroups is actual list of user groups that admin chooses in modal
+export async function setUserGroups(contracts: Contracts, userAddress: string, newGroups: Perm[], oldGroups: Perm[]) {
+  const oldGroupAddresses = oldGroups.map(g => g.address);
+  const newGroupAddresses = newGroups.map(g => g.address);
+
+  const result: MasterMultisig.ChangeSignersStructStruct[] = [];
+
+  for (let oldGroup of oldGroups) {
+    // oldGroup not exists in newGroups, so remove user from it
+    if (!newGroupAddresses.includes(oldGroup.address))
+      result.push({contract_: oldGroup.address, isInitiatorFlags: [], signersToAdd: [], signersToRemove: [userAddress]})
+  }
+
+  for (let newGroup of newGroups) {
+    // newGroup not exist in oldGroups or isInitiator value changed, so add user to group (with actual isInitiator)
+    const needToAddOrChange = oldGroups.find(o => o.address == newGroup.address)?.isInitiator !== newGroup.isInitiator;
+    if (needToAddOrChange)
+      result.push({contract_: newGroup.address, isInitiatorFlags: [newGroup.isInitiator], signersToAdd: [userAddress], signersToRemove: []})
+  }
+
+
+  return await setPermissions(contracts, result);
+}
+
 export async function setPermissions(contracts: Contracts, changes: MasterMultisig.ChangeSignersStructStruct[]) {
   const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
   const calldata = (await masterMultisig.populateTransaction.changeSignersMaster(changes)).data!
@@ -28,9 +76,8 @@ export async function setThreshold(contracts: Contracts, multisigToChange: Contr
 }
 
 
-
-function getGroups(multisigAddresses: string[], contractResults: any[]) {
-  const parseUsers = (signers: string[], isInitiators: boolean[]) =>  signers.map((v, i) => ({
+function getGroups(multisigAddresses: string[], contractResults: any[]): Group[] {
+  const parseUsers = (signers: string[], isInitiators: boolean[]): Perm[] => signers.map((v, i) => ({
     address: signers[i],
     isInitiator: isInitiators[i]
   }));
@@ -44,7 +91,7 @@ function getGroups(multisigAddresses: string[], contractResults: any[]) {
 
 }
 
-function getUsers(groups: any[]) {
+function getUsers(groups: any[]): User[] {
   const users: { [address: string]: any } = {};
 
   for (let group of groups) {
