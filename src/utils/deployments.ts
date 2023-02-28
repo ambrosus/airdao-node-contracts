@@ -29,7 +29,7 @@ export async function deploy(contractName: string, networkName: string, deployPr
   return res
 }
 
-export async function loadDeployment(contractName: string, networkName: string, signer?: Signer) {
+export function loadDeployment(contractName: string, networkName: string, signer?: Signer) {
   const {deployments} = _loadDeployments(networkName);
   const contractDeployment = deployments[contractName];
   console.assert(contractDeployment !== undefined, `Can't find deployment for ${contractName} in ${networkName}`)
