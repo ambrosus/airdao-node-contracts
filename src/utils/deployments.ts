@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import {BaseContract, ethers, Signer} from "ethers";
+import {Contract, ethers, Signer} from "ethers";
 import deploymentsProd from "../../deployments/prod.json";
 import deploymentsTest from "../../deployments/test.json";
 
@@ -37,9 +37,9 @@ export async function loadDeployment(contractName: string, networkName: string, 
   return new ethers.Contract(contractDeployment.address, contractDeployment.abi, signer)
 }
 
-export function loadAllDeployments(networkName: string, signer?: Signer): { [name: string]: BaseContract } {
+export function loadAllDeployments(networkName: string, signer?: Signer): { [name: string]: Contract } {
   const {deployments} = _loadDeployments(networkName);
-  const result: { [name: string]: BaseContract } = {};
+  const result: { [name: string]: Contract } = {};
   for (let name of Object.keys(deployments)) {
     const contractDeployment = deployments[name];
     result[name] = new ethers.Contract(contractDeployment.address, contractDeployment.abi, signer)

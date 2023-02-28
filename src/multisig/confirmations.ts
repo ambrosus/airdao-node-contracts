@@ -4,17 +4,22 @@ import {Multisig} from "../../typechain-types";
 import {BigNumber} from "ethers";
 
 
-export async function getTransactions(multisig: Multisig, contracts: Contracts) {
-  const txIds = await multisig.getTransactionIds(0, 0, true, false);
-  const txPromises = txIds.map(txId => multisig.getTransactionData(txId))
+// todo function that get transactions from all multisigs + get events and provide timestmap and other info
+
+export async function getTransactions(contracts: Contracts, multisigName: ContractNames) {
+  const multisigContract = contracts.getContractByName(multisigName) as Multisig;
+
+  const txIds = await multisigContract.getTransactionIds(0, 0, true, false);
+  const txPromises = txIds.map(txId => multisigContract.getTransactionData(txId))
   const txs = await Promise.all(txPromises)
 
   // todo find events for timestamp
 
-  const parsedTxs = txs.map(tx => {
+  const parsedTxs = txs.map((tx, i) => {
     const [txData, confirmations] = tx;
     return {
-      contractAddress: multisig.address,
+      contractAddress: multisigContract.address,
+      txId: txIds[i],
       parsedTxData: parseTxData(contracts, txData),
       confirmations
     }

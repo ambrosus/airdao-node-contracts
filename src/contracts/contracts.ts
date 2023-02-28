@@ -1,10 +1,10 @@
-import {BaseContract, Signer} from "ethers";
+import {Contract, Signer} from "ethers";
 import {loadAllDeployments} from "../utils/deployments";
 
 
 export class Contracts {
 
-  private contracts: {[contractName: string]: BaseContract}
+  private contracts: {[contractName: string]: Contract}
   private nameByAddress: {[address: string]: string}
 
   constructor(signer: Signer, chainId: number) {
@@ -16,13 +16,22 @@ export class Contracts {
 
   }
 
-  public getContractByName(name: string): BaseContract {
+  public getContractByName(name: string): Contract {
     return this.contracts[name];
   }
 
-  public getContractByAddress(address: string): BaseContract {
+  public getContractByAddress(address: string): Contract {
     return this.getContractByName(this.nameByAddress[address])
   }
 
 }
-
+//
+// const contracts = new Contracts();
+//
+// const contractsNames = {
+//   [contracts.getContractByName(ContractNames.MasterMultisig).address]: "Permissions",
+//   [contracts.getContractByName(ContractNames.FinanceRewardsMultisig).address]: "Finance: Rewards",
+// }
+//
+// // вкладка Rewards Wallet
+// const contractAddress = contracts.getContractByName("Finance_Rewards").address

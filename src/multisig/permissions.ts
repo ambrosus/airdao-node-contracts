@@ -1,7 +1,9 @@
-import {MasterMultisig} from "../../typechain-types";
+import {MasterMultisig, Multisig} from "../../typechain-types";
+import {Contracts} from "../contracts/contracts";
 
 
-export async function getPermissions(masterMultisig: MasterMultisig, multisigAddresses: string[]) {
+export async function getPermissions(contracts: Contracts, multisigAddresses: string[]) {
+  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
   const contractResults = await masterMultisig.getAllSigners(multisigAddresses)
 
   const groups = getGroups(multisigAddresses, contractResults);
@@ -10,14 +12,19 @@ export async function getPermissions(masterMultisig: MasterMultisig, multisigAdd
   return {groups, users};
 }
 
-export async function setPermissions(masterMultisig: MasterMultisig, changes: MasterMultisig.ChangeSignersStructStruct[]) {
+// todo provide convenient interface for frontend
+export async function setPermissions(contracts: Contracts, changes: MasterMultisig.ChangeSignersStructStruct[]) {
+  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
   const calldata = (await masterMultisig.populateTransaction.changeSignersMaster(changes)).data!
   return await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata)
 }
 
-export async function setThreshold(masterMultisig: MasterMultisig, multisigToChangeAddress: string, newThreshold: number) {
+export async function setThreshold(contracts: Contracts, multisigToChange: ContractNames, newThreshold: number) {
+  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
+  const slaveMultisig = contracts.getContractByName(multisigToChange) as Multisig;
+
   const calldata = (await masterMultisig.populateTransaction.changeThreshold(newThreshold)).data!
-  return await masterMultisig.submitTransaction(multisigToChangeAddress, 0, calldata)
+  return await masterMultisig.submitTransaction(slaveMultisig.address, 0, calldata)
 }
 
 
