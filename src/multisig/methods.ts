@@ -1,6 +1,7 @@
 import {Finance, Multisig, ValidatorSet} from "../../typechain-types";
 import {BigNumber} from "ethers";
 import {Contracts} from "../contracts/contracts";
+import {ContractNames} from "../contracts/names";
 
 
 async function financeWithdraw(contracts: Contracts, financeContractName: ContractNames, addressTo: string, amount: BigNumber) {

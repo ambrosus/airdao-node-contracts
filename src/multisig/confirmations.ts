@@ -1,10 +1,23 @@
 import {Contracts} from "../contracts/contracts";
-import { Interface } from "ethers/lib/utils";
+import {Interface} from "ethers/lib/utils";
 import {Multisig} from "../../typechain-types";
 import {BigNumber} from "ethers";
+import {ContractNames, multisigsNames} from "../contracts/names";
 
 
-// todo function that get transactions from all multisigs + get events and provide timestmap and other info
+export async function getTransactionsFromAllMultisigs(contracts: Contracts) {
+
+  // todo get events and provide timestmap and other info
+  // const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as Contract;
+  // const filter = masterMultisig.filters.Submission()
+
+  // note: its possible to filter events from array of addresses, but in hacky way;
+  // will wait for ethers v6 for this feature; for now imho timestamp are not so important
+
+  const multisigTransactions = await Promise.all(multisigsNames.map((mn) => getTransactions(contracts, mn)));
+  return multisigTransactions;
+}
+
 
 export async function getTransactions(contracts: Contracts, multisigName: ContractNames) {
   const multisigContract = contracts.getContractByName(multisigName) as Multisig;
@@ -41,9 +54,7 @@ export async function reExecute(multisig: Multisig, txId: BigNumber) {
 }
 
 
-
 // internal
-
 
 
 function parseTxData(contracts: Contracts, txData: any) {

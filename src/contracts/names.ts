@@ -19,3 +19,13 @@ export enum ContractNames {
   ValidatorSet = "ValidatorSet",
   ValidatorSetMultisig = "ValidatorSet_Multisig",
 }
+
+
+export const multisigsNames = [
+  ContractNames.MasterMultisig,
+  ContractNames.FinanceMasterMultisig,
+  ContractNames.FinanceRewardsMultisig,
+  ContractNames.FinanceInvestorsMultisig,
+  ContractNames.FinanceTeamMultisig,
+  ContractNames.FinanceEcosystemMultisig,
+]
