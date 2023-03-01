@@ -15,7 +15,7 @@ export async function getTransactionsFromAllMultisigs(contracts: Contracts) {
   // will wait for ethers v6 for this feature; for now imho timestamp are not so important
 
   const multisigTransactions = await Promise.all(multisigsNames.map((mn) => getTransactions(contracts, mn)));
-  return multisigTransactions;
+  return multisigTransactions.flat();
 }
 
 
@@ -26,17 +26,21 @@ export async function getTransactions(contracts: Contracts, multisigName: Contra
   const txPromises = txIds.map(txId => multisigContract.getTransactionData(txId))
   const txs = await Promise.all(txPromises)
 
-  // todo find events for timestamp
-
   const parsedTxs = txs.map((tx, i) => {
     const [txData, confirmations] = tx;
+    const destinationContract = contracts.getContractByAddress(txData.destination);
     return {
-      contractAddress: multisigContract.address,
+      multisigAddress: multisigContract.address,
+      calledContractAddress: txData.destination,
       txId: txIds[i],
-      parsedTxData: parseTxData(contracts, txData),
+      parsedCalldata: parseCalldata(destinationContract.interface, txData.data),
+      executed: txData.executed,
+      value: txData.value,
       confirmations
     }
   })
+
+  return parsedTxs;
 
 }
 

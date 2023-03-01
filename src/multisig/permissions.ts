@@ -1,6 +1,6 @@
 import {MasterMultisig, Multisig} from "../../typechain-types";
 import {Contracts} from "../contracts/contracts";
-import {ContractNames} from "../contracts/names";
+import {ContractNames, multisigsNames} from "../contracts/names";
 
 
 interface Perm {
@@ -24,7 +24,10 @@ interface User {
 }
 
 
-export async function getPermissions(contracts: Contracts, multisigAddresses: string[]) {
+export async function getPermissions(contracts: Contracts, multisigAddresses?: string[]) {
+  if (!multisigAddresses)
+    multisigAddresses = multisigsNames.map(mn => contracts.getContractByName(mn).address)
+
   const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
   const contractResults = await masterMultisig.getAllSigners(multisigAddresses)
 
@@ -39,7 +42,6 @@ export async function getPermissions(contracts: Contracts, multisigAddresses: st
 // oldGroups is list of user groups that come from contract and shows in modal BEFORE ANY UPDATES by admin
 // newGroups is actual list of user groups that admin chooses in modal
 export async function setUserGroups(contracts: Contracts, userAddress: string, newGroups: Perm[], oldGroups: Perm[]) {
-  const oldGroupAddresses = oldGroups.map(g => g.address);
   const newGroupAddresses = newGroups.map(g => g.address);
 
   const result: MasterMultisig.ChangeSignersStructStruct[] = [];

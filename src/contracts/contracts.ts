@@ -25,13 +25,3 @@ export class Contracts {
   }
 
 }
-//
-// const contracts = new Contracts();
-//
-// const contractsNames = {
-//   [contracts.getContractByName(ContractNames.MasterMultisig).address]: "Permissions",
-//   [contracts.getContractByName(ContractNames.FinanceRewardsMultisig).address]: "Finance: Rewards",
-// }
-//
-// // вкладка Rewards Wallet
-// const contractAddress = contracts.getContractByName("Finance_Rewards").address
