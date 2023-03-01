@@ -5,7 +5,7 @@
   "files": ["dist/**/*"],
   "scripts": {
     "build": "yarn build:sol && yarn build:js",
-    "build:js": "tsc",
+    "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat build",
     "test": "REPORT_GAS=true hardhat test",
     "coverage": "hardhat coverage",
