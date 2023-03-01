@@ -12,7 +12,8 @@ export interface Deployment {
 
 export async function deploy(contractName: string, networkName: string, deployPromise: Promise<any>): Promise<any> {
   const {path, deployments} = _loadDeployments(networkName);
-  console.assert(deployments[contractName] === undefined, "Already deployed")
+  if (deployments[contractName])
+    throw new Error(`Already deployed ${contractName}`)
 
   console.log(`deploying ${contractName} in ${networkName}...`)
   const res = await deployPromise;
@@ -32,7 +33,8 @@ export async function deploy(contractName: string, networkName: string, deployPr
 export function loadDeployment(contractName: string, networkName: string, signer?: Signer) {
   const {deployments} = _loadDeployments(networkName);
   const contractDeployment = deployments[contractName];
-  console.assert(contractDeployment !== undefined, `Can't find deployment for ${contractName} in ${networkName}`)
+  if (!contractDeployment)
+    throw new Error(`Can't find deployment for ${contractName} in ${networkName}`);
 
   return new ethers.Contract(contractDeployment.address, contractDeployment.abi, signer)
 }
