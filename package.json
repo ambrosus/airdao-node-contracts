@@ -1,5 +1,6 @@
 {
   "name": "airdao-node-contracts-dev",
+  "exports": "./dist/src/index.js",
   "version": "0.0.4",
   "files": ["dist/**/*"],
   "scripts": {
