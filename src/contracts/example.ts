@@ -1,4 +1,3 @@
-// save in global state
 import {getTransactionsFromAllMultisigs} from "../multisig/confirmations";
 import {ContractNames} from "./names";
 import {getPermissions, setUserGroups} from "../multisig/permissions";
@@ -7,7 +6,10 @@ import {Contracts} from "./contracts";
 import {financeWithdraw} from "../multisig/methods";
 
 async function example() {
+  const signer = undefined as any;
+  const chainId = 22040;
 
+  // save this in global state
   const contracts = new Contracts(signer, chainId);
 
   // get all transactions (pending)
