@@ -1,6 +1,6 @@
 {
   "name": "airdao-node-contracts-dev",
-  "version": "0.0.0",
+  "version": "0.0.4",
   "files": ["dist/**/*"],
   "scripts": {
     "build": "yarn build:sol && yarn build:js",
@@ -8,7 +8,8 @@
     "build:sol": "hardhat build",
     "test": "REPORT_GAS=true hardhat test",
     "coverage": "hardhat coverage",
-    "test_script": "hardhat run ./scripts/deploy_multisigs.ts --network test/amb"
+    "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test/amb",
+    "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test/amb"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
