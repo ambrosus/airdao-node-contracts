@@ -4,8 +4,8 @@ import {expect} from "chai";
 import {ethers} from "hardhat";
 import {BigNumber, Contract} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {LockKeeper} from "../typechain-types";
 import {AddressZero} from "@ethersproject/constants";
+import {LockKeeper} from "../../typechain-types";
 
 const T = 30000000000;
 

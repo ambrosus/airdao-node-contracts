@@ -1,7 +1,7 @@
 import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
 import {expect} from "chai";
 import {ethers} from "hardhat";
-import {TestPool, ValidatorSet, ValidatorSetTest} from "../typechain-types";
+import {TestPool, ValidatorSet, ValidatorSetTest} from "../../typechain-types";
 import StakeStruct = ValidatorSet.StakeStruct;
 
 describe("ValidatorSet", function () {

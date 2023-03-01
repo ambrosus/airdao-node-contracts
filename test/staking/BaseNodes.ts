@@ -1,9 +1,7 @@
 import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
-import {expect} from "chai";
 import {ethers} from "hardhat";
-import {BaseNodes, TestPool, ValidatorSet, ValidatorSetTest} from "../typechain-types";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import * as constants from "constants";
+import {BaseNodes, ValidatorSetTest} from "../../typechain-types";
 
 describe("BaseNodes", function () {
 

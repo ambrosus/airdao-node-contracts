@@ -2,9 +2,10 @@ import {loadFixture, setBalance} from "@nomicfoundation/hardhat-network-helpers"
 import {expect} from "chai";
 import {ethers} from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {BigNumberish} from "@ethersproject/bignumber";
 import {Finance, MasterFinance} from "../../typechain-types";
 
+
+// todo test that rewards contract setBalance just like hardhat
 
 describe("Finance", function () {
   const maxBankBalance = ethers.utils.parseEther("100000000"); // hello biden its zelensky we need 100 millions ambers
