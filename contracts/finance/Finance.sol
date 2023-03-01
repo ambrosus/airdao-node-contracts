@@ -9,8 +9,14 @@ contract Finance is Ownable {
         _transferOwnership(owner);
     }
 
-    function withdraw(address addressTo, uint amount) public onlyOwner {
-        // todo
+    event Withdraw(address addressTo, uint amount);
+
+    function withdraw(address payable addressTo, uint amount) public onlyOwner {
+        require(address(this).balance >= amount, "transfer amount exceeds balance");
+        addressTo.transfer(amount);
+        emit Withdraw(addressTo, amount);
     }
+
+    receive() external payable {}
 
 }
