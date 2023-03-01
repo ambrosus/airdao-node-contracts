@@ -273,6 +273,8 @@ contract Multisig is Ownable {
     /// @param executed Include executed transactions.
     /// @return _txIds Returns array of transaction IDs.
     function getTransactionIds(uint from, uint to, bool pending, bool executed) public view returns (uint[] memory _txIds) {
+        if (to == 0) to = transactionCount;
+
         uint[] memory txIdsTemp = new uint[](transactionCount);
         uint count = 0;
         uint i;

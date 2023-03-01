@@ -1,16 +1,18 @@
 {
   "name": "airdao-node-contracts-dev",
   "main": "./dist/src/index.js",
-  "version": "0.0.4",
+  "version": "0.0.12",
   "files": ["dist/**/*"],
   "scripts": {
+    "npmpublish": "yarn build:js && npm publish",
     "build": "yarn build:sol && yarn build:js",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat build",
     "test": "REPORT_GAS=true hardhat test",
     "coverage": "hardhat coverage",
     "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test/amb",
-    "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test/amb"
+    "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test/amb",
+    "test_script": "hardhat run ./scripts/test.ts --network test/amb"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
