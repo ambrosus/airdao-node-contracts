@@ -32,7 +32,7 @@ export async function getPermissions(contracts: Contracts, multisigAddresses?: s
   const contractResults = await masterMultisig.getAllSigners(multisigAddresses)
 
   const groups = getGroups(multisigAddresses, contractResults);
-  const users = getUsers(groups);
+  const users = getUsers(Object.values(groups));
 
   return {groups, users};
 }
@@ -56,7 +56,12 @@ export async function setUserGroups(contracts: Contracts, userAddress: string, n
     // newGroup not exist in oldGroups or isInitiator value changed, so add user to group (with actual isInitiator)
     const needToAddOrChange = oldGroups.find(o => o.address == newGroup.address)?.isInitiator !== newGroup.isInitiator;
     if (needToAddOrChange)
-      result.push({contract_: newGroup.address, isInitiatorFlags: [newGroup.isInitiator], signersToAdd: [userAddress], signersToRemove: []})
+      result.push({
+        contract_: newGroup.address,
+        isInitiatorFlags: [newGroup.isInitiator],
+        signersToAdd: [userAddress],
+        signersToRemove: []
+      })
   }
 
 
@@ -78,35 +83,45 @@ export async function setThreshold(contracts: Contracts, multisigToChange: Contr
 }
 
 
-function getGroups(multisigAddresses: string[], contractResults: any[]): Group[] {
+function getGroups(multisigAddresses: string[], contractResults: any[]): { [address: string]: Group } {
   const parseUsers = (signers: string[], isInitiators: boolean[]): Perm[] => signers.map((v, i) => ({
     address: signers[i],
     isInitiator: isInitiators[i]
   }));
 
-  return contractResults.map((r, i) => ({
+
+  const groupList = contractResults.map((r, i) => ({
     multisig: multisigAddresses[i],
     users: parseUsers(r.signers, r.isInitiatorFlags),
     thresholdPercent: +r.threshold,
     threshold: Math.floor(r.signers.length * +r.threshold / 100)
   }));
 
+  const groups: { [address: string]: Group } = {};
+  groupList.forEach(g => groups[g.multisig] = g);
+  return groups;
 }
 
-function getUsers(groups: any[]): User[] {
-  const users: { [address: string]: any } = {};
+function getUsers(groups: Group[]): { [address: string]: User } {
+  const users: { [address: string]: User } = {};
 
   for (let group of groups) {
     for (let user of group.users) {
 
       if (users[user.address] == undefined)
-        users[user.address] = {address: user.address, groups: []}
+        users[user.address] = {
+          address: user.address,
+          groups: []
+        }
 
-      users[user.address].groups.push({group: group.multisig, isInitiator: user.isInitiator});
+      users[user.address].groups.push({
+        address: group.multisig,
+        isInitiator: user.isInitiator
+      });
 
     }
   }
 
-  return Object.values(users)
+  return users
 }
 

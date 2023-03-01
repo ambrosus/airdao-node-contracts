@@ -1,7 +1,7 @@
 {
   "name": "airdao-node-contracts-dev",
   "main": "./dist/src/index.js",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "files": ["dist/**/*"],
   "scripts": {
     "npmpublish": "yarn build:js && npm publish",
