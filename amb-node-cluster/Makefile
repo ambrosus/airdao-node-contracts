@@ -17,4 +17,4 @@ clear:
     rm -rf ./amb/apollo1/chains && \
     rm -rf ./amb/apollo2/chains && \
     docker-compose rm -f  && \
-    docker volume prune -f  && \
+    docker volume prune -f
