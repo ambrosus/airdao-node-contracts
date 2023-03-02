@@ -54,6 +54,7 @@ contract MasterMultisig is Multisig {
         for (uint i=0; i<signers.length; i++)
             if (isInitiator[signers[i]]) initiatorsCount++;
 
+        // todo at least 1
         require(initiatorsCount >= 2, "must be at least 2 initiators");
 
         // todo

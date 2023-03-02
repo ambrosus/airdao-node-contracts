@@ -42,13 +42,13 @@ async function main() {
     console.assert(Object.values(ContractNames).includes(multisigName), `can't find ${multisigName} in ContractNames`)
 
     const multisig = await deploy(multisigName, networkName, MultisigFactory.deploy(signers, isInitiator, threshold, masterMultisig));
-    await deploy(financeName, networkName, MasterFinanceFactory.deploy(multisig.address));
+    await deploy(financeName, networkName, FinanceFactory.deploy(multisig.address));
   }
 
   // master
   const multisig = await deploy(ContractNames.FinanceMasterMultisig, networkName, MultisigFactory.deploy(
     [Lang, Igor, Rory, Kevin, Stefan], [true, true, true, true, true], 75, masterMultisig));
-  await deploy(ContractNames.FinanceMaster, networkName, FinanceFactory.deploy(multisig.address));
+  await deploy(ContractNames.FinanceMaster, networkName, MasterFinanceFactory.deploy(multisig.address));
 
   await deployFinance(ContractNames.FinanceRewards,
     [Lang, Igor, Andrii], [true, true, false], 75);
