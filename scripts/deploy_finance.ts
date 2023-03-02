@@ -1,6 +1,6 @@
 import {ethers} from "hardhat";
 import {deploy, loadDeployment} from "../src/utils/deployments";
-import {ContractNames} from "../src/contracts/names";
+import {ContractNames} from "../src";
 
 async function main() {
 
@@ -27,12 +27,15 @@ async function main() {
   const Stefan = addresses[5];
   const Seth = addresses[6];
 
+  const TestAddress = "0x295C2707319ad4BecA6b5bb4086617fD6F240CfE"
+
 
   const MultisigFactory = await ethers.getContractFactory("Multisig");
   const MasterFinanceFactory = await ethers.getContractFactory("MasterFinance");
   const FinanceFactory = await ethers.getContractFactory("Finance");
 
   const networkName = (await ethers.provider.getNetwork()).chainId.toString();
+  const [deployer] = await ethers.getSigners();
 
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, networkName).address
 
@@ -41,24 +44,29 @@ async function main() {
     const multisigName = financeName + "_Multisig" as ContractNames;
     console.assert(Object.values(ContractNames).includes(multisigName), `can't find ${multisigName} in ContractNames`)
 
-    const multisig = await deploy(multisigName, networkName, MultisigFactory.deploy(signers, isInitiator, threshold, masterMultisig));
-    await deploy(financeName, networkName, FinanceFactory.deploy(multisig.address));
+    const multisig = await deploy(multisigName, networkName, MultisigFactory,      [signers, isInitiator, threshold, masterMultisig], deployer);
+    await deploy(financeName, networkName, FinanceFactory, [multisig.address], deployer);
   }
 
-  // master
-  const multisig = await deploy(ContractNames.FinanceMasterMultisig, networkName, MultisigFactory.deploy(
-    [Lang, Igor, Rory, Kevin, Stefan], [true, true, true, true, true], 75, masterMultisig));
-  await deploy(ContractNames.FinanceMaster, networkName, MasterFinanceFactory.deploy(multisig.address));
 
+  // master
+  // const multisig = await deploy(ContractNames.FinanceMasterMultisig, networkName, MultisigFactory.deploy(
+  //   [Lang, Igor, Rory, Kevin, Stefan], [true, true, true, true, true], 75, masterMultisig), deployer);
+  // await deploy(ContractNames.FinanceMaster, networkName, MasterFinanceFactory.deploy(multisig.address), deployer);
+  const multisig = await deploy(ContractNames.FinanceMasterMultisig, networkName, MultisigFactory,
+    [[TestAddress], [true], 100, masterMultisig], deployer);
+  await deploy(ContractNames.FinanceMaster, networkName, MasterFinanceFactory, [multisig.address], deployer);
+
+  // await deployFinance(ContractNames.FinanceRewards,
+  //   [Lang, Igor, Andrii], [true, true, false], 75);
   await deployFinance(ContractNames.FinanceRewards,
-    [Lang, Igor, Andrii], [true, true, false], 75);
+    [TestAddress], [true], 100);
   await deployFinance(ContractNames.FinanceInvestors,
     [Lang, Igor, Rory], [true, true, true], 75);
   await deployFinance(ContractNames.FinanceTeam,
     [Lang, Igor, Rory, Kevin, Stefan], [true, true, true, true, true], 75);
   await deployFinance(ContractNames.FinanceEcosystem,
     [Lang, Kevin, Seth], [true, true, false], 75);
-
 
 }
 
