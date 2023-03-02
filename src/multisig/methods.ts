@@ -6,7 +6,7 @@ import {ContractNames} from "../contracts/names";
 
 export async function financeWithdraw(contracts: Contracts, financeContractName: ContractNames, addressTo: string, amount: BigNumber) {
   const financeContract = contracts.getContractByName(financeContractName) as Finance;
-  const multisigContract = contracts.getContractByName(financeContractName + "_Multisig") as Multisig;
+  const multisigContract = contracts.getContractByName(financeContractName + "_Multisig" as ContractNames) as Multisig;
 
   const calldata = (await financeContract.populateTransaction.withdraw(addressTo, amount)).data!
   return await multisigContract.submitTransaction(financeContract.address, 0, calldata)
