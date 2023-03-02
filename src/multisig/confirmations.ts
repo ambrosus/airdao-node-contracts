@@ -5,7 +5,7 @@ import {BigNumber} from "ethers";
 import {ContractNames, multisigsNames} from "../contracts/names";
 
 
-export async function getTransactionsFromAllMultisigs(contracts: Contracts) {
+export async function getTransactionsFromContracts(contracts: Contracts, multisigAddresses?: string[]) {
 
   // todo get events and provide timestmap and other info
   // const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as Contract;
@@ -14,7 +14,12 @@ export async function getTransactionsFromAllMultisigs(contracts: Contracts) {
   // note: its possible to filter events from array of addresses, but in hacky way;
   // will wait for ethers v6 for this feature; for now imho timestamp are not so important
 
-  const multisigTransactions = await Promise.all(multisigsNames.map((mn) => getTransactions(contracts, mn)));
+  const multisigNamesList = multisigAddresses ?
+    multisigAddresses.map(address => contracts.getNameByAddress(address))
+    :
+    multisigsNames;
+
+  const multisigTransactions = await Promise.all(multisigNamesList.map((mn) => getTransactions(contracts, mn)));
   return multisigTransactions.flat();
 }
 
