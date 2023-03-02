@@ -43,6 +43,20 @@ contract MasterFinance is Ownable {
         }
     }
 
+    function getBalances() public view returns (address[] memory addresses, uint[] memory balances){
+        address[] memory addresses = new address[](maxBanks+1);
+        uint[] memory balances = new uint[](maxBanks+1);
+
+        addresses[0] = address(this);
+        balances[0] = addresses[0].balance;
+        for (uint i=0; i<maxBanks; i++) {
+            addresses[i+1] = address(banks[i]);
+            balances[i+1] = addresses[i+1].balance;
+        }
+
+        return (addresses, balances);
+    }
+
 
     function sendFromThis(address payable addressTo, uint needSendAmount) internal returns (uint) {
         uint sendAmount = address(this).balance;
