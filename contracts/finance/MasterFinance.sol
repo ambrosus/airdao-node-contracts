@@ -3,43 +3,76 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Bank.sol";
+import "../utils/TransferViaCall.sol";
+
 
 contract MasterFinance is Ownable {
-    Bank[] public banks;
-
     uint constant maxBanks = 50;
     uint constant maxBankBalance = 100_000_000 ether;
 
+    Bank[maxBanks] public banks;
+
     constructor(address owner) {
         _transferOwnership(owner);
+        for (uint i = 0; i < maxBanks; i++) {
+            banks[i] = new Bank();
+        }
     }
 
     event Withdraw(address addressTo, uint amount);
 
+    // reentrancy guard doesn't need coz only owner can call this function and multisig (owner) doesn't have this attack in code :)
     function withdraw(address payable addressTo, uint amount) public onlyOwner {
-        uint needToSend = amount;
-
-        while (needToSend > 0) {
-            require(banks.length > 0, "No money :(");
-
-            uint amountToSend = address(banks[banks.length - 1]).balance;
-            if (amountToSend > needToSend) amountToSend = needToSend;
-
-            banks[banks.length - 1].withdraw(addressTo, amountToSend);
-            if (address(banks[banks.length - 1]).balance == 0) {
-                banks.pop();
-            }
-
-            needToSend -= amountToSend;
-        }
         emit Withdraw(addressTo, amount);
+
+        uint needToSend = amount;
+        needToSend -= sendFromThis(addressTo, needToSend);
+        for (uint i = 0; i < maxBanks; i++) {
+            if (needToSend == 0) return;
+            needToSend -= sendFromBank(banks[i], addressTo, needToSend);
+        }
+        revert("transfer amount exceeds balance");
+
     }
 
-    function createBanks() public {
-        require(address(this).balance >= maxBanks * maxBankBalance, "Not enough funds on this contract");
-        for (uint i=0; i<maxBanks; i++) {
-            banks.push(new Bank{value: maxBankBalance}());
+
+    function transferToBanks() public {
+        for (uint i = 0; i < maxBanks; i++) {
+            if (address(this).balance == 0) return;
+            sendToBank(payable(banks[i]));
         }
+    }
+
+
+    function sendFromThis(address payable addressTo, uint needSendAmount) internal returns (uint) {
+        uint sendAmount = address(this).balance;
+        if (sendAmount == 0) return 0;
+
+        if (sendAmount > needSendAmount) sendAmount = needSendAmount;
+        transferViaCall(addressTo, sendAmount);
+        return sendAmount;
+    }
+
+    function sendFromBank(Bank bank, address payable addressTo, uint needSendAmount) internal returns (uint){
+        uint sendAmount = address(bank).balance;
+        if (sendAmount == 0) return 0;
+
+        if (sendAmount > needSendAmount) sendAmount = needSendAmount;
+        bank.withdraw(addressTo, sendAmount);
+        return sendAmount;
+    }
+
+    function sendToBank(address payable bank) internal {
+        if (bank.balance >= maxBankBalance) return;
+
+        uint needToSendAmount = address(this).balance;
+        uint sendAmount = maxBankBalance - bank.balance;
+        if (sendAmount > needToSendAmount) sendAmount = needToSendAmount;
+        transferViaCall(bank, sendAmount);
+    }
+
+    receive() external payable {
+        transferToBanks();
     }
 
 }

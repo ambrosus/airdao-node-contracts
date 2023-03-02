@@ -30,9 +30,9 @@ describe("Finance", function () {
 
   describe("create banks", function () {
 
-    it("should work", async function () {
+    it("all banks should have maxBankBalance balance", async function () {
       await setBalance(masterFinance.address, maxBankBalance.mul(bankCount));
-      await masterFinance.createBanks();
+      await masterFinance.transferToBanks();
 
       for (let i = 0; i < bankCount; i++) {
         const bank = await masterFinance.banks(i);
@@ -42,10 +42,52 @@ describe("Finance", function () {
       await expect(masterFinance.banks(bankCount), "bank-check-excess").to.be.reverted;
     });
 
-    it("should crash coz balance exceed amount", async function () {
-      await setBalance(masterFinance.address, maxBankBalance.mul(bankCount - 1));
-      await expect(masterFinance.createBanks()).to.be.revertedWith('Not enough funds on this contract');
+    it("masterFinance will have extra balance via setBalance", async function () {
+      await setBalance(masterFinance.address, maxBankBalance.mul(bankCount).add(420));
+      await masterFinance.transferToBanks();
+
+      for (let i = 0; i < bankCount; i++) {
+        const bank = await masterFinance.banks(i);
+        expect(await ethers.provider.getBalance(bank), "bank-check-" + i).to.be.eq(maxBankBalance)
+      }
+
+      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
     });
+
+
+    it("masterFinance will have extra balance via transfer", async function () {
+      await setBalance(masterFinance.address, maxBankBalance.mul(bankCount));
+      await masterFinance.transferToBanks();
+
+      await owner.sendTransaction({to: masterFinance.address, value: 420});
+
+      for (let i = 0; i < bankCount; i++) {
+        const bank = await masterFinance.banks(i);
+        expect(await ethers.provider.getBalance(bank), "bank-check-" + i).to.be.eq(maxBankBalance)
+      }
+
+      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
+    });
+
+    it("last bank will have lower balance", async function () {
+      await setBalance(masterFinance.address, maxBankBalance.mul(bankCount).sub(420));
+      await masterFinance.transferToBanks();
+
+      for (let i = 0; i < bankCount-1; i++) {
+        const bank = await masterFinance.banks(i);
+        expect(await ethers.provider.getBalance(bank), "bank-check-" + i).to.be.eq(maxBankBalance)
+      }
+
+      const bank = await masterFinance.banks(bankCount-1);
+      expect(await ethers.provider.getBalance(bank), "bank-check-last").to.be.eq(maxBankBalance.sub(420));
+    });
+
+
+
+    // it("should crash coz balance exceed amount", async function () {
+    //   await setBalance(masterFinance.address, maxBankBalance.mul(bankCount - 1));
+    //   await expect(masterFinance.transferToBanks()).to.be.revertedWith('Not enough funds on this contract');
+    // });
 
   });
 
@@ -54,7 +96,7 @@ describe("Finance", function () {
 
     beforeEach(async function () {
       await setBalance(masterFinance.address, maxBankBalance.mul(bankCount));
-      await masterFinance.createBanks();
+      await masterFinance.transferToBanks();
     });
 
 
@@ -64,6 +106,17 @@ describe("Finance", function () {
         .to.emit(masterFinance, "Withdraw").withArgs(owner.address, 420)
     });
 
+    it("masterfinance withdraw() extra balance", async function () {
+      await owner.sendTransaction({to: masterFinance.address, value: 420});
+      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
+
+      await expect(masterFinance.withdraw(owner.address, 420))
+        .to.changeEtherBalance(owner, 420)
+        .to.emit(masterFinance, "Withdraw").withArgs(owner.address, 420)
+
+      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(0);
+    });
+
     it("masterfinance withdraw() more than maxBankBalance ", async function () {
       const amount = ethers.utils.parseEther("150000000");
       await expect(masterFinance.withdraw(owner.address, amount)).to.changeEtherBalance(owner, amount)
@@ -71,7 +124,7 @@ describe("Finance", function () {
 
     it("masterfinance withdraw() exceed balance ", async function () {
       const amount = maxBankBalance.mul(bankCount).add(1)
-      await expect(masterFinance.withdraw(owner.address, amount)).to.be.revertedWith('No money :(')
+      await expect(masterFinance.withdraw(owner.address, amount)).to.be.revertedWith('transfer amount exceeds balance')
     });
 
     it("masterfinance withdraw() not owner ", async function () {

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../utils/TransferViaCall.sol";
 
 
 contract Finance is Ownable {
@@ -13,7 +14,7 @@ contract Finance is Ownable {
 
     function withdraw(address payable addressTo, uint amount) public onlyOwner {
         require(address(this).balance >= amount, "transfer amount exceeds balance");
-        addressTo.transfer(amount);
+        transferViaCall(addressTo, amount);
         emit Withdraw(addressTo, amount);
     }
 
