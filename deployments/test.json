@@ -1,6 +1,6 @@
 {
   "MasterMultisig": {
-    "address": "0xE440EA8Db4aB0BC1655E67453a151EBd995e4506",
+    "address": "0xef64A0F4730D628344b208B102e58afCbA1BD8bA",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -14,6 +14,7 @@
       "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
       "function changeSignersMaster(tuple(address contract_, address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)[] changes)",
       "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data)",
       "function confirmTransaction(uint256 txId)",
       "function confirmations(uint256, address) view returns (bool)",
       "function executeTransaction(uint256 txId)",
@@ -36,10 +37,10 @@
       "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
       "function transferOwnership(address newOwner)"
     ],
-    "deployTx": "0x661ec94fb428b90a48e7e552be650554b51439996fc450647eb245a13ca8937f"
+    "deployTx": "0x5b4ab464bb4ec950fffc90f688007d7ba131394c5c347f2a5a54e52ed66f8179"
   },
   "FinanceMaster_Multisig": {
-    "address": "0x25755cD0699813e72565CeC04c0b39EC68b73d80",
+    "address": "0xC890E08A7692e0D154CD04f23Da4213f3F644c1A",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -52,6 +53,7 @@
       "event ThresholdChange(uint256 required)",
       "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
       "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data)",
       "function confirmTransaction(uint256 txId)",
       "function confirmations(uint256, address) view returns (bool)",
       "function executeTransaction(uint256 txId)",
@@ -73,10 +75,10 @@
       "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
       "function transferOwnership(address newOwner)"
     ],
-    "deployTx": "0x51f60e931bdc6db3b3d29566c73bcd28dba2867416af0cf9ea27805b79ca04b7"
+    "deployTx": "0xb5dad39216ffe87ce267ade2fe638faa3773fdc64fa933b96e45cc02946f3e94"
   },
   "FinanceMaster": {
-    "address": "0xA7a32F5094ba3029da78570AbD1A8e7d5b255f0e",
+    "address": "0x979747b18c727d39747D00D51ec0eDbF44224575",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -89,10 +91,10 @@
       "function transferToBanks()",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x353acca6cc6cd552f35304ba3412f669dd6d9afb515530ef05b9b811a0df6cb0"
+    "deployTx": "0x026b8f488fdd15263ecdb2eccbc43ba58149fc510fc5cfbf86b2864d8b48b769"
   },
   "FinanceRewards_Multisig": {
-    "address": "0x15b431bc2A46DF7a230E6aBCC1408311eDB6138F",
+    "address": "0x3549b4d7FCD42e6cbc3D3d52A20CdcA8473DeCcf",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -105,6 +107,7 @@
       "event ThresholdChange(uint256 required)",
       "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
       "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data)",
       "function confirmTransaction(uint256 txId)",
       "function confirmations(uint256, address) view returns (bool)",
       "function executeTransaction(uint256 txId)",
@@ -126,10 +129,10 @@
       "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
       "function transferOwnership(address newOwner)"
     ],
-    "deployTx": "0xd2be85bbc883a3076e16a75a6ef64abfa1d45a9546992cc54dcf6faa24f0830d"
+    "deployTx": "0xfcc06750fb5ae7c7a76b083e02a9fb38c556f6c20c6e63c93bacd1a0865e384c"
   },
   "FinanceRewards": {
-    "address": "0xd01008B07e29851fc986105F78A28cb805c25f4E",
+    "address": "0xed99290CfCDf25f62fEAEabe4f6e2AE2a9360dFe",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -139,10 +142,10 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xb0a0785f55ab22b3c3ec5c217aefad6fa5f62a2cc958e063e7494170a389e218"
+    "deployTx": "0x92f878d17149b89efb7f3687393a2b4dc1dfd01686b7621a26edebd0d4ce2f4f"
   },
   "FinanceInvestors_Multisig": {
-    "address": "0x8468899Ad0cEaC9306d2dFb75C890626161aBeAb",
+    "address": "0x91b054b82D3DE9DC9Fa771A07aC1355BDD86aE00",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -155,6 +158,7 @@
       "event ThresholdChange(uint256 required)",
       "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
       "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data)",
       "function confirmTransaction(uint256 txId)",
       "function confirmations(uint256, address) view returns (bool)",
       "function executeTransaction(uint256 txId)",
@@ -176,10 +180,10 @@
       "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
       "function transferOwnership(address newOwner)"
     ],
-    "deployTx": "0x5752d3d7801324866c93c5ebaf858c169988b2fee273bc1e5657108ca758f40e"
+    "deployTx": "0xda0b421da5f5cf93a9a4126022b8e02e4b567bab60ef2f1f8d0e63f76818c3f1"
   },
   "FinanceInvestors": {
-    "address": "0x3713E4422D98A7fcC04D0d65Ac64De384cD7F8B7",
+    "address": "0xf7E15b720867747a536137f4EFdAB4309225f8D6",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -189,10 +193,10 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xe2b4b4c6e1307e8479e247fbcae0f4aa450a376da385cb21df0542742ed27497"
+    "deployTx": "0xde266571b1aaa615501b4cca8fad4de2828efa71810f22b3615c3d546e897dac"
   },
   "FinanceTeam_Multisig": {
-    "address": "0xd2D34804eCF8c70Cbd58E3e2Bd02419ccE0D2050",
+    "address": "0x366537CBAad0D8083BE90856E409FFd218E71451",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -205,6 +209,7 @@
       "event ThresholdChange(uint256 required)",
       "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
       "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data)",
       "function confirmTransaction(uint256 txId)",
       "function confirmations(uint256, address) view returns (bool)",
       "function executeTransaction(uint256 txId)",
@@ -226,10 +231,10 @@
       "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
       "function transferOwnership(address newOwner)"
     ],
-    "deployTx": "0xf8b67fc4b3f8b2918651d981f3e18bf8d239e1f53e68bfc184a9c2f0bd36a21b"
+    "deployTx": "0xe7f62e98ba576f60205c5a245c2547094a3cc16c55b2635c31f771ab3a7b24b1"
   },
   "FinanceTeam": {
-    "address": "0xa844aB075e0732959A00768d051BBC8b1FE06ac4",
+    "address": "0x93c49AeA46A37015d0b217f176f31e9D7A88552C",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -239,10 +244,10 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xe462f61a62274db9c533ce2e22d258dc70044dbb5ed64a39ab463171f8f6d5ff"
+    "deployTx": "0xadaf3da9e807f4aaaff49ebfe0a57f16547c1aa18af744519a37bfacaa548a68"
   },
   "FinanceEcosystem_Multisig": {
-    "address": "0x8a52533Bd64cf407eef1De092859407b1B92B720",
+    "address": "0x28fF57B560bb10b5ac12bD0C5DE66c9d54A440Bc",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -255,6 +260,7 @@
       "event ThresholdChange(uint256 required)",
       "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
       "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data)",
       "function confirmTransaction(uint256 txId)",
       "function confirmations(uint256, address) view returns (bool)",
       "function executeTransaction(uint256 txId)",
@@ -276,10 +282,10 @@
       "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
       "function transferOwnership(address newOwner)"
     ],
-    "deployTx": "0xe24ac7f1eeee370e6fdb77f15c9daedbe9c240e258809fd3cccda19ffd61460b"
+    "deployTx": "0x75f6431047df1adddcb7d01bd9a45571d464a4651f0ff5a332be2971ff781029"
   },
   "FinanceEcosystem": {
-    "address": "0x96cA6091fbF5c036e5fba4500E0B36B6DAF2C1B9",
+    "address": "0x8f8612ea03Aa3CE68A5c93a38672909E31bbDeaf",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -289,6 +295,6 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x0457a07d5725a22c67c0049a5a4055bafe3ab5bce65eabff354880bfc19b6b5c"
+    "deployTx": "0x0d1aeefb184b406662177005c5695d2cf1b0ddfe8821e92dc4a93d59b2533a5a"
   }
 }
