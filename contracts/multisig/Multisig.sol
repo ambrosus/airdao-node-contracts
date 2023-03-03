@@ -121,18 +121,26 @@ contract Multisig is Ownable {
         if (!isConfirmed(txId)) return;
         Transaction storage txn = transactions[txId];
 
-        (bool success, bytes memory returndata) = txn.destination.call{value : txn.value}(txn.data);
+        _executeTransaction(txn.destination, txn.value, txn.data);
+        emit Execution(txId);
+        txn.executed = true;
+    }
+
+    function _executeTransaction(address destination, uint value, bytes memory data) internal {
+        (bool success, bytes memory returndata) = destination.call{value : value}(data);
         if (!success) {
             // revert with same revert message
             // returndata prefixed with Error(string) selector 0x08c379a, so
             // do low level revert that doesn't add second selector
             assembly{revert(add(returndata, 0x20), mload(returndata))}
         }
-
-        emit Execution(txId);
-        txn.executed = success;
     }
 
+    // call this function (using callStatic) to check if there any errors before submitting actual transaction
+    function checkBeforeSubmitTransaction(address destination, uint value, bytes memory data) external {
+        _executeTransaction(destination, value, data);
+        revert("OK");
+    }
 
 
     /// @dev Returns the confirmation status of a transaction.

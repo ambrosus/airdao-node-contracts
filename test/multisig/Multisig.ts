@@ -131,6 +131,31 @@ describe("Multisig", function () {
     });
 
 
+    it("checkBeforeSubmitTransaction", async function () {
+      const calldataFail1 = (await masterMultisig.populateTransaction.changeSigners(
+        [addresses[0], addresses[0]], [], [])).data!;
+      const calldataFail2 = (await masterMultisig.populateTransaction.changeSigners(
+        [], [addresses[2]], [])).data!;
+      const calldataNotFail = (await masterMultisig.populateTransaction.changeSigners(
+        [], [addresses[2]], [true])).data!;
+
+      await expect(masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataFail1)).to.be.revertedWith('Not a signer');
+      await expect(masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataFail2)).to.be.revertedWith('signersToAdd.length != isInitiatorFlag.length');
+
+      const oldSigners = await masterMultisig.getSigners();
+      await expect(masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataNotFail)).to.be.revertedWith("OK");
+      expect(await masterMultisig.getSigners()).to.be.eql(oldSigners);
+
+      try {
+        await masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataNotFail)
+      } catch (e) {
+        console.log(e)
+      }
+
+    });
+
+
+
   });
 
 
