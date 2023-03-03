@@ -1,6 +1,7 @@
 import {MasterMultisig, Multisig} from "../../typechain-types";
 import {Contracts} from "../contracts/contracts";
 import {ContractNames, multisigsNames} from "../contracts/names";
+import {submitTransaction} from "./methods";
 
 
 interface Perm {
@@ -23,6 +24,7 @@ interface User {
   groups: Perm[],
 }
 
+// VIEW
 
 export async function getPermissions(contracts: Contracts, multisigAddresses?: string[]) {
   if (!multisigAddresses)
@@ -68,10 +70,12 @@ export async function setUserGroups(contracts: Contracts, userAddress: string, n
   return await setPermissions(contracts, result);
 }
 
+// NON VIEW
+
 export async function setPermissions(contracts: Contracts, changes: MasterMultisig.ChangeSignersStructStruct[]) {
   const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
   const calldata = (await masterMultisig.populateTransaction.changeSignersMaster(changes)).data!
-  return await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata)
+  return await submitTransaction(masterMultisig, masterMultisig.address, 0, calldata);
 }
 
 export async function setThreshold(contracts: Contracts, multisigToChange: ContractNames, newThreshold: number) {
@@ -79,9 +83,11 @@ export async function setThreshold(contracts: Contracts, multisigToChange: Contr
   const slaveMultisig = contracts.getContractByName(multisigToChange) as Multisig;
 
   const calldata = (await masterMultisig.populateTransaction.changeThreshold(newThreshold)).data!
-  return await masterMultisig.submitTransaction(slaveMultisig.address, 0, calldata)
+  return await submitTransaction(masterMultisig, slaveMultisig.address, 0, calldata);
 }
 
+
+// INTERNAL
 
 function getGroups(multisigAddresses: string[], contractResults: any[]): { [address: string]: Group } {
   const parseUsers = (signers: string[], isInitiators: boolean[]): Perm[] => signers.map((v, i) => ({

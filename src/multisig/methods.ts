@@ -1,16 +1,31 @@
 import {Finance, MasterFinance, Multisig, ValidatorSet} from "../../typechain-types";
-import {BigNumber} from "ethers";
+import {BigNumberish} from "ethers";
 import {Contracts} from "../contracts/contracts";
 import {ContractNames} from "../contracts/names";
 
 
-export async function financeWithdraw(contracts: Contracts, financeContractName: ContractNames, addressTo: string, amount: BigNumber) {
+// NON VIEW
+
+export async function financeWithdraw(contracts: Contracts, financeContractName: ContractNames, addressTo: string, amount: BigNumberish) {
   const financeContract = contracts.getContractByName(financeContractName) as Finance;
   const multisigContract = contracts.getContractByName(financeContractName + "_Multisig" as ContractNames) as Multisig;
 
   const calldata = (await financeContract.populateTransaction.withdraw(addressTo, amount)).data!
-  return await multisigContract.submitTransaction(financeContract.address, 0, calldata)
+  return await submitTransaction(multisigContract, financeContract.address, 0, calldata);
 }
+
+
+// coming soon...
+async function validatorSetChangeTopCount(contracts: Contracts, newTop: BigNumberish) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  const multisigContract = contracts.getContractByName(ContractNames.ValidatorSetMultisig) as Multisig;
+
+  const calldata = (await validatorSet.populateTransaction.changeTopStakesCount(newTop)).data!
+  return await submitTransaction(multisigContract, validatorSet.address, 0, calldata);
+}
+
+
+// VIEW
 
 export async function getFinanceBalance(contracts: Contracts, financeContractName: ContractNames) {
   const financeContract = contracts.getContractByName(financeContractName) as Finance;
@@ -24,12 +39,16 @@ export async function getMasterFinanceBalances(contracts: Contracts) {
 }
 
 
-// coming soon...
-async function validatorSetChangeTopCount(contracts: Contracts, newTop: BigNumber) {
-  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
-  const multisigContract = contracts.getContractByName(ContractNames.ValidatorSetMultisig) as Multisig;
+// INTERNAL
 
-  const calldata = (await validatorSet.populateTransaction.changeTopStakesCount(newTop)).data!
-  return await multisigContract.submitTransaction(validatorSet.address, 0, calldata)
+export async function submitTransaction(multisig: Multisig, destination: string, value: BigNumberish, calldata: string) {
+  try {
+    await multisig.callStatic.checkBeforeSubmitTransaction(destination, value, calldata)
+    throw new Error("checkBeforeSubmitTransaction doesn't respond with any error, but it should!");
+  } catch (e: any) {
+    if (e?.code != "CALL_EXCEPTION" && e?.reason != "OK")
+      throw new Error(e?.reason || e);
+  }
+
+  return await multisig.submitTransaction(destination, value, calldata)
 }
-

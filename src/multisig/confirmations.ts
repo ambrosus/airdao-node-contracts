@@ -71,7 +71,7 @@ export async function reExecute(multisig: Multisig, txId: BigNumber) {
 }
 
 
-// internal
+// INTERNAL
 
 
 function parseTxData(contracts: Contracts, txData: any) {
