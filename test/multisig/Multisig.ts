@@ -145,13 +145,6 @@ describe("Multisig", function () {
       const oldSigners = await masterMultisig.getSigners();
       await expect(masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataNotFail)).to.be.revertedWith("OK");
       expect(await masterMultisig.getSigners()).to.be.eql(oldSigners);
-
-      try {
-        await masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataNotFail)
-      } catch (e) {
-        console.log(e)
-      }
-
     });
 
 
