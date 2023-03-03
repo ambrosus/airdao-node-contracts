@@ -33,12 +33,20 @@ export async function getTransactions(contracts: Contracts, multisigName: Contra
 
   const parsedTxs = txs.map((tx, i) => {
     const [txData, confirmations] = tx;
-    const destinationContract = contracts.getContractByAddress(txData.destination);
+
+    let parsedCallData = {calldata: txData.data}
+    try {
+      const destinationContract = contracts.getContractByAddress(txData.destination);
+      parsedCallData = parseCalldata(destinationContract.interface, txData.data)
+    } catch (e) {
+      console.warn(e)
+    }
+
     return {
       multisigAddress: multisigContract.address,
       calledContractAddress: txData.destination,
       txId: txIds[i],
-      parsedCalldata: parseCalldata(destinationContract.interface, txData.data),
+      parsedCalldata: parsedCallData,
       executed: txData.executed,
       value: txData.value,
       confirmations

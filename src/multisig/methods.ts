@@ -18,7 +18,7 @@ export async function getFinanceBalance(contracts: Contracts, financeContractNam
 }
 
 export async function getMasterFinanceBalances(contracts: Contracts) {
-  const financeContract = contracts.getContractByName(ContractNames.FinanceRewards) as MasterFinance;
+  const financeContract = contracts.getContractByName(ContractNames.FinanceMaster) as MasterFinance;
   const [addresses, balances] = await financeContract.getBalances();
   return addresses.map((a, i) => ({address: a, balance: balances[i]}));
 }
