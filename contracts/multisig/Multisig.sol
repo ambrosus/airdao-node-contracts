@@ -179,12 +179,14 @@ contract Multisig is Ownable {
     }
 
     function _addSigner(address signer, bool isInitiator_) internal {
-        require(!isSigner[signer], "Already signer");
+        if (!isSigner[signer]) {
+            signers.push(signer);
+            isSigner[signer] = true;
+        }
+        else if (isInitiator[signer] == isInitiator_)
+            revert("Already signer");
 
-        signers.push(signer);
-        isSigner[signer] = true;
         isInitiator[signer] = isInitiator_;
-
         emit SignerAddition(signer, isInitiator_);
     }
 

@@ -74,9 +74,9 @@ describe("Multisig", function () {
       }])).data!;
       await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata);
 
-      console.log(await multisigs[0].getSigners());
+      // console.log(await multisigs[0].getSigners());
       await masterMultisig.connect(signers[1]).confirmTransaction(0);
-      console.log(await multisigs[0].getSigners());
+      // console.log(await multisigs[0].getSigners());
       // todo
     });
 
