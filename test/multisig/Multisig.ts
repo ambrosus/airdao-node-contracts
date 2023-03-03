@@ -53,6 +53,18 @@ describe("Multisig", function () {
       ({masterMultisig, multisigs} = await loadFixture(deploy));
     });
 
+    it("changeSignersMaster remove: should fail coz user not in signers", async function () {
+      const calldata = (await masterMultisig.populateTransaction.changeSignersMaster([{
+        contract_: multisigs[0].address,
+        signersToAdd: [],
+        isInitiatorFlags: [],
+        signersToRemove: [addresses[3]]
+      }])).data!;
+
+      await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata);
+      await expect(masterMultisig.connect(signers[1]).confirmTransaction(0)).to.be.revertedWith('Not a signer');
+    });
+
     it("changeSignersMaster add", async function () {
       const calldata = (await masterMultisig.populateTransaction.changeSignersMaster([{
         contract_: multisigs[0].address,
