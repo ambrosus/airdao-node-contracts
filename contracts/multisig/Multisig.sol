@@ -271,31 +271,29 @@ contract Multisig is Ownable {
     /// @param to Index end position of transaction array.
     /// @param pending Include pending transactions.
     /// @param executed Include executed transactions.
-    /// @return _txIds Returns array of transaction IDs.
-    function getTransactionIds(uint from, uint to, bool pending, bool executed) public view returns (uint[] memory _txIds) {
-        if (to == 0) to = transactionCount;
+    /// @return result Returns array of transaction IDs.
+    function getTransactionIds(uint from, uint to, bool pending, bool executed) public view returns (uint[] memory result) {
+        if (to == 0 || to > transactionCount) to = transactionCount;
+        require(to >= from, "to < from");
 
-        uint[] memory txIdsTemp = new uint[](transactionCount);
+        uint[] memory result = new uint[](to - from);
         uint count = 0;
-        uint i;
-        for (i = 0; i < transactionCount; i++)
-            if (pending && !transactions[i].executed
-            || executed && transactions[i].executed)
-            {
-                txIdsTemp[count] = i;
-                count += 1;
+
+        for (uint i = from; i < to; i++) {
+            if ((transactions[i].executed && executed) || (!transactions[i].executed && pending)) {
+                result[count++] = i;
             }
-        _txIds = new uint[](to - from);
-        for (i = from; i < to; i++)
-            _txIds[i - from] = txIdsTemp[i];
+        }
+        assembly {mstore(result, count)}
+        return result;
     }
 
-//
-//    /// @dev receive function allows to deposit ether.
-//    receive() external payable {
-//        if (msg.value > 0)
-//            emit Deposit(msg.sender, msg.value);
-//    }
+    //
+    //    /// @dev receive function allows to deposit ether.
+    //    receive() external payable {
+    //        if (msg.value > 0)
+    //            emit Deposit(msg.sender, msg.value);
+    //    }
 
 
 

@@ -53,6 +53,21 @@ describe("Multisig", function () {
       ({masterMultisig, multisigs} = await loadFixture(deploy));
     });
 
+    it("changeSignersMaster add", async function () {
+      const calldata = (await masterMultisig.populateTransaction.changeSignersMaster([{
+        contract_: multisigs[0].address,
+        signersToAdd: [addresses[3]],
+        isInitiatorFlags: [true],
+        signersToRemove: []
+      }])).data!;
+      await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata);
+
+      console.log(await multisigs[0].getSigners());
+      await masterMultisig.connect(signers[1]).confirmTransaction(0);
+      console.log(await multisigs[0].getSigners());
+      // todo
+    });
+
     it("user groups", async function () {
       const multisigAddresses = multisigs.map(m => m.address)
       const result = await masterMultisig.getAllSigners(multisigAddresses);
@@ -72,13 +87,39 @@ describe("Multisig", function () {
 
       const [txData, confirmators] = await masterMultisig.getTransactionData(0);
       // todo
+    });
 
 
+    it("getTransactionIds", async function () {
+      const testMultisigFactory = await ethers.getContractFactory("TEST_MasterMultisig");
+      const multisig = await testMultisigFactory.deploy([addresses[0], addresses[1]], [true, true], 100);
+
+      const baseTx = {destination: multisig.address, value: 0, data: "0x00"}
+      await multisig.setTransaction(0, {...baseTx, executed: true});
+      await multisig.setTransaction(1, {...baseTx, executed: false});
+      await multisig.setTransaction(2, {...baseTx, executed: true});
+      expect(await multisig.transactionCount()).to.be.eq(3)
+
+      const getIds = async (from: number, to: number, pending: boolean, executed: boolean) =>
+        (await multisig.getTransactionIds(from, to, pending, executed)).map(r => +r);
+
+      expect(await getIds(0, 0, false, true), "1").to.be.eql([0, 2])
+      expect(await getIds(0, 0, true, true), "2").to.be.eql([0, 1, 2])
+      expect(await getIds(0, 0, true, false), "3").to.be.eql([1])
+
+      expect(await getIds(0, 1, true, true), "4").to.be.eql([0])
+      expect(await getIds(0, 2, true, true), "5").to.be.eql([0, 1])
+      expect(await getIds(0, 3, true, true), "6").to.be.eql([0, 1, 2])
+
+      expect(await getIds(0, 4, true, true), "7").to.be.eql([0, 1, 2])
+      expect(await getIds(2, 4, true, true), "8").to.be.eql([2])
+
+      await expect(getIds(5, 4, true, true), "9").to.be.reverted;
 
     });
 
-  });
 
+  });
 
 
 });
