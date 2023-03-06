@@ -60,9 +60,6 @@ describe("LockKeeper", function () {
       expect(await lockKeeper.allUserLocks(user2.address)).to.eql([BigNumber.from(1)]);
 
       expect(await ethers.provider.getBalance(lockKeeper.address)).to.eq(100);
-
-      console.log("ASD")
-
     });
 
     it("lock linear", async function () {
