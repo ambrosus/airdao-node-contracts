@@ -3,10 +3,10 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+
+// TODO what if we send amb to contract through submitTransaction but created tx failed?
+
 contract Multisig is Ownable {
-    /*
-     *  Storage
-     */
 
     address[] public signers;
     mapping(address => bool) public isSigner;
@@ -25,9 +25,6 @@ contract Multisig is Ownable {
         bool executed;
     }
 
-    /*
-     *  Events
-     */
 
     event Submission(uint indexed txId);
 
@@ -36,15 +33,14 @@ contract Multisig is Ownable {
 
     event Execution(uint indexed txId);
 
-    //        event Deposit(address indexed sender, uint value);
-
     event SignerAddition(address indexed signer, bool isInitiator);
     event SignerRemoval(address indexed signer);
     event ThresholdChange(uint required);
 
-    /*
-     * Public functions
-     */
+
+    // PUBLIC METHODS
+
+
     /// @dev Contract constructor sets initial signers and required number of confirmations.
     /// @param _signers List of initial signers.
     constructor (
@@ -92,56 +88,69 @@ contract Multisig is Ownable {
     /// @param value Transaction ether value.
     /// @param data Transaction data payload.
     /// @return txId Returns transaction ID.
-    function submitTransaction(address destination, uint value, bytes memory data) public returns (uint txId) {
-        require(isInitiator[msg.sender], "not a initiator");
-        require(destination != address(0), "destination can't be 0x0");
+    function submitTransaction(address destination, uint value, bytes memory data) public payable returns (uint txId) {
+        require(isInitiator[msg.sender], "Not a initiator");
+        require(msg.value == value, "msg.value != value");
         // we are checking that tx exists via `destination != 0x0` check
-        txId = addTransaction(destination, value, data);
+        require(destination != address(0), "Destination can't be 0x0");
+
+        uint txId = transactionCount++;
+        transactions[txId] = Transaction(destination, value, data, false);
+
         confirmTransaction(txId);
+        emit Submission(txId);
+        return txId;
     }
 
     /// @dev Allows an signer to confirm a transaction.
     /// @param txId Transaction ID.
-    function confirmTransaction(uint txId) public signerExists(msg.sender) transactionExists(txId) notConfirmed(txId, msg.sender) {
+    function confirmTransaction(uint txId) public signerExists(msg.sender) transactionExists(txId) notExecuted(txId) {
+        require(!confirmations[txId][msg.sender], "Already confirmed");
         confirmations[txId][msg.sender] = true;
         emit Confirmation(msg.sender, txId);
-        executeTransaction(txId);
+
+        // try to execute
+        if (!isConfirmed(txId)) return;
+
+        Transaction storage txn = transactions[txId];
+        _executeTransaction(txn.destination, txn.value, txn.data);
+        txn.executed = true;
+        emit Execution(txId);
     }
 
     /// @dev Allows an signer to revoke a confirmation for a transaction.
     /// @param txId Transaction ID.
-    function revokeConfirmation(uint txId) public signerExists(msg.sender) confirmed(txId, msg.sender) notExecuted(txId) {
+    function revokeConfirmation(uint txId) public notExecuted(txId) {
+        require(confirmations[txId][msg.sender], "Not confirmed");
         confirmations[txId][msg.sender] = false;
         emit Revocation(msg.sender, txId);
     }
 
-    /// @dev Allows anyone to execute a confirmed transaction.
-    /// @param txId Transaction ID.
-    function executeTransaction(uint txId) public signerExists(msg.sender) confirmed(txId, msg.sender) notExecuted(txId) {
-        if (!isConfirmed(txId)) return;
-        Transaction storage txn = transactions[txId];
-
-        _executeTransaction(txn.destination, txn.value, txn.data);
-        emit Execution(txId);
-        txn.executed = true;
-    }
-
-    function _executeTransaction(address destination, uint value, bytes memory data) internal {
-        (bool success, bytes memory returndata) = destination.call{value : value}(data);
-        if (!success) {
-            // revert with same revert message
-            // returndata prefixed with Error(string) selector 0x08c379a, so
-            // do low level revert that doesn't add second selector
-            assembly{revert(add(returndata, 0x20), mload(returndata))}
-        }
-    }
 
     // call this function (using callStatic) to check if there any errors before submitting actual transaction
-    function checkBeforeSubmitTransaction(address destination, uint value, bytes memory data) external {
+    function checkBeforeSubmitTransaction(address destination, uint value, bytes memory data) external payable {
         _executeTransaction(destination, value, data);
         revert("OK");
     }
 
+
+
+    // VIEW METHODS
+
+    /// @dev Returns list of signers + initiator flags.
+    /// @return List of signer addresses, list of initiator flags.
+    function getTransactionData(uint txId) public view transactionExists(txId) returns (Transaction memory, address[] memory) {
+        return (transactions[txId], getConfirmations(txId));
+    }
+
+    /// @dev Returns list of signers + initiator flags.
+    /// @return List of signer addresses, list of initiator flags.
+    function getSigners() public view returns (address[] memory, bool[] memory) {
+        bool[] memory isInitiators = new bool[](signers.length);
+        for (uint i = 0; i < signers.length; i++)
+            isInitiators[i] = isInitiator[signers[i]];
+        return (signers, isInitiators);
+    }
 
     /// @dev Returns the confirmation status of a transaction.
     /// @param txId Transaction ID.
@@ -157,87 +166,16 @@ contract Multisig is Ownable {
         return false;
     }
 
-    /*
-     * Internal functions
-     */
-
-    /// @dev Adds a new transaction to the transaction mapping, if transaction does not exist yet.
-    /// @param destination Transaction target address.
-    /// @param value Transaction ether value.
-    /// @param data Transaction data payload.
-    /// @return txId Returns transaction ID.
-    function addTransaction(address destination, uint value, bytes memory data) internal returns (uint txId) {
-        txId = transactionCount;
-        transactions[txId] = Transaction({
-        destination : destination,
-        value : value,
-        data : data,
-        executed : false
-        });
-        transactionCount += 1;
-        emit Submission(txId);
-    }
-
-    function _addSigner(address signer, bool isInitiator_) internal {
-        if (!isSigner[signer]) {
-            signers.push(signer);
-            isSigner[signer] = true;
-        }
-        else if (isInitiator[signer] == isInitiator_)
-            revert("Already signer");
-
-        isInitiator[signer] = isInitiator_;
-        emit SignerAddition(signer, isInitiator_);
-    }
-
-    function _removeSigner(address signer) internal {
-        require(isSigner[signer], "Not a signer");
-
-        for (uint i = 0; i < signers.length; i++) {
-            if (signers[i] == signer) {
-                signers[i] = signers[signers.length - 1];
-                signers.pop();
-                break;
-            }
-        }
-
-        isSigner[signer] = false;
-        isInitiator[signer] = false;
-        emit SignerRemoval(signer);
-    }
-
-
-    function _validateSigners() internal virtual {
-        require(getRequiredSignersCount() > 0, "required signers must be > 0");
-        // at least 1 isInitiator
-        // todo something else?
-    }
-
-
-    /*
-     * Web3 call functions
-     */
-
-    /// @dev Returns list of signers + initiator flags.
-    /// @return List of signer addresses, list of initiator flags.
-    function getSigners() public view returns (address[] memory, bool[] memory) {
-        bool[] memory isInitiators = new bool[](signers.length);
-        for (uint i = 0; i < signers.length; i++)
-            isInitiators[i] = isInitiator[signers[i]];
-        return (signers, isInitiators);
-    }
-
-    /// @dev Returns list of signers + initiator flags.
-    /// @return List of signer addresses, list of initiator flags.
-    function getTransactionData(uint txId) public view transactionExists(txId) returns (Transaction memory, address[] memory) {
-        return (transactions[txId], getConfirmations(txId));
-    }
-
-
     function getRequiredSignersCount() public view returns (uint) {
         return signers.length * threshold / 100;
     }
 
+    function getInitiatorsCount() public view returns (uint) {
+        uint count;
+        for (uint i = 0; i < signers.length; i++)
+            if (isInitiator[signers[i]]) count++;
+        return count;
+    }
 
     /// @dev Returns array with signer addresses, which confirmed transaction.
     /// @param txId Transaction ID.
@@ -280,48 +218,71 @@ contract Multisig is Ownable {
         return result;
     }
 
-    //
-    //    /// @dev receive function allows to deposit ether.
-    //    receive() external payable {
-    //        if (msg.value > 0)
-    //            emit Deposit(msg.sender, msg.value);
-    //    }
 
 
+    // INTERNAL METHODS
+
+    function _addSigner(address signer, bool isInitiator_) internal {
+        if (!isSigner[signer]) {
+            signers.push(signer);
+            isSigner[signer] = true;
+        }
+        else if (isInitiator[signer] == isInitiator_)
+            revert("Already signer");
+
+        isInitiator[signer] = isInitiator_;
+        emit SignerAddition(signer, isInitiator_);
+    }
+
+    function _removeSigner(address signer) signerExists(signer) internal {
+        for (uint i = 0; i < signers.length; i++) {
+            if (signers[i] == signer) {
+                signers[i] = signers[signers.length - 1];
+                signers.pop();
+                break;
+            }
+        }
+
+        isSigner[signer] = false;
+        isInitiator[signer] = false;
+        emit SignerRemoval(signer);
+    }
+
+
+    function _validateSigners() internal virtual {
+        require(getRequiredSignersCount() > 0, "required signers must be > 0");
+        require(getInitiatorsCount() > 0, "must be at least 1 initiator");
+    }
+
+
+    function _executeTransaction(address destination, uint value, bytes memory data) internal {
+        (bool success, bytes memory returndata) = destination.call{value : value}(data);
+        if (!success) {
+            // revert with same revert message
+            // returndata prefixed with Error(string) selector 0x08c379a, so
+            // do low level revert that doesn't add second selector
+            assembly{revert(add(returndata, 0x20), mload(returndata))}
+        }
+    }
 
 
 
     /*
      *  Modifiers
      */
-    modifier onlyWallet() {
-        require(msg.sender == address(this), "only wallet");
-        _;
-    }
-
 
     modifier signerExists(address signer) {
-        require(isSigner[signer], "not a signer");
+        require(isSigner[signer], "Not a signer");
         _;
     }
 
     modifier transactionExists(uint txId) {
-        require(transactions[txId].destination != address(0), "tx doesn't exists");
-        _;
-    }
-
-    modifier confirmed(uint txId, address signer) {
-        require(confirmations[txId][signer], "not confirmed by user");
-        _;
-    }
-
-    modifier notConfirmed(uint txId, address signer) {
-        require(!confirmations[txId][signer], "already confirmed by user");
+        require(transactions[txId].destination != address(0), "Tx doesn't exists");
         _;
     }
 
     modifier notExecuted(uint txId) {
-        require(!transactions[txId].executed, "already executed");
+        require(!transactions[txId].executed, "Already executed");
         _;
     }
 

@@ -45,19 +45,4 @@ contract MasterMultisig is Multisig {
         bool[] isInitiatorFlags;
     }
 
-
-
-    // override and check that here is minimum 2 initiators
-    function _validateSigners() internal override {
-        super._validateSigners();
-        uint initiatorsCount;
-        for (uint i=0; i<signers.length; i++)
-            if (isInitiator[signers[i]]) initiatorsCount++;
-
-        // todo at least 1
-        require(initiatorsCount >= 2, "must be at least 2 initiators");
-
-        // todo
-    }
-
 }

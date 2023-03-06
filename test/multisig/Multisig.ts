@@ -2,105 +2,282 @@ import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
 import {ethers} from "hardhat";
 import {expect} from "chai";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {MasterMultisig, Multisig} from "../../typechain-types";
+import {
+  MasterMultisig,
+  MasterMultisig__factory,
+  Multisig,
+  Multisig__factory,
+  OnDemandRevert
+} from "../../typechain-types";
+import {address} from "hardhat/internal/core/config/config-validation";
 
 
 describe("Multisig", function () {
+  let MultisigMasterFactory: MasterMultisig__factory;
+  let MultisigFactory: Multisig__factory;
+
+  let multisig: Multisig;
+  let onDemandRevert: OnDemandRevert
 
   let signers: SignerWithAddress[];
   let addresses: string[];
 
+  async function deploy() {
+    const OnDemandRevertFactory = await ethers.getContractFactory("OnDemandRevert")
+    const onDemandRevert = await OnDemandRevertFactory.deploy();
+    const multisig = await MultisigFactory.deploy([addresses[0]], [true], 100, addresses[0])
+    return {onDemandRevert, multisig}
+  }
+
   beforeEach(async function () {
+    MultisigMasterFactory = await ethers.getContractFactory("MasterMultisig");
+    MultisigFactory = await ethers.getContractFactory("Multisig");
+
     signers = await ethers.getSigners();
     addresses = signers.map(s => s.address);
+
+    ({multisig, onDemandRevert} = await loadFixture(deploy));
   });
 
-  describe("deploy", function () {
-    it("must be at least 2 initiators", async function () {
-      const MultisigMasterFactory = await ethers.getContractFactory("MasterMultisig");
-      await expect(MultisigMasterFactory.deploy([addresses[0], addresses[1]], [true, false], 100)).to.be.revertedWith("must be at least 2 initiators");
+  // describe("deploy", function () {
+  //   it("must be at least 1 initiator", async function () {
+  //     await expect(MultisigMasterFactory.deploy([addresses[0], addresses[1]], [false, false], 100))
+  //       .to.be.revertedWith("must be at least 1 initiator");
+  //   });
+  //   it("required signers must be > 0", async function () {
+  //     await expect(MultisigMasterFactory.deploy([addresses[0], addresses[1]], [true, true], 1))
+  //       .to.be.revertedWith("required signers must be > 0");
+  //   });
+  //   it("threshold must be <= 100", async function () {
+  //     await expect(MultisigMasterFactory.deploy([addresses[0], addresses[1]], [true, true], 105))
+  //       .to.be.revertedWith("threshold must be <= 100");
+  //   });
+  // });
+
+
+  describe("changeSigners", function () {
+
+
+    it("not owner call should fail", async function () {
+      await expect(multisig.connect(signers[1]).changeSigners([addresses[0]], [], []))
+        .to.be.revertedWith('Ownable: caller is not the owner');
     });
-    it("required signers must be > 0", async function () {
-      const MultisigMasterFactory = await ethers.getContractFactory("MasterMultisig");
-      await expect(MultisigMasterFactory.deploy([addresses[0], addresses[1]], [true, true], 1)).to.be.revertedWith("required signers must be > 0");
+
+    it("remove signer should work", async function () {
+      await multisig.changeSigners([], [addresses[1]], [false]); // firstly add signer
+      await multisig.changeSigners([addresses[1]], [], []);
     });
-    it("threshold must be <= 100", async function () {
-      const MultisigMasterFactory = await ethers.getContractFactory("MasterMultisig");
-      await expect(MultisigMasterFactory.deploy([addresses[0], addresses[1]], [true, true], 105)).to.be.revertedWith("threshold must be <= 100");
+
+    it("remove not existing signer should fail", async function () {
+      await expect(multisig.changeSigners([addresses[1]], [], []))
+        .to.be.revertedWith('Not a signer');
+    });
+
+    it("remove single signer should fail", async function () {
+      await expect(multisig.changeSigners([addresses[0]], [], []))
+        .to.be.revertedWith('required signers must be > 0');
+    });
+
+    it("remove all initiators should fail", async function () {
+      await multisig.changeSigners([], [addresses[1]], [false]); // firstly add signer
+      await expect(multisig.changeSigners([addresses[0]], [], []))
+        .to.be.revertedWith('must be at least 1 initiator');
+    });
+
+    it("change isInitiator = false from single signer should fail", async function () {
+      await expect(multisig.changeSigners([], [addresses[0]], [false]))
+        .to.be.revertedWith('must be at least 1 initiator');
+    });
+
+    it("add same signer with same isInitiator should fail", async function () {
+      await expect(multisig.changeSigners([], [addresses[0]], [true]))
+        .to.be.revertedWith('Already signer');
+    });
+
+    it("add same signer with different isInitiator should change isInitiator", async function () {
+      await multisig.changeSigners([], [addresses[1]], [false]);
+      expect(await multisig.isInitiator(addresses[1])).to.be.false;
+      await multisig.changeSigners([], [addresses[1]], [true]);
+      expect(await multisig.isInitiator(addresses[1])).to.be.true;
+    });
+
+    it("different signersToAdd and isInitiatorFlags arrays length should fail", async function () {
+      await expect(multisig.changeSigners([], [addresses[0]], []))
+        .to.be.revertedWith('signersToAdd.length != isInitiatorFlag.length');
     });
 
 
   });
 
-  describe("not deploy", function () {
-    let masterMultisig: MasterMultisig;
-    let multisigs: Multisig[];
 
-    async function deploy() {
-      const MultisigMasterFactory = await ethers.getContractFactory("MasterMultisig");
-      const MultisigFactory = await ethers.getContractFactory("Multisig");
+  describe("changeThreshold", function () {
+    it("not owner call should fail", async function () {
+      await expect(multisig.connect(signers[1]).changeThreshold(100))
+        .to.be.revertedWith('Ownable: caller is not the owner');
+    });
 
-      const masterMultisig = await MultisigMasterFactory.deploy([addresses[0], addresses[1]], [true, true], 100);
-      const multisigs = [
-        await MultisigFactory.deploy([addresses[2]], [true], 100, masterMultisig.address),
-        await MultisigFactory.deploy([addresses[2], addresses[3]], [true, true], 69, masterMultisig.address),
-        await MultisigFactory.deploy([addresses[4], addresses[5]], [true, true], 75, masterMultisig.address),
-      ];
-      return {masterMultisig, multisigs};
-    }
+    it("value > 100 should fail", async function () {
+      await expect(multisig.changeThreshold(101))
+        .to.be.revertedWith('threshold must be <= 100');
+    });
+
+    it("all values should work; requiredSigners < 1 should fail", async function () {
+      const signersToAdd = addresses.slice(1, 32)
+      await multisig.changeSigners([], signersToAdd, signersToAdd.map(() => false));
+      const signersCount = (await multisig.getSigners())[0].length;
+
+      for (let i = 0; i <= 100; i++) {
+        const shouldWork = Math.floor(signersCount * i / 100) > 0;
+        if (shouldWork) await expect(multisig.changeThreshold(i), "th-" + i).to.not.be.reverted;
+        else await expect(multisig.changeThreshold(i), "th-" + i).to.be.revertedWith('required signers must be > 0');
+      }
+    });
+
+  });
+
+  describe("submitTransaction", function () {
+    let calldata: string;
 
     beforeEach(async function () {
-      ({masterMultisig, multisigs} = await loadFixture(deploy));
+      await multisig.changeSigners([], [addresses[1]], [false]);
+      calldata = (await onDemandRevert.populateTransaction.func(false)).data!;
     });
 
-    it("changeSignersMaster remove: should fail coz user not in signers", async function () {
-      const calldata = (await masterMultisig.populateTransaction.changeSignersMaster([{
-        contract_: multisigs[0].address,
-        signersToAdd: [],
-        isInitiatorFlags: [],
-        signersToRemove: [addresses[3]]
-      }])).data!;
-
-      await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata);
-      await expect(masterMultisig.connect(signers[1]).confirmTransaction(0)).to.be.revertedWith('Not a signer');
+    it("not initiator submitTransaction call should fail", async function () {
+      await expect(multisig.connect(signers[1]).submitTransaction(onDemandRevert.address, 0, calldata)).to.be.revertedWith('Not a initiator');
     });
 
-    it("changeSignersMaster add", async function () {
-      const calldata = (await masterMultisig.populateTransaction.changeSignersMaster([{
-        contract_: multisigs[0].address,
-        signersToAdd: [addresses[3]],
-        isInitiatorFlags: [true],
-        signersToRemove: []
-      }])).data!;
-      await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata);
-
-      // console.log(await multisigs[0].getSigners());
-      await masterMultisig.connect(signers[1]).confirmTransaction(0);
-      // console.log(await multisigs[0].getSigners());
-      // todo
+    it("0x0 destination should fail", async function () {
+      await expect(multisig.submitTransaction(ethers.constants.AddressZero, 0, calldata)).to.be.revertedWith("Destination can't be 0x0");
     });
 
-    it("user groups", async function () {
-      const multisigAddresses = multisigs.map(m => m.address)
-      const result = await masterMultisig.getAllSigners(multisigAddresses);
-      // todo
+    it("msg.value != value should fail", async function () {
+      await expect(multisig.submitTransaction(onDemandRevert.address, 42, calldata, {value: 32})).to.be.revertedWith("msg.value != value");
+    });
+
+    it("if two signer, tx must not be executed", async function () {
+      await expect(multisig.submitTransaction(onDemandRevert.address, 0, calldata))
+        .to.emit(multisig, "Submission")
+        .to.not.emit(multisig, "Execution")
+    });
+
+    it("if one signer, tx must be executed", async function () {
+      await multisig.changeSigners([addresses[1]], [], []);
+      await expect(multisig.submitTransaction(onDemandRevert.address, 0, calldata)).to.emit(multisig, "Execution")
+    });
+
+    it("getTransactionData non existing tx should fail", async function () {
+      await expect(multisig.getTransactionData(0)).to.be.revertedWith("Tx doesn't exists");
+    });
+
+    it("getTransactionData should return something", async function () {
+      await multisig.submitTransaction(onDemandRevert.address, 42, calldata, {value: 42})
+
+      const [txData, confirmators] = await multisig.getTransactionData(0);
+      expect(txData.destination).to.be.eq(onDemandRevert.address);
+      expect(txData.value).to.be.eq(42);
+      expect(txData.data).to.be.eq(calldata);
+      expect(txData.executed).to.be.false;
+      expect(confirmators).to.be.eql([addresses[0]])
+    });
+
+
+
+  });
+
+  describe("confirmations", function () {
+    beforeEach(async function () {
+      // add more signers (total 6)
+      const signersToAdd = addresses.slice(1, 6)
+      await multisig.changeSigners([], signersToAdd, signersToAdd.map(() => false));
+      await multisig.changeThreshold(50);
+      expect((await multisig.getSigners())[0]).to.be.length(6)
+
+      const calldataSuccess = (await onDemandRevert.populateTransaction.func(false)).data!;
+      const calldataFail = (await onDemandRevert.populateTransaction.func(true)).data!;
+      await multisig.submitTransaction(onDemandRevert.address, 0, calldataSuccess);
+      await multisig.submitTransaction(onDemandRevert.address, 0, calldataFail);
+    });
+
+    it("not signer confirmTransaction call should fail", async function () {
+      await expect(multisig.connect(signers[10]).confirmTransaction(0)).to.be.revertedWith('Not a signer');
+    });
+
+    it("confirm not existing tx should fail", async function () {
+      await expect(multisig.connect(signers[1]).confirmTransaction(42)).to.be.revertedWith("Tx doesn't exists");
+    });
+
+    it("confirm tx twice should fail", async function () {
+      await multisig.connect(signers[1]).confirmTransaction(0)
+      await expect(multisig.connect(signers[1]).confirmTransaction(0)).to.be.revertedWith('Already confirmed');
+    });
+
+    it("confirm already executed should fail", async function () {
+      await multisig.connect(signers[1]).confirmTransaction(0)
+      await expect(multisig.connect(signers[2]).confirmTransaction(0)).to.emit(multisig, "Execution")
+
+      await expect(multisig.connect(signers[3]).confirmTransaction(0)).to.be.revertedWith('Already executed');
+    });
+
+    it("revoke already executed should fail", async function () {
+      await multisig.connect(signers[1]).confirmTransaction(0)
+      await expect(multisig.connect(signers[2]).confirmTransaction(0)).to.emit(multisig, "Execution")
+
+      await expect(multisig.connect(signers[1]).revokeConfirmation(0)).to.be.revertedWith('Already executed');
+    });
+
+    it("revoke not confirmed tx should fail ", async function () {
+      await expect(multisig.connect(signers[1]).revokeConfirmation(0)).to.be.revertedWith('Not confirmed');
+    });
+
+    it("confirm-revoke-confirm should work", async function () {
+      await multisig.connect(signers[1]).confirmTransaction(0)
+      expect(await multisig.getConfirmations(0)).to.be.eql([addresses[0], addresses[1]])
+
+      await expect(multisig.connect(signers[1]).revokeConfirmation(0)).to.emit(multisig, "Revocation")
+      expect(await multisig.getConfirmations(0)).to.be.eql([addresses[0]])
+
+      await multisig.connect(signers[1]).confirmTransaction(0)
+      expect(await multisig.getConfirmations(0)).to.be.eql([addresses[0], addresses[1]])
+    });
+
+    it("confirm should work; latest confirm should execute tx ", async function () {
+      await expect(multisig.connect(signers[1]).confirmTransaction(0))
+        .to.emit(multisig, "Confirmation").withArgs(addresses[1], 0)
+
+      const [txData, confirmators] = await multisig.getTransactionData(0);
+      expect(txData.executed).to.be.false;
+      expect(confirmators).to.be.eql([addresses[0], addresses[1]])
+      expect(await multisig.getConfirmations(0)).to.be.eql([addresses[0], addresses[1]])
+
+      await expect(multisig.connect(signers[2]).confirmTransaction(0))
+        .to.emit(multisig, "Confirmation").withArgs(addresses[2], 0)
+        .to.emit(multisig, "Execution").withArgs(0)
+
+      const [txData2, confirmators2] = await multisig.getTransactionData(0);
+      expect(txData2.executed).to.be.true;
+      expect(confirmators2).to.be.eql([addresses[0], addresses[1], addresses[2]])
+      expect(await multisig.getConfirmations(0)).to.be.eql([addresses[0], addresses[1], addresses[2]])
 
     });
 
-    it("confirmations", async function () {
-      // change users of slaveMultisig
-      const calldata = (await masterMultisig.populateTransaction.changeSignersMaster([{
-        contract_: multisigs[0].address,
-        signersToRemove: [],
-        signersToAdd: [addresses[0]],
-        isInitiatorFlags: [false],
-      }])).data!
-      await masterMultisig.submitTransaction(masterMultisig.address, 0, calldata)
+    it("revertOnDemand tx should fail on confirm", async function () {
+      await multisig.connect(signers[1]).confirmTransaction(1)
 
-      const [txData, confirmators] = await masterMultisig.getTransactionData(0);
-      // todo
+      await expect(multisig.connect(signers[2]).confirmTransaction(1)).to.be.revertedWith("Revert!")
     });
 
+  });
+
+  describe("others", function () {
+
+    it("checkBeforeSubmitTransaction", async function () {
+      const calldataSuccess = (await onDemandRevert.populateTransaction.func(false)).data!;
+      const calldataFail = (await onDemandRevert.populateTransaction.func(true)).data!;
+
+      await expect(multisig.callStatic.checkBeforeSubmitTransaction(onDemandRevert.address, 0, calldataSuccess)).to.be.revertedWith('OK');
+      await expect(multisig.callStatic.checkBeforeSubmitTransaction(onDemandRevert.address, 0, calldataFail)).to.be.revertedWith('Revert!');
+    });
 
     it("getTransactionIds", async function () {
       const testMultisigFactory = await ethers.getContractFactory("TEST_MasterMultisig");
@@ -129,26 +306,6 @@ describe("Multisig", function () {
       await expect(getIds(5, 4, true, true), "9").to.be.reverted;
 
     });
-
-
-    it("checkBeforeSubmitTransaction", async function () {
-      const calldataFail1 = (await masterMultisig.populateTransaction.changeSigners(
-        [addresses[0], addresses[0]], [], [])).data!;
-      const calldataFail2 = (await masterMultisig.populateTransaction.changeSigners(
-        [], [addresses[2]], [])).data!;
-      const calldataNotFail = (await masterMultisig.populateTransaction.changeSigners(
-        [], [addresses[2]], [true])).data!;
-
-      await expect(masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataFail1)).to.be.revertedWith('Not a signer');
-      await expect(masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataFail2)).to.be.revertedWith('signersToAdd.length != isInitiatorFlag.length');
-
-      const oldSigners = await masterMultisig.getSigners();
-      await expect(masterMultisig.callStatic.checkBeforeSubmitTransaction(masterMultisig.address, 0, calldataNotFail)).to.be.revertedWith("OK");
-      expect(await masterMultisig.getSigners()).to.be.eql(oldSigners);
-    });
-
-
-
   });
 
 
