@@ -66,6 +66,7 @@ export async function setUserGroups(contracts: Contracts, userAddress: string, n
       })
   }
 
+  if (result.length == 0) throw new Error("Nothing changed");
 
   return await setPermissions(contracts, result);
 }
