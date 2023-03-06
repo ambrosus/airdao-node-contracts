@@ -9,7 +9,7 @@
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat build",
     "test": "REPORT_GAS=true hardhat test",
-    "coverage": "hardhat coverage",
+    "coverage": "COVERAGE=true hardhat coverage",
     "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test/amb",
     "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test/amb",
     "test_script": "hardhat run ./scripts/test.ts --network test/amb"

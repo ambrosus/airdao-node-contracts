@@ -41,7 +41,7 @@ const config: HardhatUserConfig = {
             runs: 1000,  // todo bigger
           },
           // Note: for amb deploy
-          evmVersion: "byzantium"  // coverage don't work with byzantium
+          evmVersion: process.env.COVERAGE ? undefined : "byzantium"  // coverage don't work with byzantium
         },
       }
     ],
