@@ -55,7 +55,11 @@ async function main() {
   // await deploy(ContractNames.FinanceMaster, networkName, MasterFinanceFactory.deploy(multisig.address), deployer);
   const multisig = await deploy(ContractNames.FinanceMasterMultisig, networkName, MultisigFactory,
     [[TestAddress], [true], 100, masterMultisig], deployer);
-  await deploy(ContractNames.FinanceMaster, networkName, MasterFinanceFactory, [multisig.address], deployer);
+  // TODO use prod values for prod
+  const maxBankBalance = ethers.utils.parseEther("100"); // hello biden its zelensky we need 100 millions ambers
+  const bankCount = 50;
+  await deploy(ContractNames.FinanceMaster, networkName, MasterFinanceFactory,
+    [multisig.address, bankCount, maxBankBalance], deployer);
 
   // await deployFinance(ContractNames.FinanceRewards,
   //   [Lang, Igor, Andrii], [true, true, false], 75);

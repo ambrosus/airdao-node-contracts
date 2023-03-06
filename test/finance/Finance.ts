@@ -17,7 +17,7 @@ describe("Finance", function () {
 
   async function deploy() {
     const masterFinanceFactory = await ethers.getContractFactory("MasterFinance");
-    const masterFinance = await masterFinanceFactory.deploy(owner.address);
+    const masterFinance = await masterFinanceFactory.deploy(owner.address, bankCount, maxBankBalance);
     const financeFactory = await ethers.getContractFactory("Finance");
     const finance = await financeFactory.deploy(owner.address);
     return {masterFinance, finance};

@@ -77,22 +77,6 @@
     ],
     "deployTx": "0xbd43f74099544798f5e1483f1e34a45d5e33a93aba5717d4a94cde2ff94b002b"
   },
-  "FinanceMaster": {
-    "address": "0xc0a2505a48F02F4fc4288B8e5bADd9e1deE95966",
-    "abi": [
-      "constructor(address owner)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Withdraw(address addressTo, uint256 amount)",
-      "function banks(uint256) view returns (address)",
-      "function getBalances() view returns (address[] addresses, uint256[] balances)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function transferOwnership(address newOwner)",
-      "function transferToBanks()",
-      "function withdraw(address addressTo, uint256 amount)"
-    ],
-    "deployTx": "0xf0df221509d6e6effdbf452266a12bd306ad36d4f9f3fdd7018077ab87207a4c"
-  },
   "FinanceRewards_Multisig": {
     "address": "0xBbDB84b91C7d1FD2A96C998913739437FAaB9564",
     "abi": [
@@ -296,5 +280,21 @@
       "function withdraw(address addressTo, uint256 amount)"
     ],
     "deployTx": "0xd8188e7ca5cd7e62c5ad91ea4c88bbb27259b6d050a946c8049e6b2c3964304a"
+  },
+  "FinanceMaster": {
+    "address": "0x19747b81D93b66610E673fCBB43eE1Ebe11a9ec4",
+    "abi": [
+      "constructor(address owner, uint256 maxBanks_, uint256 maxBankBalance_)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Withdraw(address addressTo, uint256 amount)",
+      "function banks(uint256) view returns (address)",
+      "function getBalances() view returns (address[] addresses, uint256[] balances)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function transferOwnership(address newOwner)",
+      "function transferToBanks()",
+      "function withdraw(address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0x6d7644868b1af0f16ef4f3f6641586474e1d5f010c50b3ba1da4b5dac9809a73"
   }
 }

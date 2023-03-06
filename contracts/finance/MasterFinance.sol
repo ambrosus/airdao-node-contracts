@@ -7,15 +7,17 @@ import "../utils/TransferViaCall.sol";
 
 
 contract MasterFinance is Ownable {
-    uint constant maxBanks = 50;
-    uint constant maxBankBalance = 100_000_000 ether;
+    uint immutable maxBanks; // = 50;
+    uint immutable maxBankBalance; // = 100_000_000 ether;
 
-    Bank[maxBanks] public banks;
+    Bank[] public banks;
 
-    constructor(address owner) {
+    constructor(address owner, uint maxBanks_, uint maxBankBalance_) {
+        maxBanks = maxBanks_;
+        maxBankBalance = maxBankBalance_;
         _transferOwnership(owner);
-        for (uint i = 0; i < maxBanks; i++) {
-            banks[i] = new Bank();
+        for (uint i = 0; i < maxBanks_; i++) {
+            banks.push(new Bank());
         }
     }
 
