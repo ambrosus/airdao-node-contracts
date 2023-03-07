@@ -29,11 +29,10 @@ contract MasterFinance is Ownable {
 
         uint needToSend = amount;
         needToSend -= sendFromThis(addressTo, needToSend);
-        for (uint i = 0; i < maxBanks; i++) {
-            if (needToSend == 0) return;
+        for (uint i = 0; i < maxBanks && needToSend > 0; i++) {
             needToSend -= sendFromBank(banks[i], addressTo, needToSend);
         }
-        revert("transfer amount exceeds balance");
+        require(needToSend == 0, "transfer amount exceeds balance");
 
     }
 

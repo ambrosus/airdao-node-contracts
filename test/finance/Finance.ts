@@ -3,6 +3,7 @@ import {expect} from "chai";
 import {ethers} from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Finance, MasterFinance} from "../../typechain-types";
+import {BigNumber} from "ethers";
 
 
 // todo test that rewards contract setBalance just like hardhat
@@ -117,8 +118,19 @@ describe("Finance", function () {
       await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(0);
     });
 
+    it("masterfinance withdraw() all, include extra balance", async function () {
+      await owner.sendTransaction({to: masterFinance.address, value: 420});
+      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
+
+      let balance = (await masterFinance.getBalances())[1].reduce((acc, val) => acc.add(val), BigNumber.from(0))
+      await masterFinance.withdraw(owner.address, balance);
+
+      balance = (await masterFinance.getBalances())[1].reduce((acc, val) => acc.add(val), BigNumber.from(0))
+      expect(balance).to.be.eq(0)
+    });
+
     it("masterfinance withdraw() more than maxBankBalance ", async function () {
-      const amount = ethers.utils.parseEther("150000000");
+      const amount = maxBankBalance.mul(3).div(2)
       await expect(masterFinance.withdraw(owner.address, amount)).to.changeEtherBalance(owner, amount)
     });
 
@@ -130,6 +142,21 @@ describe("Finance", function () {
     it("masterfinance withdraw() not owner ", async function () {
       const [_, notOwner] = await ethers.getSigners();
       await expect(masterFinance.connect(notOwner).withdraw(owner.address, 420)).to.be.revertedWith('Ownable: caller is not the owner')
+    });
+
+
+    it("masterfinance withdraw-replenish-withdraw ", async function () {
+      await masterFinance.withdraw(owner.address, maxBankBalance.mul(5));
+      await owner.sendTransaction({to: masterFinance.address, value: maxBankBalance.mul(2)})
+
+      await masterFinance.withdraw(owner.address, maxBankBalance.mul(15));
+      await owner.sendTransaction({to: masterFinance.address, value: maxBankBalance.mul(10)})
+
+      await masterFinance.withdraw(owner.address, maxBankBalance.mul(2));
+      await owner.sendTransaction({to: masterFinance.address, value: maxBankBalance.mul(4)})
+
+      const balance = (await masterFinance.getBalances())[1].reduce((acc, val) => acc.add(val), BigNumber.from(0))
+      await masterFinance.withdraw(owner.address, balance);
     });
 
 
