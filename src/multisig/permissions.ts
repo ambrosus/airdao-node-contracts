@@ -101,7 +101,7 @@ function getGroups(multisigAddresses: string[], contractResults: any[]): { [addr
     multisig: multisigAddresses[i],
     users: parseUsers(r.signers, r.isInitiatorFlags),
     thresholdPercent: +r.threshold,
-    threshold: Math.floor(r.signers.length * +r.threshold / 100)
+    threshold: Math.ceil(r.signers.length * +r.threshold / 100)
   }));
 
   const groups: { [address: string]: Group } = {};

@@ -127,8 +127,11 @@ describe("Multisig", function () {
       const signersCount = (await multisig.getSigners())[0].length;
 
       for (let i = 0; i <= 100; i++) {
-        const shouldWork = Math.floor(signersCount * i / 100) > 0;
-        if (shouldWork) await expect(multisig.changeThreshold(i), "th-" + i).to.not.be.reverted;
+        const requiredSigners = Math.ceil(signersCount * i / 100);
+        if (requiredSigners > 0) {
+          await expect(multisig.changeThreshold(i), "th-" + i).to.not.be.reverted;
+          expect(await multisig.getRequiredSignersCount()).to.be.eq(requiredSigners);
+        }
         else await expect(multisig.changeThreshold(i), "th-" + i).to.be.revertedWith('required signers must be > 0');
       }
     });

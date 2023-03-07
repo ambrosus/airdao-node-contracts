@@ -167,7 +167,8 @@ contract Multisig is Ownable {
     }
 
     function getRequiredSignersCount() public view returns (uint) {
-        return signers.length * threshold / 100;
+        // ceil aka roundup
+        return (signers.length * threshold + 99)/ 100;
     }
 
     function getInitiatorsCount() public view returns (uint) {
