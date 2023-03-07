@@ -66,11 +66,6 @@ export async function revokeConfirm(multisig: Multisig, txId: BigNumber) {
   await multisig.revokeConfirmation(txId);
 }
 
-export async function reExecute(multisig: Multisig, txId: BigNumber) {
-  await multisig.executeTransaction(txId);
-}
-
-
 // INTERNAL
 
 
