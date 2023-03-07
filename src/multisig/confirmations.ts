@@ -59,11 +59,11 @@ export async function getTransactions(contracts: Contracts, multisigName: Contra
 
 
 export async function confirm(multisig: Multisig, txId: BigNumber) {
-  await multisig.confirmTransaction(txId);
+  return multisig.confirmTransaction(txId);
 }
 
 export async function revokeConfirm(multisig: Multisig, txId: BigNumber) {
-  await multisig.revokeConfirmation(txId);
+  return multisig.revokeConfirmation(txId);
 }
 
 // INTERNAL
