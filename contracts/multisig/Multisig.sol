@@ -126,14 +126,17 @@ contract Multisig is Ownable {
         emit Revocation(msg.sender, txId);
     }
 
+    function withdraw(address payable to, uint amount) public {
+        require(msg.sender == owner() || msg.sender == address(this), "Must be called from owner or from multisig");
+        require(address(this).balance >= amount, "amount > balance");
+        to.transfer(amount);
+    }
 
     // call this function (using callStatic) to check if there any errors before submitting actual transaction
     function checkBeforeSubmitTransaction(address destination, uint value, bytes memory data) external payable {
         _executeTransaction(destination, value, data);
         revert("OK");
     }
-
-
 
     // VIEW METHODS
 

@@ -274,6 +274,24 @@ describe("Multisig", function () {
 
   describe("others", function () {
 
+    it("withdraw", async function () {
+      // make tx that store 42 wei on contract, but tx not confirmed yet or can't be confirmed
+      await multisig.changeSigners([], [addresses[1]], [false]);
+      let calldata = (await onDemandRevert.populateTransaction.func(true)).data!;
+      await multisig.submitTransaction(onDemandRevert.address, 42, calldata, {value: 42});
+
+      await expect(multisig.connect(signers[1]).withdraw(addresses[1], 42)).to.be.revertedWith("Must be called from owner or from multisig")
+      await expect(multisig.withdraw(addresses[1], 420)).to.be.revertedWith("amount > balance")
+
+      // can be withdrawn by owner
+      await expect(multisig.withdraw(addresses[1], 20)).to.changeEtherBalance(signers[1], 20)
+
+      // can be withdrawn by multisig
+      calldata = (await multisig.populateTransaction.withdraw(addresses[1], 22)).data!;
+      await multisig.submitTransaction(multisig.address, 0, calldata);
+      await expect(multisig.connect(signers[1]).confirmTransaction(1)).to.changeEtherBalance(signers[1], 22)
+    });
+
     it("checkBeforeSubmitTransaction", async function () {
       const calldataSuccess = (await onDemandRevert.populateTransaction.func(false)).data!;
       const calldataFail = (await onDemandRevert.populateTransaction.func(true)).data!;
