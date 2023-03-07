@@ -6,8 +6,6 @@ import {Finance, MasterFinance} from "../../typechain-types";
 import {BigNumber} from "ethers";
 
 
-// todo test that rewards contract setBalance just like hardhat
-
 describe("Finance", function () {
   const maxBankBalance = ethers.utils.parseEther("100000000"); // hello biden its zelensky we need 100 millions ambers
   const bankCount = 50;
