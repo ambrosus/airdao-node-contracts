@@ -1,13 +1,13 @@
 {
   "name": "airdao-node-contracts-dev",
   "main": "./dist/src/index.js",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "files": ["dist/**/*"],
   "scripts": {
-    "npmpublish": "yarn build:js && npm publish",
-    "build": "yarn build:sol && yarn build:js",
+    "npmpublish": "npm run build:js && npm publish",
+    "build": "npm run build:sol && npm run build:js",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
-    "build:sol": "hardhat build",
+    "build:sol": "hardhat compile",
     "test": "REPORT_GAS=true hardhat test",
     "coverage": "COVERAGE=true hardhat coverage",
     "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test/amb",
