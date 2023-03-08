@@ -4,8 +4,6 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 
-// TODO what if we send amb to contract through submitTransaction but created tx failed?
-
 contract Multisig is Ownable {
 
     address[] public signers;
@@ -43,6 +41,9 @@ contract Multisig is Ownable {
 
     /// @dev Contract constructor sets initial signers and required number of confirmations.
     /// @param _signers List of initial signers.
+    /// @param isInitiatorFlags List of boolean values indicating is signer is initiator or not.
+    /// @param _threshold Value in percent (0 < _threshold <= 100)
+    /// @param owner Setup address that can call `changeSigners` and `changeThreshold` methods.
     constructor (
         address[] memory _signers, bool[] memory isInitiatorFlags,
         uint _threshold, address owner
@@ -53,6 +54,10 @@ contract Multisig is Ownable {
     }
 
 
+    /// @dev Allows to add or remove signers or change signer's isInitiator flag
+    /// @param signersToRemove List of addresses that will be removed
+    /// @param signersToAdd List of addresses that will be added (or changed isInitiator flag)
+    /// @param isInitiatorFlags List of boolean values indicating is signerToAdd is initiator or not.
     function changeSigners(address[] memory signersToRemove, address[] memory signersToAdd, bool[] memory isInitiatorFlags) public onlyOwner {
         _changeSigners(signersToRemove, signersToAdd, isInitiatorFlags);
         _validateSigners();
@@ -83,7 +88,7 @@ contract Multisig is Ownable {
         emit ThresholdChange(_threshold);
     }
 
-    /// @dev Allows an signer to submit and confirm a transaction.
+    /// @dev Allows an initiator to submit and confirm a transaction.
     /// @param destination Transaction target address.
     /// @param value Transaction ether value.
     /// @param data Transaction data payload.
@@ -126,6 +131,7 @@ contract Multisig is Ownable {
         emit Revocation(msg.sender, txId);
     }
 
+    /// @dev Allows to withdraw ambers that stuck on contract.
     function withdraw(address payable to, uint amount) public {
         require(msg.sender == owner() || msg.sender == address(this), "Must be called from owner or from multisig");
         require(address(this).balance >= amount, "amount > balance");
@@ -133,6 +139,7 @@ contract Multisig is Ownable {
     }
 
     // call this function (using callStatic) to check if there any errors before submitting actual transaction
+    /// @dev Allows to check if tx you about to submit will be reverted or not
     function checkBeforeSubmitTransaction(address destination, uint value, bytes memory data) external payable {
         _executeTransaction(destination, value, data);
         revert("OK");
@@ -169,11 +176,13 @@ contract Multisig is Ownable {
         return false;
     }
 
+    /// @dev Returns required signers count
     function getRequiredSignersCount() public view returns (uint) {
         // ceil aka roundup
         return (signers.length * threshold + 99)/ 100;
     }
 
+    /// @dev Returns initiator count
     function getInitiatorsCount() public view returns (uint) {
         uint count;
         for (uint i = 0; i < signers.length; i++)
