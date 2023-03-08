@@ -8,10 +8,8 @@
     "skipLibCheck": true,
     "outDir": "./dist",
     "types": [],
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
   "include": ["src", "deployments"],
-  "exclude": [
-    "node_modules",
-  ]
+  "exclude": ["node_modules"]
 }

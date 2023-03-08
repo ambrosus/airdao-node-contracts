@@ -1,14 +1,12 @@
-import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
-import {expect} from "chai";
-import {ethers} from "hardhat";
-import {TestPool, ValidatorSet, ValidatorSetTest} from "../../typechain-types";
-import StakeStruct = ValidatorSet.StakeStruct;
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { TestPool, ValidatorSetTest } from "../../typechain-types";
 
 describe("ValidatorSet", function () {
-
-  const addrs = Array.from({length: 100}, (_, i) =>
+  const addrs = Array.from({ length: 100 }, (_, i) =>
     ethers.utils.getAddress(ethers.utils.hashMessage(i.toString()).substring(0, 42))
-  )
+  );
 
   let validatorSet: ValidatorSetTest;
   let testPool: TestPool;
@@ -17,10 +15,7 @@ describe("ValidatorSet", function () {
     const [owner] = await ethers.getSigners();
 
     const ValidatorSetFactory = await ethers.getContractFactory("ValidatorSetTest");
-    const validatorSet = await ValidatorSetFactory.deploy(
-      owner.address, owner.address,
-      10, 2
-    );
+    const validatorSet = await ValidatorSetFactory.deploy(owner.address, owner.address, 10, 2);
 
     // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");
     // const lockKeeper = await LockKeeperFactory.deploy();
@@ -30,19 +25,16 @@ describe("ValidatorSet", function () {
 
     await validatorSet.grantRole(await validatorSet.STAKING_POOL_ROLE(), testPool.address);
 
-    return {validatorSet, testPool, owner};
+    return { validatorSet, testPool, owner };
   }
 
   beforeEach(async function () {
-    ({validatorSet, testPool} = await loadFixture(deploy));
+    ({ validatorSet, testPool } = await loadFixture(deploy));
   });
-
 
   // todo make funtions like removeTop, removeQueue, addTop, addQueue with finding new heads
 
-
   describe("Public functions", function () {
-
     afterEach(async function () {
       await integrityCheck();
     });
@@ -57,62 +49,56 @@ describe("ValidatorSet", function () {
       ].map(ethers.utils.getAddress);
 
       describe("new stake", function () {
-
         beforeEach(async function () {
-          await testPool.addStake(A, {value: 100});
+          await testPool.addStake(A, { value: 100 });
           await expectArraysEqual([A], [], "initial");
         });
 
         // initial state:     TOP [A]    QUEUE []
 
-
         it("B should go to topStakes (coz free space)", async function () {
-          await testPool.addStake(B, {value: 50});
+          await testPool.addStake(B, { value: 50 });
           await expectArraysEqual([A, B], []);
         });
 
         it("B should go to topStakes (coz free space)", async function () {
-          await testPool.addStake(B, {value: 200});
+          await testPool.addStake(B, { value: 200 });
           await expectArraysEqual([A, B], []);
         });
-
 
         it("C should go to queueStakes", async function () {
-          await testPool.addStake(B, {value: 200});
-          await testPool.addStake(C, {value: 10});
+          await testPool.addStake(B, { value: 200 });
+          await testPool.addStake(C, { value: 10 });
           await expectArraysEqual([A, B], [C]);
         });
 
         it("C should go to topStakes instead A", async function () {
-          await testPool.addStake(B, {value: 200});
-          await testPool.addStake(C, {value: 300});
+          await testPool.addStake(B, { value: 200 });
+          await testPool.addStake(C, { value: 300 });
           await expectArraysEqual([C, B], [A]);
         });
 
         it("D should go to queueStakes", async function () {
-          await testPool.addStake(B, {value: 200});
-          await testPool.addStake(C, {value: 300});
-          await testPool.addStake(D, {value: 50});
+          await testPool.addStake(B, { value: 200 });
+          await testPool.addStake(C, { value: 300 });
+          await testPool.addStake(D, { value: 50 });
           await expectArraysEqual([C, B], [A, D]);
         });
 
         it("D should go to topStakes instead B", async function () {
-          await testPool.addStake(B, {value: 200});
-          await testPool.addStake(C, {value: 300});
-          await testPool.addStake(D, {value: 400});
-          await expectArraysEqual([C, D], [A, B],);
+          await testPool.addStake(B, { value: 200 });
+          await testPool.addStake(C, { value: 300 });
+          await testPool.addStake(D, { value: 400 });
+          await expectArraysEqual([C, D], [A, B]);
         });
-
       });
 
       describe("", function () {
-
-
         beforeEach(async function () {
-          await testPool.addStake(A, {value: 100});
-          await testPool.addStake(B, {value: 200});
-          await testPool.addStake(C, {value: 300});
-          await testPool.addStake(D, {value: 400});
+          await testPool.addStake(A, { value: 100 });
+          await testPool.addStake(B, { value: 200 });
+          await testPool.addStake(C, { value: 300 });
+          await testPool.addStake(D, { value: 400 });
           await expectArraysEqual([C, D], [A, B], "initial");
         });
 
@@ -129,10 +115,9 @@ describe("ValidatorSet", function () {
             await expectArraysEqual([C, B], [A]);
           });
 
-
           it("D (in top) unstakes completely and should be removed (replaced with B)", async function () {
             await validatorSet.changeTopStakesCount(3);
-            await testPool.addStake(E, {value: 250});
+            await testPool.addStake(E, { value: 250 });
             await expectArraysEqual([C, D, E], [A, B], "initial");
 
             await testPool.removeStake(D, 400);
@@ -150,7 +135,7 @@ describe("ValidatorSet", function () {
           });
 
           it("E (in queue) unstakes completely and should be removed", async function () {
-            await testPool.addStake(E, {value: 150});
+            await testPool.addStake(E, { value: 150 });
             await expectArraysEqual([C, D], [A, B, E], "initial");
 
             await testPool.removeStake(E, 150);
@@ -176,46 +161,41 @@ describe("ValidatorSet", function () {
             await testPool.removeStake(D, 400);
             await expectArraysEqual([C], []);
           });
-
-
         });
 
         describe("increase stake", function () {
           // initial state:     TOP [C, D]    QUEUE [A, B]
 
           it("C (in top) increase stake", async function () {
-            await testPool.addStake(C, {value: 500});
+            await testPool.addStake(C, { value: 500 });
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("D (in top) increase stake", async function () {
-            await testPool.addStake(D, {value: 500});
+            await testPool.addStake(D, { value: 500 });
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("A (in queue) increase stake and should go to top", async function () {
-            await testPool.addStake(A, {value: 500});
+            await testPool.addStake(A, { value: 500 });
             await expectArraysEqual([A, D], [C, B]);
           });
 
           it("B (in queue) increase stake and should go to top", async function () {
-            await testPool.addStake(B, {value: 500});
+            await testPool.addStake(B, { value: 500 });
             await expectArraysEqual([B, D], [A, C]);
           });
 
           it("A (in queue) increase stake and shouldn't go to top", async function () {
-            await testPool.addStake(A, {value: 10});
+            await testPool.addStake(A, { value: 10 });
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("B (in queue) increase stake and shouldn't go to top", async function () {
-            await testPool.addStake(B, {value: 10});
+            await testPool.addStake(B, { value: 10 });
             await expectArraysEqual([C, D], [A, B]);
           });
-
-
         });
-
 
         describe("decrease stake", function () {
           // initial state:     TOP [C, D]    QUEUE [A, B]
@@ -249,23 +229,13 @@ describe("ValidatorSet", function () {
             await testPool.removeStake(B, 10);
             await expectArraysEqual([C, D], [A, B]);
           });
-
-
-
         });
-
-        });
-
-
+      });
     });
-
   });
-
 
   describe("Private functions", function () {
     // it("compare stakes", async function () {
-
-
     //   expect(await compare({ownerAddress: addrs[0]}, {ownerAddress: addrs[0]}), "equal owner == equal stakes").to.be.eq(0);
     //
     //   expect(await compare({stake: 10}, {stake: 20})).to.be.eq(-1);
@@ -275,18 +245,14 @@ describe("ValidatorSet", function () {
     // });
   });
 
-
   async function integrityCheck() {
     const hasDuplicates = (array: any[]) => new Set(array).size !== array.length;
 
-    async function findMinOrMaxStake(array: StakeStruct[], comparing: number) {
+    async function findMinOrMaxStake(array: any[], comparing: number) {
       let index = 0;
-      for (let i = 1; i < array.length; i++)
-        if (await compareStakes(array[i], array[index]) === comparing)
-          index = i;
+      for (let i = 1; i < array.length; i++) if ((await compareStakes(array[i], array[index])) === comparing) index = i;
       return index;
     }
-
 
     const top = await validatorSet.getTopStakes();
     const queue = await validatorSet.getQueuedStakes();
@@ -294,10 +260,10 @@ describe("ValidatorSet", function () {
     const topStructs = await Promise.all(top.map((addr) => validatorSet.stakes(addr)));
     const queueStructs = await Promise.all(queue.map((addr) => validatorSet.stakes(addr)));
 
-
     expect(await validatorSet.lowestStakeIndex(), "lowestStakeIndex").to.be.eq(await findMinOrMaxStake(topStructs, -1));
-    expect(await validatorSet.highestStakeIndex(), "highestStakeIndex").to.be.eq(await findMinOrMaxStake(queueStructs, +1));
-
+    expect(await validatorSet.highestStakeIndex(), "highestStakeIndex").to.be.eq(
+      await findMinOrMaxStake(queueStructs, +1)
+    );
 
     // const stakesStructs = await Promise.all(nodeAddresses.map(async (addr) => await validatorSet.stakes(addr)));
 
@@ -316,19 +282,16 @@ describe("ValidatorSet", function () {
 
     const nodeAddresses = [...top, ...queue];
     expect(hasDuplicates(nodeAddresses), "intersection between top and queue").to.be.false;
-
   }
 
   async function expectArraysEqual(topStake: string[], queueStake: string[], message?: string) {
     message = message ? message + ": " : "";
-    expect(await validatorSet.getTopStakes(), message + "top").to.eql(topStake)
-    expect(await validatorSet.getQueuedStakes(), message + "queue").to.be.eql(queueStake)
+    expect(await validatorSet.getTopStakes(), message + "top").to.eql(topStake);
+    expect(await validatorSet.getQueuedStakes(), message + "queue").to.be.eql(queueStake);
   }
 
-  async function compareStakes(a: Partial<StakeStruct>, b: Partial<StakeStruct>) {
-    const _defaultStake = {amount: 0, isAlwaysTop: 0}
-    return +(await validatorSet.compareStakes({..._defaultStake, ...a}, {..._defaultStake, ...b}));
+  async function compareStakes(a: any, b: any) {
+    const _defaultStake = { amount: 0, isAlwaysTop: 0 };
+    return +(await validatorSet.compareStakes({ ..._defaultStake, ...a }, { ..._defaultStake, ...b }));
   }
-
-
 });

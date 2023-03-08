@@ -1,13 +1,8 @@
-import {AmbErrorProvider} from "../../src/utils/AmbErrorProvider";
-import {ethers} from "ethers";
-import {expect} from "chai";
+import { AmbErrorProvider } from "../../src/utils/AmbErrorProvider";
+import { ethers } from "ethers";
+import { expect } from "chai";
 
-
-const abi = [
-  "function amountToClaim(address) view returns (uint256)",
-  "function claim()",
-]
-
+const abi = ["function amountToClaim(address) view returns (uint256)", "function claim()"];
 
 it("bank withdraw() not owner ", async function () {
   const provider = new AmbErrorProvider("https://network.ambrosus-test.io/");
@@ -24,6 +19,4 @@ it("bank withdraw() not owner ", async function () {
   } catch (e: any) {
     expect((e.error || e).toString(), "non view method").to.be.eq("Error: addr not allowed to claim");
   }
-
 });
-

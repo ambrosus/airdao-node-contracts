@@ -6,7 +6,6 @@ export const Kevin = "0x55feDD7843efc88A9ddd066B2ec2C8618C38fB62";
 export const Stefan = ""; // TODO
 export const Seth = ""; // TODO
 
-
 // testing
-export const SharedDevAcc = "0x295C2707319ad4BecA6b5bb4086617fD6F240CfE"
-export const DimaTestAcc = "0xc9E2CB16dEC44be85b8994D1EcDD4cA7a690c28b"
+export const SharedDevAcc = "0x295C2707319ad4BecA6b5bb4086617fD6F240CfE";
+export const DimaTestAcc = "0xc9E2CB16dEC44be85b8994D1EcDD4cA7a690c28b";

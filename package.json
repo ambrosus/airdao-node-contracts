@@ -2,7 +2,9 @@
   "name": "airdao-node-contracts",
   "version": "0.0.36",
   "main": "./dist/src/index.js",
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "homepage": "https://github.com/ambrosus/airdao-node-contracts",
   "scripts": {
     "npmpublish": "npm run build:js && npm publish",
@@ -11,6 +13,8 @@
     "build:sol": "hardhat compile",
     "test": "REPORT_GAS=true hardhat test",
     "coverage": "COVERAGE=true hardhat coverage",
+    "format:check": "eslint ./ && prettier --check ./",
+    "format:fix": "eslint --fix ./ && prettier --write ./",
     "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test/amb",
     "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test/amb",
     "test_script": "hardhat run ./scripts/test.ts --network test/amb"
@@ -18,9 +22,14 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
     "@openzeppelin/contracts": "^4.1.0",
-    "openzeppelin-solidity": "^1.12.0",
-    "hardhat": "^2.12.6",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
     "dotenv": "^16.0.3",
+    "eslint": "8.35.0",
+    "eslint-config-prettier": "^8.7.0",
+    "hardhat": "^2.12.6",
+    "openzeppelin-solidity": "^1.12.0",
+    "prettier": "2.8.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
   },

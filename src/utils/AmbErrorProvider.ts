@@ -1,5 +1,4 @@
-import {BigNumber, ethers} from "ethers";
-
+import { BigNumber, ethers } from "ethers";
 
 export class AmbErrorProviderWeb3 extends ethers.providers.Web3Provider {
   // Populates "from" if unspecified, and estimates the gas for the transaction
@@ -67,7 +66,7 @@ function _parseError(error: any): any {
   // "0x08c379a0" is `Error(string)` method signature, it's called by revert/require
   if (reason.length < 138 || !reason.startsWith("0x08c379a0")) throw "Not error signature";
 
-  reason = ethers.utils.hexDataSlice(reason, 4)
-  reason = ethers.utils.defaultAbiCoder.decode(['string'], reason)
+  reason = ethers.utils.hexDataSlice(reason, 4);
+  reason = ethers.utils.defaultAbiCoder.decode(["string"], reason);
   return new Error(reason);
 }

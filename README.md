@@ -3,39 +3,38 @@
 Smart contracts used in Airdao.  
 +Javascript SDK, that can be imported for convenient communication with deployed contracts.
 
-
 ## Development
-Run `npm run test` or `npm run coverage` to test contacts;  
 
+Run `npm run test` or `npm run coverage` to test contacts;
 
 // todo add cmd for sourcify
 
 Run `make run` in `amb-node-cluster` folder to launch local amb network in your docker;
 
-
 ### Deployment
+
 Provide your private key as `PRIVATEKEY_OWNER_AMB` env var or put it in `.env` file.
 
-
-Run `npx hardhat run ./scripts/deploy_multisig.ts --network test/amb` to deploy masterMultisig contract in testnet network;  
-Run `npx hardhat run ./scripts/deploy_finance.ts --network main/amb` to deploy finance contracts (with their multisigs) in mainnet network;  
-_And so on..._  
-
-
+Run `npx hardhat run ./scripts/deploy_multisig.ts --network test/amb` to deploy masterMultisig contract in testnet
+network;  
+Run `npx hardhat run ./scripts/deploy_finance.ts --network main/amb` to deploy finance contracts (with their multisigs)
+in mainnet network;  
+_And so on..._
 
 ## SDK
 
-Add `airdao-node-contracts` package as dependency to your project   
+Add `airdao-node-contracts` package as dependency to your project  
 `yarn add airdao-node-contracts`
 
 It contains deployed contract addresses for both (testnet and mainnet) networks and convenient methods to use it.  
 It also contains `AmbErrorProvider` - use it instead of default provider to get human-readable errors from contracts.
 
-Examples: 
-```javascript
-import {AmbErrorProviderWeb3, Contracts, ContractNames, Multisig} from "airdao-node-contracts";
+Examples:
 
-const provider = new AmbErrorProviderWeb3(window.ethereum);  // for human-readable errors
+```javascript
+import { AmbErrorProviderWeb3, Contracts, ContractNames, Multisig } from "airdao-node-contracts";
+
+const provider = new AmbErrorProviderWeb3(window.ethereum); // for human-readable errors
 const signer = provider.getSigner();
 const chainId = (await provider.getNetwork()).chainId;
 
@@ -47,19 +46,18 @@ const contracts = new Contracts(signer, chainId);
 // but in most cases you doesn't need to use this;
 // PLEASE, use `ContractNames` enum for contract names! real value can be changed!
 
-
-// get all multisig permissions 
-const {users, groups} = await Multisig.getPermissions(contracts);
+// get all multisig permissions
+const { users, groups } = await Multisig.getPermissions(contracts);
 
 // get all transactions
-const txs = await Multisig.getTransactionsFromContracts(contracts)
+const txs = await Multisig.getTransactionsFromContracts(contracts);
 
 // you can use map like this to display contract names that you want
 const contractsNames = {
   [contracts.getContractByName(ContractNames.MasterMultisig).address]: "Permissions",
   [contracts.getContractByName(ContractNames.FinanceRewards).address]: "Finance: Rewards",
-}
-const nameToDisplay = contractsNames[txs[0].calledContractAddress]
+};
+const nameToDisplay = contractsNames[txs[0].calledContractAddress];
 
 // Create multisig tx, that withdraw 420 amb (wei) from FinanceMaster contract to signer
 await Multisig.financeWithdraw(contracts, ContractNames.FinanceMaster, await signer.getAddress(), 420);
