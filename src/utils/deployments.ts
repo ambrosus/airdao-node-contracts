@@ -25,7 +25,7 @@ export async function deploy<T extends ContractFactory>(
   if (deployments[contractName]) {
     if (loadSigner) {
       console.log(`Already deployed ${contractName}. Returning it with ${await loadSigner.getAddress()} signer`)
-      return new ethers.Contract(deployments[contractName].address, deployments[contractName].abi, loadSigner) as ReturnType<T['deploy']>
+      return _contractFromDeployment(deployments[contractName], loadSigner) as ReturnType<T['deploy']>;
     }
     throw new Error(`Already deployed ${contractName}`)
   }
@@ -47,23 +47,26 @@ export async function deploy<T extends ContractFactory>(
 
 export function loadDeployment(contractName: string, networkName: string, signer?: Signer) {
   const {deployments} = _loadDeployments(networkName);
-  const contractDeployment = deployments[contractName];
-  if (!contractDeployment)
+  if (!deployments[contractName])
     throw new Error(`Can't find deployment for ${contractName} in ${networkName}`);
 
-  return new ethers.Contract(contractDeployment.address, contractDeployment.abi, signer)
+  return _contractFromDeployment(deployments[contractName], signer);
 }
 
 export function loadAllDeployments(networkName: string, signer?: Signer): { [name: string]: Contract } {
   const {deployments} = _loadDeployments(networkName);
   const result: { [name: string]: Contract } = {};
-  for (let name of Object.keys(deployments)) {
-    const contractDeployment = deployments[name];
-    result[name] = new ethers.Contract(contractDeployment.address, contractDeployment.abi, signer)
-  }
+
+  for (let name of Object.keys(deployments))
+    result[name] = _contractFromDeployment(deployments[name], signer);
+
   return result;
 }
 
+
+function _contractFromDeployment(deployment: Deployment, signer?: Signer): Contract {
+  return new ethers.Contract(deployment.address, deployment.abi, signer)
+}
 
 // todo i don't like it
 function _loadDeployments(networkName: string): { path: string, deployments: { [name: string]: Deployment } } {
