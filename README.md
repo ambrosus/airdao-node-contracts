@@ -23,8 +23,13 @@ _And so on..._
 
 ## SDK
 
-Add `airdao-node-contracts` package as dependency to your project  
-`yarn add airdao-node-contracts`
+#### Installing
+You must have `.npmrc` in the same directory as your `package.json` with following content:
+`@ambrosus:registry=https://npm.pkg.github.com`
+
+Now you can do `npm install @ambrosus/airdao-node-contracts`
+
+#### Usage 
 
 It contains deployed contract addresses for both (testnet and mainnet) networks and convenient methods to use it.  
 It also contains `AmbErrorProvider` - use it instead of default provider to get human-readable errors from contracts.
