@@ -1,5 +1,9 @@
 {
-  "name": "airdao-node-contracts",
+  "name": "@ambrosus/airdao-node-contracts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ambrosus/airdao-node-contracts.git"
+  },
   "version": "0.0.36",
   "main": "./dist/src/index.js",
   "files": [
