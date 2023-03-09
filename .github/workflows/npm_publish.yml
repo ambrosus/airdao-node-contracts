@@ -16,6 +16,8 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@ambrosus'
+
+      - run: npm install
       - run: npm run build
       - run: npm publish
         env:
