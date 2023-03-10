@@ -24,9 +24,10 @@ _And so on..._
 ## SDK
 
 #### Installing
+
 Add `@airdao/airdao-node-contracts` to your dependencies
 
-#### Usage 
+#### Usage
 
 It contains deployed contract addresses for both (testnet and mainnet) networks and convenient methods to use it.  
 It also contains `AmbErrorProvider` - use it instead of default provider to get human-readable errors from contracts.

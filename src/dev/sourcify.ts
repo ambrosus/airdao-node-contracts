@@ -53,7 +53,7 @@ async function isVerified(address: string, chainId: number): Promise<boolean> {
   return checkResponse[0].status === "perfect";
 }
 
-async function verify(chainId: number, address: string, metadata: string): string {
+async function verify(chainId: number, address: string, metadata: string): Promise<string> {
   const data = {
     address: address,
     chain: chainId.toString(),
@@ -70,7 +70,7 @@ async function verify(chainId: number, address: string, metadata: string): strin
   return submissionResponse.result[0].status;
 }
 
-async function loadMetadata(hre: HardhatRuntimeEnvironment, fullyQualifiedName: string) {
+async function loadMetadata(hre: HardhatRuntimeEnvironment, fullyQualifiedName: string): Promise<string> {
   const buildInfo = await hre.artifacts.getBuildInfo(fullyQualifiedName);
 
   const { sourceName, contractName } = parseFullyQualifiedName(fullyQualifiedName);
