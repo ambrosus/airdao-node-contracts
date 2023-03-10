@@ -1,27 +1,31 @@
 import { ethers } from "hardhat";
-import { deploy } from "../src/utils/deployments";
 import { ContractNames } from "../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Lang, SharedDev } from "./addresses";
+import { deploy } from "../src/dev/deploy";
+import { MasterMultisig__factory } from "../typechain-types";
 
 async function main() {
-  const MultisigMasterFactory = await ethers.getContractFactory("MasterMultisig");
-
-  const networkName = (await ethers.provider.getNetwork()).chainId.toString();
+  const networkName = ethers.provider.network.name;
+  const [deployer] = await ethers.getSigners();
 
   if (networkName == "16718") {
     console.log("--- MAINNET DEPLOYMENT ---");
 
-    await deploy(ContractNames.MasterMultisig, networkName, MultisigMasterFactory, [
-      [Lang, Igor, Andrii],
-      [true, true, true],
-      51,
-    ]);
+    await deploy<MasterMultisig__factory>(
+      ContractNames.MasterMultisig,
+      networkName,
+      "MasterMultisig",
+      [[Lang, Igor, Andrii], [true, true, true], 51],
+      deployer
+    );
   } else {
-    await deploy(ContractNames.MasterMultisig, networkName, MultisigMasterFactory, [
-      [SharedDev, DimaTest, AndriiTest],
-      [true, true, true],
-      51,
-    ]);
+    await deploy<MasterMultisig__factory>(
+      ContractNames.MasterMultisig,
+      networkName,
+      "MasterMultisig",
+      [[SharedDev, DimaTest, AndriiTest], [true, true, true], 51],
+      deployer
+    );
   }
 }
 

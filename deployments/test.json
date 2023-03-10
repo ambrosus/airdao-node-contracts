@@ -36,7 +36,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x09c7a9ebf0599f3cba4edebd3d699218fad09e1e826db5867ca2d192614233ce"
+    "deployTx": "0x09c7a9ebf0599f3cba4edebd3d699218fad09e1e826db5867ca2d192614233ce",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceMaster": {
     "address": "0xA4b0053a45DCEc895f7baB043c697eAEEaA539fd",
@@ -52,7 +53,8 @@
       "function transferToBanks()",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x66f7c5efe648bbf80c81886e656bb4d6af2eef4570a09bc93723fbc7f36a2c3b"
+    "deployTx": "0x66f7c5efe648bbf80c81886e656bb4d6af2eef4570a09bc93723fbc7f36a2c3b",
+    "fullyQualifiedName": "contracts/finance/MasterFinance.sol:MasterFinance"
   },
   "FinanceRewards_Multisig": {
     "address": "0x1BBA0e0a97AE8996C451dccb9a30a705Adc44918",
@@ -91,7 +93,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x4cbf59900d095240279e3114056d2bead7a69ded30d60dd12ee9ee71d583db89"
+    "deployTx": "0x4cbf59900d095240279e3114056d2bead7a69ded30d60dd12ee9ee71d583db89",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceRewards": {
     "address": "0xf4F51DcEFd100394b1D0c224856B645e69444CFe",
@@ -104,7 +107,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xfc5af2bc4321cb6179e6aafbef8327748a313c24e3c3f389d7f7d898e3bd0fe2"
+    "deployTx": "0xfc5af2bc4321cb6179e6aafbef8327748a313c24e3c3f389d7f7d898e3bd0fe2",
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceInvestors_Multisig": {
     "address": "0x54EC87CeF515c6DF3E230d280D9795ec36aF5D40",
@@ -143,7 +147,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xc6059bfc4d7644b6f49cf9bf649bd2b8bb4a57f8714725207b45fa791a884c16"
+    "deployTx": "0xc6059bfc4d7644b6f49cf9bf649bd2b8bb4a57f8714725207b45fa791a884c16",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceInvestors": {
     "address": "0xcF4Be089c7173ad35113863c822CB5d991C8dB5F",
@@ -156,7 +161,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x3e4b4eb4d5e5b2aeb7cb342363c5e3a5a4b30efb019947d3352a37e5e5339655"
+    "deployTx": "0x3e4b4eb4d5e5b2aeb7cb342363c5e3a5a4b30efb019947d3352a37e5e5339655",
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceTeam_Multisig": {
     "address": "0xc65c0e999D0a7cDAc5F7bC6fC243e60A914c91B7",
@@ -195,7 +201,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xb6ec3c137f0a4f4a67872e3d9fd8507953319d0433ae674e8e8d64916c6c138c"
+    "deployTx": "0xb6ec3c137f0a4f4a67872e3d9fd8507953319d0433ae674e8e8d64916c6c138c",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceTeam": {
     "address": "0x3b9f6bB2840A220Fd873C9C903c272D335544d89",
@@ -208,7 +215,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xaec9977c845e33f3bcfc8918443f4432651c9e15ffc66ada67aca1d2205ff3da"
+    "deployTx": "0xaec9977c845e33f3bcfc8918443f4432651c9e15ffc66ada67aca1d2205ff3da",
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceEcosystem_Multisig": {
     "address": "0x01B35630DD6D459000eE7F36f3353EcF8B73fDa7",
@@ -247,7 +255,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xd0b1a3e8d77e2d855320b7a2f7bddf53659dbcb9a49a85972c3c360203fc5b1b"
+    "deployTx": "0xd0b1a3e8d77e2d855320b7a2f7bddf53659dbcb9a49a85972c3c360203fc5b1b",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceEcosystem": {
     "address": "0xddf0B762dCFF0BB02B903D39a111fC173D07299d",
@@ -260,7 +269,8 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x3e905d4e7d9ed8a8a0f39eea50e35500dc4c5647d2b429bebc8ba6c2994542b6"
+    "deployTx": "0x3e905d4e7d9ed8a8a0f39eea50e35500dc4c5647d2b429bebc8ba6c2994542b6",
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "MasterMultisig": {
     "address": "0x17D3A416062724d15C29263d9FdB970132e40776",
@@ -302,6 +312,7 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x2eb3c0cf6a06842763a1640083a6d9783b612777d53bebf1ab57c5b0450d6771"
+    "deployTx": "0x2eb3c0cf6a06842763a1640083a6d9783b612777d53bebf1ab57c5b0450d6771",
+    "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   }
 }

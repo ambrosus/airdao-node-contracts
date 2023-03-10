@@ -11,5 +11,5 @@
     "resolveJsonModule": true
   },
   "include": ["src", "deployments"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "src/dev"]
 }

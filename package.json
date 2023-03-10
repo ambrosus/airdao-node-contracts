@@ -14,9 +14,10 @@
     "coverage": "COVERAGE=true hardhat coverage",
     "format:check": "eslint ./ && prettier --check ./",
     "format:fix": "eslint --fix ./ && prettier --write ./",
-    "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test/amb",
-    "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test/amb",
-    "test_script": "hardhat run ./scripts/test.ts --network test/amb"
+    "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test",
+    "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test",
+    "test_script": "hardhat run ./scripts/test.ts --network test",
+    "sourcify": "hardhat sourcify --network test"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",

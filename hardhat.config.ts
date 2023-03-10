@@ -1,7 +1,9 @@
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
+import { sourcifyAll } from "./src/dev/sourcify";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 dotenv.config();
 
@@ -15,12 +17,12 @@ const config: HardhatUserConfig = {
       ],
       hardfork: "byzantium",
     },
-    "test/amb": {
+    test: {
       url: "https://network.ambrosus-test.io",
       hardfork: "byzantium",
       accounts: [process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero],
     },
-    "main/amb": {
+    main: {
       url: "https://network.ambrosus.io",
       hardfork: "byzantium",
       accounts: [process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero],
@@ -43,5 +45,10 @@ const config: HardhatUserConfig = {
     ],
   },
 };
+
+task("sourcify", "verify contracts using sourcify").setAction(async (args: any, hre: HardhatRuntimeEnvironment) => {
+  await hre.run("compile"); // compile contract first
+  await sourcifyAll(hre);
+});
 
 export default config;

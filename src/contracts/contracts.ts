@@ -1,5 +1,5 @@
 import { Contract, Signer } from "ethers";
-import { loadAllDeployments } from "../utils/deployments";
+import { chainIDToName, loadAllDeployments } from "../utils/deployments";
 import { ContractNames } from "./names";
 
 export class Contracts {
@@ -7,7 +7,7 @@ export class Contracts {
   private nameByAddress: { [address: string]: ContractNames };
 
   constructor(signer: Signer, chainId: number) {
-    this.contracts = loadAllDeployments(chainId.toString(), signer);
+    this.contracts = loadAllDeployments(chainIDToName[chainId], signer);
     this.nameByAddress = {};
 
     for (const [name, contract] of Object.entries(this.contracts))
