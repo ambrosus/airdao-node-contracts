@@ -1,13 +1,11 @@
-import { HardhatUserConfig, task, types } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
-import { sourcify } from "./src/dev/sourcify";
+import { sourcifyAll } from "./src/dev/sourcify";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 dotenv.config();
-
-const SOURCIFY_ENDPOINT = "https://sourcify.ambrosus.io/";
 
 const config: HardhatUserConfig = {
   networks: {
@@ -19,12 +17,12 @@ const config: HardhatUserConfig = {
       ],
       hardfork: "byzantium",
     },
-    "test/amb": {
+    test: {
       url: "https://network.ambrosus-test.io",
       hardfork: "byzantium",
       accounts: [process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero],
     },
-    "main/amb": {
+    main: {
       url: "https://network.ambrosus.io",
       hardfork: "byzantium",
       accounts: [process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero],
@@ -48,24 +46,9 @@ const config: HardhatUserConfig = {
   },
 };
 
-// todo less args
-// todo add task that verify all contracts
-// hardhat sourcify --source "contracts/finance/Finance.sol" --name "Finance" --address 0x5e67aa0723a8263d60285172f687d73cc4db7413 --chainid 22040
-task("sourcify", "verify contract using sourcify")
-  .addParam("source", "e.g contract/Greeter.sol", undefined, types.string)
-  .addParam("name", "Name of the contract you want to verify", undefined, types.string)
-  .addParam("address", "address of the contract", undefined, types.string)
-  .addParam("chainid", "the chainId of the network that your contract deployed on", undefined, types.string)
-  .setAction(async (args: any, hre: HardhatRuntimeEnvironment) => {
-    await hre.run("compile"); // compile contract first
-
-    await sourcify(hre, {
-      endpoint: SOURCIFY_ENDPOINT,
-      sourceName: args.source,
-      contractName: args.name,
-      address: args.address,
-      chainId: args.chainid,
-    });
-  });
+task("sourcify", "verify contracts using sourcify").setAction(async (args: any, hre: HardhatRuntimeEnvironment) => {
+  await hre.run("compile"); // compile contract first
+  await sourcifyAll(hre);
+});
 
 export default config;

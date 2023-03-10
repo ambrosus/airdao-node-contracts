@@ -1,23 +1,23 @@
-import path from "path";
 import { Contract, ethers, Signer } from "ethers";
-import deploymentsProd from "../../deployments/prod.json";
+import deploymentsMain from "../../deployments/main.json";
 import deploymentsTest from "../../deployments/test.json";
 
 export interface Deployment {
   address: string;
   abi: any[];
   deployTx: string;
+  fullyQualifiedName: string;
 }
 
 export function loadDeployment(contractName: string, networkName: string, signer?: Signer) {
-  const { deployments } = _loadDeployments(networkName);
+  const deployments = _loadDeployments(networkName);
   if (!deployments[contractName]) throw new Error(`Can't find deployment for ${contractName} in ${networkName}`);
 
   return _contractFromDeployment(deployments[contractName], signer);
 }
 
 export function loadAllDeployments(networkName: string, signer?: Signer): { [name: string]: Contract } {
-  const { deployments } = _loadDeployments(networkName);
+  const deployments = _loadDeployments(networkName);
   const result: { [name: string]: Contract } = {};
 
   for (const name of Object.keys(deployments)) result[name] = _contractFromDeployment(deployments[name], signer);
@@ -30,9 +30,16 @@ export function _contractFromDeployment(deployment: Deployment, signer?: Signer)
 }
 
 // todo i don't like it
-export function _loadDeployments(networkName: string): { path: string; deployments: { [name: string]: Deployment } } {
-  const deploymentPath = (name: string) => path.resolve(__dirname, `../../deployments/${name}.json`);
-  if (networkName == "22040") return { path: deploymentPath("test"), deployments: deploymentsTest };
-  if (networkName == "16718") return { path: deploymentPath("prod"), deployments: deploymentsProd };
-  throw new Error("unknown chainid");
+export function _loadDeployments(networkName: string): { [name: string]: Deployment } {
+  if (networkName == "test") return deploymentsTest;
+  if (networkName == "main") return deploymentsMain;
+  throw new Error("unknown networkName");
 }
+
+export const chainIDToName: { [chainId: number]: string } = {
+  22040: "test",
+  16718: "main",
+};
+export const nameToChainID: { [name: string]: number } = Object.fromEntries(
+  Object.entries(chainIDToName).map(([k, v]) => [v, +k])
+);
