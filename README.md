@@ -7,7 +7,7 @@ Smart contracts used in Airdao.
 
 Run `npm run test` or `npm run coverage` to test contacts;
 
-// todo add cmd for sourcify
+Run `npm run sourcify:test` or `npm run sourcify:main` to verify deployed contracts;
 
 Run `make run` in `amb-node-cluster` folder to launch local amb network in your docker;
 
@@ -24,10 +24,7 @@ _And so on..._
 ## SDK
 
 #### Installing
-You must have `.npmrc` in the same directory as your `package.json` with following content:
-`@ambrosus:registry=https://npm.pkg.github.com`
-
-Now you can do `npm install @ambrosus/airdao-node-contracts`
+Add `@airdao/airdao-node-contracts` to your dependencies
 
 #### Usage 
 
