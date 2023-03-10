@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { deploy, loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
-import { Andrii, DimaTestAcc, Igor, Kevin, Lang, Rory, Seth, SharedDevAcc, Stefan } from "./addresses";
+import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, Seth, SharedDev, Stefan } from "./addresses";
 
 async function main() {
   const MultisigFactory = await ethers.getContractFactory("Multisig");
@@ -75,8 +75,8 @@ async function main() {
       MultisigFactory,
       [
         [
-          SharedDevAcc,
-          "0xb017DcCC473499C83f1b553bE564f3CeAf002254",
+          SharedDev,
+          AndriiTest,
           "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
           "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
           Igor,
@@ -102,8 +102,8 @@ async function main() {
     await deployFinance(
       ContractNames.FinanceRewards,
       [
-        SharedDevAcc,
-        "0xb017DcCC473499C83f1b553bE564f3CeAf002254",
+        SharedDev,
+        AndriiTest,
         "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
         "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
         Igor,
@@ -118,8 +118,8 @@ async function main() {
       ContractNames.FinanceInvestors,
       [
         "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
-        "0xb017DcCC473499C83f1b553bE564f3CeAf002254",
-        SharedDevAcc,
+        AndriiTest,
+        SharedDev,
         "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
         "0x8468D3B30A6308e3a1d4e3Ebf2B7C14E5e842C2B",
         Igor,
@@ -134,8 +134,8 @@ async function main() {
       [
         "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
         "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
-        "0xb017DcCC473499C83f1b553bE564f3CeAf002254",
-        SharedDevAcc,
+        AndriiTest,
+        SharedDev,
         Igor,
         Lang,
         Rory,
@@ -146,12 +146,12 @@ async function main() {
     await deployFinance(
       ContractNames.FinanceEcosystem,
       [
-        "0xb017DcCC473499C83f1b553bE564f3CeAf002254",
+        AndriiTest,
         "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
-        SharedDevAcc,
+        SharedDev,
         "0x8468D3B30A6308e3a1d4e3Ebf2B7C14E5e842C2B",
         Igor,
-        DimaTestAcc,
+        DimaTest,
         "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
         "0xE6b7De299a3c76d8ee42Fd1B769b42Eec25baB08",
         Lang,
