@@ -1,7 +1,22 @@
 import { ethers } from "hardhat";
 import { loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
-import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, Seth, SharedDev, Stefan } from "./addresses";
+import {
+  Andrii,
+  AndriiTest,
+  DimaTest,
+  DimaTest08,
+  DimaTest2B,
+  DimaTest3C,
+  DimaTest96,
+  Igor,
+  Kevin,
+  Lang,
+  Rory,
+  Seth,
+  SharedDev,
+  Stefan,
+} from "./addresses";
 import { deploy } from "../src/dev/deploy";
 import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
 
@@ -72,16 +87,7 @@ async function main() {
       networkName,
       "Multisig",
       [
-        [
-          SharedDev,
-          AndriiTest,
-          "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
-          "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
-          Igor,
-          Lang,
-          Rory,
-          "0x8468D3B30A6308e3a1d4e3Ebf2B7C14E5e842C2B",
-        ],
+        [SharedDev, AndriiTest, DimaTest3C, DimaTest96, Igor, Lang, Rory, DimaTest2B],
         [true, true, true, true, true, true, true, false],
         100,
         masterMultisig,
@@ -99,62 +105,25 @@ async function main() {
     // other finances
     await deployFinance(
       ContractNames.FinanceRewards,
-      [
-        SharedDev,
-        AndriiTest,
-        "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
-        "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
-        Igor,
-        Lang,
-        Rory,
-        "0x8468D3B30A6308e3a1d4e3Ebf2B7C14E5e842C2B",
-      ],
+      [SharedDev, AndriiTest, DimaTest3C, DimaTest96, Igor, Lang, Rory, DimaTest2B],
       [true, true, true, true, true, true, true, false],
       100
     );
     await deployFinance(
       ContractNames.FinanceInvestors,
-      [
-        "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
-        AndriiTest,
-        SharedDev,
-        "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
-        "0x8468D3B30A6308e3a1d4e3Ebf2B7C14E5e842C2B",
-        Igor,
-        Lang,
-        Rory,
-      ],
+      [DimaTest96, AndriiTest, SharedDev, DimaTest3C, DimaTest2B, Igor, Lang, Rory],
       [true, true, true, false, false, true, true, true],
       75
     );
     await deployFinance(
       ContractNames.FinanceTeam,
-      [
-        "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
-        "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
-        AndriiTest,
-        SharedDev,
-        Igor,
-        Lang,
-        Rory,
-      ],
+      [DimaTest96, DimaTest3C, AndriiTest, SharedDev, Igor, Lang, Rory],
       [false, false, true, true, true, true, true],
       75
     );
     await deployFinance(
       ContractNames.FinanceEcosystem,
-      [
-        AndriiTest,
-        "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696",
-        SharedDev,
-        "0x8468D3B30A6308e3a1d4e3Ebf2B7C14E5e842C2B",
-        Igor,
-        DimaTest,
-        "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C",
-        "0xE6b7De299a3c76d8ee42Fd1B769b42Eec25baB08",
-        Lang,
-        Rory,
-      ],
+      [AndriiTest, DimaTest96, SharedDev, DimaTest2B, Igor, DimaTest, DimaTest3C, DimaTest08, Lang, Rory],
       [true, false, true, false, true, false, false, false, true, true],
       75
     );
