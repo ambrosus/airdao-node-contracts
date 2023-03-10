@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+
+  ts-test:
+    name: Type Script Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+          registry-url: "https://registry.npmjs.org"
+          scope: "@ambrosus"
+
+      - run: npm install
+
+      - name: Run tests
+        run: npm run test
