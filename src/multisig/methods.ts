@@ -1,7 +1,7 @@
-import { Finance, MasterFinance, Multisig, ValidatorSet } from "../../typechain-types";
+import { Finance, MasterFinance, MasterMultisig, Multisig, ValidatorSet } from "../../typechain-types";
 import { BigNumberish } from "ethers";
 import { Contracts } from "../contracts/contracts";
-import { ContractNames } from "../contracts/names";
+import { ContractNames, slavesMultisigsNames } from "../contracts/names";
 
 // NON VIEW
 
@@ -18,6 +18,20 @@ export async function financeWithdraw(
 
   const calldata = (await financeContract.populateTransaction.withdraw(addressTo, amount)).data!;
   return await submitTransaction(multisigContract, financeContract.address, 0, calldata);
+}
+
+export async function changeMultisigOwners(contracts: Contracts, newOwner: string, multisigAddresses?: string[]) {
+  const multisigAddressesList = multisigAddresses
+    ? multisigAddresses
+    : slavesMultisigsNames.map((n) => contracts.getContractByName(n).address);
+
+  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
+
+  if (multisigAddressesList.includes(masterMultisig.address))
+    throw Error("You probably don't want to change the owner of the master multisig");
+
+  const calldata = (await masterMultisig.populateTransaction.changeOwners(multisigAddressesList, newOwner)).data!;
+  return await submitTransaction(masterMultisig, masterMultisig.address, 0, calldata);
 }
 
 // coming soon...

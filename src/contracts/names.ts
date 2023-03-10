@@ -20,11 +20,12 @@ export enum ContractNames {
   ValidatorSetMultisig = "ValidatorSet_Multisig",
 }
 
-export const multisigsNames = [
-  ContractNames.MasterMultisig,
+export const slavesMultisigsNames = [
   ContractNames.FinanceMasterMultisig,
   ContractNames.FinanceRewardsMultisig,
   ContractNames.FinanceInvestorsMultisig,
   ContractNames.FinanceTeamMultisig,
   ContractNames.FinanceEcosystemMultisig,
 ];
+
+export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];

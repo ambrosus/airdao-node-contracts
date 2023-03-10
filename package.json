@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/ambrosus/airdao-node-contracts.git"
   },
-  "version": "0.0.37",
+  "version": "0.0.38",
   "main": "./dist/src/index.js",
   "files": [
     "dist/**/*"
