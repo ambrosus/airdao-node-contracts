@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { deploy } from "../src/utils/deployments";
 import { ContractNames } from "../src";
-import { Andrii, DimaTestAcc, Igor, Lang, SharedDevAcc } from "./addresses";
+import { Andrii, AndriiTest, DimaTest, Igor, Lang, SharedDev } from "./addresses";
 
 async function main() {
   const MultisigMasterFactory = await ethers.getContractFactory("MasterMultisig");
@@ -18,7 +18,7 @@ async function main() {
     ]);
   } else {
     await deploy(ContractNames.MasterMultisig, networkName, MultisigMasterFactory, [
-      [SharedDevAcc, DimaTestAcc, Andrii],
+      [SharedDev, DimaTest, AndriiTest],
       [true, true, true],
       51,
     ]);

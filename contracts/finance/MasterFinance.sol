@@ -7,8 +7,8 @@ import "../utils/TransferViaCall.sol";
 
 
 contract MasterFinance is Ownable {
-    uint immutable maxBanks; // = 50;
-    uint immutable maxBankBalance; // = 100_000_000 ether;
+    uint maxBanks; // = 50;
+    uint maxBankBalance; // = 100_000_000 ether;
 
     Bank[] public banks;
 
@@ -45,8 +45,8 @@ contract MasterFinance is Ownable {
     }
 
     function getBalances() public view returns (address[] memory addresses, uint[] memory balances){
-        address[] memory addresses = new address[](maxBanks+1);
-        uint[] memory balances = new uint[](maxBanks+1);
+        addresses = new address[](maxBanks+1);
+        balances = new uint[](maxBanks+1);
 
         addresses[0] = address(this);
         balances[0] = addresses[0].balance;

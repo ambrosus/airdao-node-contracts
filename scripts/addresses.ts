@@ -7,5 +7,6 @@ export const Stefan = ""; // TODO
 export const Seth = ""; // TODO
 
 // testing
-export const SharedDevAcc = "0x295C2707319ad4BecA6b5bb4086617fD6F240CfE";
-export const DimaTestAcc = "0xc9E2CB16dEC44be85b8994D1EcDD4cA7a690c28b";
+export const SharedDev = "0x295C2707319ad4BecA6b5bb4086617fD6F240CfE";
+export const DimaTest = "0xc9E2CB16dEC44be85b8994D1EcDD4cA7a690c28b";
+export const AndriiTest = "0xb017DcCC473499C83f1b553bE564f3CeAf002254";
