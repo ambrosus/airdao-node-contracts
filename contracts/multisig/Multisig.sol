@@ -47,7 +47,7 @@ contract Multisig is Ownable {
     constructor (
         address[] memory _signers, bool[] memory isInitiatorFlags,
         uint _threshold, address owner
-    ) public {
+    ) {
         _changeSigners(new address[](0), _signers, isInitiatorFlags);
         _changeThreshold(_threshold);
         _transferOwnership(owner);
@@ -99,7 +99,7 @@ contract Multisig is Ownable {
         // we are checking that tx exists via `destination != 0x0` check
         require(destination != address(0), "Destination can't be 0x0");
 
-        uint txId = transactionCount++;
+        txId = transactionCount++;
         transactions[txId] = Transaction(destination, value, data, false);
 
         confirmTransaction(txId);
@@ -219,7 +219,7 @@ contract Multisig is Ownable {
         if (to == 0 || to > transactionCount) to = transactionCount;
         require(to >= from, "to < from");
 
-        uint[] memory result = new uint[](to - from);
+        result = new uint[](to - from);
         uint count = 0;
 
         for (uint i = from; i < to; i++) {

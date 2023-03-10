@@ -322,5 +322,25 @@ describe("Multisig", function () {
 
       await expect(getIds(5, 4, true, true), "9").to.be.reverted;
     });
+
+    it("changeOwners", async function () {
+      const masterMultisig = await MultisigMasterFactory.deploy([addresses[0]], [true], 100);
+      const multisig1 = await MultisigFactory.deploy([addresses[1]], [true], 100, masterMultisig.address);
+      const multisig2 = await MultisigFactory.deploy([addresses[1]], [true], 100, masterMultisig.address);
+      const multisig3 = await MultisigFactory.deploy([addresses[1]], [true], 100, masterMultisig.address);
+
+      const calldata = (
+        await masterMultisig.populateTransaction.changeOwners([multisig1.address, multisig2.address], addresses[2])
+      ).data!;
+      await expect(masterMultisig.submitTransaction(masterMultisig.address, 0, calldata))
+        .to.emit(multisig1, "OwnershipTransferred")
+        .withArgs(masterMultisig.address, addresses[2])
+        .to.emit(multisig2, "OwnershipTransferred")
+        .withArgs(masterMultisig.address, addresses[2]);
+
+      expect(await multisig1.owner()).to.be.eq(addresses[2]);
+      expect(await multisig2.owner()).to.be.eq(addresses[2]);
+      expect(await multisig3.owner()).to.be.eq(masterMultisig.address);
+    });
   });
 });

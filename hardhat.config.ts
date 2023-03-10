@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000, // todo bigger
+            runs: 5000, // todo bigger
           },
           // Note: for amb deploy
           evmVersion: process.env.COVERAGE ? undefined : "byzantium", // coverage don't work with byzantium

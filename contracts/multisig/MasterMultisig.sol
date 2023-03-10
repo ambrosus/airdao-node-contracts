@@ -45,4 +45,12 @@ contract MasterMultisig is Multisig {
         bool[] isInitiatorFlags;
     }
 
+
+    // change owner of child multisigs
+    function changeOwners(address[] memory multisigs, address newOwner) public onlyOwner {
+        for (uint i=0; i<multisigs.length; i++) {
+            Multisig(multisigs[i]).transferOwnership(newOwner);
+        }
+    }
+
 }

@@ -4,14 +4,13 @@
     "type": "git",
     "url": "https://github.com/ambrosus/airdao-node-contracts.git"
   },
-  "version": "0.0.36",
+  "version": "0.0.39",
   "main": "./dist/src/index.js",
   "files": [
     "dist/**/*"
   ],
   "homepage": "https://github.com/ambrosus/airdao-node-contracts",
   "scripts": {
-    "npmpublish": "npm run build:js && npm publish",
     "build": "npm run build:sol && npm run build:js",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat compile",
