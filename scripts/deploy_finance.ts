@@ -13,9 +13,7 @@ import {
   Kevin,
   Lang,
   Rory,
-  Seth,
   SharedDev,
-  Stefan,
 } from "./addresses";
 import { deploy } from "../src/dev/deploy";
 import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
@@ -56,7 +54,7 @@ async function main() {
       ContractNames.FinanceMasterMultisig,
       networkName,
       "Multisig",
-      [[Lang, Igor, Rory, Kevin, Stefan], [true, true, true, true, true], 75, masterMultisig],
+      [[Lang, Igor, Rory, Kevin], [true, true, true, true], 75, masterMultisig],
       deployer
     );
     await deploy<MasterFinance__factory>(
@@ -70,13 +68,8 @@ async function main() {
     // other finances
     await deployFinance(ContractNames.FinanceRewards, [Lang, Igor, Andrii], [true, true, false], 75);
     await deployFinance(ContractNames.FinanceInvestors, [Lang, Igor, Rory], [true, true, true], 75);
-    await deployFinance(
-      ContractNames.FinanceTeam,
-      [Lang, Igor, Rory, Kevin, Stefan],
-      [true, true, true, true, true],
-      75
-    );
-    await deployFinance(ContractNames.FinanceEcosystem, [Lang, Kevin, Seth], [true, true, false], 75);
+    await deployFinance(ContractNames.FinanceTeam, [Lang, Igor, Rory, Kevin], [true, true, true, true], 75);
+    await deployFinance(ContractNames.FinanceEcosystem, [Lang, Igor, Kevin], [true, true, true], 75);
   } else {
     const maxBankBalance = ethers.utils.parseEther("100");
     const bankCount = 50;

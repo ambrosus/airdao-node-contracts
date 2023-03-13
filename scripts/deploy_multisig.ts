@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
-import { Andrii, AndriiTest, DimaTest, Igor, Lang, SharedDev } from "./addresses";
+import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "./addresses";
 import { deploy } from "../src/dev/deploy";
 import { MasterMultisig__factory } from "../typechain-types";
 
@@ -15,7 +15,7 @@ async function main() {
       ContractNames.MasterMultisig,
       networkName,
       "MasterMultisig",
-      [[Lang, Igor, Andrii], [true, true, true], 51],
+      [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
       deployer
     );
   } else {
