@@ -5,7 +5,7 @@ import { GetARGsTypeFromFactory, GetContractTypeFromFactory } from "../../typech
 import { artifacts, ethers } from "hardhat";
 import { ContractNames } from "../contracts/names";
 import path from "path";
-import { getFullyQualifiedName } from "hardhat/src/utils/contract-names";
+import { getFullyQualifiedName } from "hardhat/utils/contract-names";
 
 // this file use method from hardhat, so
 // don't include it into SDK build

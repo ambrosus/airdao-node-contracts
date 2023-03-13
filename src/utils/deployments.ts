@@ -33,7 +33,7 @@ export function _contractFromDeployment(deployment: Deployment, signer?: Signer)
 export function _loadDeployments(networkName: string): { [name: string]: Deployment } {
   if (networkName == "test") return deploymentsTest;
   if (networkName == "main") return deploymentsMain;
-  throw new Error("unknown networkName");
+  throw new Error(`unknown network name: ${networkName}`);
 }
 
 export const chainIDToName: { [chainId: number]: string } = {

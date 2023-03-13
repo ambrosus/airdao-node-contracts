@@ -19,7 +19,8 @@ import { deploy } from "../src/dev/deploy";
 import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
 
 async function main() {
-  const networkName = ethers.provider.network.name;
+  // const networkName = (await ethers.provider.getNetwork()).name;
+  const networkName = "main";
   const [deployer] = await ethers.getSigners();
 
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, networkName).address;
@@ -43,7 +44,7 @@ async function main() {
     await deploy<Finance__factory>(financeName, networkName, "Finance", [multisig.address], deployer);
   }
 
-  if (networkName == "16718") {
+  if (networkName == "main") {
     console.log("--- MAINNET DEPLOYMENT ---");
 
     const maxBankBalance = ethers.utils.parseEther("100000000"); // 100 millions amb per bank

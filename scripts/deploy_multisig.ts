@@ -5,10 +5,12 @@ import { deploy } from "../src/dev/deploy";
 import { MasterMultisig__factory } from "../typechain-types";
 
 async function main() {
-  const networkName = ethers.provider.network.name;
+  // const networkName = (await ethers.provider.getNetwork()).name;
+  const networkName = "main";
+
   const [deployer] = await ethers.getSigners();
 
-  if (networkName == "16718") {
+  if (networkName == "main") {
     console.log("--- MAINNET DEPLOYMENT ---");
 
     await deploy<MasterMultisig__factory>(
