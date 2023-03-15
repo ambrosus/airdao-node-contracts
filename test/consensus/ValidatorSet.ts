@@ -23,7 +23,7 @@ describe("ValidatorSet", function () {
     const TestPoolFactory = await ethers.getContractFactory("TestPool");
     const testPool = await TestPoolFactory.deploy(validatorSet.address);
 
-    await validatorSet.grantRole(await validatorSet.STAKING_POOL_ROLE(), testPool.address);
+    await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), testPool.address);
 
     return { validatorSet, testPool, owner };
   }

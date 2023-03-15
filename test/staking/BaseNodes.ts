@@ -23,7 +23,7 @@ describe("BaseNodes", function () {
     const BaseNodesFactory = await ethers.getContractFactory("BaseNodes");
     const baseNodes = await BaseNodesFactory.deploy(owner.address, validatorSet.address, ambBank.address);
 
-    await validatorSet.grantRole(await validatorSet.STAKING_POOL_ROLE(), baseNodes.address);
+    await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), baseNodes.address);
 
     return { validatorSet, baseNodes, owner };
   }

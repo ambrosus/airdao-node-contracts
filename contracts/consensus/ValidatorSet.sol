@@ -25,7 +25,7 @@ https://wiki.parity.io/Validator-Set.html
 */
 contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
-    bytes32 public constant STAKING_POOL_ROLE = keccak256("STAKING_POOL_ROLE");  // can use addStake / removeStake methods
+    bytes32 public constant STAKING_MANAGER_ROLE = keccak256("STAKING_MANAGER_ROLE");  // can use addStake / removeStake methods
     bytes32 public constant REWARD_ORACLE_ROLE = keccak256("REWARD_ORACLE_ROLE");  // can provide baseReward
 
     struct Stake {
