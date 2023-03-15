@@ -2,13 +2,15 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./IStaking.sol";
+import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 import "../LockKeeper.sol";
 import "../funds/AmbBank.sol";
 import "../funds/AirBond.sol";
 
-contract OneNodePerOwner is IStaking, AccessControl {
+// Manager, that allows users to register their **ONE** node in validator set
+
+contract ServerNodes_Manager is IStakeManager, AccessControl {
 
     struct Stake {
         uint stake;

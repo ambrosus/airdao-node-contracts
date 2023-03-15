@@ -13,7 +13,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "../utils/SuperUser.sol";
 import "../LockKeeper.sol";
-import "../staking/IStaking.sol";
+import "../staking/IStakeManager.sol";
 import "./IValidatorSet.sol";
 import "hardhat/console.sol";
 
@@ -30,7 +30,7 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
     struct Stake {
         uint amount;
-        IStaking stakingContract;
+        IStakeManager stakingContract;
         bool isAlwaysTop;
     }
 
@@ -97,7 +97,7 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         Stake storage stake = stakes[nodeAddress];
         if (stake.amount == 0) {
             // new stake
-            stakes[nodeAddress] = Stake(amount, IStaking(msg.sender), false);
+            stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), false);
 
             _addStake(nodeAddress);
         } else {

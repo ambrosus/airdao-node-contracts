@@ -1,7 +1,10 @@
 import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
 import {expect} from "chai";
 import {ethers} from "hardhat";
-import {TEST_ValidatorSet, TestPool} from "../../typechain-types";
+import {TEST_ValidatorSet, TestPool_Manager} from "../../typechain-types";
+
+class TEST_Pool_Manager {
+}
 
 describe("ValidatorSet", function () {
   const addrs = Array.from({ length: 100 }, (_, i) =>
@@ -9,7 +12,7 @@ describe("ValidatorSet", function () {
   );
 
   let validatorSet: TEST_ValidatorSet;
-  let testPool: TestPool;
+  let testPool: TEST_Pool_Manager;
 
   async function deploy() {
     const [owner] = await ethers.getSigners();
@@ -20,7 +23,7 @@ describe("ValidatorSet", function () {
     // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");
     // const lockKeeper = await LockKeeperFactory.deploy();
 
-    const TestPoolFactory = await ethers.getContractFactory("TestPool");
+    const TestPoolFactory = await ethers.getContractFactory("TEST_Pool_Manager");
     const testPool = await TestPoolFactory.deploy(validatorSet.address);
 
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), testPool.address);
