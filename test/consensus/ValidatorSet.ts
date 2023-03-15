@@ -1,20 +1,20 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { expect } from "chai";
-import { ethers } from "hardhat";
-import { TestPool, ValidatorSetTest } from "../../typechain-types";
+import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
+import {expect} from "chai";
+import {ethers} from "hardhat";
+import {TEST_ValidatorSet, TestPool} from "../../typechain-types";
 
 describe("ValidatorSet", function () {
   const addrs = Array.from({ length: 100 }, (_, i) =>
     ethers.utils.getAddress(ethers.utils.hashMessage(i.toString()).substring(0, 42))
   );
 
-  let validatorSet: ValidatorSetTest;
+  let validatorSet: TEST_ValidatorSet;
   let testPool: TestPool;
 
   async function deploy() {
     const [owner] = await ethers.getSigners();
 
-    const ValidatorSetFactory = await ethers.getContractFactory("ValidatorSetTest");
+    const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = await ValidatorSetFactory.deploy(owner.address, owner.address, 10, 2);
 
     // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");

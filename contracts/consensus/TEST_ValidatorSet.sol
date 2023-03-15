@@ -14,7 +14,7 @@ import "hardhat/console.sol";
 import "./ValidatorSet.sol";
 
 
-contract ValidatorSetTest is ValidatorSet {
+contract TEST_ValidatorSet is ValidatorSet {
 
     constructor(
         address _multisig,
