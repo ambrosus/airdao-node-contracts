@@ -26,30 +26,19 @@ interface IValidatorSet {
 interface IStaking {
     #reward(nodeAddress, amount)
     #report(nodeAddress)
-
 }
 
 
+interface IPoolsManager {
+    #addNodeRequest(stake, reqId, nodeId)
+    #addNodeRequestResolved(reqId, status)
+    #onboard(nodeAddress)
+    #retire(nodeAddress)
 
-
-
-class AirdaoStaking {
-    + **many users shares node**
-    + **nodes always in top**
-    - receives 80% reward
-    + all rewards in AMB [???]
-    - first reward after 15 days
-    - 15 days unstaking period
+    #poolStakeChanged(user, amount, tokens)
+    #poolReward(reward, tokenPrice)
 }
 
-class LiquidStaking {
-    + **many users shares node**
-    + **nodes always in top**
-    - receives 60% reward
-    + all rewards in AMB [???]
-    + no delays, no unstaking period
-    - whitelist [???]
-}
 
 class BaseNodes {
     + **multisig can register nodes**
@@ -70,6 +59,25 @@ class ServerNodes {
 }
 
 
+class PoolsNodes {
+    + **many users shares node**
+    + **nodes always in top**
+}
+
+class AirdaoStakingPool {
+    - receives 80% reward
+    + all rewards in AMB [???]
+    - first reward after 15 days
+    - 15 days unstaking period
+}
+
+class LiquidStakingPool {
+    - receives 60% reward
+    + all rewards in AMB [???]
+    + no delays, no unstaking period
+    - whitelist [???]
+}
+
 Consensus <.-> ValidatorSet
 
 
@@ -78,12 +86,14 @@ ValidatorSet <-- IValidatorSet
 
 IStaking --> BaseNodes
 IStaking --> ServerNodes
-IStaking --> AirdaoStaking
-IStaking --> LiquidStaking
+IStaking --> PoolsNodes
 
 IValidatorSet <-- BaseNodes
 IValidatorSet <-- ServerNodes
-IValidatorSet <-- AirdaoStaking
-IValidatorSet <-- LiquidStaking
+IValidatorSet <-- PoolsNodes
+
+PoolsNodes <-- IPoolsManager
+IPoolsManager <-- AirdaoStakingPool
+IPoolsManager <-- LiquidStakingPool
 
 @enduml
