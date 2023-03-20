@@ -6,13 +6,10 @@ hide empty members
 struct Consensus {}
 
 class ValidatorSet {
-    +finalizedValidators
-    +topStakes
-    +queueStakes
+    +validators
 
-    +getStake(nodeAddress)
-    #addStake(nodeAddress, amount)
-    #removeStake(nodeAddress, amount)
+    #onboard(nodeAddress)
+    #deonboard(nodeAddress)
     -finalizeChange()
     -reward(beneficiaries[], kind[])
     -report(nodeAddress)
@@ -20,10 +17,10 @@ class ValidatorSet {
 
 
 interface IValidatorSet {
-    #addStake(nodeAddress, amount)
-    #removeStake(nodeAddress, amount)
+    #onboard(nodeAddress)
+    #deonboard(nodeAddress)
 }
-interface IStaking {
+interface IStakeManager {
     #reward(nodeAddress, amount)
     #report(nodeAddress)
 }
@@ -47,6 +44,12 @@ class BaseNodes {
     + all rewards in AMB
     + no limits
 }
+
+class LimitedTop {
+    + **allows only 200 best nodes **\n**to get into the list of validators**
+}
+
+
 
 class ServerNodes {
     + **one user = one node**
@@ -81,16 +84,20 @@ class LiquidStakingPool {
 Consensus <.-> ValidatorSet
 
 
-ValidatorSet --> IStaking
+ValidatorSet --> IStakeManager
 ValidatorSet <-- IValidatorSet
 
-IStaking --> BaseNodes
-IStaking --> ServerNodes
-IStaking --> PoolsNodes
+IStakeManager --> BaseNodes
+IStakeManager --> LimitedTop
+IStakeManager --> PoolsNodes
 
 IValidatorSet <-- BaseNodes
-IValidatorSet <-- ServerNodes
+IValidatorSet <-- LimitedTop
 IValidatorSet <-- PoolsNodes
+
+
+LimitedTop <--> ServerNodes
+
 
 PoolsNodes <-- IPoolsManager
 IPoolsManager <-- AirdaoStakingPool
