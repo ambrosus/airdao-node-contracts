@@ -126,6 +126,7 @@ contract ServerNodes_Manager is IStakeManager, AccessControl {
 
 
 
+        // todo not every block now
         // per-block update (nothing in common with rewards)
         _checkOnboardingWaitingList();
     }

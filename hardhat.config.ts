@@ -9,6 +9,12 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   networks: {
+    hardhat: {
+      forking: {
+        url: "https://network.ambrosus.io",
+        blockNumber: 23619890
+      }
+    },
     local: {
       url: "http://127.0.0.1:8545",
       accounts: [
@@ -42,6 +48,9 @@ const config: HardhatUserConfig = {
           evmVersion: process.env.COVERAGE ? undefined : "byzantium", // coverage don't work with byzantium
         },
       },
+      {
+        version: "0.4.24",
+      }
     ],
   },
 };
