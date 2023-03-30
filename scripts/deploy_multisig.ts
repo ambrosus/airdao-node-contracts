@@ -3,10 +3,11 @@ import { ContractNames } from "../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "./addresses";
 import { deploy } from "../src/dev/deploy";
 import { MasterMultisig__factory } from "../typechain-types";
+import { chainIDToName } from "../src/utils/deployments";
 
 async function main() {
-  // const networkName = (await ethers.provider.getNetwork()).name;
-  const networkName = "main";
+  const chainId = (await ethers.provider.getNetwork()).chainId;
+  const networkName = chainIDToName[chainId];
 
   const [deployer] = await ethers.getSigners();
 

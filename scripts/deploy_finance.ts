@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { loadDeployment } from "../src/utils/deployments";
+import { chainIDToName, loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
 import {
   Andrii,
@@ -19,8 +19,9 @@ import { deploy } from "../src/dev/deploy";
 import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
 
 async function main() {
-  // const networkName = (await ethers.provider.getNetwork()).name;
-  const networkName = "main";
+  const chainId = (await ethers.provider.getNetwork()).chainId;
+  const networkName = chainIDToName[chainId];
+
   const [deployer] = await ethers.getSigners();
 
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, networkName).address;
