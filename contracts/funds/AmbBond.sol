@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract AmbBond is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");  // can use mint / burn methods
 
-    constructor() ERC20("AmbBond", "AmbB") {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    constructor(address admin) ERC20("AmbBond", "AmbB") {
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
     function mint(address account, uint256 amount) external onlyRole(MINTER_ROLE) {
