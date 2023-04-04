@@ -1,14 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract AmbBond is ERC20 {
+contract AmbBond is ERC20, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");  // can use mint / burn methods
+
     constructor() ERC20("AmbBond", "AmbB") {
-
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function reward(address to, uint256 amount) external {
-        _mint(to, amount);
+    function mint(address account, uint256 amount) external onlyRole(MINTER_ROLE) {
+        _mint(account, amount);
     }
+    function burn(address account, uint256 amount) external onlyRole(MINTER_ROLE) {
+        _burn(account, amount);
+    }
+
 }

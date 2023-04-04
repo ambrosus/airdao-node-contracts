@@ -120,7 +120,7 @@ contract OneNodePerOwner is IStaking, AccessControl {
         }
 
         if (ambBondsReward > 0)
-            ambBond.reward(ownerAddress, ambBondsReward);
+            ambBond.mint(ownerAddress, ambBondsReward);
 
 
 
