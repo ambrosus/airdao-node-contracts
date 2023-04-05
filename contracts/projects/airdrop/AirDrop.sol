@@ -23,7 +23,8 @@ contract AirDrop is Ownable {
         checkSignature(msg.sender, category, amount, signature);
 
         claimed[msg.sender][category] = amount;
-        ambBondToken.mint(msg.sender, amount);
+        require(ambBondToken.balanceOf(address(this)) >= amount, "Run out of tokens");
+        ambBondToken.transfer(msg.sender, amount);
         emit Claim(msg.sender, category, amount);
     }
 

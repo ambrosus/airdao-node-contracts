@@ -19,7 +19,8 @@ describe("AirDrop", function () {
     const AirDropFactory = await ethers.getContractFactory("AirDrop");
     const airDrop = await AirDropFactory.deploy(ambBond.address, owner.address);
 
-    await ambBond.grantRole(await ambBond.MINTER_ROLE(), airDrop.address);
+    await ambBond.grantRole(await ambBond.MINTER_ROLE(), owner.address);
+    await ambBond.mint(airDrop.address, 10);
 
     return { ambBond, airDrop, owner, user };
   }
@@ -43,9 +44,17 @@ describe("AirDrop", function () {
     it("claim wrong sign", async function () {
       const category = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("staking"));
       const amount = 10;
-      const signature = sign(owner, user.address, category, 10000000);
+      const signature = sign(owner, owner.address, category, 10); // wrong address
 
       await expect(airDrop.connect(user).claim(category, amount, signature)).to.be.revertedWith("Wrong signature");
+    });
+
+    it("claim not enough bonds", async function () {
+      const category = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("staking"));
+      const amount = 100;
+      const signature = sign(owner, user.address, category, 100);
+
+      await expect(airDrop.connect(user).claim(category, amount, signature)).to.be.revertedWith("Run out of tokens");
     });
   });
 
