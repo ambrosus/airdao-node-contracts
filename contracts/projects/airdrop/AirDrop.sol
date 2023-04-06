@@ -11,24 +11,31 @@ contract AirDrop is Ownable {
     address public backendAddress;
     mapping(address => mapping(bytes32 => uint)) public claimed;
 
-    event Claim(address user, bytes32 category, uint amount);
+    event Claim(address user, bytes32[] categories, uint[] amounts);
 
     constructor(address ambBondToken_, address backendAddress_) payable Ownable() {
         ambBondToken = AmbBond(ambBondToken_);
         backendAddress = backendAddress_;
     }
 
-    function claim(bytes32 category, uint amount, bytes memory signature) public {
-        require(claimed[msg.sender][category] == 0, "Already claimed");
-        checkSignature(msg.sender, category, amount, signature);
+    function claim(bytes32[] memory categories, uint[] memory amounts, bytes memory signature) public {
+        require(categories.length == amounts.length, "categories.length != amounts.length");
 
-        claimed[msg.sender][category] = amount;
-        require(ambBondToken.balanceOf(address(this)) >= amount, "Run out of tokens");
-        ambBondToken.transfer(msg.sender, amount);
-        emit Claim(msg.sender, category, amount);
+        checkSignature(msg.sender, categories, amounts, signature);
+
+        uint amountsSum;
+        for (uint i = 0; i < categories.length; i++) {
+            claimed[msg.sender][categories[i]] = amounts[i];
+            amountsSum += amounts[i];
+        }
+
+        require(ambBondToken.balanceOf(address(this)) >= amountsSum, "Run out of tokens");
+        ambBondToken.transfer(msg.sender, amountsSum);
+
+        emit Claim(msg.sender, categories, amounts);
     }
 
-    function getClaimed(address user, bytes32[] memory categories) public view returns(uint[] memory) {
+    function getClaimed(address user, bytes32[] memory categories) public view returns (uint[] memory) {
         uint[] memory result = new uint[](categories.length);
         for (uint i = 0; i < categories.length; i++)
             result[i] = claimed[user][categories[i]];
@@ -48,16 +55,25 @@ contract AirDrop is Ownable {
 
     // internal
 
-    function checkSignature(address user, bytes32 category, uint amount, bytes memory signature) internal view {
+    function checkSignature(address user, bytes32[] memory categories, uint[] memory amounts, bytes memory signature) internal view {
+        bytes memory categoriesConcat;
+        bytes memory amountsConcat;
+
+        for (uint i = 0; i < categories.length; i++) {
+            categoriesConcat = abi.encodePacked(categoriesConcat, categories[i]);
+            amountsConcat = abi.encodePacked(amountsConcat, amounts[i]);
+        }
+
         bytes32 messageHash = keccak256(abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encodePacked(user, category, amount))
+                keccak256(abi.encodePacked(user, keccak256(categoriesConcat), keccak256(amountsConcat)))
             ));
+
         require(ecdsaRecover(messageHash, signature) == backendAddress, "Wrong signature");
     }
 
 
-    function ecdsaRecover(bytes32 messageHash, bytes memory signature) pure internal returns(address) {
+    function ecdsaRecover(bytes32 messageHash, bytes memory signature) pure internal returns (address) {
         bytes32 r;
         bytes32 s;
         uint8 v;
