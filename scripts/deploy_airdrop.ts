@@ -22,7 +22,8 @@ async function main() {
       networkName,
       "AmbBond",
       [financeInvestorsMultisig],
-      deployer
+      deployer,
+      true
     );
     await deploy<AirDrop__factory>(
       ContractNames.AirDrop,
@@ -37,7 +38,8 @@ async function main() {
       networkName,
       "AmbBond",
       [deployer.address],
-      deployer
+      deployer,
+      true
     );
     await deploy<AirDrop__factory>(
       ContractNames.AirDrop,
