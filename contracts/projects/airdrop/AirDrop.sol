@@ -9,16 +9,19 @@ contract AirDrop is Ownable {
 
     AmbBond public ambBondToken;
     address public backendAddress;
+    uint public minAmbBalance;
     mapping(address => mapping(bytes32 => uint)) public claimed;
 
     event Claim(address user, bytes32[] categories, uint[] amounts);
 
-    constructor(address ambBondToken_, address backendAddress_) payable Ownable() {
+    constructor(address ambBondToken_, address backendAddress_, uint minAmbBalance_) payable Ownable() {
         ambBondToken = AmbBond(ambBondToken_);
         backendAddress = backendAddress_;
+        minAmbBalance = minAmbBalance_;
     }
 
     function claim(bytes32[] memory categories, uint[] memory amounts, bytes memory signature) public {
+        require(msg.sender.balance >= minAmbBalance, "Not enough AMB");
         require(categories.length == amounts.length, "categories.length != amounts.length");
 
         checkSignature(msg.sender, categories, amounts, signature);
@@ -51,6 +54,10 @@ contract AirDrop is Ownable {
 
     function changeBackendAddress(address backendAddress_) public onlyOwner {
         backendAddress = backendAddress_;
+    }
+
+    function changeMinAmbBalance(uint minAmbBalance_) public onlyOwner {
+        minAmbBalance = minAmbBalance_;
     }
 
     // internal

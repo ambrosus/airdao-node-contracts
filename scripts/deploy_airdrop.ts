@@ -1,6 +1,5 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
-import { SharedDev } from "./addresses";
 import { deploy } from "../src/dev/deploy";
 import { AirDrop__factory, AmbBond__factory } from "../typechain-types";
 import { chainIDToName, loadDeployment } from "../src/utils/deployments";
@@ -29,7 +28,7 @@ async function main() {
       ContractNames.AirDrop,
       networkName,
       "AirDrop",
-      [ambBond.address, BACKEND_ADDRESS],
+      [ambBond.address, BACKEND_ADDRESS, ethers.utils.parseEther("1000")],
       deployer
     );
   } else {
@@ -45,7 +44,7 @@ async function main() {
       ContractNames.AirDrop,
       networkName,
       "AirDrop",
-      [ambBond.address, SharedDev],
+      [ambBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("1000")],
       deployer
     );
   }

@@ -1,4 +1,4 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
@@ -18,7 +18,7 @@ describe("AirDrop", function () {
     const ambBond = await AmbBondFactory.deploy(owner.address);
 
     const AirDropFactory = await ethers.getContractFactory("AirDrop");
-    const airDrop = await AirDropFactory.deploy(ambBond.address, owner.address);
+    const airDrop = await AirDropFactory.deploy(ambBond.address, owner.address, ethers.utils.parseEther("1000"));
 
     await ambBond.grantRole(await ambBond.MINTER_ROLE(), owner.address);
     await ambBond.mint(airDrop.address, 50);
@@ -61,12 +61,22 @@ describe("AirDrop", function () {
       await expect(airDrop.connect(user).claim(categories, amounts, signature)).to.be.revertedWith("Wrong signature");
     });
 
-    it("claim not enough bonds", async function () {
+    it("claim contract has not enough bonds", async function () {
       const categories = [hashCategory("staking")];
       const amounts = [100];
       const signature = sign(owner, user.address, categories, amounts);
 
       await expect(airDrop.connect(user).claim(categories, amounts, signature)).to.be.revertedWith("Run out of tokens");
+    });
+
+    it("claim user has not enough AMBs ", async function () {
+      const categories = [hashCategory("staking")];
+      const amounts = [100];
+      const signature = sign(owner, user.address, categories, amounts);
+
+      await setBalance(user.address, ethers.utils.parseEther("500"));
+
+      await expect(airDrop.connect(user).claim(categories, amounts, signature)).to.be.revertedWith("Not enough AMB");
     });
   });
 
