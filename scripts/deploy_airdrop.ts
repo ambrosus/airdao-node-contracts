@@ -40,13 +40,14 @@ async function main() {
       deployer,
       true
     );
-    await deploy<AirDrop__factory>(
+    const airDrop = await deploy<AirDrop__factory>(
       ContractNames.AirDrop,
       networkName,
       "AirDrop",
       [ambBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("1000")],
       deployer
     );
+    await ambBond.mint(airDrop.address, ethers.utils.parseEther("10000"));
   }
 }
 
