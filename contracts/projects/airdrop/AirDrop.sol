@@ -49,7 +49,7 @@ contract AirDrop is Ownable {
     // onlyOwner
 
     function withdraw(address payable addressTo, uint amount) public onlyOwner {
-        transferViaCall(addressTo, amount);
+        ambBondToken.transfer(addressTo, amount);
     }
 
     function changeBackendAddress(address backendAddress_) public onlyOwner {

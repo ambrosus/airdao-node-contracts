@@ -80,6 +80,18 @@ describe("AirDrop", function () {
     });
   });
 
+  describe("withdraw", function () {
+    it("withdraw ok", async function () {
+      await expect(airDrop.withdraw(owner.address, 50)).to.changeTokenBalance(ambBond, owner, 50);
+    });
+
+    it("withdraw not owner", async function () {
+      await expect(airDrop.connect(user).withdraw(owner.address, 50)).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+    });
+  });
+
   async function sign(signer: SignerWithAddress, userAddress: string, categories: string[], amounts: number[]) {
     const categoriesConcat = categories.reduce((a, i) => solidityPack(["bytes", "bytes32"], [a, i]), "0x");
     const amountsConcat = amounts.reduce((a, i) => solidityPack(["bytes", "uint"], [a, i]), "0x");
