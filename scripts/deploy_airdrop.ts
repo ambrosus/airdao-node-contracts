@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
 import { deploy } from "../src/dev/deploy";
-import { AirDrop__factory, AmbBond__factory } from "../typechain-types";
+import { AirDrop__factory, AirBond__factory } from "../typechain-types";
 import { chainIDToName, loadDeployment } from "../src/utils/deployments";
 
 async function main() {
@@ -16,7 +16,7 @@ async function main() {
     const BACKEND_ADDRESS = ""; // todo
 
     const financeInvestorsMultisig = loadDeployment(ContractNames.FinanceInvestorsMultisig, networkName).address;
-    const ambBond = await deploy<AmbBond__factory>(
+    const airBond = await deploy<AirBond__factory>(
       ContractNames.AmbBond,
       networkName,
       "AmbBond",
@@ -28,11 +28,11 @@ async function main() {
       ContractNames.AirDrop,
       networkName,
       "AirDrop",
-      [ambBond.address, BACKEND_ADDRESS, ethers.utils.parseEther("1000")],
+      [airBond.address, BACKEND_ADDRESS, ethers.utils.parseEther("1000")],
       deployer
     );
   } else {
-    const ambBond = await deploy<AmbBond__factory>(
+    const airBond = await deploy<AirBond__factory>(
       ContractNames.AmbBond,
       networkName,
       "AmbBond",
@@ -44,10 +44,10 @@ async function main() {
       ContractNames.AirDrop,
       networkName,
       "AirDrop",
-      [ambBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("1000")],
+      [airBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("1000")],
       deployer
     );
-    await ambBond.mint(airDrop.address, ethers.utils.parseEther("10000"));
+    await airBond.mint(airDrop.address, ethers.utils.parseEther("10000000000"));
   }
 }
 

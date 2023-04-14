@@ -2,11 +2,11 @@ import { loadFixture, setBalance } from "@nomicfoundation/hardhat-network-helper
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { AirDrop, AmbBond } from "../../../typechain-types";
+import { AirDrop, AirBond } from "../../../typechain-types";
 import { arrayify, keccak256, solidityPack } from "ethers/lib/utils";
 
 describe("AirDrop", function () {
-  let ambBond: AmbBond;
+  let airBond: AirBond;
   let airDrop: AirDrop;
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
@@ -14,20 +14,20 @@ describe("AirDrop", function () {
   async function deploy() {
     const [owner, user] = await ethers.getSigners();
 
-    const AmbBondFactory = await ethers.getContractFactory("AmbBond");
-    const ambBond = await AmbBondFactory.deploy(owner.address);
+    const AirBondFactory = await ethers.getContractFactory("AirBond");
+    const airBond = await AirBondFactory.deploy(owner.address);
 
     const AirDropFactory = await ethers.getContractFactory("AirDrop");
-    const airDrop = await AirDropFactory.deploy(ambBond.address, owner.address, ethers.utils.parseEther("1000"));
+    const airDrop = await AirDropFactory.deploy(airBond.address, owner.address, ethers.utils.parseEther("1000"));
 
-    await ambBond.grantRole(await ambBond.MINTER_ROLE(), owner.address);
-    await ambBond.mint(airDrop.address, 50);
+    await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
+    await airBond.mint(airDrop.address, 50);
 
-    return { ambBond, airDrop, owner, user };
+    return { airBond, airDrop, owner, user };
   }
 
   beforeEach(async function () {
-    ({ ambBond, airDrop, owner, user } = await loadFixture(deploy));
+    ({ airBond, airDrop, owner, user } = await loadFixture(deploy));
   });
 
   describe("claim", function () {
@@ -37,7 +37,7 @@ describe("AirDrop", function () {
       const signature = sign(owner, user.address, categories, amounts);
 
       await expect(airDrop.connect(user).claim(categories, amounts, signature))
-        .to.changeTokenBalance(ambBond, user, 10)
+        .to.changeTokenBalance(airBond, user, 10)
         .to.emit(airDrop, "Claim")
         .withArgs(user.address, categories, amounts);
     });
@@ -48,7 +48,7 @@ describe("AirDrop", function () {
       const signature = sign(owner, user.address, categories, amounts);
 
       await expect(airDrop.connect(user).claim(categories, amounts, signature))
-        .to.changeTokenBalance(ambBond, user, 30)
+        .to.changeTokenBalance(airBond, user, 30)
         .to.emit(airDrop, "Claim")
         .withArgs(user.address, categories, amounts);
     });
@@ -82,7 +82,7 @@ describe("AirDrop", function () {
 
   describe("withdraw", function () {
     it("withdraw ok", async function () {
-      await expect(airDrop.withdraw(owner.address, 50)).to.changeTokenBalance(ambBond, owner, 50);
+      await expect(airDrop.withdraw(owner.address, 50)).to.changeTokenBalance(airBond, owner, 50);
     });
 
     it("withdraw not owner", async function () {

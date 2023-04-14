@@ -2,20 +2,20 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../../funds/AmbBond.sol";
+import "../../funds/AirBond.sol";
 import "../../utils/TransferViaCall.sol";
 
 contract AirDrop is Ownable {
 
-    AmbBond public ambBondToken;
+    AirBond public airBondToken;
     address public backendAddress;
     uint public minAmbBalance;
     mapping(address => mapping(bytes32 => uint)) public claimed;
 
     event Claim(address user, bytes32[] categories, uint[] amounts);
 
-    constructor(address ambBondToken_, address backendAddress_, uint minAmbBalance_) payable Ownable() {
-        ambBondToken = AmbBond(ambBondToken_);
+    constructor(address airBondToken_, address backendAddress_, uint minAmbBalance_) payable Ownable() {
+        airBondToken = AirBond(airBondToken_);
         backendAddress = backendAddress_;
         minAmbBalance = minAmbBalance_;
     }
@@ -32,8 +32,8 @@ contract AirDrop is Ownable {
             amountsSum += amounts[i];
         }
 
-        require(ambBondToken.balanceOf(address(this)) >= amountsSum, "Run out of tokens");
-        ambBondToken.transfer(msg.sender, amountsSum);
+        require(airBondToken.balanceOf(address(this)) >= amountsSum, "Run out of tokens");
+        airBondToken.transfer(msg.sender, amountsSum);
 
         emit Claim(msg.sender, categories, amounts);
     }
@@ -49,7 +49,7 @@ contract AirDrop is Ownable {
     // onlyOwner
 
     function withdraw(address payable addressTo, uint amount) public onlyOwner {
-        ambBondToken.transfer(addressTo, amount);
+        airBondToken.transfer(addressTo, amount);
     }
 
     function changeBackendAddress(address backendAddress_) public onlyOwner {

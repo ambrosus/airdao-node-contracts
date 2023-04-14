@@ -6,7 +6,7 @@ import "./IStaking.sol";
 import "../consensus/IValidatorSet.sol";
 import "../LockKeeper.sol";
 import "../funds/AmbBank.sol";
-import "../funds/AmbBond.sol";
+import "../funds/AirBond.sol";
 
 contract OneNodePerOwner is IStaking, AccessControl {
 
@@ -21,7 +21,7 @@ contract OneNodePerOwner is IStaking, AccessControl {
 
     LockKeeper public lockKeeper; // contract that locks stakes
     AmbBank public ambBank;
-    AmbBond public ambBond;
+    AirBond public airBond;
 
 
     uint public onboardingDelay;  // time that new node will be in queueStakes even if it has enough stake (only affects nodes without FLAG_ALWAYS_IN_TOP)
@@ -42,13 +42,13 @@ contract OneNodePerOwner is IStaking, AccessControl {
 
     constructor(
         address _validatorSet, address _lockKeeper,
-        address payable _ambBank, address _ambBond,
+        address payable _ambBank, address _airBond,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
     ) {
         validatorSet = IValidatorSet(_validatorSet);
         lockKeeper = LockKeeper(_lockKeeper);
         ambBank = AmbBank(_ambBank);
-        ambBond = AmbBond(_ambBond);
+        airBond = AirBond(_airBond);
 
         onboardingDelay = _onboardingDelay;
         unstakeLockTime = _unstakeLockTime;
@@ -108,8 +108,8 @@ contract OneNodePerOwner is IStaking, AccessControl {
 
         address payable ownerAddress = payable(stakes[nodeAddress].ownerAddress);
 
-        uint ambBondsReward = amount * _getAmbBondsPercent(stakes[nodeAddress].timestampStake);
-        uint nativeReward = amount - ambBondsReward;
+        uint bondsReward = amount * _getBondsPercent(stakes[nodeAddress].timestampStake);
+        uint nativeReward = amount - bondsReward;
 
 
         if (stakes[nodeAddress].rewardsToStake) {
@@ -119,8 +119,8 @@ contract OneNodePerOwner is IStaking, AccessControl {
             ambBank.reward(ownerAddress, nativeReward);
         }
 
-        if (ambBondsReward > 0)
-            ambBond.mint(ownerAddress, ambBondsReward);
+        if (bondsReward > 0)
+            airBond.mint(ownerAddress, bondsReward);
 
 
 
@@ -177,7 +177,7 @@ contract OneNodePerOwner is IStaking, AccessControl {
         return block.timestamp + onboardingDelay;
     }
 
-    function _getAmbBondsPercent(uint timestampStake) internal view returns (uint) {
+    function _getBondsPercent(uint timestampStake) internal view returns (uint) {
         uint stakingTime = block.timestamp - timestampStake;
         uint nativePercent = 25 + stakingTime / (3 * 365  days);
         if (nativePercent > 100) nativePercent = 100;
