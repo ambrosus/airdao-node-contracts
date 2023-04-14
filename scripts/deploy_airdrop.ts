@@ -17,7 +17,7 @@ async function main() {
 
     const financeInvestorsMultisig = loadDeployment(ContractNames.FinanceInvestorsMultisig, networkName).address;
     const airBond = await deploy<AirBond__factory>(
-      ContractNames.AmbBond,
+      ContractNames.AirBond,
       networkName,
       "AmbBond",
       [financeInvestorsMultisig],
@@ -33,7 +33,7 @@ async function main() {
     );
   } else {
     const airBond = await deploy<AirBond__factory>(
-      ContractNames.AmbBond,
+      ContractNames.AirBond,
       networkName,
       "AmbBond",
       [deployer.address],

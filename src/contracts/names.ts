@@ -22,7 +22,7 @@ export enum ContractNames {
 
   // finds
 
-  AmbBond = "AmbBond",
+  AirBond = "AirBond",
 
   // projects
 
