@@ -29,14 +29,14 @@ async function main() {
       ContractNames.AirDrop,
       networkName,
       "AirDrop",
-      [airBond.address, BACKEND_ADDRESS, ethers.utils.parseEther("999")],
+      [airBond.address, BACKEND_ADDRESS, ethers.utils.parseEther("999"), []],
       deployer,
       true
     );
 
     await airBond.grantRole(await airBond.DEFAULT_ADMIN_ROLE(), "0x7fadc4729bc1Ff8DAc313cb41e7527Dc6cAB2deb"); // valar
     await airBond.grantRole(await airBond.MINTER_ROLE(), deployer.address);
-    await airBond.mint(airDrop.address, ethers.utils.parseEther("5000000000"));
+    await airBond.mint(airDrop.address, ethers.utils.parseEther("5000000"));
     await airDrop.transferOwnership("0x7fadc4729bc1Ff8DAc313cb41e7527Dc6cAB2deb"); // valar
   } else {
     const airBond = await deploy<AirBond__factory>(
@@ -51,10 +51,10 @@ async function main() {
       ContractNames.AirDrop,
       networkName,
       "AirDrop",
-      [airBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("999")],
+      [airBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("999"), []],
       deployer
     );
-    await airBond.mint(airDrop.address, ethers.utils.parseEther("5000000000"));
+    await airBond.mint(airDrop.address, ethers.utils.parseEther("5000000"));
   }
 }
 

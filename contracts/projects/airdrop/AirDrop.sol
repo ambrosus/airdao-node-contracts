@@ -14,10 +14,27 @@ contract AirDrop is Ownable {
 
     event Claim(address user, bytes32[] categories, uint[] amounts);
 
-    constructor(address airBondToken_, address backendAddress_, uint minAmbBalance_) payable Ownable() {
+
+    struct HotFixClaims {
+        address user;
+        bytes32 category;
+        uint amount;
+    }
+
+    constructor(address airBondToken_, address backendAddress_, uint minAmbBalance_, HotFixClaims[] memory claims) payable Ownable() {
         airBondToken = AirBond(airBondToken_);
         backendAddress = backendAddress_;
         minAmbBalance = minAmbBalance_;
+
+        for (uint i = 0; i < claims.length; i++) {
+            HotFixClaims memory claim = claims[i];
+            claimed[claim.user][claim.category] = claim.amount;
+            bytes32[] memory categories = new bytes32[](1);
+            categories[0] = claim.category;
+            uint[] memory amounts = new uint[](1);
+            amounts[0] = claim.amount;
+            emit Claim(claim.user, categories, amounts);
+        }
     }
 
     function claim(bytes32[] memory categories, uint[] memory amounts, bytes memory signature) public {
@@ -28,6 +45,7 @@ contract AirDrop is Ownable {
 
         uint amountsSum;
         for (uint i = 0; i < categories.length; i++) {
+            require(claimed[msg.sender][categories[i]] == 0, "Already claimed");
             claimed[msg.sender][categories[i]] = amounts[i];
             amountsSum += amounts[i];
         }

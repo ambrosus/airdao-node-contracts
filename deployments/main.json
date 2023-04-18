@@ -350,9 +350,9 @@
     "fullyQualifiedName": "contracts/funds/AirBond.sol:AirBond"
   },
   "AirDrop": {
-    "address": "0x8c33e9D24eBf3918D37eC2F26BaE044C9fD30Ea9",
+    "address": "0x132827Ee051b7276a2f85D6964F6182974aa243c",
     "abi": [
-      "constructor(address airBondToken_, address backendAddress_, uint256 minAmbBalance_) payable",
+      "constructor(address airBondToken_, address backendAddress_, uint256 minAmbBalance_, tuple(address user, bytes32 category, uint256 amount)[] claims) payable",
       "event Claim(address user, bytes32[] categories, uint256[] amounts)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
       "function airBondToken() view returns (address)",
@@ -368,7 +368,7 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x0edd4df449adcd7dcee4f343373a5a14553619dcaa7e62f5f205e9f9c98de04f",
+    "deployTx": "0x370df7e24a97f02daba3f89d15f6572d79731b754a192d2e39ccf595c446c366",
     "fullyQualifiedName": "contracts/projects/airdrop/AirDrop.sol:AirDrop"
   }
 }
