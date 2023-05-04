@@ -18,7 +18,7 @@ describe("AirDrop", function () {
     const airBond = await AirBondFactory.deploy(owner.address);
 
     const AirDropFactory = await ethers.getContractFactory("AirDrop");
-    const airDrop = await AirDropFactory.deploy(airBond.address, owner.address, ethers.utils.parseEther("1000"));
+    const airDrop = await AirDropFactory.deploy(airBond.address, owner.address, ethers.utils.parseEther("1000"), []);
 
     await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
     await airBond.mint(airDrop.address, 50);
