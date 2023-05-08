@@ -16,6 +16,7 @@
     "format:fix": "eslint --fix ./ && prettier --write ./",
     "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test",
     "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test",
+    "deploy_airdrop": "hardhat run ./scripts/deploy_airdrop.ts --network test",
     "test_script": "hardhat run ./scripts/test.ts --network test",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"

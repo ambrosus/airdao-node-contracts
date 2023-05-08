@@ -1,6 +1,7 @@
 export enum ContractNames {
   MasterMultisig = "MasterMultisig",
 
+  // finance + multisig
   FinanceMaster = "FinanceMaster",
   FinanceMasterMultisig = "FinanceMaster_Multisig",
 
@@ -18,6 +19,14 @@ export enum ContractNames {
 
   ValidatorSet = "ValidatorSet",
   ValidatorSetMultisig = "ValidatorSet_Multisig",
+
+  // finds
+
+  AirBond = "AirBond",
+
+  // projects
+
+  AirDrop = "AirDrop",
 }
 
 export const slavesMultisigsNames = [

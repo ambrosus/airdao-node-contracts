@@ -314,5 +314,61 @@
     ],
     "deployTx": "0x8d7e7e591af263f45a506981c213971c502476bc8e326e441459dd637d3e8a98",
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
+  },
+  "AirBond": {
+    "address": "0xC6613c683f2d4684D806FAcb9D413f41221537c6",
+    "abi": [
+      "constructor(address admin)",
+      "event Approval(address indexed owner, address indexed spender, uint256 value)",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event Transfer(address indexed from, address indexed to, uint256 value)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function MINTER_ROLE() view returns (bytes32)",
+      "function allowance(address owner, address spender) view returns (uint256)",
+      "function approve(address spender, uint256 amount) returns (bool)",
+      "function balanceOf(address account) view returns (uint256)",
+      "function burn(address account, uint256 amount)",
+      "function decimals() view returns (uint8)",
+      "function decreaseAllowance(address spender, uint256 subtractedValue) returns (bool)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function increaseAllowance(address spender, uint256 addedValue) returns (bool)",
+      "function mint(address account, uint256 amount)",
+      "function name() view returns (string)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function symbol() view returns (string)",
+      "function totalSupply() view returns (uint256)",
+      "function transfer(address to, uint256 amount) returns (bool)",
+      "function transferFrom(address from, address to, uint256 amount) returns (bool)"
+    ],
+    "deployTx": "0xd7d738f734308c8965846dd769f10b7b973767b53a56cece796a975767161966",
+    "fullyQualifiedName": "contracts/funds/AmbBond.sol:AmbBond"
+  },
+  "AirDrop": {
+    "address": "0x1448682F926862Fa3624AF007D14CB80D1bdDccC",
+    "abi": [
+      "constructor(address airBondToken_, address backendAddress_, uint256 minAmbBalance_, tuple(address user, bytes32 category, uint256 amount)[] claims) payable",
+      "event Claim(address user, bytes32[] categories, uint256[] amounts)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "function airBondToken() view returns (address)",
+      "function backendAddress() view returns (address)",
+      "function changeBackendAddress(address backendAddress_)",
+      "function changeMinAmbBalance(uint256 minAmbBalance_)",
+      "function claim(bytes32[] categories, uint256[] amounts, bytes signature)",
+      "function claimed(address, bytes32) view returns (uint256)",
+      "function getClaimed(address user, bytes32[] categories) view returns (uint256[])",
+      "function minAmbBalance() view returns (uint256)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function transferOwnership(address newOwner)",
+      "function withdraw(address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0x3c1d84398c87818a97a1a88d2fd2cbf135f84adb187241d02fa8d22a0f5fde94",
+    "fullyQualifiedName": "contracts/projects/airdrop/AirDrop.sol:AirDrop"
   }
 }

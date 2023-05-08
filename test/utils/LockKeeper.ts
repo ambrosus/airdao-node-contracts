@@ -19,8 +19,8 @@ describe("LockKeeper", function () {
   });
 
   async function deployERC20() {
-    const Factory = await ethers.getContractFactory("AmbBond");
-    const contract = await Factory.deploy();
+    const Factory = await ethers.getContractFactory("MintableERC20");
+    const contract = await Factory.deploy("Test", "Test");
     return { contract };
   }
 
@@ -88,7 +88,7 @@ describe("LockKeeper", function () {
 
       it("should work", async function () {
         await erc20.increaseAllowance(lockKeeper.address, 100);
-        await erc20.reward(user1.address, 100);
+        await erc20.mint(user1.address, 100);
 
         await expect(lockKeeper.lockSingle(user2.address, erc20.address, T + 1000, 100, "Test"))
           .to.emit(lockKeeper, "Locked")
@@ -150,7 +150,7 @@ describe("LockKeeper", function () {
       // lock
       const { contract: erc20 } = await loadFixture(deployERC20);
       await erc20.increaseAllowance(lockKeeper.address, 100);
-      await erc20.reward(user1.address, 100);
+      await erc20.mint(user1.address, 100);
 
       await lockKeeper.lockSingle(user1.address, erc20.address, T + 1000, 100, "Test");
 
