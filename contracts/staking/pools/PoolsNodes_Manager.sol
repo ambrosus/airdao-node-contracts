@@ -35,8 +35,9 @@ contract PoolsNodes_Manager is Ownable, IStakeManager {
 
 
 
-    constructor(uint minApolloDeposit_) Ownable() {
+    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_) Ownable() {
         minApolloDeposit = minApolloDeposit_;
+        validatorSet = validatorSet_;
     }
 
 

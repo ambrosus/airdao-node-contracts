@@ -4,9 +4,10 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./PoolToken.sol";
 import "./IPoolsNodesManager.sol";
+import "./HeadContextCatalogue.sol";
 
 
-contract Pool is Ownable {
+contract LegacyPool is Ownable {
 
     using SafeMath for uint;
 

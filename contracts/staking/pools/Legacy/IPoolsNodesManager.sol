@@ -1,13 +1,10 @@
-pragma solidity ^0.4.23;
+pragma solidity >0.4.23;
 
 library Consts {
     enum NodeType {NONE, ATLAS, HERMES, APOLLO}
     enum SecondaryNodeType {ZETA, SIGMA, OMEGA}
 }
 
-contract Head {
-    function poolsNodesManager() public returns (IPoolsNodesManager);
-}
 
 interface IPoolsNodesManager {
     function onboard(address nodeAddress, Consts.NodeType nodeType) external payable;

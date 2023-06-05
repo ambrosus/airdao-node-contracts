@@ -9,7 +9,7 @@ import "./IPoolsNodesManager.sol";
 // Manager that allows to register staking pools;
 // Each pool can onboard a node (via this manager) when reached some stake goal
 
-contract PoolsNodesManager is Ownable, IStakeManager, IPoolsNodesManager {
+contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager {
 
     IValidatorSet public validatorSet; // contract that manages validator set
 
@@ -36,15 +36,16 @@ contract PoolsNodesManager is Ownable, IStakeManager, IPoolsNodesManager {
 
 
 
-    constructor(uint minApolloDeposit_) Ownable() {
+    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_) Ownable() {
         minApolloDeposit = minApolloDeposit_;
+        validatorSet = validatorSet_;
     }
 
 
     // ONLY POOL METHODS
 
 
-    function onboard(address nodeAddress) external payable onlyPoolsCalls {
+    function onboard(address nodeAddress, Consts.NodeType nodeType) external payable onlyPoolsCalls {
         require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
 
@@ -52,7 +53,7 @@ contract PoolsNodesManager is Ownable, IStakeManager, IPoolsNodesManager {
         emit NodeOnboarded(nodeAddress, msg.value);
     }
 
-    function retire(address nodeAddress) external onlyPoolsCalls returns (uint) {
+    function retire(address nodeAddress, Consts.NodeType nodeType) external onlyPoolsCalls returns (uint) {
         uint amountToTransfer = getDeposit(nodeAddress);
         require(amountToTransfer != 0, "No such node");
 
@@ -71,7 +72,7 @@ contract PoolsNodesManager is Ownable, IStakeManager, IPoolsNodesManager {
         emit PoolReward(msg.sender, reward, tokenPrice);
     }
 
-    function addNodeRequest(uint stake, uint requestId, uint nodeId) public onlyPoolsCalls {
+    function addNodeRequest(uint stake, uint requestId, uint nodeId, Consts.NodeType role) public onlyPoolsCalls {
         emit AddNodeRequest(msg.sender, requestId, nodeId, stake);
     }
 
@@ -111,7 +112,7 @@ contract PoolsNodesManager is Ownable, IStakeManager, IPoolsNodesManager {
         }
     }
 
-    function changeMinApolloDeposit(uint newMinApolloDeposit) public onlyOwner{
+    function changeMinApolloDeposit(uint newMinApolloDeposit) public onlyOwner {
         minApolloDeposit = newMinApolloDeposit;
     }
 
