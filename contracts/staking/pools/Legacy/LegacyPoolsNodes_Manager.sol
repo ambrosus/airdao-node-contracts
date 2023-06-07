@@ -36,9 +36,10 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
 
 
 
-    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_) Ownable() {
+    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_, uint lastPoolId_) Ownable() {
         minApolloDeposit = minApolloDeposit_;
         validatorSet = validatorSet_;
+        lastPoolId = lastPoolId_;
     }
 
 

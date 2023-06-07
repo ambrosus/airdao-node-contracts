@@ -17,7 +17,7 @@ describe("Legacy Pool", function () {
     const validatorSet = await ValidatorSetFactory.deploy(owner.address, owner.address, 10, 2);
 
     const PoolsNodesManagerFactory = await ethers.getContractFactory("LegacyPoolsNodes_Manager");
-    const manager = await PoolsNodesManagerFactory.deploy(100, validatorSet.address);
+    const manager = await PoolsNodesManagerFactory.deploy(100, validatorSet.address, 100);
 
     const head: Head = await ethers.getContractAt("Head", HEAD);
     const headOwnerAddr = await head.owner();
