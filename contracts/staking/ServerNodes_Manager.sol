@@ -4,13 +4,14 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
+import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
 import "../LockKeeper.sol";
 import "../funds/AmbBank.sol";
 import "../funds/AirBond.sol";
 
 // Manager, that allows users to register their **ONE** node in validator set
 
-contract ServerNodes_Manager is IStakeManager, AccessControl {
+contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
     struct Stake {
         uint stake;
@@ -124,10 +125,10 @@ contract ServerNodes_Manager is IStakeManager, AccessControl {
         if (bondsReward > 0)
             airBond.mint(ownerAddress, bondsReward);
 
+    }
 
-
-        // todo not every block now
-        // per-block update (nothing in common with rewards)
+    // todo tests
+    function onBlock() external {
         _checkOnboardingWaitingList();
     }
 

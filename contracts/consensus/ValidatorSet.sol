@@ -15,7 +15,7 @@ import "../utils/SuperUser.sol";
 import "../LockKeeper.sol";
 import "../staking/IStakeManager.sol";
 import "./IValidatorSet.sol";
-import "hardhat/console.sol";
+import "./OnBlockNotifier.sol";
 
 /**
 @title Implementation of Parities ValidatorSet contract with:
@@ -23,7 +23,7 @@ import "hardhat/console.sol";
 - only owner (set explicitly in constructor and transferable) can perform mutating functions
 https://wiki.parity.io/Validator-Set.html
 */
-contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
+contract ValidatorSet is OnBlockNotifier, SuperUser, AccessControl, IValidatorSet {
 
     bytes32 public constant STAKING_MANAGER_ROLE = keccak256("STAKING_MANAGER_ROLE");  // can use addStake / removeStake methods
     bytes32 public constant REWARD_ORACLE_ROLE = keccak256("REWARD_ORACLE_ROLE");  // can provide baseReward
@@ -145,6 +145,13 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         topStakesCount = newTopStakesCount;
     }
 
+    function addBlockListener(IOnBlockListener listener) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _addListener(listener);
+    }
+
+    function removeBlockListener(IOnBlockListener listener) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _removeListener(listener);
+    }
 
 
     // SUPERUSER (NODE) METHODS
@@ -157,6 +164,8 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
 
     function reward(address[] memory beneficiaries, uint16[] memory kind) external onlySuperUser() returns (address[] memory, uint256[] memory) {
+        _notifyAll();  // call `onBlock` method on listeners
+
         Stake storage stake = stakes[beneficiaries[0]];
         uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
 
