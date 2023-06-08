@@ -20,7 +20,7 @@ export enum ContractNames {
   ValidatorSet = "ValidatorSet",
   ValidatorSetMultisig = "ValidatorSet_Multisig",
 
-  // finds
+  // funds
 
   AirBond = "AirBond",
 

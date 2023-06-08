@@ -7,6 +7,10 @@ export interface Deployment {
   abi: any[];
   deployTx: string;
   fullyQualifiedName: string;
+  proxy?: {
+    implementation: string;
+    fullyQualifiedName: string;
+  };
 }
 
 export function loadDeployment(contractName: string, networkName: string, signer?: Signer) {

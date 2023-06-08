@@ -12,7 +12,12 @@ export async function sourcifyAll(hre: HardhatRuntimeEnvironment) {
   const deployments = _loadDeployments(networkName);
 
   for (const [contractName, deployment] of Object.entries(deployments))
-    await sourcifyOne(hre, deployment.fullyQualifiedName, deployment.address, chainId, contractName);
+    if (deployment.proxy) {
+      await sourcifyOne(hre, deployment.proxy.fullyQualifiedName, deployment.address, chainId, contractName + " Proxy");
+      await sourcifyOne(hre, deployment.fullyQualifiedName, deployment.proxy.implementation, chainId, contractName);
+    } else {
+      await sourcifyOne(hre, deployment.fullyQualifiedName, deployment.address, chainId, contractName);
+    }
 }
 
 export async function sourcifyOne(
@@ -71,12 +76,10 @@ async function verify(chainId: number, address: string, metadata: string): Promi
 }
 
 async function loadMetadata(hre: HardhatRuntimeEnvironment, fullyQualifiedName: string): Promise<string> {
-  const buildInfo = await hre.artifacts.getBuildInfo(fullyQualifiedName);
-
+  const buildInfo = await getBuildInfo(hre, fullyQualifiedName);
   const { sourceName, contractName } = parseFullyQualifiedName(fullyQualifiedName);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore   `metadata` field real exist lol
-  const metadataStr = buildInfo?.output.contracts[sourceName][contractName].metadata;
+
+  const metadataStr = buildInfo.output.contracts[sourceName][contractName].metadata;
   if (!metadataStr) throw `No metadata for contract ${fullyQualifiedName}`;
 
   const metadata = JSON.parse(metadataStr);
@@ -86,4 +89,14 @@ async function loadMetadata(hre: HardhatRuntimeEnvironment, fullyQualifiedName: 
   });
 
   return JSON.stringify(metadata);
+}
+
+async function getBuildInfo(hre: HardhatRuntimeEnvironment, fullyQualifiedName: string): Promise<any> {
+  if (
+    fullyQualifiedName ==
+    "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol:TransparentUpgradeableProxy"
+  )
+    return require("@openzeppelin/upgrades-core/artifacts/build-info.json");
+
+  return await hre.artifacts.getBuildInfo(fullyQualifiedName);
 }
