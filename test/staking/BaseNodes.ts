@@ -1,7 +1,7 @@
-import {loadFixture} from "@nomicfoundation/hardhat-network-helpers";
-import {ethers} from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {BaseNodes, BaseNodes_Manager, TEST_ValidatorSet} from "../../typechain-types";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { ethers, upgrades } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BaseNodes_Manager, TEST_ValidatorSet } from "../../typechain-types";
 
 describe("BaseNodes", function () {
   let validatorSet: TEST_ValidatorSet;
@@ -15,7 +15,12 @@ describe("BaseNodes", function () {
     const ambBank = await AmbBankFactory.deploy();
 
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
-    const validatorSet = await ValidatorSetFactory.deploy(owner.address, owner.address, 10, 2);
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
+      owner.address,
+      owner.address,
+      10,
+      2,
+    ])) as TEST_ValidatorSet;
 
     // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");
     // const lockKeeper = await LockKeeperFactory.deploy();

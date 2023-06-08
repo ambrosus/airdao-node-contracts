@@ -1,5 +1,5 @@
 import { impersonateAccount, loadFixture, setBalance } from "@nomicfoundation/hardhat-network-helpers";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
 import { Catalogue__factory, Context__factory, Head, LegacyPool, TEST_ValidatorSet } from "../../typechain-types";
 
@@ -14,7 +14,12 @@ describe("Legacy Pool", function () {
     await setBalance(owner.address, ethers.utils.parseEther("100000000"));
 
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
-    const validatorSet = await ValidatorSetFactory.deploy(owner.address, owner.address, 10, 2);
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
+      owner.address,
+      owner.address,
+      10,
+      2,
+    ])) as TEST_ValidatorSet;
 
     const PoolsNodesManagerFactory = await ethers.getContractFactory("LegacyPoolsNodes_Manager");
     const manager = await PoolsNodesManagerFactory.deploy(100, validatorSet.address, 100);

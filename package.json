@@ -17,13 +17,16 @@
     "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test",
     "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test",
     "deploy_airdrop": "hardhat run ./scripts/deploy_airdrop.ts --network test",
+    "deploy_validatorset": "hardhat run ./scripts/deploy_validatorset.ts --network test",
     "test_script": "hardhat run ./scripts/test.ts --network test",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
-    "@openzeppelin/contracts": "^4.1.0",
+    "@openzeppelin/contracts": "^4.9.0",
+    "@openzeppelin/contracts-upgradeable": "4.9.0",
+    "@openzeppelin/hardhat-upgrades": "^1.26.0",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
     "dotenv": "^16.0.3",

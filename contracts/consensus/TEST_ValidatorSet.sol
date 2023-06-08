@@ -16,15 +16,6 @@ import "./ValidatorSet.sol";
 
 contract TEST_ValidatorSet is ValidatorSet {
 
-    constructor(
-        address _multisig,
-        address _rewardOracle,
-
-        uint _baseReward,
-        uint _topStakesCount
-    ) ValidatorSet(_multisig, _rewardOracle, _baseReward, _topStakesCount) {}
-
-
     function lowestStakeIndex() public view returns (uint) {
         return _lowestStakeIndex;
     }

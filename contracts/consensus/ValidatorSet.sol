@@ -10,7 +10,7 @@ This Source Code Form is “Incompatible With Secondary Licenses”, as defined 
 pragma solidity ^0.8.17;
 
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../utils/SuperUser.sol";
 import "../LockKeeper.sol";
 import "../staking/IStakeManager.sol";
@@ -23,7 +23,7 @@ import "./OnBlockNotifier.sol";
 - only owner (set explicitly in constructor and transferable) can perform mutating functions
 https://wiki.parity.io/Validator-Set.html
 */
-contract ValidatorSet is OnBlockNotifier, SuperUser, AccessControl, IValidatorSet {
+contract ValidatorSet is OnBlockNotifier, SuperUser, AccessControlUpgradeable, IValidatorSet {
 
     bytes32 public constant STAKING_MANAGER_ROLE = keccak256("STAKING_MANAGER_ROLE");  // can use addStake / removeStake methods
     bytes32 public constant REWARD_ORACLE_ROLE = keccak256("REWARD_ORACLE_ROLE");  // can provide baseReward
@@ -54,13 +54,13 @@ contract ValidatorSet is OnBlockNotifier, SuperUser, AccessControl, IValidatorSe
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
 
-    constructor(
+    function initialize(
         address _multisig,
         address _rewardOracle,
 
         uint _baseReward,
         uint _topStakesCount
-    ) {
+    ) public initializer {
         baseReward = _baseReward;
         topStakesCount = _topStakesCount;
 
