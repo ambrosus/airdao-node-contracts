@@ -17,10 +17,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
 
     uint public  minApolloDeposit;
 
-    mapping(address => bool) public isPool;
-    address[] public pools;
-    uint public lastPoolId;
-
+    PoolsStore private poolsStore;
     ApolloDepositStore private apolloDepositStore;
     RolesEventEmitter private rolesEventEmitter;
     PoolEventsEmitter private poolEventsEmitter;
@@ -28,15 +25,16 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     event PoolAdded(address poolAddress);
     event PoolRemoved(address poolAddress);
 
-    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_, uint lastPoolId_,
+    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_,
+        PoolsStore _poolsStore,
         ApolloDepositStore _apolloDepositStore,
         RolesEventEmitter _rolesEventEmitter,
         PoolEventsEmitter _poolEventsEmitter
     ) Ownable() {
         minApolloDeposit = minApolloDeposit_;
         validatorSet = validatorSet_;
-        lastPoolId = lastPoolId_;
 
+        poolsStore = _poolsStore;
         apolloDepositStore = _apolloDepositStore;
         rolesEventEmitter = _rolesEventEmitter;
         poolEventsEmitter = _poolEventsEmitter;
@@ -82,35 +80,18 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     }
 
     function nextId() public returns (uint) {
-        lastPoolId++;
-        return lastPoolId;
+        return poolsStore.nextId();
     }
 
 
     // OWNER METHODS
 
     function addPool(address pool) public onlyOwner {
-        require(pool != address(0), "Pool must not be 0x0");
-        require(!isPool[pool], "Pool already registered");
-
-        isPool[pool] = true;
-        pools.push(pool);
-        emit PoolAdded(pool);
+        poolsStore.addPool(pool);
     }
 
     function removePool(address pool) public onlyOwner {
-        require(isPool[pool], "Pool not registered");
-
-        delete isPool[pool];
-        emit PoolRemoved(pool);
-
-        for (uint i = 0; i < pools.length; i++) {
-            if (pools[i] == pool) {
-                pools[i] = pools[pools.length - 1];
-                pools.pop();
-                return;
-            }
-        }
+        poolsStore.removePool(pool);
     }
 
     function changeMinApolloDeposit(uint newMinApolloDeposit) public onlyOwner {
@@ -137,15 +118,6 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         return validatorSet.getNodeStake(nodeAddress);
     }
 
-    function getPoolsCount() public view returns (uint) {
-        return pools.length;
-    }
-
-    function getPools() public view returns (address[] memory) {
-        return pools;
-    }
-
-
 
 
     // INTERNAL
@@ -155,7 +127,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     // MODIFIERS
 
     modifier onlyPoolsCalls() {
-        require(isPool[msg.sender], "The message sender is not pool");
+        require(poolsStore.isPool(address(msg.sender)), "The message sender is not pool");
         _;
     }
 

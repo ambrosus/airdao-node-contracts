@@ -41,3 +41,27 @@ interface RolesEventEmitter {
 
     function nodeUrlChanged(address nodeAddress, string memory oldNodeUrl, string memory newNodeUrl) external;
 }
+
+
+
+
+interface PoolsStore {
+
+    event PoolAdded(address poolAddress);
+    event PoolRemoved(address poolAddress);
+
+    function isPool(address) external returns (bool);
+//    address[] external pools;
+//    uint external id;
+
+
+    function addPool(address pool) external;
+
+    function removePool(address pool) external;
+
+    function nextId() external returns (uint);
+
+    function getPoolsCount() external view returns (uint);
+
+    function getPools(uint from, uint to) external view returns (address[] memory _pools);
+}

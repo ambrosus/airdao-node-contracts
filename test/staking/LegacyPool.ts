@@ -47,16 +47,11 @@ describe("Legacy Pool", function () {
       ["function APOLLO_DEPOSIT() view returns (uint)"],
       owner
     ).APOLLO_DEPOSIT();
-    const lastPoolId = new ethers.Contract(
-      await oldStorageCatalogue.poolsStore(),
-      ["function id() view returns (uint)"],
-      owner
-    ).id();
 
     const manager = await new LegacyPoolsNodes_Manager__factory(owner).deploy(
       minApolloDeposit,
       validatorSet.address,
-      lastPoolId,
+      await oldStorageCatalogue.poolsStore(),
       await oldStorageCatalogue.apolloDepositStore(),
       await oldStorageCatalogue.rolesEventEmitter(),
       await oldStorageCatalogue.poolEventsEmitter()
@@ -122,23 +117,14 @@ describe("Legacy Pool", function () {
     return { validatorSet, manager, owner, heraPool, heraService, poolEventEmitter, rolesEventEmitter };
   }
 
-  it("pool not registered", async function () {
-    const { heraPool } = await loadFixture(deploy);
-    await expect(heraPool.stake({ value: heraPool.minStakeValue() })).to.be.revertedWith(
-      "The message sender is not pool"
-    );
-  });
-
   it("stake", async function () {
-    const { manager, heraPool, poolEventEmitter } = await loadFixture(deploy);
-    await manager.addPool(heraPool.address);
+    const { heraPool, poolEventEmitter } = await loadFixture(deploy);
 
     await expect(heraPool.stake({ value: heraPool.minStakeValue() })).to.emit(poolEventEmitter, "PoolStakeChanged");
   });
 
   it("stake + onboard request", async function () {
-    const { manager, heraPool, poolEventEmitter } = await loadFixture(deploy);
-    await manager.addPool(heraPool.address);
+    const { heraPool, poolEventEmitter } = await loadFixture(deploy);
 
     await expect(heraPool.stake({ value: heraPool.nodeStake() }))
       .to.emit(poolEventEmitter, "PoolStakeChanged")
@@ -146,10 +132,7 @@ describe("Legacy Pool", function () {
   });
 
   it("onboard request + approve request", async function () {
-    const { validatorSet, manager, heraPool, heraService, poolEventEmitter, rolesEventEmitter } = await loadFixture(
-      deploy
-    );
-    await manager.addPool(heraPool.address);
+    const { validatorSet, heraPool, heraService, poolEventEmitter, rolesEventEmitter } = await loadFixture(deploy);
 
     const receipt = await (await heraPool.stake({ value: heraPool.nodeStake() })).wait();
     const requestEvent = poolEventEmitter.interface.decodeEventLog("AddNodeRequest", receipt.events![2].data);
