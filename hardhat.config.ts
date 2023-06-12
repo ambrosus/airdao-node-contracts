@@ -24,6 +24,11 @@ const config: HardhatUserConfig = {
       ],
       hardfork: "byzantium",
     },
+    dev: {
+      url: "https://network.ambrosus-dev.io",
+      hardfork: "byzantium",
+      accounts: [process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero],
+    },
     test: {
       url: "https://network.ambrosus-test.io",
       hardfork: "byzantium",
