@@ -1,7 +1,17 @@
 import { impersonateAccount, loadFixture, setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
-import { Catalogue__factory, Context__factory, Head, LegacyPool, TEST_ValidatorSet } from "../../typechain-types";
+import {
+  Catalogue__factory,
+  Context__factory,
+  Head,
+  LegacyPool,
+  LegacyPoolsNodes_Manager__factory,
+  PoolEventsEmitter__factory,
+  RolesEventEmitter__factory,
+  StorageCatalogue__factory,
+  TEST_ValidatorSet,
+} from "../../typechain-types";
 
 const HERA_POOL = "0x0E051C8C1cd519d918DB9b631Af303aeC85266BF";
 const HEAD = "0x0000000000000000000000000000000000000F10";
@@ -21,17 +31,79 @@ describe("Legacy Pool", function () {
       2,
     ])) as TEST_ValidatorSet;
 
-    const PoolsNodesManagerFactory = await ethers.getContractFactory("LegacyPoolsNodes_Manager");
-    const manager = await PoolsNodesManagerFactory.deploy(100, validatorSet.address, 100);
-
     const head: Head = await ethers.getContractAt("Head", HEAD);
     const headOwnerAddr = await head.owner();
     const headOwner = await ethers.getSigner(headOwnerAddr);
     await impersonateAccount(headOwnerAddr);
     await setBalance(headOwnerAddr, ethers.utils.parseEther("100000000"));
 
-    const catalogue = await new Catalogue__factory(owner).deploy(manager.address);
-    const context = await new Context__factory(owner).deploy(catalogue.address);
+    const oldContext = Context__factory.connect(await head.context(), owner);
+    const oldCatalogue = Catalogue__factory.connect(await oldContext.catalogue(), owner);
+    const oldStorageCatalogue = StorageCatalogue__factory.connect(await oldContext.storageCatalogue(), owner);
+    // const oldPoolsNodeManager = PoolsNodes_Manager__factory.connect(await oldCatalogue.poolsNodesManager(), owner);
+
+    const minApolloDeposit = new ethers.Contract(
+      await oldCatalogue.config(),
+      ["function APOLLO_DEPOSIT() view returns (uint)"],
+      owner
+    ).APOLLO_DEPOSIT();
+    const lastPoolId = new ethers.Contract(
+      await oldStorageCatalogue.poolsStore(),
+      ["function id() view returns (uint)"],
+      owner
+    ).id();
+
+    const manager = await new LegacyPoolsNodes_Manager__factory(owner).deploy(
+      minApolloDeposit,
+      validatorSet.address,
+      lastPoolId,
+      await oldStorageCatalogue.apolloDepositStore(),
+      await oldStorageCatalogue.rolesEventEmitter(),
+      await oldStorageCatalogue.poolEventsEmitter()
+    );
+
+    const catalogueArgs = [
+      await oldCatalogue.kycWhitelist(),
+      await oldCatalogue.roles(),
+      await oldCatalogue.fees(),
+      await oldCatalogue.time(),
+      await oldCatalogue.challenges(),
+      await oldCatalogue.payouts(),
+      await oldCatalogue.shelteringTransfers(),
+      await oldCatalogue.sheltering(),
+      await oldCatalogue.uploads(),
+      await oldCatalogue.config(),
+      await oldCatalogue.validatorProxy(),
+      manager.address,
+    ] as const;
+    const storageCatalogueArgs = [
+      await oldStorageCatalogue.apolloDepositStore(),
+      await oldStorageCatalogue.atlasStakeStore(),
+      await oldStorageCatalogue.bundleStore(),
+      await oldStorageCatalogue.challengesStore(),
+      await oldStorageCatalogue.kycWhitelistStore(),
+      await oldStorageCatalogue.payoutsStore(),
+      await oldStorageCatalogue.rolesStore(),
+      await oldStorageCatalogue.shelteringTransfersStore(),
+      await oldStorageCatalogue.rolesEventEmitter(),
+      await oldStorageCatalogue.transfersEventEmitter(),
+      await oldStorageCatalogue.challengesEventEmitter(),
+      await oldStorageCatalogue.rewardsEventEmitter(),
+      await oldStorageCatalogue.poolsStore(),
+      await oldStorageCatalogue.poolEventsEmitter(),
+      await oldStorageCatalogue.nodeAddressesStore(),
+      await oldStorageCatalogue.rolesPrivilagesStore(),
+    ] as const;
+
+    const catalogue = await new Catalogue__factory(owner).deploy(...catalogueArgs);
+    const storageCatalogue = await new StorageCatalogue__factory(owner).deploy(...storageCatalogueArgs);
+
+    const context = await new Context__factory(owner).deploy(
+      [...catalogueArgs, ...storageCatalogueArgs],
+      catalogue.address,
+      storageCatalogue.address,
+      "0.1.0"
+    );
     await head.connect(headOwner).setContext(context.address);
 
     const heraPool: LegacyPool = await ethers.getContractAt("LegacyPool", HERA_POOL);
@@ -44,7 +116,10 @@ describe("Legacy Pool", function () {
     await impersonateAccount(heraServiceAddr);
     await setBalance(heraServiceAddr, ethers.utils.parseEther("100000000"));
 
-    return { validatorSet, manager, owner, heraPool, heraService };
+    const poolEventEmitter = PoolEventsEmitter__factory.connect(await oldStorageCatalogue.poolEventsEmitter(), owner);
+    const rolesEventEmitter = RolesEventEmitter__factory.connect(await oldStorageCatalogue.rolesEventEmitter(), owner);
+
+    return { validatorSet, manager, owner, heraPool, heraService, poolEventEmitter, rolesEventEmitter };
   }
 
   it("pool not registered", async function () {
@@ -55,33 +130,35 @@ describe("Legacy Pool", function () {
   });
 
   it("stake", async function () {
-    const { manager, heraPool } = await loadFixture(deploy);
+    const { manager, heraPool, poolEventEmitter } = await loadFixture(deploy);
     await manager.addPool(heraPool.address);
 
-    await expect(heraPool.stake({ value: heraPool.minStakeValue() })).to.emit(manager, "PoolStakeChanged");
+    await expect(heraPool.stake({ value: heraPool.minStakeValue() })).to.emit(poolEventEmitter, "PoolStakeChanged");
   });
 
   it("stake + onboard request", async function () {
-    const { manager, heraPool } = await loadFixture(deploy);
+    const { manager, heraPool, poolEventEmitter } = await loadFixture(deploy);
     await manager.addPool(heraPool.address);
 
     await expect(heraPool.stake({ value: heraPool.nodeStake() }))
-      .to.emit(manager, "PoolStakeChanged")
-      .emit(manager, "AddNodeRequest");
+      .to.emit(poolEventEmitter, "PoolStakeChanged")
+      .emit(poolEventEmitter, "AddNodeRequest");
   });
 
   it("onboard request + approve request", async function () {
-    const { validatorSet, manager, heraPool, heraService } = await loadFixture(deploy);
+    const { validatorSet, manager, heraPool, heraService, poolEventEmitter, rolesEventEmitter } = await loadFixture(
+      deploy
+    );
     await manager.addPool(heraPool.address);
 
     const receipt = await (await heraPool.stake({ value: heraPool.nodeStake() })).wait();
-    const requestEvent = manager.interface.decodeEventLog("AddNodeRequest", receipt.events![2].data);
+    const requestEvent = poolEventEmitter.interface.decodeEventLog("AddNodeRequest", receipt.events![2].data);
 
     const newNodeAddr = (await ethers.getSigners())[5].address;
 
     await expect(heraPool.connect(heraService).addNode(requestEvent.id, newNodeAddr, requestEvent.nodeId))
-      .to.emit(manager, "AddNodeRequestResolved")
-      .emit(manager, "NodeOnboarded");
+      .to.emit(poolEventEmitter, "AddNodeRequestResolved")
+      .emit(rolesEventEmitter, "NodeOnboarded");
 
     expect((await validatorSet.getTopStakes()).includes(newNodeAddr));
   });

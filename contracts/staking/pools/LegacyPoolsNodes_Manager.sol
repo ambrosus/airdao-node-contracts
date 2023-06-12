@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../../IStakeManager.sol";
-import "../../../consensus/IValidatorSet.sol";
-import "./IPoolsNodesManager.sol";
+import "../IStakeManager.sol";
+import "../../consensus/IValidatorSet.sol";
+import "./Legacy/IPoolsNodesManager.sol";
+import "./Legacy/ICatalogueContracts.sol";
 
 // Manager that allows to register staking pools;
 // Each pool can onboard a node (via this manager) when reached some stake goal
@@ -20,26 +21,25 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     address[] public pools;
     uint public lastPoolId;
 
+    ApolloDepositStore private apolloDepositStore;
+    RolesEventEmitter private rolesEventEmitter;
+    PoolEventsEmitter private poolEventsEmitter;
 
     event PoolAdded(address poolAddress);
     event PoolRemoved(address poolAddress);
 
-
-    event PoolStakeChanged(address pool, address user, int stake, int tokens);
-    event PoolReward(address pool, uint reward, uint tokenPrice);
-    event AddNodeRequest(address pool, uint id, uint nodeId, uint stake);
-    event AddNodeRequestResolved(address pool, uint id, uint status);
-
-
-    event NodeOnboarded(address nodeAddress, uint placedDeposit);
-    event NodeRetired(address nodeAddress, uint releasedDeposit);
-
-
-
-    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_, uint lastPoolId_) Ownable() {
+    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_, uint lastPoolId_,
+        ApolloDepositStore _apolloDepositStore,
+        RolesEventEmitter _rolesEventEmitter,
+        PoolEventsEmitter _poolEventsEmitter
+    ) Ownable() {
         minApolloDeposit = minApolloDeposit_;
         validatorSet = validatorSet_;
         lastPoolId = lastPoolId_;
+
+        apolloDepositStore = _apolloDepositStore;
+        rolesEventEmitter = _rolesEventEmitter;
+        poolEventsEmitter = _poolEventsEmitter;
     }
 
 
@@ -49,36 +49,36 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     function onboard(address nodeAddress, Consts.NodeType nodeType) external payable onlyPoolsCalls {
         require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
-
+        apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
         validatorSet.addStake(nodeAddress, msg.value);
-        emit NodeOnboarded(nodeAddress, msg.value);
+        rolesEventEmitter.nodeOnboarded(nodeAddress, msg.value, "", Consts.NodeType.APOLLO);
     }
 
     function retire(address nodeAddress, Consts.NodeType nodeType) external onlyPoolsCalls returns (uint) {
-        uint amountToTransfer = getDeposit(nodeAddress);
+        uint amountToTransfer = apolloDepositStore.releaseDeposit(nodeAddress, address(this));
         require(amountToTransfer != 0, "No such node");
 
         validatorSet.removeStake(nodeAddress, amountToTransfer);
-        emit NodeRetired(nodeAddress, amountToTransfer);
+        rolesEventEmitter.nodeRetired(nodeAddress, amountToTransfer, Consts.NodeType.APOLLO);
         payable(msg.sender).transfer(amountToTransfer);
         return amountToTransfer;
     }
 
 
     function poolStakeChanged(address user, int stake, int tokens) public onlyPoolsCalls {
-        emit PoolStakeChanged(msg.sender, user, stake, tokens);
+        poolEventsEmitter.poolStakeChanged(msg.sender, user, stake, tokens);
     }
 
     function poolReward(uint reward, uint tokenPrice) public onlyPoolsCalls {
-        emit PoolReward(msg.sender, reward, tokenPrice);
+        poolEventsEmitter.poolReward(msg.sender, reward, tokenPrice);
     }
 
     function addNodeRequest(uint stake, uint requestId, uint nodeId, Consts.NodeType role) public onlyPoolsCalls {
-        emit AddNodeRequest(msg.sender, requestId, nodeId, stake);
+        poolEventsEmitter.addNodeRequest(msg.sender, requestId, nodeId, stake, role);
     }
 
     function addNodeRequestResolved(uint requestId, uint status) public onlyPoolsCalls {
-        emit AddNodeRequestResolved(msg.sender, requestId, status);
+        poolEventsEmitter.addNodeRequestResolved(msg.sender, requestId, status);
     }
 
     function nextId() public returns (uint) {
