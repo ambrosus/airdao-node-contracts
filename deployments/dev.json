@@ -1,1 +1,77 @@
-{}
+{
+  "ValidatorSet": {
+    "address": "0x99B1A627604dB1479379c2c576dAFdC8AE4C546E",
+    "abi": [
+      "event Initialized(uint8 version)",
+      "event InitiateChange(bytes32 indexed parentHash, address[] newSet)",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event ValidatorSetFinalized(address[] newSet)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function REWARD_ORACLE_ROLE() view returns (bytes32)",
+      "function STAKING_MANAGER_ROLE() view returns (bytes32)",
+      "function addBlockListener(address listener)",
+      "function addStake(address nodeAddress, uint256 amount)",
+      "function baseReward() view returns (uint256)",
+      "function changeTopStakesCount(uint256 newTopStakesCount)",
+      "function finalizeChange()",
+      "function getNodeStake(address nodeAddress) view returns (uint256)",
+      "function getQueuedStakes() view returns (address[])",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function getTopStakes() view returns (address[])",
+      "function getValidators() view returns (address[])",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function initialize(address _multisig, address _rewardOracle, uint256 _baseReward, uint256 _topStakesCount)",
+      "function isCalledBySuperUser() view returns (bool)",
+      "function removeBlockListener(address listener)",
+      "function removeStake(address nodeAddress, uint256 amount)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function reward(address[] beneficiaries, uint16[] kind) returns (address[], uint256[])",
+      "function setReward(uint256 _baseReward)",
+      "function stakes(address) view returns (uint256 amount, address stakingContract, bool isAlwaysTop)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function topStakesCount() view returns (uint256)",
+      "function totalStakeAmount() view returns (uint256)"
+    ],
+    "deployTx": "0x1e6ba74c61de60a66add7fb86ee28df4ec2143771f94c33cc4c7d590f3fc2eaf",
+    "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
+    "proxy": {
+      "implementation": "0x7aE1eAFC7a9b106b392ddEE027449b09dbDE1347",
+      "fullyQualifiedName": "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol:TransparentUpgradeableProxy"
+    }
+  },
+  "LegacyPoolManager": {
+    "address": "0xC54007213080526139d38eAe66777dFac413772C",
+    "abi": [
+      "constructor(uint256 minApolloDeposit_, address validatorSet_, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event PoolAdded(address poolAddress)",
+      "event PoolRemoved(address poolAddress)",
+      "function addNodeRequest(uint256 stake, uint256 requestId, uint256 nodeId, uint8 role)",
+      "function addNodeRequestResolved(uint256 requestId, uint256 status)",
+      "function addPool(address pool)",
+      "function changeMinApolloDeposit(uint256 newMinApolloDeposit)",
+      "function getDeposit(address nodeAddress) view returns (uint256)",
+      "function importOldStakes(address[] addresses, uint256[] amounts)",
+      "function isPool(address poolAddress) view returns (bool)",
+      "function minApolloDeposit() view returns (uint256)",
+      "function nextId() returns (uint256)",
+      "function onboard(address nodeAddress, uint8 nodeType) payable",
+      "function owner() view returns (address)",
+      "function poolReward(uint256 reward, uint256 tokenPrice)",
+      "function poolStakeChanged(address user, int256 stake, int256 tokens)",
+      "function removePool(address pool)",
+      "function renounceOwnership()",
+      "function report(address nodeAddress)",
+      "function retire(address nodeAddress, uint8 nodeType) returns (uint256)",
+      "function reward(address nodeAddress, uint256 amount)",
+      "function transferOwnership(address newOwner)",
+      "function validatorSet() view returns (address)"
+    ],
+    "deployTx": "0x5229b4d4ccebb02b3a900aae816c3776c1121cabf12f3084d74984fced58a197",
+    "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager"
+  }
+}

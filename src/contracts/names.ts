@@ -17,8 +17,12 @@ export enum ContractNames {
   FinanceEcosystem = "FinanceEcosystem",
   FinanceEcosystemMultisig = "FinanceEcosystem_Multisig",
 
+  // staking
+
   ValidatorSet = "ValidatorSet",
   ValidatorSetMultisig = "ValidatorSet_Multisig",
+
+  LegacyPoolManager = "LegacyPoolManager",
 
   // funds
 

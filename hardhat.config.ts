@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://network.ambrosus.io",
+        url: "https://network.ambrosus-dev.io",
       },
     },
     local: {
