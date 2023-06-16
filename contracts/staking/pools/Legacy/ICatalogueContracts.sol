@@ -50,7 +50,7 @@ interface PoolsStore {
     event PoolAdded(address poolAddress);
     event PoolRemoved(address poolAddress);
 
-    function isPool(address) external returns (bool);
+    function isPool(address) external view returns (bool);
 //    address[] external pools;
 //    uint external id;
 
