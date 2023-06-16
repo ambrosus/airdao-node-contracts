@@ -1,6 +1,7 @@
 import { Contract, ethers, Signer } from "ethers";
 import deploymentsMain from "../../deployments/main.json";
 import deploymentsTest from "../../deployments/test.json";
+import deploymentsDev from "../../deployments/dev.json";
 
 export interface Deployment {
   address: string;
@@ -35,6 +36,7 @@ export function _contractFromDeployment(deployment: Deployment, signer?: Signer)
 
 // todo i don't like it
 export function _loadDeployments(networkName: string): { [name: string]: Deployment } {
+  if (networkName == "dev") return deploymentsDev;
   if (networkName == "test") return deploymentsTest;
   if (networkName == "main") return deploymentsMain;
   throw new Error(`unknown network name: ${networkName}`);
@@ -43,6 +45,7 @@ export function _loadDeployments(networkName: string): { [name: string]: Deploym
 export const chainIDToName: { [chainId: number]: string } = {
   22040: "test",
   16718: "main",
+  30746: "dev",
 };
 export const nameToChainID: { [name: string]: number } = Object.fromEntries(
   Object.entries(chainIDToName).map(([k, v]) => [v, +k])
