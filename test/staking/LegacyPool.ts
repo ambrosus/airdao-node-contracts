@@ -2,6 +2,7 @@ import { impersonateAccount, loadFixture, setBalance } from "@nomicfoundation/ha
 import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
 import {
+  ApolloDepositStore__factory,
   Catalogue__factory,
   Context__factory,
   Head,
@@ -12,9 +13,11 @@ import {
   StorageCatalogue__factory,
   TEST_ValidatorSet,
 } from "../../typechain-types";
+import { BigNumber } from "ethers";
 
 const HERA_POOL = "0x0E051C8C1cd519d918DB9b631Af303aeC85266BF";
 const HEAD = "0x0000000000000000000000000000000000000F10";
+const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 // check that already deployed hera pool is working with PoolsNodesManager Legacy Adapter
 
@@ -56,6 +59,9 @@ describe("Legacy Pool", function () {
       await oldStorageCatalogue.rolesEventEmitter(),
       await oldStorageCatalogue.poolEventsEmitter()
     );
+
+    const oldStakes = await getOldStakes(await oldStorageCatalogue.apolloDepositStore());
+    await manager.importOldStakes(Object.keys(oldStakes), Object.values(oldStakes));
 
     const catalogueArgs = [
       await oldCatalogue.kycWhitelist(),
@@ -146,3 +152,21 @@ describe("Legacy Pool", function () {
     expect((await validatorSet.getTopStakes()).includes(newNodeAddr));
   });
 });
+
+async function getOldStakes(depositStoreAddr: string) {
+  const [owner] = await ethers.getSigners();
+  const depositStore = ApolloDepositStore__factory.connect(depositStoreAddr, owner.provider!);
+  const validatorSet = new ethers.Contract(VALIDATOR_SET, ["function getValidators() view returns (address[])"], owner);
+
+  const addresses = await validatorSet.getValidators();
+
+  const stakes: { [addr: string]: BigNumber } = {};
+  for (const addr of addresses) {
+    if (!(await depositStore.isDepositing(addr))) continue;
+    stakes[addr] = await depositStore.callStatic.releaseDeposit(addr, owner.address, {
+      from: depositStore.address,
+    });
+  }
+
+  return stakes;
+}

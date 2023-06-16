@@ -98,6 +98,12 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         minApolloDeposit = newMinApolloDeposit;
     }
 
+    function importOldStakes(address[] memory addresses, uint[] memory amounts) public onlyOwner{
+        require(addresses.length == amounts.length, "Invalid input");
+        for (uint i = 0; i < addresses.length; i++)
+            validatorSet.addStake(addresses[i], amounts[i]);
+    }
+
     // IStakeManager METHODS
 
 
