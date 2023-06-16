@@ -17,7 +17,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         uint stake;
         uint timestampStake;
         address ownerAddress;
-        bool rewardsToStake;
+        address rewards;  // address to send rewards. address(0) means that rewards will be added to stake
     }
 
     IValidatorSet public validatorSet; // contract that manages validator set
@@ -98,32 +98,33 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         );
     }
 
-    function setFlagRewardsToStake(address nodeAddress, bool flag) public {
+    // address(0) address means that rewards will be added to stake
+    function setRewardsAddress(address nodeAddress, bool rewardsAddress) public {
         require(stakes[nodeAddress].ownerAddress == msg.sender, "Only owner can set flag");
-        stakes[nodeAddress].rewardsToStake = flag;
+        stakes[nodeAddress].rewards = rewardsAddress;
     }
 
     // VALIDATOR SET METHODS
 
     function reward(address nodeAddress, uint amount) external {
         require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
-        require(stakes[nodeAddress].stake > 0, "nodeAddress is not a validator");
+        Stake memory stakeStruct = stakes[nodeAddress];
+        require(stakeStruct.stake > 0, "nodeAddress is not a validator");
 
-        address payable ownerAddress = payable(stakes[nodeAddress].ownerAddress);
+        address payable ownerAddress = payable(stakeStruct.ownerAddress);
 
-        uint bondsReward = amount * _getBondsPercent(stakes[nodeAddress].timestampStake);
+        uint bondsReward = amount * _getBondsPercent(stakeStruct.timestampStake);
         uint nativeReward = amount - bondsReward;
 
-
-        if (stakes[nodeAddress].rewardsToStake) {
+        if (stakeStruct.rewardsAddress == address(0)) {
             ambBank.reward(payable(address(this)), nativeReward);
             _addStake(nodeAddress, nativeReward);
         } else {
-            ambBank.reward(ownerAddress, nativeReward);
+            ambBank.reward(stakeStruct.rewardsAddress, nativeReward);
         }
 
         if (bondsReward > 0)
-            airBond.mint(ownerAddress, bondsReward);
+            airBond.mint(stakeStruct.rewardsAddress, bondsReward);
 
     }
 
