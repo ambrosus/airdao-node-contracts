@@ -17,7 +17,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         uint stake;
         uint timestampStake;
         address ownerAddress;
-        address rewards;  // address to send rewards. address(0) means that rewards will be added to stake
+        address rewardsAddress;  // address to send rewards. address(0) means that rewards will be added to stake
     }
 
     IValidatorSet public validatorSet; // contract that manages validator set
@@ -66,7 +66,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         require(owner2node[msg.sender] == address(0), "owner already has a stake");
         require(stakes[msg.sender].stake == 0, "node already registered");
 
-        stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, false);
+        stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, address(0));
 
         // add to queuedStakes
         onboardingWaitingList.push(nodeAddress);
@@ -99,9 +99,9 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
     }
 
     // address(0) address means that rewards will be added to stake
-    function setRewardsAddress(address nodeAddress, bool rewardsAddress) public {
+    function setRewardsAddress(address nodeAddress, address rewardsAddress) public {
         require(stakes[nodeAddress].ownerAddress == msg.sender, "Only owner can set flag");
-        stakes[nodeAddress].rewards = rewardsAddress;
+        stakes[nodeAddress].rewardsAddress = rewardsAddress;
     }
 
     // VALIDATOR SET METHODS
@@ -120,7 +120,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
             ambBank.reward(payable(address(this)), nativeReward);
             _addStake(nodeAddress, nativeReward);
         } else {
-            ambBank.reward(stakeStruct.rewardsAddress, nativeReward);
+            ambBank.reward(payable(stakeStruct.rewardsAddress), nativeReward);
         }
 
         if (bondsReward > 0)
