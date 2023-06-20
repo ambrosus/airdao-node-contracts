@@ -25,7 +25,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, networkName).address;
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, networkName);
 
   const head: Head = await ethers.getContractAt("Head", HEAD);
   const oldContext = Context__factory.connect(await head.context(), deployer);
@@ -40,7 +40,7 @@ async function main() {
     "LegacyPoolsNodes_Manager",
     [
       minApolloDeposit,
-      validatorSet,
+      validatorSet.address,
       await oldStorageCatalogue.poolsStore(),
       await oldStorageCatalogue.apolloDepositStore(),
       await oldStorageCatalogue.rolesEventEmitter(),
@@ -50,7 +50,10 @@ async function main() {
     false
   );
 
+  await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
+
   const oldStakes = await getOldStakes(await oldStorageCatalogue.apolloDepositStore());
+  console.log("importing old stakes", oldStakes);
   await (await manager.importOldStakes(Object.keys(oldStakes), Object.values(oldStakes))).wait();
   console.log("imported old stakes");
 

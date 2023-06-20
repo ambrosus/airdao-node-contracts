@@ -1,6 +1,6 @@
 {
   "ValidatorSet": {
-    "address": "0x99B1A627604dB1479379c2c576dAFdC8AE4C546E",
+    "address": "0x31Ec9254bf00cF1429c250398d30A711E19BffC3",
     "abi": [
       "event Initialized(uint8 version)",
       "event InitiateChange(bytes32 indexed parentHash, address[] newSet)",
@@ -36,7 +36,7 @@
       "function topStakesCount() view returns (uint256)",
       "function totalStakeAmount() view returns (uint256)"
     ],
-    "deployTx": "0x1e6ba74c61de60a66add7fb86ee28df4ec2143771f94c33cc4c7d590f3fc2eaf",
+    "deployTx": "0x5e8d5bc04e0e59adb902a6a3b7405ec9e1c0ea2670a598a9048a03c56634dbff",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
       "implementation": "0x7aE1eAFC7a9b106b392ddEE027449b09dbDE1347",
@@ -44,7 +44,7 @@
     }
   },
   "LegacyPoolManager": {
-    "address": "0xC54007213080526139d38eAe66777dFac413772C",
+    "address": "0x0784273B3eb7EC159bb48Da834e230fe583D11CC",
     "abi": [
       "constructor(uint256 minApolloDeposit_, address validatorSet_, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -71,7 +71,7 @@
       "function transferOwnership(address newOwner)",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x5229b4d4ccebb02b3a900aae816c3776c1121cabf12f3084d74984fced58a197",
+    "deployTx": "0x7ecfa2a467104bc895bb71caee7138edcf97f448d707d8dfd8920cb50af92efe",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager"
   }
 }
