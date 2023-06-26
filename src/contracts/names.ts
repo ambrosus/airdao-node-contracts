@@ -23,6 +23,7 @@ export enum ContractNames {
   ValidatorSetMultisig = "ValidatorSet_Multisig",
 
   LegacyPoolManager = "LegacyPoolManager",
+  LegacyPoolManagerMultisig = "LegacyPoolManager_Multisig",
 
   // funds
 

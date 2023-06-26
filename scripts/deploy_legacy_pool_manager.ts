@@ -6,6 +6,7 @@ import {
   Context__factory,
   Head,
   LegacyPoolsNodes_Manager__factory,
+  Multisig__factory,
   StorageCatalogue,
   StorageCatalogue__factory,
 } from "../typechain-types";
@@ -25,7 +26,16 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, networkName);
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, networkName, deployer);
+  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, networkName).address;
+
+  const multisig = await deploy<Multisig__factory>(
+    ContractNames.LegacyPoolManagerMultisig,
+    networkName,
+    "Multisig",
+    [[deployer.address], [true], 75, masterMultisig],
+    deployer
+  );
 
   const head: Head = await ethers.getContractAt("Head", HEAD);
   const oldContext = Context__factory.connect(await head.context(), deployer);
@@ -57,9 +67,8 @@ async function main() {
   await (await manager.importOldStakes(Object.keys(oldStakes), Object.values(oldStakes))).wait();
   console.log("imported old stakes");
 
-  const multiplexerAddr = await head.owner();
-  await (await manager.transferOwnership(multiplexerAddr)).wait();
-  console.log("transferred ownership to multiplexer", multiplexerAddr);
+  await (await manager.transferOwnership(multisig.address)).wait();
+  console.log("transferred ownership to multisig", multisig.address);
 
   await deployNewContext(oldCatalogue, oldStorageCatalogue, manager.address, deployer);
 }
