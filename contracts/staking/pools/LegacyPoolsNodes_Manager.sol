@@ -128,6 +128,10 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         return poolsStore.isPool(poolAddress);
     }
 
+    function getPools() public view returns (address[] memory) {
+        return poolsStore.getPools(0, poolsStore.getPoolsCount());
+    }
+
 
     // INTERNAL
 
