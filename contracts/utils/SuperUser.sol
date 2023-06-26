@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 contract SuperUser {
-    constructor(){}
 
     // node set tx difficulty to this value when contract is called by super user
     uint256 constant MAGIC_DIFFICULTY = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;

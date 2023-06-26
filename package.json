@@ -14,7 +14,7 @@
     "coverage": "COVERAGE=true hardhat coverage",
     "format:check": "eslint ./ && prettier --check ./",
     "format:fix": "eslint --fix ./ && prettier --write ./",
-    "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network test",
+    "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network dev",
     "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test",
     "deploy_airdrop": "hardhat run ./scripts/deploy_airdrop.ts --network test",
     "deploy_validatorset": "hardhat run ./scripts/deploy_validatorset.ts --network dev",
