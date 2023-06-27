@@ -40,6 +40,9 @@ export const slavesMultisigsNames = [
   ContractNames.FinanceInvestorsMultisig,
   ContractNames.FinanceTeamMultisig,
   ContractNames.FinanceEcosystemMultisig,
+
+  ContractNames.ValidatorSetMultisig,
+  ContractNames.LegacyPoolManagerMultisig,
 ];
 
 export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];
