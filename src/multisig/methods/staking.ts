@@ -15,31 +15,37 @@ async function validatorSetChangeTopCount(contracts: Contracts, newTop: BigNumbe
 
 // legacy pool manager
 
-export async function legacyPoolManagerGetPools(contracts: Contracts): Promise<string[]> {
-  const legacyPoolManager = contracts.getContractByName(ContractNames.LegacyPoolManager) as LegacyPoolsNodes_Manager;
-  return await legacyPoolManager.getPools();
+type PoolManagersCN = ContractNames.LegacyPoolManager; // | ContractNames.PoolManager;
+
+export async function poolManagerGetPools(contracts: Contracts, contractName: PoolManagersCN): Promise<string[]> {
+  const poolManager = contracts.getContractByName(contractName) as LegacyPoolsNodes_Manager;
+  return await poolManager.getPools();
 }
 
-export async function legacyPoolManagerAddPool(contracts: Contracts, poolAddress: string) {
-  const legacyPoolManager = contracts.getContractByName(ContractNames.LegacyPoolManager) as LegacyPoolsNodes_Manager;
-  const multisigContract = contracts.getContractByName(ContractNames.LegacyPoolManagerMultisig) as Multisig;
+export async function poolManagerAddPool(contracts: Contracts, contractName: PoolManagersCN, poolAddress: string) {
+  const poolManager = contracts.getContractByName(contractName) as LegacyPoolsNodes_Manager;
+  const multisigContract = contracts.getContractByName((contractName + "_Multisig") as ContractNames) as Multisig;
 
-  const calldata = (await legacyPoolManager.populateTransaction.addPool(poolAddress)).data!;
-  return await submitTransaction(multisigContract, legacyPoolManager.address, 0, calldata);
+  const calldata = (await poolManager.populateTransaction.addPool(poolAddress)).data!;
+  return await submitTransaction(multisigContract, poolManager.address, 0, calldata);
 }
 
-export async function legacyPoolManagerRemovePool(contracts: Contracts, poolAddress: string) {
-  const legacyPoolManager = contracts.getContractByName(ContractNames.LegacyPoolManager) as LegacyPoolsNodes_Manager;
-  const multisigContract = contracts.getContractByName(ContractNames.LegacyPoolManagerMultisig) as Multisig;
+export async function poolManagerRemovePool(contracts: Contracts, contractName: PoolManagersCN, poolAddress: string) {
+  const poolManager = contracts.getContractByName(contractName) as LegacyPoolsNodes_Manager;
+  const multisigContract = contracts.getContractByName((contractName + "_Multisig") as ContractNames) as Multisig;
 
-  const calldata = (await legacyPoolManager.populateTransaction.removePool(poolAddress)).data!;
-  return await submitTransaction(multisigContract, legacyPoolManager.address, 0, calldata);
+  const calldata = (await poolManager.populateTransaction.removePool(poolAddress)).data!;
+  return await submitTransaction(multisigContract, poolManager.address, 0, calldata);
 }
 
-export async function legacyPoolManagerChangeMinApolloDeposit(contracts: Contracts, minApolloDeposit: BigNumberish) {
-  const legacyPoolManager = contracts.getContractByName(ContractNames.LegacyPoolManager) as LegacyPoolsNodes_Manager;
-  const multisigContract = contracts.getContractByName(ContractNames.LegacyPoolManagerMultisig) as Multisig;
+export async function poolManagerChangeMinApolloDeposit(
+  contracts: Contracts,
+  contractName: PoolManagersCN,
+  minApolloDeposit: BigNumberish
+) {
+  const poolManager = contracts.getContractByName(contractName) as LegacyPoolsNodes_Manager;
+  const multisigContract = contracts.getContractByName((contractName + "_Multisig") as ContractNames) as Multisig;
 
-  const calldata = (await legacyPoolManager.populateTransaction.changeMinApolloDeposit(minApolloDeposit)).data!;
-  return await submitTransaction(multisigContract, legacyPoolManager.address, 0, calldata);
+  const calldata = (await poolManager.populateTransaction.changeMinApolloDeposit(minApolloDeposit)).data!;
+  return await submitTransaction(multisigContract, poolManager.address, 0, calldata);
 }
