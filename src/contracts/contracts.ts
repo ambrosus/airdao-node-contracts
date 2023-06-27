@@ -20,14 +20,27 @@ export class Contracts {
     return contract;
   }
 
+  public getContractByNameSafe(name: ContractNames): Contract | undefined {
+    return this.contracts[name];
+  }
+
   public getContractByAddress(address: string): Contract {
     const name = this.getNameByAddress(address);
     return this.getContractByName(name);
+  }
+
+  public getContractByAddressSafe(address: string): Contract | undefined {
+    const name = this.getNameByAddress(address);
+    return this.getContractByNameSafe(name);
   }
 
   public getNameByAddress(address: string): ContractNames {
     const name = this.nameByAddress[address];
     if (!name) throw new Error(`Unknown contract address ${address}`);
     return name;
+  }
+
+  public getNameByAddressSafe(address: string): ContractNames | undefined {
+    return this.nameByAddress[address];
   }
 }
