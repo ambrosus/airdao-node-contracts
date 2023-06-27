@@ -22,16 +22,17 @@ export async function financeWithdraw(
 }
 
 export async function changeMultisigOwners(contracts: Contracts, newOwner: string, multisigAddresses?: string[]) {
-  const multisigAddressesList = multisigAddresses
-    ? multisigAddresses
-    : slavesMultisigsNames.map((n) => contracts.getContractByName(n).address);
+  if (!multisigAddresses)
+    multisigAddresses = slavesMultisigsNames
+      .map((n) => contracts.getContractByNameSafe(n)?.address)
+      .filter((el) => el !== undefined) as string[];
 
   const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
 
-  if (multisigAddressesList.includes(masterMultisig.address))
+  if (multisigAddresses.includes(masterMultisig.address))
     throw Error("You probably don't want to change the owner of the master multisig");
 
-  const calldata = (await masterMultisig.populateTransaction.changeOwners(multisigAddressesList, newOwner)).data!;
+  const calldata = (await masterMultisig.populateTransaction.changeOwners(multisigAddresses, newOwner)).data!;
   return await submitTransaction(masterMultisig, masterMultisig.address, 0, calldata);
 }
 
