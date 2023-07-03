@@ -97,6 +97,7 @@ contract ValidatorSet is OnBlockNotifier, SuperUser, AccessControlUpgradeable, I
         Stake storage stake = stakes[nodeAddress];
         if (stake.amount == 0) {
             // new stake
+            require(hasRole(STAKING_MANAGER_ROLE, msg.sender), "stakingContract missing role");
             stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), false);
 
             _addStake(nodeAddress);
