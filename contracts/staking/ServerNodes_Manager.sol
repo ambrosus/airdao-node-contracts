@@ -2,16 +2,18 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
 import "../LockKeeper.sol";
-import "../funds/AmbBank.sol";
-import "../funds/AirBond.sol";
+import "../utils/TransferViaCall.sol";
+
 
 // Manager, that allows users to register their **ONE** node in validator set
 
 contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
+    using SafeERC20 for IERC20;
 
     struct Stake {
         uint stake;
@@ -23,8 +25,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
     IValidatorSet public validatorSet; // contract that manages validator set
 
     LockKeeper public lockKeeper; // contract that locks stakes
-    AmbBank public ambBank;
-    AirBond public airBond;
+    IERC20 public airBond;
 
 
     uint public onboardingDelay;  // time that new node will be in queueStakes even if it has enough stake (only affects nodes without FLAG_ALWAYS_IN_TOP)
@@ -44,14 +45,12 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
 
     constructor(
-        address _validatorSet, address _lockKeeper,
-        address payable _ambBank, address _airBond,
+        address _validatorSet, address _lockKeeper, address _airBond,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
     ) {
         validatorSet = IValidatorSet(_validatorSet);
         lockKeeper = LockKeeper(_lockKeeper);
-        ambBank = AmbBank(_ambBank);
-        airBond = AirBond(_airBond);
+        airBond = IERC20(_airBond);
 
         onboardingDelay = _onboardingDelay;
         unstakeLockTime = _unstakeLockTime;
@@ -91,7 +90,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         validatorSet.removeStake(nodeAddress, amount);
 
         // lock funds
-        lockKeeper.lockSingle{value : amount}(
+        lockKeeper.lockSingle{value: amount}(
             msg.sender, address(0),
             uint64(block.timestamp + unstakeLockTime), amount,
             "Validator Unstake"
@@ -117,14 +116,13 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         uint nativeReward = amount - bondsReward;
 
         if (stakeStruct.rewardsAddress == address(0)) {
-            ambBank.reward(payable(address(this)), nativeReward);
             _addStake(nodeAddress, nativeReward);
         } else {
-            ambBank.reward(payable(stakeStruct.rewardsAddress), nativeReward);
+            transferViaCall(payable(stakeStruct.rewardsAddress), nativeReward);
         }
 
         if (bondsReward > 0)
-            airBond.mint(stakeStruct.rewardsAddress, bondsReward);
+            airBond.safeTransfer(stakeStruct.rewardsAddress, bondsReward);
 
     }
 
