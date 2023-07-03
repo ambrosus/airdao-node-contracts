@@ -62,10 +62,11 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
     function newStake(address nodeAddress) payable public {
         require(msg.value > minStakeAmount, "msg.value must be > minStakeAmount");
+        require(stakes[nodeAddress].stake == 0, "node already registered");
         require(owner2node[msg.sender] == address(0), "owner already has a stake");
-        require(stakes[msg.sender].stake == 0, "node already registered");
 
         stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, address(0));
+        owner2node[msg.sender] = nodeAddress;
 
         // add to queuedStakes
         onboardingWaitingList.push(nodeAddress);
@@ -80,14 +81,25 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
     }
 
     function unstake(uint amount) public {
+        require(amount > 0, "amount must be > 0");
+
         address nodeAddress = owner2node[msg.sender];
+        require(nodeAddress != address(0), "no stake for you address");
+
         uint stakeAmount = stakes[nodeAddress].stake;
+        require(stakeAmount >= amount, "stake < amount");
 
-        require(stakeAmount >= amount, "Stake < amount");
-        if (stakeAmount != amount)  // if user unstake all stake, don't check for minStakeAmount
-            require(stakeAmount - amount >= minStakeAmount, "Stake < minStakeAmount");
+        if (stakeAmount == amount) {
+            delete stakes[nodeAddress];
+            delete owner2node[msg.sender];
+        } else {
+            require(stakeAmount - amount >= minStakeAmount, "resulting stake < minStakeAmount");
+            stakes[nodeAddress].stake -= amount;
+        }
 
-        validatorSet.removeStake(nodeAddress, amount);
+
+        if (validatorSet.getNodeStake(nodeAddress) > 0) // only if node already validator
+            validatorSet.removeStake(nodeAddress, amount);
 
         // lock funds
         lockKeeper.lockSingle{value: amount}(
@@ -154,8 +166,8 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         stakes[nodeAddress].stake += amount;
 
         // call validatorSet.addStake() only when node really ready to be validator
-        if (stakes[nodeAddress].timestampStake >= _minTimestampForOnboarding())
-            validatorSet.addStake(nodeAddress, stakes[nodeAddress].stake);
+        if (stakes[nodeAddress].timestampStake <= _minTimestampForOnboarding())
+            validatorSet.addStake(nodeAddress, amount);
     }
 
 
@@ -165,19 +177,20 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
         for (uint i = 0; i < onboardingWaitingList.length; i++) {
             address nodeAddress = onboardingWaitingList[i];
-            if (stakes[nodeAddress].timestampStake >= minTimestampForOnboarding) {
+            if (stakes[nodeAddress].timestampStake <= minTimestampForOnboarding) {
                 validatorSet.addStake(nodeAddress, stakes[nodeAddress].stake);
 
                 onboardingWaitingList[i] = onboardingWaitingList[onboardingWaitingList.length - 1];
                 onboardingWaitingList.pop();
-                i--;
+
+                if (i != 0) i--;
             }
         }
 
     }
 
     function _minTimestampForOnboarding() internal view returns (uint) {
-        return block.timestamp + onboardingDelay;
+        return block.timestamp - onboardingDelay;
     }
 
     function _getBondsPercent(uint timestampStake) internal view returns (uint) {
