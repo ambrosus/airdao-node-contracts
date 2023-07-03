@@ -22,6 +22,8 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     RolesEventEmitter private rolesEventEmitter;
     PoolEventsEmitter private poolEventsEmitter;
 
+    mapping(address => address) public node2pool;
+
     event PoolAdded(address poolAddress);
     event PoolRemoved(address poolAddress);
 
@@ -50,6 +52,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
         validatorSet.addStake(nodeAddress, msg.value);
         rolesEventEmitter.nodeOnboarded(nodeAddress, msg.value, "", Consts.NodeType.APOLLO);
+        node2pool[nodeAddress] = msg.sender;
     }
 
     function retire(address nodeAddress, Consts.NodeType nodeType) external onlyPoolsCalls returns (uint) {
@@ -59,6 +62,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         validatorSet.removeStake(nodeAddress, amountToTransfer);
         rolesEventEmitter.nodeRetired(nodeAddress, amountToTransfer, Consts.NodeType.APOLLO);
         payable(msg.sender).transfer(amountToTransfer);
+        node2pool[nodeAddress] = address(0);
         return amountToTransfer;
     }
 
@@ -109,8 +113,9 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
 
     function reward(address nodeAddress, uint amount) external {
         require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
-
-        // todo
+        require(address(this).balance > amount, "[LPNM] Insufficient funds to pay reward");
+        address poolAddress = node2pool[nodeAddress];
+        require(poolAddress != address(0), "Can't find pool for node");
     }
 
     function report(address nodeAddress) external {
