@@ -11,9 +11,6 @@ describe("BaseNodes", function () {
   async function deploy() {
     const [owner] = await ethers.getSigners();
 
-    const AmbBankFactory = await ethers.getContractFactory("AmbBank");
-    const ambBank = await AmbBankFactory.deploy();
-
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
       owner.address,
@@ -22,11 +19,8 @@ describe("BaseNodes", function () {
       2,
     ])) as TEST_ValidatorSet;
 
-    // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");
-    // const lockKeeper = await LockKeeperFactory.deploy();
-
     const BaseNodesFactory = await ethers.getContractFactory("BaseNodes_Manager");
-    const baseNodes = await BaseNodesFactory.deploy(owner.address, validatorSet.address, ambBank.address);
+    const baseNodes = await BaseNodesFactory.deploy(owner.address, validatorSet.address);
 
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), baseNodes.address);
 

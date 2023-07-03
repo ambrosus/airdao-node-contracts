@@ -7,7 +7,7 @@
   ],
   "homepage": "https://github.com/ambrosus/airdao-node-contracts",
   "scripts": {
-    "build": "npm run build:sol && npm run build:js",
+    "build": "npm run build:sol && npm run build:js && ln -sf /home/svin/dev/work/ambrosus/airdao-node-contracts/dist /home/svin/dev/work/ambrosus/multisigApplication/node_modules/@airdao/airdao-node-contracts/dist",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat compile",
     "test": "REPORT_GAS=true hardhat test",
@@ -15,7 +15,7 @@
     "format:check": "eslint ./ && prettier --check ./",
     "format:fix": "eslint --fix ./ && prettier --write ./",
     "deploy_multisig": "hardhat run ./scripts/deploy_multisig.ts --network dev",
-    "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network test",
+    "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network dev",
     "deploy_airdrop": "hardhat run ./scripts/deploy_airdrop.ts --network test",
     "deploy_validatorset": "hardhat run ./scripts/deploy_validatorset.ts --network dev",
     "deploy_legacy_pool_manager": "hardhat run ./scripts/deploy_legacy_pool_manager.ts --network dev",

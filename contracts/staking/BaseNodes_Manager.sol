@@ -12,15 +12,11 @@ import "../funds/AmbBank.sol";
 contract BaseNodes_Manager is IStakeManager, AccessControl {
     IValidatorSet public validatorSet; // contract that manages validator set
 
-    AmbBank public ambBank;
-
     constructor(
         address _multisig,
-        address _validatorSet,
-        address payable _ambBank
+        address _validatorSet
     ) {
         validatorSet = IValidatorSet(_validatorSet);
-        ambBank = AmbBank(_ambBank);
 
         _setupRole(DEFAULT_ADMIN_ROLE, _multisig);
     }
