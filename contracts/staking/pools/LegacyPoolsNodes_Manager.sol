@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IPool.sol";
 import "../IStakeManager.sol";
 import "../../consensus/IValidatorSet.sol";
 import "./Legacy/IPoolsNodesManager.sol";
@@ -116,6 +117,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         require(address(this).balance > amount, "[LPNM] Insufficient funds to pay reward");
         address poolAddress = node2pool[nodeAddress];
         require(poolAddress != address(0), "Can't find pool for node");
+        IPool(poolAddress).addReward{value: amount}();
     }
 
     function report(address nodeAddress) external {
