@@ -59,6 +59,7 @@ describe("Legacy Pool", function () {
       await oldStorageCatalogue.rolesEventEmitter(),
       await oldStorageCatalogue.poolEventsEmitter()
     );
+    await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
 
     const oldStakes = await getOldStakes(await oldStorageCatalogue.apolloDepositStore());
     await manager.importOldStakes(Object.keys(oldStakes), Object.values(oldStakes));
