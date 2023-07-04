@@ -201,4 +201,5 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         return 100 - nativePercent;
     }
 
+    receive() external payable {}
 }

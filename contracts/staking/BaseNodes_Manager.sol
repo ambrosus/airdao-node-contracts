@@ -47,5 +47,5 @@ contract BaseNodes_Manager is IStakeManager, AccessControl {
 
     }
 
-
+    receive() external payable {}
 }
