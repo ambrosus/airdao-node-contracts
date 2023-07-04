@@ -7,12 +7,17 @@
         "blockRewardContractAddress": "0x0000000000000000000000000000000000000F01",
         "blockRewardContractTransition": "0x0",
         "blockRewardContractTransitions": {
-          "10": "0x2C6808Be96aB532DA69d09137E4632C8C513A33B",
-          "180": "0x97161E6D82b8835F8e1A2969Ea766E7eE35F48D9"
+          "100": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
         },
-
         "validators": {
-          "safeContract": "0x0000000000000000000000000000000000000F00"
+          "multi": {
+            "0": {
+              "safeContract": "0x0000000000000000000000000000000000000F00"
+            },
+            "100": {
+              "safeContract": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
+            }
+          }
         }
       }
     }
