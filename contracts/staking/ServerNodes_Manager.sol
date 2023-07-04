@@ -45,7 +45,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
 
     constructor(
-        address _validatorSet, address _lockKeeper, address _airBond,
+        address _validatorSet, address _lockKeeper, address _airBond, address _admin,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
     ) {
         validatorSet = IValidatorSet(_validatorSet);
@@ -55,6 +55,8 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         onboardingDelay = _onboardingDelay;
         unstakeLockTime = _unstakeLockTime;
         minStakeAmount = _minStakeAmount;
+
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
     }
 
 
@@ -158,6 +160,13 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         unstakeLockTime = newUnstakeLockTime;
     }
 
+    function withdrawAmb(address payable addressTo, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        transferViaCall(addressTo, amount);
+    }
+
+    function withdrawBonds(address payable addressTo, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        airBond.safeTransfer(addressTo, amount);
+    }
 
     // PRIVATE METHODS
 

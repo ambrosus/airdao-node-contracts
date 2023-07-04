@@ -41,6 +41,7 @@ describe("ServerNodes", function () {
       validatorSet.address,
       lockKeeper.address,
       airBond.address,
+      owner.address,
       onboardingDelay,
       60 * 5,
       42
@@ -284,6 +285,33 @@ describe("ServerNodes", function () {
       const [_, notOwner] = await ethers.getSigners();
       await expect(serverNodes.setRewardsAddress(notOwner.address, owner.address)).to.be.revertedWith(
         "Only owner can set flag"
+      );
+    });
+  });
+
+  describe("withdraw", function () {
+    beforeEach(async function () {
+      await airBond.mint(serverNodes.address, 10000);
+      await owner.sendTransaction({ to: serverNodes.address, value: 10000 });
+    });
+
+    it("withdrawAmb", async function () {
+      await expect(serverNodes.withdrawAmb(owner.address, 1000)).to.changeEtherBalance(owner, 1000);
+    });
+    it("withdrawBonds", async function () {
+      await expect(serverNodes.withdrawBonds(owner.address, 1000)).to.changeTokenBalance(airBond, owner, 1000);
+    });
+
+    it("withdrawAmb not admin", async function () {
+      const [_, notAdmin] = await ethers.getSigners();
+      await expect(serverNodes.connect(notAdmin).withdrawAmb(owner.address, 1000)).to.be.revertedWith(
+        `AccessControl: account ${notAdmin.address.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
+      );
+    });
+    it("withdrawBonds not admin", async function () {
+      const [_, notAdmin] = await ethers.getSigners();
+      await expect(serverNodes.connect(notAdmin).withdrawBonds(owner.address, 1000)).to.be.revertedWith(
+        `AccessControl: account ${notAdmin.address.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
       );
     });
   });
