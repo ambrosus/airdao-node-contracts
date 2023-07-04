@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
-import "../funds/AmbBank.sol";
 
 
 // Manager, that can add and remove nodes from validator set TOP list (controlled by multisig)
