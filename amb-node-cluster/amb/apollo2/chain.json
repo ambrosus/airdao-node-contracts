@@ -22,7 +22,7 @@
     "accountStartNonce": "0x0",
     "maximumExtraDataSize": "0x20",
     "minGasLimit": "0x1388",
-    "networkID": "0x0001",
+    "networkID": "0x1488",
     "maxCodeSize": 24576,
     "maxCodeSizeTransition": "0x0",
     "eip150Transition": "0x0",
@@ -34,7 +34,13 @@
     "eip211Transition": "0x0",
     "eip214Transition": "0x0",
     "eip155Transition": "0x0",
-    "eip658Transition": "0x0"
+    "eip658Transition": "0x0",
+    "eip1014Transition": "0x0",
+    "eip1052Transition": "0x0",
+    "fixValidatorSetTransition": "0x0",
+    "refixValidatorSetTransition": "0x1A838",
+    "eip145Transition": "0x0",
+    "eip1344Transition": "0x0"
   },
   "genesis": {
     "seal": {
@@ -44,7 +50,7 @@
       }
     },
     "difficulty": "0x20000",
-    "gasLimit": "0x1c9c380"
+    "gasLimit": "0x5B8D80"
   },
   "accounts": {
     "0x0000000000000000000000000000000000000001": {
