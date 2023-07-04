@@ -207,7 +207,7 @@ describe("ServerNodes", function () {
       await owner.sendTransaction({ to: serverNodes.address, value: 10000 });
 
       await impersonateAccount(validatorSet.address);
-      await setBalance(validatorSet.address, 10000000);
+      await setBalance(validatorSet.address, ethers.utils.parseEther("1"));
       validatorSetSigner = await ethers.getSigner(validatorSet.address);
     });
 
