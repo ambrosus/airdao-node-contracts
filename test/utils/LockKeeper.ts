@@ -7,16 +7,12 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { AddressZero } from "@ethersproject/constants";
 import { LockKeeper } from "../../typechain-types";
 
-const T = 30000000000;
+const T = 40000000000;
 
 describe("LockKeeper", function () {
   let lockKeeper: LockKeeper;
   let user1: SignerWithAddress;
   let user2: SignerWithAddress;
-
-  beforeEach(async function () {
-    ({ contract: lockKeeper, user1, user2 } = await loadFixture(deploy));
-  });
 
   async function deployERC20() {
     const Factory = await ethers.getContractFactory("MintableERC20");
@@ -27,20 +23,22 @@ describe("LockKeeper", function () {
   async function deploy() {
     const [user1, user2] = await ethers.getSigners();
 
-    await time.setNextBlockTimestamp(T);
     const Factory = await ethers.getContractFactory("LockKeeper");
     const contract = await Factory.deploy();
 
+    await time.setNextBlockTimestamp(T);
     return { contract, user1, user2 };
   }
 
+  beforeEach(async function () {
+    ({ contract: lockKeeper, user1, user2 } = await loadFixture(deploy));
+  });
+
   describe("lock", function () {
     it("lock single", async function () {
-      await time.setNextBlockTimestamp(T + 10); // to match `lockTime` field in event
-
       await expect(lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 100 }))
         .to.emit(lockKeeper, "Locked")
-        .withArgs(1, user2.address, AddressZero, user1.address, T + 10, T + 1000, 0, 1, 100, "Test");
+        .withArgs(1, user2.address, AddressZero, user1.address, T, T + 1000, 0, 1, 100, "Test");
 
       expect(normalizeStruct(await lockKeeper.locks(1))).to.deep.eq({
         receiver: user2.address,
@@ -58,11 +56,9 @@ describe("LockKeeper", function () {
     });
 
     it("lock linear", async function () {
-      await time.setNextBlockTimestamp(T + 10); // to match `lockTime` field in event
-
       await expect(lockKeeper.lockLinear(user2.address, AddressZero, T + 1000, 3, 200, 100, "Test", { value: 300 }))
         .to.emit(lockKeeper, "Locked")
-        .withArgs(1, user2.address, AddressZero, user1.address, T + 10, T + 1000, 200, 3, 100, "Test");
+        .withArgs(1, user2.address, AddressZero, user1.address, T, T + 1000, 200, 3, 100, "Test");
     });
 
     it("wrong AMB amount", async function () {
@@ -72,8 +68,6 @@ describe("LockKeeper", function () {
     });
 
     it("wrong totalClaims", async function () {
-      await time.setNextBlockTimestamp(T + 10); // to match `lockTime` field in event
-
       await expect(
         lockKeeper.lockLinear(user2.address, AddressZero, T + 1000, 0, 200, 100, "Test", { value: 300 })
       ).to.be.revertedWith("LockKeeper: totalClaims must be > 0");
