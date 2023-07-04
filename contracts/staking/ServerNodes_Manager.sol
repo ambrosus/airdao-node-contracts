@@ -122,9 +122,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         Stake memory stakeStruct = stakes[nodeAddress];
         require(stakeStruct.stake > 0, "nodeAddress is not a validator");
 
-        address payable ownerAddress = payable(stakeStruct.ownerAddress);
-
-        uint bondsReward = amount * _getBondsPercent(stakeStruct.timestampStake);
+        uint bondsReward = amount * _getBondsPercent(stakeStruct.timestampStake) / 100;
         uint nativeReward = amount - bondsReward;
 
         if (stakeStruct.rewardsAddress == address(0)) {
@@ -133,8 +131,10 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
             transferViaCall(payable(stakeStruct.rewardsAddress), nativeReward);
         }
 
-        if (bondsReward > 0)
-            airBond.safeTransfer(stakeStruct.rewardsAddress, bondsReward);
+        if (bondsReward > 0) {
+            address bondsRewardsAddress = stakeStruct.rewardsAddress == address(0) ? stakeStruct.ownerAddress : stakeStruct.rewardsAddress;
+            airBond.safeTransfer(bondsRewardsAddress, bondsReward);
+        }
 
     }
 
@@ -195,7 +195,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
     function _getBondsPercent(uint timestampStake) internal view returns (uint) {
         uint stakingTime = block.timestamp - timestampStake;
-        uint nativePercent = 25 + stakingTime / (3 * 365  days);
+        uint nativePercent = 25 + stakingTime * 75 / (3 * 365  days);
         if (nativePercent > 100) nativePercent = 100;
 
         return 100 - nativePercent;
