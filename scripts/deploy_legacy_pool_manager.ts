@@ -147,7 +147,9 @@ async function deployNewContext(
   console.log(`Use "source .env && yarn task changeContext ${context.address}" in ambrosus-node-contracts repo`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}
