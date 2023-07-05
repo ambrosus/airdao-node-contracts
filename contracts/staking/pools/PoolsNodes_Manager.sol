@@ -49,7 +49,7 @@ contract PoolsNodes_Manager is Ownable, IStakeManager {
         require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
 
-        validatorSet.addStake(nodeAddress, msg.value);
+        validatorSet.newStake(nodeAddress, msg.value, false);  // false ?
         emit NodeOnboarded(nodeAddress, msg.value);
     }
 
@@ -57,7 +57,7 @@ contract PoolsNodes_Manager is Ownable, IStakeManager {
         uint amountToTransfer = getDeposit(nodeAddress);
         require(amountToTransfer != 0, "No such node");
 
-        validatorSet.removeStake(nodeAddress, amountToTransfer);
+        validatorSet.unstake(nodeAddress, amountToTransfer);
         emit NodeRetired(nodeAddress, amountToTransfer);
         payable(msg.sender).transfer(amountToTransfer);
         return amountToTransfer;

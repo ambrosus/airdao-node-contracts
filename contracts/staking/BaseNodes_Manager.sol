@@ -23,13 +23,16 @@ contract BaseNodes_Manager is IStakeManager, AccessControl {
     // USER (MULTISIG) METHODS
 
     function addStake(address nodeAddress) payable public onlyRole(DEFAULT_ADMIN_ROLE) {
-        validatorSet.addStake(nodeAddress, msg.value);
+        if (validatorSet.getNodeStake(nodeAddress) == 0)
+            validatorSet.newStake(nodeAddress, msg.value, true);
+        else 
+            validatorSet.stake(nodeAddress, msg.value);
     }
 
     function removeStake(address nodeAddress, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(validatorSet.getNodeStake(nodeAddress) >= amount, "Stake < amount");
 
-        validatorSet.removeStake(nodeAddress, amount);
+        validatorSet.unstake(nodeAddress, amount);
         payable(msg.sender).transfer(amount);
     }
 

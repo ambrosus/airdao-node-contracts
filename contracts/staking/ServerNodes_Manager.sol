@@ -101,7 +101,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
 
         if (validatorSet.getNodeStake(nodeAddress) > 0) // only if node already validator
-            validatorSet.removeStake(nodeAddress, amount);
+            validatorSet.unstake(nodeAddress, amount);
 
         // lock funds
         lockKeeper.lockSingle{value: amount}(
@@ -174,20 +174,20 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
     function _addStake(address nodeAddress, uint amount) internal {
         stakes[nodeAddress].stake += amount;
 
-        // call validatorSet.addStake() only when node really ready to be validator
-        if (stakes[nodeAddress].timestampStake <= _minTimestampForOnboarding())
-            validatorSet.addStake(nodeAddress, amount);
+        // call validatorSet.stake() only when node already validator
+        if (validatorSet.getNodeStake(nodeAddress) > 0)
+            validatorSet.stake(nodeAddress, amount);
     }
 
 
+    // move nodes from onboardingWaitingList to topStakes
     function _checkOnboardingWaitingList() internal {
-        // move nodes from onboardingWaitingList to topStakes
-        uint minTimestampForOnboarding = _minTimestampForOnboarding();
+        uint minTimestampForOnboarding =  block.timestamp - onboardingDelay;
 
         for (uint i = 0; i < onboardingWaitingList.length; i++) {
             address nodeAddress = onboardingWaitingList[i];
             if (stakes[nodeAddress].timestampStake <= minTimestampForOnboarding) {
-                validatorSet.addStake(nodeAddress, stakes[nodeAddress].stake);
+                validatorSet.newStake(nodeAddress, stakes[nodeAddress].stake, false);
 
                 onboardingWaitingList[i] = onboardingWaitingList[onboardingWaitingList.length - 1];
                 onboardingWaitingList.pop();
@@ -198,9 +198,6 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
     }
 
-    function _minTimestampForOnboarding() internal view returns (uint) {
-        return block.timestamp - onboardingDelay;
-    }
 
     function _getBondsPercent(uint timestampStake) internal view returns (uint) {
         uint stakingTime = block.timestamp - timestampStake;

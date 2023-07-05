@@ -93,26 +93,26 @@ contract ValidatorSet is OnBlockNotifier, SuperUser, AccessControlUpgradeable, I
 
     // STAKING POOL METHODS
 
-    function addStake(address nodeAddress, uint amount) external {
-        Stake storage stake = stakes[nodeAddress];
-        if (stake.amount == 0) {
-            // new stake
-            require(hasRole(STAKING_MANAGER_ROLE, msg.sender), "stakingContract missing role");
-            stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), false);
+    function newStake(address nodeAddress, uint amount, bool isAlwaysTop) external onlyRole(STAKING_MANAGER_ROLE) {
+        require(stakes[nodeAddress].amount == 0, "Already has stake");
 
-            _addStake(nodeAddress);
-        } else {
-            // existing stake
-            require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
-
-            bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
-            stake.amount += amount;
-            _increaseStake(nodeAddress, isInTopStakes);
-        }
+        stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), isAlwaysTop);
+        _addStake(nodeAddress);
         totalStakeAmount += amount;
     }
 
-    function removeStake(address nodeAddress, uint amount) external {
+    function stake(address nodeAddress, uint amount) external {
+        Stake storage stake = stakes[nodeAddress];
+        require(stake.amount > 0, "Stake doesn't exist");
+        require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
+
+        bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
+        stake.amount += amount;
+        _increaseStake(nodeAddress, isInTopStakes);  
+        totalStakeAmount += amount;
+    }
+
+    function unstake(address nodeAddress, uint amount) external {
         Stake storage stake = stakes[nodeAddress];
         require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
         require(stake.amount >= amount, "amount bigger than stake");

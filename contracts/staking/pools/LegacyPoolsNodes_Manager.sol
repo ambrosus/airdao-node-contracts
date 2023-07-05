@@ -51,7 +51,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
         apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
-        validatorSet.addStake(nodeAddress, msg.value);
+        validatorSet.newStake(nodeAddress, msg.value, false);  // todo false?
         rolesEventEmitter.nodeOnboarded(nodeAddress, msg.value, "", Consts.NodeType.APOLLO);
         node2pool[nodeAddress] = msg.sender;
     }
@@ -60,7 +60,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         uint amountToTransfer = apolloDepositStore.releaseDeposit(nodeAddress, address(this));
         require(amountToTransfer != 0, "No such node");
 
-        validatorSet.removeStake(nodeAddress, amountToTransfer);
+        validatorSet.unstake(nodeAddress, amountToTransfer);
         rolesEventEmitter.nodeRetired(nodeAddress, amountToTransfer, Consts.NodeType.APOLLO);
         payable(msg.sender).transfer(amountToTransfer);
         node2pool[nodeAddress] = address(0);
