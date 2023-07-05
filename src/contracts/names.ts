@@ -22,6 +22,9 @@ export enum ContractNames {
   ValidatorSet = "ValidatorSet",
   ValidatorSetMultisig = "ValidatorSet_Multisig",
 
+  BaseNodesManager = "BaseNodesManager",
+  BaseNodesManagerMultisig = "BaseNodesManager_Multisig",
+
   LegacyPoolManager = "LegacyPoolManager",
   LegacyPoolManagerMultisig = "LegacyPoolManager_Multisig",
 
@@ -42,6 +45,7 @@ export const slavesMultisigsNames = [
   ContractNames.FinanceEcosystemMultisig,
 
   ContractNames.ValidatorSetMultisig,
+  ContractNames.BaseNodesManagerMultisig,
   ContractNames.LegacyPoolManagerMultisig,
 ];
 

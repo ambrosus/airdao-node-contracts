@@ -18,6 +18,7 @@
     "deploy_finance": "hardhat run ./scripts/deploy_finance.ts --network dev",
     "deploy_airdrop": "hardhat run ./scripts/deploy_airdrop.ts --network test",
     "deploy_validatorset": "hardhat run ./scripts/deploy_validatorset.ts --network dev",
+    "deploy_basenodes_manager": "hardhat run ./scripts/deploy_basenodes_manager.ts --network dev",
     "deploy_legacy_pool_manager": "hardhat run ./scripts/deploy_legacy_pool_manager.ts --network dev",
     "test_script": "hardhat run ./scripts/test.ts --network test",
     "sourcify:test": "hardhat sourcify --network test",
