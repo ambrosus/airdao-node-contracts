@@ -9,6 +9,9 @@
         "blockRewardContractTransitions": {
           "100": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
         },
+        "blockRewardModeTransitions": {
+          "100": "1"
+        },
         "validators": {
           "multi": {
             "0": {
