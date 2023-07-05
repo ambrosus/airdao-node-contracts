@@ -4,7 +4,7 @@ import "@openzeppelin/hardhat-upgrades";
 
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
-import { sourcifyAll } from "./src/dev/sourcify";
+import { sourcifyAll } from "deployments";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 dotenv.config();
