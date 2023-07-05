@@ -2,11 +2,9 @@ import { ethers } from "hardhat";
 import { ContractNames } from "../src";
 import { deploy } from "../src/dev/deploy";
 import { AirDrop__factory, AirBond__factory } from "../typechain-types";
-import { chainIDToName, loadDeployment } from "../src/utils/deployments";
 
 async function main() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
-  const networkName = chainIDToName[chainId];
+  const { chainId, name: networkName } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
@@ -19,7 +17,7 @@ async function main() {
     // const financeInvestorsMultisig = loadDeployment(ContractNames.FinanceInvestorsMultisig, networkName).address;
     const airBond = await deploy<AirBond__factory>(
       ContractNames.AirBond,
-      networkName,
+      chainId,
       "AirBond",
       [deployer.address],
       deployer,
@@ -27,7 +25,7 @@ async function main() {
     );
     const airDrop = await deploy<AirDrop__factory>(
       ContractNames.AirDrop,
-      networkName,
+      chainId,
       "AirDrop",
       [airBond.address, BACKEND_ADDRESS, ethers.utils.parseEther("999"), []],
       deployer,
@@ -41,7 +39,7 @@ async function main() {
   } else {
     const airBond = await deploy<AirBond__factory>(
       ContractNames.AirBond,
-      networkName,
+      chainId,
       "AirBond",
       [deployer.address],
       deployer,
@@ -49,7 +47,7 @@ async function main() {
     );
     const airDrop = await deploy<AirDrop__factory>(
       ContractNames.AirDrop,
-      networkName,
+      chainId,
       "AirDrop",
       [airBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("999"), []],
       deployer

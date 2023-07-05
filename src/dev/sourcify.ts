@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { parseFullyQualifiedName } from "hardhat/utils/contract-names";
-import { _loadDeployments, nameToChainID } from "../utils/deployments";
+import { _loadDeployments } from "../utils/deployments";
 
 const ENDPOINT = "https://sourcify.ambrosus.io/";
 
 export async function sourcifyAll(hre: HardhatRuntimeEnvironment) {
-  const networkName = hre.network.name;
-  const chainId = nameToChainID[networkName];
-  if (!chainId) throw `${networkName} not in nameToChainID dict`;
-  const deployments = _loadDeployments(networkName);
+  const { chainId } = await hre.ethers.getDefaultProvider().getNetwork();
+  const deployments = _loadDeployments(chainId);
 
   for (const [contractName, deployment] of Object.entries(deployments))
     if (deployment.proxy) {

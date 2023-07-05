@@ -1,8 +1,8 @@
 import { Contract, ethers, Signer } from "ethers";
-import deploymentsMain from "../../deployments/main.json";
-import deploymentsTest from "../../deployments/test.json";
-import deploymentsDev from "../../deployments/dev.json";
-import deploymentsLocal from "../../deployments/local.json";
+import deploymentsMain from "../../deployments/16718.json";
+import deploymentsTest from "../../deployments/22040.json";
+import deploymentsDev from "../../deployments/30746.json";
+import deploymentsLocal from "../../deployments/5256.json";
 
 export interface Deployment {
   address: string;
@@ -15,15 +15,15 @@ export interface Deployment {
   };
 }
 
-export function loadDeployment(contractName: string, networkName: string, signer?: Signer) {
-  const deployments = _loadDeployments(networkName);
-  if (!deployments[contractName]) throw new Error(`Can't find deployment for ${contractName} in ${networkName}`);
+export function loadDeployment(contractName: string, networkId: number, signer?: Signer) {
+  const deployments = _loadDeployments(networkId);
+  if (!deployments[contractName]) throw new Error(`Can't find deployment for ${contractName} in network ${networkId}`);
 
   return _contractFromDeployment(deployments[contractName], signer);
 }
 
-export function loadAllDeployments(networkName: string, signer?: Signer): { [name: string]: Contract } {
-  const deployments = _loadDeployments(networkName);
+export function loadAllDeployments(networkId: number, signer?: Signer): { [name: string]: Contract } {
+  const deployments = _loadDeployments(networkId);
   const result: { [name: string]: Contract } = {};
 
   for (const name of Object.keys(deployments)) result[name] = _contractFromDeployment(deployments[name], signer);
@@ -36,20 +36,10 @@ export function _contractFromDeployment(deployment: Deployment, signer?: Signer)
 }
 
 // todo i don't like it
-export function _loadDeployments(networkName: string): { [name: string]: Deployment } {
-  if (networkName == "dev") return deploymentsDev;
-  if (networkName == "test") return deploymentsTest;
-  if (networkName == "main") return deploymentsMain;
-  if (networkName == "local") return deploymentsLocal;
-  throw new Error(`unknown network name: ${networkName}`);
+export function _loadDeployments(networkId: number): { [name: string]: Deployment } {
+  if (networkId == 30746) return deploymentsDev;
+  if (networkId == 22040) return deploymentsTest;
+  if (networkId == 16718) return deploymentsMain;
+  if (networkId == 0x1488) return deploymentsLocal;
+  throw new Error(`unknown network id: ${networkId}`);
 }
-
-export const chainIDToName: { [chainId: number]: string } = {
-  22040: "test",
-  16718: "main",
-  30746: "dev",
-  0x1488: "local",
-};
-export const nameToChainID: { [name: string]: number } = Object.fromEntries(
-  Object.entries(chainIDToName).map(([k, v]) => [v, +k])
-);

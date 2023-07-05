@@ -3,11 +3,9 @@ import { ContractNames } from "../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "./addresses";
 import { deploy } from "../src/dev/deploy";
 import { MasterMultisig__factory } from "../typechain-types";
-import { chainIDToName } from "../src/utils/deployments";
 
 async function main() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
-  const networkName = chainIDToName[chainId];
+  const { chainId, name: networkName } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
@@ -16,7 +14,7 @@ async function main() {
 
     await deploy<MasterMultisig__factory>(
       ContractNames.MasterMultisig,
-      networkName,
+      chainId,
       "MasterMultisig",
       [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
       deployer
@@ -24,7 +22,7 @@ async function main() {
   } else {
     await deploy<MasterMultisig__factory>(
       ContractNames.MasterMultisig,
-      networkName,
+      chainId,
       "MasterMultisig",
       [[SharedDev, DimaTest, AndriiTest], [true, true, true], 51],
       deployer

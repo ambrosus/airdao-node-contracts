@@ -19,7 +19,7 @@ type GetDeployArgsType<T> = GetContractTypeFromFactory<T> extends Initializable
 
 /**
  * @param contractName - The name under which to save the contract. Must be unique.
- * @param networkName - Network name used as filename in deployments folder.
+ * @param networkId - Network chain id used as filename in deployments folder.
  * @param artifactName - Name of the contract artifact. For example, ERC20.
  * @param deployArgs - Deploy arguments
  * @param signer - Signer, that will deploy contract (or with witch contract will be loaded from deployment)
@@ -29,14 +29,14 @@ type GetDeployArgsType<T> = GetContractTypeFromFactory<T> extends Initializable
  */
 export async function deploy<N extends ContractFactory>(
   contractName: ContractNames,
-  networkName: string,
+  networkId: number,
   artifactName: string,
   deployArgs: GetDeployArgsType<N>,
   signer: Signer,
   loadIfAlreadyDeployed = false,
   upgradeableProxy = false
 ): Promise<GetContractTypeFromFactory<N>> {
-  const deployments = _loadDeployments(networkName);
+  const deployments = _loadDeployments(networkId);
 
   if (deployments[contractName]) {
     if (loadIfAlreadyDeployed) {
@@ -50,7 +50,7 @@ export async function deploy<N extends ContractFactory>(
   const artifact = await artifacts.readArtifact(artifactName);
   const fullyQualifiedName = getFullyQualifiedName(artifact.sourceName, artifact.contractName);
 
-  console.log(`deploying ${contractName} in ${networkName}...`);
+  console.log(`deploying ${contractName} in network ${networkId}...`);
 
   const contract = upgradeableProxy
     ? await upgrades.deployProxy(factory, deployArgs)
@@ -80,7 +80,7 @@ export async function deploy<N extends ContractFactory>(
 
   deployments[contractName] = deployment;
 
-  const deploymentPath = path.resolve(__dirname, `../../deployments/${networkName}.json`);
+  const deploymentPath = path.resolve(__dirname, `../../deployments/${networkId}.json`);
   fs.writeFileSync(deploymentPath, JSON.stringify(deployments, null, 2));
 
   return contract as GetContractTypeFromFactory<N>;

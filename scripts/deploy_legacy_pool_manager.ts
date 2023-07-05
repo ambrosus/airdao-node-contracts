@@ -11,7 +11,7 @@ import {
   StorageCatalogue__factory,
 } from "../typechain-types";
 import { BigNumber, Signer } from "ethers";
-import { chainIDToName, loadDeployment } from "../src/utils/deployments";
+import { loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
 import { deploy } from "../src/dev/deploy";
 
@@ -21,17 +21,16 @@ const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 const configAbi = ["function APOLLO_DEPOSIT() view returns (uint)"];
 
 async function main() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
-  const networkName = chainIDToName[chainId];
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, networkName, deployer);
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, networkName).address;
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
+  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   const multisig = await deploy<Multisig__factory>(
     ContractNames.LegacyPoolManagerMultisig,
-    networkName,
+    chainId,
     "Multisig",
     [[deployer.address], [true], 75, masterMultisig],
     deployer
@@ -46,7 +45,7 @@ async function main() {
 
   const manager = await deploy<LegacyPoolsNodes_Manager__factory>(
     ContractNames.LegacyPoolManager,
-    networkName,
+    chainId,
     "LegacyPoolsNodes_Manager",
     [
       minApolloDeposit,

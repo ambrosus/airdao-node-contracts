@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { chainIDToName, loadDeployment } from "../src/utils/deployments";
+import { loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
 import {
   Andrii,
@@ -19,12 +19,11 @@ import { deploy } from "../src/dev/deploy";
 import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
 
 async function main() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
-  const networkName = chainIDToName[chainId];
+  const { chainId, name: networkName } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, networkName).address;
+  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   async function deployFinance(
     financeName: ContractNames,
@@ -37,12 +36,12 @@ async function main() {
 
     const multisig = await deploy<Multisig__factory>(
       multisigName,
-      networkName,
+      chainId,
       "Multisig",
       [signers, isInitiator, threshold, masterMultisig],
       deployer
     );
-    await deploy<Finance__factory>(financeName, networkName, "Finance", [multisig.address], deployer);
+    await deploy<Finance__factory>(financeName, chainId, "Finance", [multisig.address], deployer);
   }
 
   if (networkName == "main") {
@@ -54,14 +53,14 @@ async function main() {
     // finance master
     const multisig = await deploy<Multisig__factory>(
       ContractNames.FinanceMasterMultisig,
-      networkName,
+      chainId,
       "Multisig",
       [[Lang, Igor, Rory, Kevin], [true, true, true, true], 75, masterMultisig],
       deployer
     );
     await deploy<MasterFinance__factory>(
       ContractNames.FinanceMaster,
-      networkName,
+      chainId,
       "MasterFinance",
       [multisig.address, bankCount, maxBankBalance],
       deployer
@@ -79,7 +78,7 @@ async function main() {
     // finance master
     const multisig = await deploy<Multisig__factory>(
       ContractNames.FinanceMasterMultisig,
-      networkName,
+      chainId,
       "Multisig",
       [
         [SharedDev, AndriiTest, DimaTest3C, DimaTest96, Igor, Lang, Rory, DimaTest2B],
@@ -91,7 +90,7 @@ async function main() {
     );
     await deploy<MasterFinance__factory>(
       ContractNames.FinanceMaster,
-      networkName,
+      chainId,
       "MasterFinance",
       [multisig.address, bankCount, maxBankBalance],
       deployer
