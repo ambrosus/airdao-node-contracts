@@ -11,9 +11,8 @@ import {
   StorageCatalogue__factory,
 } from "../typechain-types";
 import { BigNumber, Signer } from "ethers";
-import { loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
-import { deploy } from "../src/dev/deploy";
+import { deploy, loadDeployment } from "deployments";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
