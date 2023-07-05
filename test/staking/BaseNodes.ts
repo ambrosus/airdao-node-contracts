@@ -77,7 +77,7 @@ describe("BaseNodes", function () {
     });
 
     it("ok", async function () {
-      await asSuperUser(validatorSet.reward([owner.address], [1]));
+      await validatorSet.reward([owner.address], [1]);
     });
 
     it("not from validatorSet", async function () {
@@ -90,10 +90,3 @@ describe("BaseNodes", function () {
     await baseNodes.report(owner.address);
   });
 });
-
-async function asSuperUser(call: Promise<any>) {
-  await ethers.provider.send("hardhat_setCoinbase", ["0x0000000000000000000000000000000000000000"]); // superuser flag
-  const res = await call;
-  await ethers.provider.send("hardhat_setCoinbase", ["0x1111111111111111111111111111111111111111"]); // disable superuser flag
-  return res;
-}

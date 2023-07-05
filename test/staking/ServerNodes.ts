@@ -201,7 +201,7 @@ describe("ServerNodes", function () {
       await serverNodes.newStake(owner.address, { value: 50 });
       await time.setNextBlockTimestamp(T + onboardingDelay + 1);
       await serverNodes.onBlock();
-      await asSuperUser(validatorSet.finalizeChange());
+      await validatorSet.finalizeChange();
 
       await airBond.mint(serverNodes.address, 10000);
       await owner.sendTransaction({ to: serverNodes.address, value: 10000 });
@@ -326,11 +326,4 @@ function getRewardsValues(amount: number, bondsPercent: number) {
 function getBondsPercent(stakingTime: number) {
   const nativePercent = 25 + (stakingTime * 75) / (3 * 365 * 24 * 60 * 60);
   return 100 - Math.min(nativePercent, 100);
-}
-
-async function asSuperUser(call: Promise<any>) {
-  await ethers.provider.send("hardhat_setCoinbase", ["0x0000000000000000000000000000000000000000"]); // superuser flag
-  const res = await call;
-  await ethers.provider.send("hardhat_setCoinbase", ["0x1111111111111111111111111111111111111111"]); // disable superuser flag
-  return res;
 }
