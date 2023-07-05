@@ -106,7 +106,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     function importOldStakes(address[] memory addresses, uint[] memory amounts) public onlyOwner{
         require(addresses.length == amounts.length, "Invalid input");
         for (uint i = 0; i < addresses.length; i++)
-            validatorSet.addStake(addresses[i], amounts[i]);
+            validatorSet.newStake(addresses[i], amounts[i], false);
     }
 
     // IStakeManager METHODS
