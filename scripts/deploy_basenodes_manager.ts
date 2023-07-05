@@ -1,7 +1,8 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
+import { deploy } from "../src/dev/deploy";
 import { BaseNodes_Manager__factory, Multisig__factory } from "../typechain-types";
-import { deploy, loadDeployment } from "deployments";
+import { loadDeployment } from "../src/utils/deployments";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();

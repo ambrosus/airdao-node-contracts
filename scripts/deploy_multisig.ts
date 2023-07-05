@@ -1,8 +1,8 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "./addresses";
+import { deploy } from "../src/dev/deploy";
 import { MasterMultisig__factory } from "../typechain-types";
-import { deploy } from "deployments";
 
 export async function main() {
   const { chainId, name: networkName } = await ethers.provider.getNetwork();

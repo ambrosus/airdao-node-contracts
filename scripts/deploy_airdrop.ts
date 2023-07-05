@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
-import { AirBond__factory, AirDrop__factory } from "../typechain-types";
-import { deploy } from "deployments";
+import { deploy } from "../src/dev/deploy";
+import { AirDrop__factory, AirBond__factory } from "../typechain-types";
 
 async function main() {
   const { chainId, name: networkName } = await ethers.provider.getNetwork();
