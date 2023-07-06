@@ -6,7 +6,7 @@ copy-spec:
 
 
 start:
-	docker-compose up
+	docker-compose up -d
 
 stop:
 	docker-compose down
@@ -18,3 +18,6 @@ clear:
     rm -rf ./amb/apollo2/chains && \
     docker-compose rm -f  && \
     docker volume prune -f
+
+
+integration-tests: stop clear copy-spec start
