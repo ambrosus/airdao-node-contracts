@@ -73,13 +73,12 @@ async function main() {
   ).wait();
   console.log("3/3");
 
-  console.log("Finish initialisation at block", blockNumber, ". Waiting for transition block", TRANSITION_BLOCK);
-
   // finalize validators and wait for transition block
   console.log("unfinalized validators", await validatorSet.getTopStakes());
-  console.log(await validatorSet.hasRole(await validatorSet.DEFAULT_ADMIN_ROLE(), v1.address));
   await (await validatorSet.connect(v1).finalizeChange()).wait();
   console.log("finalized validators", await validatorSet.getValidators());
+
+  console.log("Finish initialisation at block", blockNumber, ". Waiting for transition block", TRANSITION_BLOCK);
 }
 
 if (require.main === module) {

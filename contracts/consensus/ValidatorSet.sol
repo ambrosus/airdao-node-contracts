@@ -107,7 +107,7 @@ contract ValidatorSet is OnBlockNotifier, AccessControlUpgradeable, IValidatorSe
 
         bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
         stake.amount += amount;
-        _increaseStake(nodeAddress, isInTopStakes);  
+        _increaseStake(nodeAddress, isInTopStakes);
         totalStakeAmount += amount;
     }
 
@@ -159,22 +159,17 @@ contract ValidatorSet is OnBlockNotifier, AccessControlUpgradeable, IValidatorSe
 
     function finalizeChange() onlySuperUser() public {
         finalizedValidators = topStakes;
-        emit ValidatorSetFinalized(finalizedValidators);
+        emit ValidatorSetFinalized(finalizedValidators);  // todo
     }
 
 
-    function reward(address[] memory beneficiaries, uint16[] memory kind) external onlySuperUser() returns (address[] memory, uint256[] memory) {
+    function process() external onlyValidator() {
         _notifyAll();  // call `onBlock` method on listeners
 
-        Stake storage stake = stakes[beneficiaries[0]];
+        Stake storage stake = stakes[msg.sender];
         uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
 
-        stake.stakingContract.reward(beneficiaries[0], rewardAmount);
-
-
-        address[] memory _addr = new address[](0);
-        uint256[] memory _uint = new uint256[](0);
-        return (_addr, _uint);
+        stake.stakingContract.reward(msg.sender, rewardAmount);
     }
 
 
@@ -380,9 +375,13 @@ contract ValidatorSet is OnBlockNotifier, AccessControlUpgradeable, IValidatorSe
     // MODIFIERS
 
     modifier onlySuperUser() {
+        require(msg.sender == 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "only super user can call this function");
+        _;
+    }
+
+    modifier onlyValidator() {
         // current validator or multisig
-        if (msg.sender != block.coinbase && !hasRole(DEFAULT_ADMIN_ROLE, msg.sender))
-            revert("only super user can call this function");
+        require(msg.sender == block.coinbase, "only super user can call this function");
         _;
     }
 

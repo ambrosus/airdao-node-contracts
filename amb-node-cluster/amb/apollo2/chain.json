@@ -7,17 +7,17 @@
         "blockRewardContractAddress": "0x0000000000000000000000000000000000000F01",
         "blockRewardContractTransition": "0x0",
         "blockRewardContractTransitions": {
-          "100": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
+          "15": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
         },
         "blockRewardModeTransitions": {
-          "100": "1"
+          "15": "1"
         },
         "validators": {
           "multi": {
             "0": {
               "safeContract": "0x0000000000000000000000000000000000000F00"
             },
-            "100": {
+            "15": {
               "safeContract": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
             }
           }
@@ -58,7 +58,7 @@
       }
     },
     "difficulty": "0x20000",
-    "gasLimit": "0x5B8D80"
+    "gasLimit": "0x5B8D800"
   },
   "accounts": {
     "0x0000000000000000000000000000000000000001": {
