@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
-import { deploy } from "../src/dev/deploy";
+// @ts-ignore
+import { deploy } from "deployments/dist/deploy.js";
 import { AirDrop__factory, AirBond__factory } from "../typechain-types";
 
 async function main() {

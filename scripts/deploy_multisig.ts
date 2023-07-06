@@ -1,7 +1,8 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "./addresses";
-import { deploy } from "../src/dev/deploy";
+// @ts-ignore
+import { deploy } from "deployments/dist/deploy.js";
 import { MasterMultisig__factory } from "../typechain-types";
 
 export async function main() {

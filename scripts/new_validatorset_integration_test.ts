@@ -4,11 +4,12 @@ import fs from "fs";
 
 import { main as deployMultisig } from "./deploy_multisig";
 import { main as deployValidatorset } from "./deploy_validatorset";
-import { main as deployBasenodesManager } from "./deploy_basenodes_manager";
-import { loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
 import { BaseNodes_Manager, BaseNodes_Manager__factory, ValidatorSet } from "../typechain-types";
-import { deploy } from "../src/dev/deploy";
+// @ts-ignore
+import { deploy } from "deployments/dist/deploy.js";
+// @ts-ignore
+import { loadDeployment } from "deployments/dist/deployments.js";
 
 const TRANSITION_ADDRESS = "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05";
 const TRANSITION_BLOCK = 15;
