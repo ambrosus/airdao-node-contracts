@@ -9,7 +9,6 @@ import { loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
 import { BaseNodes_Manager, BaseNodes_Manager__factory, ValidatorSet } from "../typechain-types";
 import { deploy } from "../src/dev/deploy";
-import { AmbErrorProviderWrapSigner } from "../src/utils/AmbErrorProvider";
 
 const TRANSITION_ADDRESS = "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05";
 const TRANSITION_BLOCK = 15;
