@@ -68,8 +68,8 @@ contract PoolsNodes_Manager is Ownable, IStakeManager {
         emit PoolStakeChanged(msg.sender, user, stake, tokens);
     }
 
-    function poolReward(uint reward, uint tokenPrice) public onlyPoolsCalls {
-        emit PoolReward(msg.sender, reward, tokenPrice);
+    function poolReward(uint payment, uint tokenPrice) public onlyPoolsCalls {
+        emit PoolReward(msg.sender, payment, tokenPrice);
     }
 
     function addNodeRequest(uint stake, uint requestId, uint nodeId) public onlyPoolsCalls {

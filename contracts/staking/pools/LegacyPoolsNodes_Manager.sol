@@ -72,8 +72,8 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         poolEventsEmitter.poolStakeChanged(msg.sender, user, stake, tokens);
     }
 
-    function poolReward(uint reward, uint tokenPrice) public onlyPoolsCalls {
-        poolEventsEmitter.poolReward(msg.sender, reward, tokenPrice);
+    function poolReward(uint payment, uint tokenPrice) public onlyPoolsCalls {
+        poolEventsEmitter.poolReward(msg.sender, payment, tokenPrice);
     }
 
     function addNodeRequest(uint stake, uint requestId, uint nodeId, Consts.NodeType role) public onlyPoolsCalls {

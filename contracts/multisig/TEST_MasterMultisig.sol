@@ -12,8 +12,8 @@ contract TEST_MasterMultisig is MasterMultisig {
     }
 
 
-    function setTransaction(uint txId, Transaction memory tx) public {
-        transactions[txId] = tx;
+    function setTransaction(uint txId, Transaction memory transaction) public {
+        transactions[txId] = transaction;
         if (transactionCount < txId+1) transactionCount = txId+1;
     }
 

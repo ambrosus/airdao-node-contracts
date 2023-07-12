@@ -34,7 +34,7 @@ contract Pool is Ownable {
     constructor(
         string memory poolName, uint poolNodeStake, uint poolMinStakeValue, uint poolFee, uint poolMaxTotalStake,
         address payable manager_
-    ) Ownable() public {
+    ) Ownable() {
 
         require(poolNodeStake > 0, "Pool node stake value is zero");
         // node stake value is used as a divisor

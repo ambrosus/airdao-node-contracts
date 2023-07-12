@@ -27,13 +27,13 @@ contract AirDrop is Ownable {
         minAmbBalance = minAmbBalance_;
 
         for (uint i = 0; i < claims.length; i++) {
-            HotFixClaims memory claim = claims[i];
-            claimed[claim.user][claim.category] = claim.amount;
+            HotFixClaims memory hotFixClaim = claims[i];
+            claimed[hotFixClaim.user][hotFixClaim.category] = hotFixClaim.amount;
             bytes32[] memory categories = new bytes32[](1);
-            categories[0] = claim.category;
+            categories[0] = hotFixClaim.category;
             uint[] memory amounts = new uint[](1);
-            amounts[0] = claim.amount;
-            emit Claim(claim.user, categories, amounts);
+            amounts[0] = hotFixClaim.amount;
+            emit Claim(hotFixClaim.user, categories, amounts);
         }
     }
 
