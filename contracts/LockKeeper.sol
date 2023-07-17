@@ -136,6 +136,21 @@ contract LockKeeper {
         require(_claim(lockId) != 0, "LockKeeper: too early to claim");
     }
 
+    function cancelLock(uint lockId) public {
+        Lock memory lock = locks[lockId];
+        require(msg.sender == lock.locker, "Only address that create lock can cancel it");
+        uint unclaimedAmount = (lock.totalClaims - lock.timesClaimed) * lock.intervalAmount;
+
+        if (lock.token == address(0)) {
+            payable(lock.receiver).transfer(unclaimedAmount);
+        } else {
+            IERC20(lock.token).transfer(lock.locker, unclaimedAmount);
+        }
+
+        _deleteLock(lockId, lock.receiver);
+        // todo cancel event
+    }
+
     function _claim(uint lockId) internal returns (uint256) {
         Lock storage lock = locks[lockId];  // todo try memory
         require(lock.totalClaims > 0, "LockKeeper: lock not found");
@@ -189,9 +204,5 @@ contract LockKeeper {
             break;
         }
     }
-
-    // todo
-    // unlock to stake is instant
-    // BUT need to protect from stake-unstake spam
 
 }
