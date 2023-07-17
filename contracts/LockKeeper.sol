@@ -45,6 +45,7 @@ contract LockKeeper {
     mapping(address => uint[]) public userLocks;
 
     struct Lock {
+        address locker;
         address receiver;
         address token;  // 0x0 for native coin
 
@@ -93,6 +94,7 @@ contract LockKeeper {
         }
 
         locks[++latestLockId] = Lock({
+            locker : msg.sender,
             receiver: receiver,
             token: token,
             firstUnlockTime: firstUnlockTime,
