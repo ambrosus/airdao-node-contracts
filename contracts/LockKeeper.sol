@@ -167,7 +167,7 @@ contract LockKeeper {
         }
 
         if (lastCanClaimIndex == lock.totalClaims) {
-            delete locks[lockId];
+            _deleteLock(lockId, lock.receiver);
         } else {
             lock.timesClaimed = uint64(lastCanClaimIndex);
         }
@@ -175,6 +175,19 @@ contract LockKeeper {
         // todo event
 
         return amountToClaim;
+    }
+
+    function _deleteLock(uint lockId, address user) internal {
+        delete locks[lockId];
+
+        uint[] storage userLocks_ = userLocks[user];
+
+        for (uint i = 0; i < userLocks_.length; i++) {
+            if (userLocks_[i] != lockId) continue;
+            userLocks_[i] = userLocks_[userLocks_.length - 1];
+            userLocks_.pop();
+            break;
+        }
     }
 
     // todo
