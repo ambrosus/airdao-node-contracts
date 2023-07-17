@@ -177,6 +177,27 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         airBond.safeTransfer(addressTo, amount);
     }
 
+    function importOldStakes(address[] memory addresses, uint[] memory amounts, uint[] memory timestamps) public payable onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            addresses.length == amounts.length &&
+            addresses.length == timestamps.length,
+            "Invalid input");
+
+        uint totalAmount;
+        for (uint i = 0; i < addresses.length; i++) {
+            address nodeAddress = addresses[i];
+            require(amounts[i] > minStakeAmount, "msg.value must be > minStakeAmount");
+            require(stakes[nodeAddress].stake == 0, "node already registered");
+            require(owner2node[nodeAddress] == address(0), "owner already has a stake");
+
+            stakes[nodeAddress] = Stake(amounts[i], timestamps[i], nodeAddress, address(0));
+            owner2node[nodeAddress] = nodeAddress;
+            totalAmount += amounts[i];
+        }
+
+        require(totalAmount == msg.value, "msg.value must be equal to amounts sum");
+    }
+
     // PRIVATE METHODS
 
 
@@ -191,7 +212,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
     // move nodes from onboardingWaitingList to topStakes
     function _checkOnboardingWaitingList() internal {
-        uint minTimestampForOnboarding =  block.timestamp - onboardingDelay;
+        uint minTimestampForOnboarding = block.timestamp - onboardingDelay;
 
         for (uint i = 0; i < onboardingWaitingList.length; i++) {
             address nodeAddress = onboardingWaitingList[i];
