@@ -38,13 +38,14 @@ describe("LockKeeper", function () {
     it("lock single", async function () {
       await expect(lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 100 }))
         .to.emit(lockKeeper, "Locked")
-        .withArgs(1, user2.address, AddressZero, user1.address, T, T + 1000, 0, 1, 100, "Test");
+        .withArgs(1, user2.address, AddressZero, user1.address, T, T + 1000, 1, 1, 100, "Test");
 
       expect(normalizeStruct(await lockKeeper.locks(1))).to.deep.eq({
+        locker: user1.address,
         receiver: user2.address,
         token: AddressZero,
         firstUnlockTime: T + 1000,
-        unlockPeriod: 0,
+        unlockPeriod: 1,
         totalClaims: 1,
         timesClaimed: 0,
         intervalAmount: 100,
@@ -59,6 +60,17 @@ describe("LockKeeper", function () {
       await expect(lockKeeper.lockLinear(user2.address, AddressZero, T + 1000, 3, 200, 100, "Test", { value: 300 }))
         .to.emit(lockKeeper, "Locked")
         .withArgs(1, user2.address, AddressZero, user1.address, T, T + 1000, 200, 3, 100, "Test");
+
+      expect(normalizeStruct(await lockKeeper.locks(1))).to.deep.eq({
+        locker: user1.address,
+        receiver: user2.address,
+        token: AddressZero,
+        firstUnlockTime: T + 1000,
+        unlockPeriod: 200,
+        totalClaims: 3,
+        timesClaimed: 0,
+        intervalAmount: 100,
+      });
     });
 
     it("wrong AMB amount", async function () {
@@ -86,7 +98,7 @@ describe("LockKeeper", function () {
 
         await expect(lockKeeper.lockSingle(user2.address, erc20.address, T + 1000, 100, "Test"))
           .to.emit(lockKeeper, "Locked")
-          .withArgs(1, user2.address, erc20.address, user1.address, anyValue, T + 1000, 0, 1, 100, "Test");
+          .withArgs(1, user2.address, erc20.address, user1.address, anyValue, T + 1000, 1, 1, 100, "Test");
 
         expect(await erc20.balanceOf(lockKeeper.address)).to.eq(100);
       });
