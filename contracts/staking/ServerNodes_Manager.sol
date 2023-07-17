@@ -117,6 +117,15 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         stakes[nodeAddress].rewardsAddress = rewardsAddress;
     }
 
+    function changeNodeOwner(address nodeAddress, address newOwnerAddress) public {
+        require(stakes[nodeAddress].ownerAddress == msg.sender, "Only owner can change owner");
+        require(owner2node[newOwnerAddress] == address(0), "New owner already have node");
+
+        stakes[nodeAddress].ownerAddress = newOwnerAddress;
+        owner2node[newOwnerAddress] = nodeAddress;
+        owner2node[msg.sender] = address(0);
+    }
+
     // VALIDATOR SET METHODS
 
     function reward(address nodeAddress, uint amount) external {
