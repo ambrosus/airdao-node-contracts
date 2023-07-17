@@ -40,7 +40,7 @@ contract LockKeeper {
     //    })
     //    will lock 100 wei of token that can be claimed at 01.01.2023 00:00:00
 
-    uint lockID;
+    uint public latestLockId;
     mapping(uint => Lock) public locks;
     mapping(address => uint[]) public userLocks;
 
@@ -92,20 +92,20 @@ contract LockKeeper {
             IERC20(token).transferFrom(msg.sender, address(this), totalAmount);
         }
 
-        locks[++lockID] = Lock({
-        receiver : receiver,
-        token : token,
-        firstUnlockTime : firstUnlockTime,
-        unlockPeriod : unlockPeriod,
-        totalClaims : totalClaims,
-        timesClaimed : 0,
-        intervalAmount : unlockAmount
+        locks[++latestLockId] = Lock({
+            receiver: receiver,
+            token: token,
+            firstUnlockTime: firstUnlockTime,
+            unlockPeriod: unlockPeriod,
+            totalClaims: totalClaims,
+            timesClaimed: 0,
+            intervalAmount: unlockAmount
         });
 
-        userLocks[receiver].push(lockID);
+        userLocks[receiver].push(latestLockId);
 
         emit Locked(
-            lockID,
+            latestLockId,
             receiver,
             token,
             msg.sender,
