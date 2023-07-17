@@ -77,7 +77,8 @@ describe("BaseNodes", function () {
     });
 
     it("ok", async function () {
-      await validatorSet.reward([owner.address], [1]);
+      await ethers.provider.send("hardhat_setCoinbase", [owner.address]); // call as current block miner
+      await validatorSet.process();
     });
 
     it("not from validatorSet", async function () {
