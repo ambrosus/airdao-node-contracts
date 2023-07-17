@@ -78,7 +78,7 @@ contract LockKeeper {
         uint64 unlockTime, uint256 amount,
         string memory description
     ) public payable {
-        lockLinear(receiver, token, unlockTime, 1, 0, amount, description);
+        lockLinear(receiver, token, unlockTime, 1, 1, amount, description);
     }
 
     function lockLinear(
@@ -155,28 +155,18 @@ contract LockKeeper {
     }
 
     function _claim(uint lockId) internal returns (uint256) {
-        Lock storage lock = locks[lockId];  // todo try memory
+        Lock storage lock = locks[lockId];
         require(lock.totalClaims > 0, "LockKeeper: lock not found");
         require(lock.receiver == msg.sender, "LockKeeper: not your lock");
-        //        require(lock.timesClaimed < lock.totalClaims, "LockKeeper: all intervals claimed [CAN'T BE]");
 
-        uint64 firstCantClaimTime = lock.firstUnlockTime + lock.unlockPeriod * lock.timesClaimed;
-        uint lastCanClaimIndex = lock.timesClaimed;
+        uint64 timeNow = uint64(block.timestamp);
+        if (timeNow < lock.firstUnlockTime) return 0;
 
-        while (lastCanClaimIndex < lock.totalClaims) {
-            if (uint64(block.timestamp) < firstCantClaimTime)
-                break;
-
-            firstCantClaimTime += lock.unlockPeriod;
-            lastCanClaimIndex++;
-
-        }
-
+        uint lastCanClaimIndex = (timeNow - lock.firstUnlockTime) / lock.unlockPeriod + 1;
+        if (lastCanClaimIndex > lock.totalClaims) lastCanClaimIndex = lock.totalClaims;
 
         uint amountToClaim = (lastCanClaimIndex - lock.timesClaimed) * lock.intervalAmount;
-        if (amountToClaim == 0) {
-            return 0;
-        }
+        if (amountToClaim == 0) return 0;
 
         if (lock.token == address(0)) {
             payable(lock.receiver).transfer(amountToClaim);
