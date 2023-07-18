@@ -26,7 +26,7 @@ interface NodeInfo {
   address: string;
   stake: BigNumber;
   onboardBlock?: number | string;
-  onboardTimestamp?: number
+  onboardTimestamp?: number;
 }
 
 async function main() {
@@ -98,11 +98,10 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
   }
 
   // get onboard time for server nodes
-  const batchSize = 100000;
-  const fromBlock = 0;
+  const batchSize = 200_000;
   const toBlock = await ethers.provider.getBlockNumber();
 
-  for (let startBlock = fromBlock; startBlock <= toBlock; startBlock += batchSize) {
+  for (let startBlock = 0; startBlock <= toBlock; startBlock += batchSize) {
     const endBlock = Math.min(startBlock + batchSize - 1, toBlock);
 
     const events = await rolesEventEmitter.queryFilter(rolesEventEmitter.filters.NodeOnboarded(), startBlock, endBlock);
@@ -113,7 +112,7 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
     }
   }
   for (const serverNodeInfo of Object.values(serverNodes)) {
-    const { timestamp } = await owner.provider!.getBlock(serverNodeInfo.onboardBlock);
+    const { timestamp } = await owner.provider!.getBlock(serverNodeInfo.onboardBlock!);
     serverNodeInfo.onboardTimestamp = timestamp;
   }
 
