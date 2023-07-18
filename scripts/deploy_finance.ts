@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { loadDeployment } from "../src/utils/deployments";
 import { ContractNames } from "../src";
 import {
@@ -19,7 +19,7 @@ import { deploy } from "../src/dev/deploy";
 import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
 
 async function main() {
-  const { chainId, name: networkName } = await ethers.provider.getNetwork();
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
@@ -44,7 +44,7 @@ async function main() {
     await deploy<Finance__factory>(financeName, chainId, "Finance", [multisig.address], deployer);
   }
 
-  if (networkName == "main") {
+  if (network.name == "main") {
     console.log("--- MAINNET DEPLOYMENT ---");
 
     const maxBankBalance = ethers.utils.parseEther("100000000"); // 100 millions amb per bank

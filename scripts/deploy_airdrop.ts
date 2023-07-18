@@ -1,15 +1,15 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { ContractNames } from "../src";
 // @ts-ignore
 import { deploy } from "deployments/dist/deploy.js";
 import { AirDrop__factory, AirBond__factory } from "../typechain-types";
 
 async function main() {
-  const { chainId, name: networkName } = await ethers.provider.getNetwork();
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
-  if (networkName == "main") {
+  if (network.name == "main") {
     console.log("--- MAINNET DEPLOYMENT ---");
     console.log("Deployer: ", deployer.address);
 

@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import {
   ApolloDepositStore__factory,
   Catalogue,
@@ -112,15 +112,13 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
 async function getBaseNodes() {
   const { chainId } = await ethers.provider.getNetwork();
 
-  if (chainId == 30746)
-    // dev
+  if (network.name == "dev")
     return [
       "0xdecA85befcC43ed1891758E37c35053aFF935AC1",
       "0x427933454115d6D55E8e24821d430F944d3eD936",
       "0x87a3d2CcacDe32f366Bd01bcbeB202643cD38A4E",
     ];
-  if (chainId == 22040)
-    // test
+  if (network.name == "test")
     return [
       "0x311B7E7d0795c9697c6ED20B962f844E1e1F08ba",
       "0x5a16b69a09013C077A70fc62a3705Dbf1b60c2B0",
@@ -132,8 +130,7 @@ async function getBaseNodes() {
       "0xDE3939BEe9A4B0aB8272bDd06d6B6E7E917FB514",
       "0x52aB486A5067cd8e2705DbC90Ed72D6dA549D0EB",
     ];
-  if (chainId == 16718)
-    // main
+  if (network.name == "local")
     return [
       "0x162BA761Fc75f5873197A340F9e7fb926bA7517D",
       "0x129C0057AF3f91d4fa729AEA7910b46F7cE3d081",
