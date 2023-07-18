@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
@@ -12,7 +13,7 @@ import "../utils/TransferViaCall.sol";
 
 // Manager, that allows users to register their **ONE** node in validator set
 
-contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
+contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl, Pausable {
     using SafeERC20 for IERC20;
 
     struct Stake {
@@ -62,7 +63,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
 
     // USER METHODS
 
-    function newStake(address nodeAddress) payable public {
+    function newStake(address nodeAddress) payable public whenNotPaused {
         require(msg.value > minStakeAmount, "msg.value must be > minStakeAmount");
         require(stakes[nodeAddress].stake == 0, "node already registered");
         require(owner2node[msg.sender] == address(0), "owner already has a stake");
@@ -74,7 +75,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         onboardingWaitingList.push(nodeAddress);
     }
 
-    function addStake() payable public {
+    function addStake() payable public whenNotPaused {
         require(msg.value > 0, "msg.value must be > 0");
         address nodeAddress = owner2node[msg.sender];
         require(stakes[nodeAddress].stake > 0, "no stake for you address");
@@ -82,7 +83,7 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         _addStake(nodeAddress, msg.value);
     }
 
-    function unstake(uint amount) public {
+    function unstake(uint amount) public whenNotPaused {
         require(amount > 0, "amount must be > 0");
 
         address nodeAddress = owner2node[msg.sender];
@@ -196,6 +197,14 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
         }
 
         require(totalAmount == msg.value, "msg.value must be equal to amounts sum");
+    }
+
+    function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
+    }
+
+    function unpause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _unpause();
     }
 
     // PRIVATE METHODS
