@@ -11,7 +11,7 @@ import {
   StorageCatalogue,
   StorageCatalogue__factory,
 } from "../typechain-types";
-import { Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 // @ts-ignore
 import { loadDeployment } from "deployments/dist/deployments.js";
 // @ts-ignore
@@ -21,6 +21,13 @@ const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 const validatorSetAbi = ["function getValidators() view returns (address[])"];
+
+interface NodeInfo {
+  address: string;
+  stake: BigNumber;
+  onboardBlock?: number | string;
+  onboardTimestamp?: number;
+}
 
 async function main() {
   // const { chainId } = await ethers.provider.getNetwork();
@@ -70,9 +77,9 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
   }
 
   // fetch addresses and their stakes from validator set
-  const serverNodes: any = {};
-  const poolNodes: any = {};
-  const baseNodes: any = {};
+  const serverNodes: Record<string, NodeInfo> = {};
+  const poolNodes: Record<string, NodeInfo> = {};
+  const baseNodes: Record<string, NodeInfo> = {};
 
   const validatorSetAddresses = await validatorSet.getValidators();
 
@@ -91,14 +98,21 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
   }
 
   // get onboard time for server nodes
-  // todo use block batches
-  const events = await rolesEventEmitter.queryFilter(rolesEventEmitter.filters.NodeOnboarded());
-  for (const event of events) {
-    if (!serverNodes[event.args.nodeAddress]) continue;
-    serverNodes[event.args.nodeAddress].onboardBlock = event.blockNumber;
+  const batchSize = 200_000;
+  const toBlock = await ethers.provider.getBlockNumber();
+
+  for (let startBlock = 0; startBlock <= toBlock; startBlock += batchSize) {
+    const endBlock = Math.min(startBlock + batchSize - 1, toBlock);
+
+    const events = await rolesEventEmitter.queryFilter(rolesEventEmitter.filters.NodeOnboarded(), startBlock, endBlock);
+
+    for (const event of events) {
+      if (!serverNodes[event.args.nodeAddress]) continue;
+      serverNodes[event.args.nodeAddress].onboardBlock = event.blockNumber;
+    }
   }
   for (const serverNodeInfo of Object.values(serverNodes)) {
-    const { timestamp } = await owner.provider!.getBlock(serverNodeInfo.onboardBlock);
+    const { timestamp } = await owner.provider!.getBlock(serverNodeInfo.onboardBlock!);
     serverNodeInfo.onboardTimestamp = timestamp;
   }
 

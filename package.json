@@ -20,6 +20,7 @@
     "deploy_validatorset": "hardhat run ./scripts/deploy_validatorset.ts --network dev",
     "deploy_basenodes_manager": "hardhat run ./scripts/deploy_basenodes_manager.ts --network dev",
     "deploy_legacy_pool_manager": "hardhat run ./scripts/deploy_legacy_pool_manager.ts --network dev",
+    "deploy_migration_to_new_staking": "hardhat run ./scripts/migrate_to_new_staking.ts --network dev",
     "test_script": "hardhat run ./scripts/test.ts --network test",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"
