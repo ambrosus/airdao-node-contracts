@@ -124,8 +124,6 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
 }
 
 async function getBaseNodes() {
-  const { chainId } = await ethers.provider.getNetwork();
-
   if (network.name == "dev")
     return [
       "0xdecA85befcC43ed1891758E37c35053aFF935AC1",
@@ -144,7 +142,7 @@ async function getBaseNodes() {
       "0xDE3939BEe9A4B0aB8272bDd06d6B6E7E917FB514",
       "0x52aB486A5067cd8e2705DbC90Ed72D6dA549D0EB",
     ];
-  if (network.name == "local")
+  if (network.name == "main")
     return [
       "0x162BA761Fc75f5873197A340F9e7fb926bA7517D",
       "0x129C0057AF3f91d4fa729AEA7910b46F7cE3d081",
@@ -154,7 +152,7 @@ async function getBaseNodes() {
       "0x9f8B33a65A61F3382904611020EdC17E64745622",
       // todo
     ];
-  throw new Error(`Unknown network ${chainId}`);
+  throw new Error(`Unknown network ${network.name}`);
 }
 
 async function deployNewContext(
