@@ -165,11 +165,7 @@ contract ValidatorSet is OnBlockNotifier, AccessControlUpgradeable, IValidatorSe
 
     function process() external onlyValidator() {
         _notifyAll();  // call `onBlock` method on listeners
-
-        Stake storage stake = stakes[msg.sender];
-        uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
-
-        stake.stakingContract.reward(msg.sender, rewardAmount);
+        _reward();
     }
 
 
@@ -188,6 +184,13 @@ contract ValidatorSet is OnBlockNotifier, AccessControlUpgradeable, IValidatorSe
         /* solium-disable-next-line security/no-block-members */
         emit InitiateChange(blockhash(block.number - 1), topStakes);
 
+    }
+
+    function _reward() internal {
+        Stake storage stake = stakes[msg.sender];
+        uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
+
+        try stake.stakingContract.reward(msg.sender, rewardAmount) {} catch {}
     }
 
     // HELPERS
