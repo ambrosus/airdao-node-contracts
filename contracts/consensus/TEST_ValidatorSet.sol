@@ -32,4 +32,8 @@ contract TEST_ValidatorSet is ValidatorSet {
         return _compareStakes(a, b);
     }
 
+    function getListeners() public view returns (IOnBlockListener[] memory) {
+        return listeners;
+    }
+
 }

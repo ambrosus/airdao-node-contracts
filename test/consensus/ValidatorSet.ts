@@ -1,7 +1,7 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { TEST_Pool_Manager, TEST_ValidatorSet } from "../../typechain-types";
+import { TEST_BlockListener, TEST_Pool_Manager, TEST_ValidatorSet } from "../../typechain-types";
 
 describe("ValidatorSet", function () {
   const addrs = Array.from({ length: 100 }, (_, i) =>
@@ -10,6 +10,7 @@ describe("ValidatorSet", function () {
 
   let validatorSet: TEST_ValidatorSet;
   let testPool: TEST_Pool_Manager;
+  let blockListener: TEST_BlockListener;
 
   async function deploy() {
     const [owner] = await ethers.getSigners();
@@ -28,6 +29,10 @@ describe("ValidatorSet", function () {
     const TestPoolFactory = await ethers.getContractFactory("TEST_Pool_Manager");
     const testPool = await TestPoolFactory.deploy(validatorSet.address);
 
+    const BlockListener = await ethers.getContractFactory("TEST_BlockListener");
+    blockListener = await BlockListener.deploy();
+    await blockListener.deployed();
+
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), testPool.address);
 
     return { validatorSet, testPool, owner };
@@ -42,6 +47,55 @@ describe("ValidatorSet", function () {
   describe("Public functions", function () {
     afterEach(async function () {
       await integrityCheck();
+    });
+
+    describe("getValidators", function () {
+      it("if no validators are finalized must return zero-length array", async function () {
+        const validators = await validatorSet.getValidators();
+        expect(validators).to.have.lengthOf(0);
+      });
+      it("if validators are finalized must return array of validators", async function () {
+        const addresses = await ethers.getSigners();
+
+        await testPool.addStake(addresses[0].address, { value: 100 });
+        await testPool.addStake(addresses[1].address, { value: 100 });
+
+        await validatorSet.finalizeChange();
+
+        const validators = await validatorSet.getValidators();
+        expect(validators).to.have.lengthOf(2);
+      });
+    });
+
+    describe("addBlockListener", function () {
+      it("should add a block listener", async function () {
+        const [user] = await ethers.getSigners();
+        await validatorSet.addBlockListener(user.address);
+
+        await validatorSet.finalizeChange();
+
+        const listeners = await validatorSet.getListeners();
+        expect(listeners).to.have.lengthOf(1);
+      });
+    });
+
+    describe("removeBlockListener", function () {
+      it("should remove a block listener", async function () {
+        await validatorSet.addBlockListener(blockListener.address);
+
+        await validatorSet.finalizeChange();
+
+        let listeners = await validatorSet.getListeners();
+        expect(listeners).to.have.lengthOf(1);
+        expect(listeners[0]).to.equal(blockListener.address);
+
+        await validatorSet.removeBlockListener(blockListener.address);
+
+        await validatorSet.finalizeChange();
+
+        listeners = await validatorSet.getListeners();
+        expect(listeners).to.have.lengthOf(0);
+      });
     });
 
     describe("stake unstake", function () {
@@ -235,6 +289,42 @@ describe("ValidatorSet", function () {
             await expectArraysEqual([C, D], [A, B]);
           });
         });
+      });
+    });
+
+    describe("setReward", function () {
+      it("should update the base reward", async function () {
+        const newBaseReward = 100; // Your desired new base reward
+        await validatorSet.setReward(newBaseReward);
+
+        // Ensure the base reward is updated
+        const updatedBaseReward = await validatorSet.baseReward();
+        expect(updatedBaseReward).to.be.equal(newBaseReward);
+      });
+    });
+  });
+
+  describe("modifiers", function () {
+    describe("onlySuperUser", function () {
+      it("should revert access for other addresses", async function () {
+        const [user] = await ethers.getSigners();
+        expect(validatorSet.connect(user).finalizeChange()).to.be.revertedWith(
+          "only super user can call this function"
+        );
+      });
+      it("if address is super user, shouldn't be reverted", async function () {
+        const [user] = await ethers.getSigners();
+        await validatorSet.grantRole(validatorSet.DEFAULT_ADMIN_ROLE(), user.address);
+        expect(validatorSet.connect(user).finalizeChange()).not.to.be.revertedWith(
+          "only super user can call this function"
+        );
+      });
+    });
+
+    describe("onlyValidator", function () {
+      it("should revert access for other addresses", async function () {
+        const [user] = await ethers.getSigners();
+        expect(validatorSet.connect(user).process()).to.be.revertedWith("only validator can call this function");
       });
     });
   });
