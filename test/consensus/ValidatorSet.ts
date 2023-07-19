@@ -2,6 +2,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { TEST_BlockListener, TEST_Pool_Manager, TEST_ValidatorSet } from "../../typechain-types";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("ValidatorSet", function () {
   const addrs = Array.from({ length: 100 }, (_, i) =>
@@ -11,9 +12,10 @@ describe("ValidatorSet", function () {
   let validatorSet: TEST_ValidatorSet;
   let testPool: TEST_Pool_Manager;
   let blockListener: TEST_BlockListener;
+  let owner: SignerWithAddress;
 
   async function deploy() {
-    const [owner] = await ethers.getSigners();
+    [owner] = await ethers.getSigners();
 
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
@@ -67,8 +69,6 @@ describe("ValidatorSet", function () {
         const [user] = await ethers.getSigners();
         await validatorSet.addBlockListener(user.address);
 
-        await validatorSet.finalizeChange();
-
         const listeners = await validatorSet.getListeners();
         expect(listeners).to.have.lengthOf(1);
       });
@@ -78,18 +78,29 @@ describe("ValidatorSet", function () {
       it("should remove a block listener", async function () {
         await validatorSet.addBlockListener(blockListener.address);
 
-        await validatorSet.finalizeChange();
-
         let listeners = await validatorSet.getListeners();
         expect(listeners).to.have.lengthOf(1);
         expect(listeners[0]).to.equal(blockListener.address);
 
         await validatorSet.removeBlockListener(blockListener.address);
 
-        await validatorSet.finalizeChange();
-
         listeners = await validatorSet.getListeners();
         expect(listeners).to.have.lengthOf(0);
+      });
+    });
+
+    describe("process", function () {
+      it("should call onBlock method on the block listener", async function () {
+        await ethers.provider.send("hardhat_setCoinbase", [owner.address]); // call as current block miner
+
+        await testPool.addStake(owner.address, { value: 100 }); // add stake to avoid error(divide by zero)
+        await validatorSet.finalizeChange();
+
+        await validatorSet.addBlockListener(blockListener.address);
+
+        await validatorSet.process();
+
+        expect(await blockListener.blockProcessed()).to.be.true;
       });
     });
 
