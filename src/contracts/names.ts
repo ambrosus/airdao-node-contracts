@@ -38,6 +38,8 @@ export enum ContractNames {
   // projects
 
   AirDrop = "AirDrop",
+
+  LockKeeper = "LockKeeper",
 }
 
 export const slavesMultisigsNames = [
