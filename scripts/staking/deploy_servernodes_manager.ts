@@ -1,8 +1,8 @@
 import { ethers } from "hardhat";
-import { ContractNames } from "../src";
+import { ContractNames } from "../../src";
 // @ts-ignore
 import { loadDeployment } from "deployments/dist/deployments.js";
-import { LockKeeper__factory, Multisig__factory, ServerNodes_Manager__factory } from "../typechain-types";
+import { LockKeeper__factory, Multisig__factory, ServerNodes_Manager__factory } from "../../typechain-types";
 // @ts-ignore
 import { deploy } from "deployments/dist/deploy.js";
 

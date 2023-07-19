@@ -6,10 +6,10 @@ import {
   LegacyPoolsNodes_Manager__factory,
   Multisig__factory,
   StorageCatalogue__factory,
-} from "../typechain-types";
+} from "../../typechain-types";
 // @ts-ignore
 import { loadDeployment } from "deployments/dist/deployments.js";
-import { ContractNames } from "../src";
+import { ContractNames } from "../../src";
 // @ts-ignore
 import { deploy } from "deployments/dist/deploy.js";
 

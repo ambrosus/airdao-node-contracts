@@ -14,13 +14,13 @@ import {
   ServerNodes_Manager,
   StorageCatalogue,
   StorageCatalogue__factory,
-} from "../typechain-types";
+} from "../../typechain-types";
 import { BigNumber, Signer } from "ethers";
 // @ts-ignore
 import { loadDeployment } from "deployments/dist/deployments.js";
 // @ts-ignore
 import { deploy } from "deployments/dist/deploy.js";
-import { ContractNames } from "../src";
+import { ContractNames } from "../../src";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";

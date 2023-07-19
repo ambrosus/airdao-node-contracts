@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
 import { loadDeployment } from "../src/utils/deployments";
-import { ContractNames } from "../src";
+import { ContractNames } from "../../src";
 import {
   Andrii,
   AndriiTest,
@@ -14,9 +14,9 @@ import {
   Lang,
   Rory,
   SharedDev,
-} from "./addresses";
+} from "../addresses";
 import { deploy } from "../src/dev/deploy";
-import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
+import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../../typechain-types";
 
 async function main() {
   const { chainId } = await ethers.provider.getNetwork();

@@ -2,10 +2,10 @@ import { ethers } from "hardhat";
 import path from "path";
 import fs from "fs";
 
-import { main as deployMultisig } from "./deploy_multisig";
+import { main as deployMultisig } from "../multisig/deploy_multisig";
 import { main as deployValidatorset } from "./deploy_validatorset";
-import { ContractNames } from "../src";
-import { BaseNodes_Manager, BaseNodes_Manager__factory, ValidatorSet } from "../typechain-types";
+import { ContractNames } from "../../src";
+import { BaseNodes_Manager, BaseNodes_Manager__factory, ValidatorSet } from "../../typechain-types";
 // @ts-ignore
 import { deploy } from "deployments/dist/deploy.js";
 // @ts-ignore
