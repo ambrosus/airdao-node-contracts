@@ -43,7 +43,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "deployments": "github:ambrosus/deployments#v0.1.0",
+    "deployments": "github:ambrosus/deployments#v0.1.1",
     "ethers": "^5.7.2"
   }
 }

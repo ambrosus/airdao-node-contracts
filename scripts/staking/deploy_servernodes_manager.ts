@@ -43,7 +43,6 @@ export async function main() {
     ],
     signer: deployer,
     isUpgradeableProxy: true,
-    proxyOptions: {},
   });
 }
 

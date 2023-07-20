@@ -23,7 +23,6 @@ export async function main() {
     deployArgs: [deployer.address, deployer.address, 1, 200],
     signer: deployer,
     isUpgradeableProxy: true,
-    proxyOptions: {},
   });
 }
 
