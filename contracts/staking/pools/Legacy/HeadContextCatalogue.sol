@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.4.24;
 
+// this file is used only for providing ABI in tests and deploy (migration) scripts
+
 import "./IPoolsNodesManager.sol";
 
 
@@ -31,6 +33,9 @@ contract Context {
         catalogue = _catalogue;
         storageCatalogue = _storageCatalogue;
         versionTag = _versionTag;
+    }
+
+    function setTrustedAddress(address _address, bool _trusted) public {
     }
 
     function isInternalToContext(address contractAddress) view public returns (bool) {
@@ -79,6 +84,10 @@ contract Catalogue {
         config = _config;
         validatorProxy = _validatorProxy;
         poolsNodesManager = _poolsNodesManager;
+    }
+
+    function change(address _from, address _to) public {
+
     }
 }
 
@@ -134,5 +143,11 @@ contract StorageCatalogue {
         poolEventsEmitter = _poolEventsEmitter;
         nodeAddressesStore = _nodeAddressesStore;
         rolesPrivilagesStore = _rolesPrivilagesStore;
+    }
+}
+
+contract Roles {
+    function transferApollo(address[] apollo, address[] to) public {
+
     }
 }

@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
 import "./IPool.sol";
 import "../IStakeManager.sol";
 import "../../consensus/IValidatorSet.sol";
@@ -11,7 +13,7 @@ import "./Legacy/ICatalogueContracts.sol";
 // Manager that allows to register staking pools;
 // Each pool can onboard a node (via this manager) when reached some stake goal
 
-contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager {
+contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNodesManager {
 
     IValidatorSet public validatorSet; // contract that manages validator set
 
@@ -47,16 +49,16 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     // ONLY POOL METHODS
 
 
-    function onboard(address nodeAddress, Consts.NodeType nodeType) external payable onlyPoolsCalls {
+    function onboard(address nodeAddress, Consts.NodeType nodeType) external payable onlyPoolsCalls whenNotPaused {
         require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
         apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
-        validatorSet.newStake(nodeAddress, msg.value, false);  // todo false?
+        validatorSet.newStake(nodeAddress, msg.value, false); // todo false?
         rolesEventEmitter.nodeOnboarded(nodeAddress, msg.value, "", Consts.NodeType.APOLLO);
         node2pool[nodeAddress] = msg.sender;
     }
 
-    function retire(address nodeAddress, Consts.NodeType nodeType) external onlyPoolsCalls returns (uint) {
+    function retire(address nodeAddress, Consts.NodeType nodeType) external onlyPoolsCalls whenNotPaused returns (uint) {
         uint amountToTransfer = apolloDepositStore.releaseDeposit(nodeAddress, address(this));
         require(amountToTransfer != 0, "No such node");
 
@@ -68,7 +70,7 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
     }
 
 
-    function poolStakeChanged(address user, int stake, int tokens) public onlyPoolsCalls {
+    function poolStakeChanged(address user, int stake, int tokens) public onlyPoolsCalls whenNotPaused {
         poolEventsEmitter.poolStakeChanged(msg.sender, user, stake, tokens);
     }
 
@@ -103,10 +105,18 @@ contract LegacyPoolsNodes_Manager is Ownable, IStakeManager, IPoolsNodesManager 
         minApolloDeposit = newMinApolloDeposit;
     }
 
-    function importOldStakes(address[] memory addresses, uint[] memory amounts) public onlyOwner{
+    function importOldStakes(address[] memory addresses, uint[] memory amounts) public onlyOwner {
         require(addresses.length == amounts.length, "Invalid input");
         for (uint i = 0; i < addresses.length; i++)
             validatorSet.newStake(addresses[i], amounts[i], false);
+    }
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
     }
 
     // IStakeManager METHODS

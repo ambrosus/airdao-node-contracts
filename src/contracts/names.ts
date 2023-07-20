@@ -28,6 +28,9 @@ export enum ContractNames {
   LegacyPoolManager = "LegacyPoolManager",
   LegacyPoolManagerMultisig = "LegacyPoolManager_Multisig",
 
+  ServerNodesManager = "ServerNodesManager",
+  ServerNodesManagerMultisig = "ServerNodesManager_Multisig",
+
   // funds
 
   AirBond = "AirBond",
@@ -35,6 +38,8 @@ export enum ContractNames {
   // projects
 
   AirDrop = "AirDrop",
+
+  LockKeeper = "LockKeeper",
 }
 
 export const slavesMultisigsNames = [
@@ -47,6 +52,7 @@ export const slavesMultisigsNames = [
   ContractNames.ValidatorSetMultisig,
   ContractNames.BaseNodesManagerMultisig,
   ContractNames.LegacyPoolManagerMultisig,
+  ContractNames.ServerNodesManagerMultisig,
 ];
 
 export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];
