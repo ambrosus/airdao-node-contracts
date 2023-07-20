@@ -42,14 +42,17 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
 
 
     // NOTE: nodeAddresses here
-    address[] finalizedValidators;  // consensus validators
-    address[] topStakes; // top N stakes
-    address[] queuedStakes; // other stakes
+    address[] internal finalizedValidators;  // consensus validators
+    address[] internal topStakes; // top N stakes
+    address[] internal queuedStakes; // other stakes
 
     uint public totalStakeAmount; // sum of all stakes
 
-    uint  _lowestStakeIndex; // index of the lowest stake in topStakes array
-    uint  _highestStakeIndex; // index of the highest stake in queueStakes array
+    uint internal _lowestStakeIndex; // index of the lowest stake in topStakes array
+    uint internal _highestStakeIndex; // index of the highest stake in queueStakes array
+
+    uint internal _latestRewardBlock; // block when reward was called last time (to prevent call more then once)
+
 
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
@@ -211,6 +214,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
     }
 
     function _reward() internal {
+        require(block.number > _latestRewardBlock, "reward already called in this block");
+        _latestRewardBlock = block.number;
+
         Stake storage stake = stakes[msg.sender];
         uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
 
