@@ -50,7 +50,8 @@ export async function main() {
       minStakeAmount,
     ],
     deployer,
-    false
+    false,
+    true
   );
 }
 

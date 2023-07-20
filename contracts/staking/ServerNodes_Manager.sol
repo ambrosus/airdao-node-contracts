@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
@@ -12,7 +12,7 @@ import "../utils/TransferViaCall.sol";
 
 // Manager, that allows users to register their **ONE** node in validator set
 
-contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
+contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControlUpgradeable {
     using SafeERC20 for IERC20;
 
     struct Stake {
@@ -43,11 +43,10 @@ contract ServerNodes_Manager is IStakeManager, IOnBlockListener, AccessControl {
     // todo maybe in validatorSet?
     event RemovedFromTop(address indexed nodeAddress, address indexed ownerAddress);  // called when node is removed from topStakes
 
-
-    constructor(
+    function initialize(
         address _validatorSet, address _lockKeeper, address _airBond, address _admin,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
-    ) {
+    ) public initializer {
         validatorSet = IValidatorSet(_validatorSet);
         lockKeeper = LockKeeper(_lockKeeper);
         airBond = IERC20(_airBond);

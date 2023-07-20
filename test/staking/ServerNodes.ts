@@ -37,15 +37,16 @@ describe("ServerNodes", function () {
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
     await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
 
-    const serverNodes = await new ServerNodes_Manager__factory(owner).deploy(
+    const ServerNodesFactory = await ethers.getContractFactory("ServerNodes_Manager");
+    const serverNodes = (await upgrades.deployProxy(ServerNodesFactory, [
       validatorSet.address,
       lockKeeper.address,
       airBond.address,
       owner.address,
       onboardingDelay,
       60 * 5,
-      42
-    );
+      42,
+    ])) as ServerNodes_Manager;
 
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), serverNodes.address);
     await time.setNextBlockTimestamp(T);
