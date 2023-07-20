@@ -92,6 +92,23 @@ describe("AirDrop", function () {
     });
   });
 
+  describe("changeBackendAddress", async function () {
+    it("should change backend address", async function () {
+      const [user] = await ethers.getSigners();
+      await airDrop.changeBackendAddress(user.address);
+
+      await expect(await airDrop.backendAddress()).to.be.equal(user.address);
+    });
+  });
+
+  describe("changeMinAmbBalance", async function () {
+    it("should change MinAmbBalance", async function () {
+      await airDrop.changeMinAmbBalance("100");
+
+      await expect(await airDrop.minAmbBalance()).to.be.equal("100");
+    });
+  });
+
   async function sign(signer: SignerWithAddress, userAddress: string, categories: string[], amounts: number[]) {
     const categoriesConcat = categories.reduce((a, i) => solidityPack(["bytes", "bytes32"], [a, i]), "0x");
     const amountsConcat = amounts.reduce((a, i) => solidityPack(["bytes", "uint"], [a, i]), "0x");
