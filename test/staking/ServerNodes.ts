@@ -339,7 +339,6 @@ describe("ServerNodes", function () {
       await airBond.mint(serverNodes.address, 10000);
       await owner.sendTransaction({ to: serverNodes.address, value: 10000 });
     });
-    // git add -A && git commit -m"feat: add tests for serverNodesManager[WIP] contract && BaseNodesManager
 
     it("withdrawAmb", async function () {
       await expect(serverNodes.withdrawAmb(owner.address, 1000)).to.changeEtherBalance(owner, 1000);
