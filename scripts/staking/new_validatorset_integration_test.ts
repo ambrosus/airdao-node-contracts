@@ -5,11 +5,8 @@ import fs from "fs";
 import { main as deployMultisig } from "../multisig/deploy_multisig";
 import { main as deployValidatorset } from "./deploy_validatorset";
 import { ContractNames } from "../../src";
-import { BaseNodes_Manager, BaseNodes_Manager__factory, ValidatorSet } from "../../typechain-types";
-// @ts-ignore
-import { deploy } from "deployments/dist/deploy.js";
-// @ts-ignore
-import { loadDeployment } from "deployments/dist/deployments.js";
+import { BaseNodes_Manager__factory, ValidatorSet } from "../../typechain-types";
+import { deploy, loadDeployment } from "deployments";
 
 const TRANSITION_ADDRESS = "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05";
 const TRANSITION_BLOCK = 15;
@@ -32,10 +29,10 @@ async function main() {
   });
 
   // clear deployments
-  const deploymentPath = path.resolve(__dirname, `../deployments/${chainId}.json`);
+  const deploymentPath = path.resolve(__dirname, `../../deployments/${chainId}.json`);
   fs.writeFileSync(deploymentPath, JSON.stringify({}, null, 2));
 
-  const ozUpgradeCachePath = path.resolve(__dirname, `../.openzeppelin/unknown-${chainId}.json`);
+  const ozUpgradeCachePath = path.resolve(__dirname, `../../.openzeppelin/unknown-${chainId}.json`);
   fs.rmSync(ozUpgradeCachePath, { force: true });
 
   // deploy new contracts

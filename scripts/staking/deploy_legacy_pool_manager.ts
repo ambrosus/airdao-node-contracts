@@ -7,11 +7,8 @@ import {
   Multisig__factory,
   StorageCatalogue__factory,
 } from "../../typechain-types";
-// @ts-ignore
-import { loadDeployment } from "deployments/dist/deployments.js";
+import { deploy, loadDeployment } from "deployments";
 import { ContractNames } from "../../src";
-// @ts-ignore
-import { deploy } from "deployments/dist/deploy.js";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 
