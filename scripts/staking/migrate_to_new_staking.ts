@@ -67,11 +67,13 @@ async function main() {
   } = unzipNodeInfos(oldStakes.serverNodes);
 
   // transfer basenodes and servernodes deposits to deployer
-  // todo transferApolloS
   console.log("withdraw stakes from baseNodes", baseNodeAddresses);
-  await (await roles.transferApollo(baseNodeAddresses, deployer.address)).wait();
+  await (await roles.transferApollo(baseNodeAddresses, repeat(deployer.address, baseNodeAddresses.length))).wait();
+
   console.log("withdraw stakes from serverNodes", serverNodesAddresses);
-  await (await roles.transferApollo(serverNodesAddresses, deployer.address)).wait();
+  await (
+    await roles.transferApollo(serverNodesAddresses, repeat(deployer.address, serverNodesAddresses.length))
+  ).wait();
 
   // migrate base nodes
   for (const baseNode of oldStakes.baseNodes) {
@@ -220,6 +222,10 @@ function unzipNodeInfos<T extends NodeInfo>(nodes: T[]): { [K in keyof T]: T[K][
       result[key].push(node[key]);
     }
   return result;
+}
+
+function repeat<T>(item: T, times: number): T[] {
+  return Array(times).fill(item);
 }
 
 if (require.main === module) {

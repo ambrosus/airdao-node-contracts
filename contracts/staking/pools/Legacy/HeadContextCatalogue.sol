@@ -147,7 +147,7 @@ contract StorageCatalogue {
 }
 
 contract Roles {
-    function transferApollo(address apollo, address to) public {
+    function transferApollo(address[] apollo, address[] to) public {
 
     }
 }
