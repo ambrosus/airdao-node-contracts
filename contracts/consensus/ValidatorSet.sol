@@ -54,6 +54,20 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
 
+    event StakeCreated(address indexed nodeAddress, address indexed stakingContract, uint amount, bool isAlwaysTop);
+    event StakeRemoved(address indexed nodeAddress, address indexed stakingContract);
+    event StakeChanged(address indexed nodeAddress, address indexed stakingContract, int changeAmount);
+
+    event QueueListNodeAdded(address indexed nodeAddress);
+    event QueueListNodeRemoved(address indexed nodeAddress);
+
+    event TopListNodeAdded(address indexed nodeAddress);
+    event TopListNodeRemoved(address indexed nodeAddress);
+
+    event Reward(address indexed nodeAddress);
+    event Report(address indexed nodeAddress, uint malisciousType);
+
+
     function initialize(
         address _multisig,
         address _rewardOracle,
@@ -99,6 +113,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
         stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), isAlwaysTop);
         _addStake(nodeAddress);
         totalStakeAmount += amount;
+
+        emit StakeCreated(nodeAddress, msg.sender, amount, isAlwaysTop);
+        emit StakeChanged(nodeAddress, msg.sender, int(amount));
     }
 
     function stake(address nodeAddress, uint amount) external {
@@ -110,6 +127,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
         stake.amount += amount;
         _increaseStake(nodeAddress, isInTopStakes);
         totalStakeAmount += amount;
+
+        emit StakeChanged(nodeAddress, msg.sender, int(amount));
     }
 
     function unstake(address nodeAddress, uint amount) external {
@@ -122,8 +141,11 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
         stake.amount -= amount;
         totalStakeAmount -= amount;
 
+        emit StakeChanged(nodeAddress, msg.sender, -int(amount));
+
         if (stake.amount == 0) {
             _removeStake(nodeAddress, isInTopStakes);
+            emit StakeRemoved(nodeAddress, msg.sender);
         } else {
             _decreaseStake(nodeAddress, isInTopStakes);
         }
@@ -197,7 +219,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
     }
 
 
-// HELPERS
+    // HELPERS
 
 
     function _addStake(address nodeAddress) internal {
@@ -252,6 +274,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
         if (queuedStakes.length == 0) return;
 
         if (topStakes.length < topStakesCount) {
+            emit QueueListNodeRemoved(queuedStakes[_highestStakeIndex]);
+
             // move highest stake in queue to topStakes
             _addToTop(queuedStakes[_highestStakeIndex]);
 
@@ -261,8 +285,14 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
 
         } else if (topStakes.length == topStakesCount) {
             if (_compareWithLowestStake(queuedStakes[_highestStakeIndex]) > 0) {
+                emit QueueListNodeRemoved(queuedStakes[_highestStakeIndex]);
+                emit TopListNodeAdded(queuedStakes[_highestStakeIndex]);
+                emit TopListNodeRemoved(topStakes[_lowestStakeIndex]);
+                emit QueueListNodeAdded(topStakes[_lowestStakeIndex]);
+
                 // if _highestStakeIndex in queuedStakes is cooler than _lowestStakeIndex in topStakes - swap them
                 (topStakes[_lowestStakeIndex], queuedStakes[_highestStakeIndex]) = (queuedStakes[_highestStakeIndex], topStakes[_lowestStakeIndex]);
+
                 // find new heads
                 _findLowestStakeIndex();
                 _findHighestStakeIndex();
@@ -280,6 +310,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
             _highestStakeIndex = 0;
         else if (_compareWithHighestStake(nodeAddress) > 0) // current node now has highest stake
             _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
+
+        emit QueueListNodeAdded(nodeAddress);
     }
 
     function _addToTop(address nodeAddress) internal {
@@ -288,6 +320,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
 
         if (_compareWithLowestStake(topStakes[topStakes.length - 1]) < 0) // check if new node is now  _lowestStakeIndex
             _lowestStakeIndex = topStakes.length - 1;
+
+        emit TopListNodeAdded(nodeAddress);
     }
 
     function _removeFromQueue(address nodeAddress) internal {
@@ -298,6 +332,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
             _findHighestStakeIndex();
         else if (_highestStakeIndex == queuedStakes.length)  // if highestStakeIndex was last in queue - now it moved to `index`
             _highestStakeIndex = index;
+
+        emit QueueListNodeRemoved(nodeAddress);
     }
 
     function _removeFromTop(address nodeAddress) internal {
@@ -309,6 +345,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
             _findLowestStakeIndex();
         else if (_lowestStakeIndex == topStakes.length) // if lowestStakeIndex was last in topStakes - now it moved to `index`
             _lowestStakeIndex = index;
+
+        emit TopListNodeRemoved(nodeAddress);
     }
 
     // ANOTHER TYPE OF HELPERS

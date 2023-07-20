@@ -55,45 +55,75 @@ describe("ValidatorSet", function () {
 
       describe("new stake", function () {
         beforeEach(async function () {
-          await testPool.addStake(A, { value: 100 });
+          await expect(testPool.addStake(A, { value: 100 }))
+            .to.emit(validatorSet, "StakeCreated")
+            .withArgs(A, testPool.address, 100, false)
+            .to.emit(validatorSet, "StakeChanged")
+            .withArgs(A, testPool.address, 100)
+            .to.emit(validatorSet, "TopListNodeAdded")
+            .withArgs(A);
           await expectArraysEqual([A], [], "initial");
         });
 
         // initial state:     TOP [A]    QUEUE []
 
         it("B should go to topStakes (coz free space)", async function () {
-          await testPool.addStake(B, { value: 50 });
+          await expect(testPool.addStake(B, { value: 50 }))
+            .to.emit(validatorSet, "TopListNodeAdded")
+            .withArgs(B);
           await expectArraysEqual([A, B], []);
         });
 
         it("B should go to topStakes (coz free space)", async function () {
-          await testPool.addStake(B, { value: 200 });
+          await expect(testPool.addStake(B, { value: 200 }))
+            .to.emit(validatorSet, "TopListNodeAdded")
+            .withArgs(B);
           await expectArraysEqual([A, B], []);
         });
 
         it("C should go to queueStakes", async function () {
           await testPool.addStake(B, { value: 200 });
-          await testPool.addStake(C, { value: 10 });
+          await expect(testPool.addStake(C, { value: 10 }))
+            .to.emit(validatorSet, "QueueListNodeAdded")
+            .withArgs(C);
           await expectArraysEqual([A, B], [C]);
         });
 
         it("C should go to topStakes instead A", async function () {
           await testPool.addStake(B, { value: 200 });
-          await testPool.addStake(C, { value: 300 });
+          await expect(testPool.addStake(C, { value: 300 }))
+            .to.emit(validatorSet, "QueueListNodeRemoved")
+            .withArgs(C)
+            .to.emit(validatorSet, "TopListNodeAdded")
+            .withArgs(C)
+            .to.emit(validatorSet, "TopListNodeRemoved")
+            .withArgs(A)
+            .to.emit(validatorSet, "QueueListNodeAdded")
+            .withArgs(A);
           await expectArraysEqual([C, B], [A]);
         });
 
         it("D should go to queueStakes", async function () {
           await testPool.addStake(B, { value: 200 });
           await testPool.addStake(C, { value: 300 });
-          await testPool.addStake(D, { value: 50 });
+          await expect(testPool.addStake(D, { value: 50 }))
+            .to.emit(validatorSet, "QueueListNodeAdded")
+            .withArgs(D);
           await expectArraysEqual([C, B], [A, D]);
         });
 
         it("D should go to topStakes instead B", async function () {
           await testPool.addStake(B, { value: 200 });
           await testPool.addStake(C, { value: 300 });
-          await testPool.addStake(D, { value: 400 });
+          await expect(testPool.addStake(D, { value: 400 }))
+            .to.emit(validatorSet, "QueueListNodeRemoved")
+            .withArgs(D)
+            .to.emit(validatorSet, "TopListNodeAdded")
+            .withArgs(D)
+            .to.emit(validatorSet, "TopListNodeRemoved")
+            .withArgs(B)
+            .to.emit(validatorSet, "QueueListNodeAdded")
+            .withArgs(B);
           await expectArraysEqual([C, D], [A, B]);
         });
       });
@@ -111,12 +141,28 @@ describe("ValidatorSet", function () {
           // initial state:     TOP [C, D]    QUEUE [A, B]
 
           it("C (in top) unstakes completely and should be removed (replaced with B)", async function () {
-            await testPool.removeStake(C, 300);
+            await expect(testPool.removeStake(C, 300))
+              .to.emit(validatorSet, "StakeRemoved")
+              .withArgs(C, testPool.address)
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(C, testPool.address, -300)
+              .to.emit(validatorSet, "TopListNodeRemoved")
+              .withArgs(C)
+              .to.emit(validatorSet, "QueueListNodeRemoved")
+              .withArgs(B)
+              .to.emit(validatorSet, "TopListNodeAdded")
+              .withArgs(B);
             await expectArraysEqual([D, B], [A]);
           });
 
           it("D (in top) unstakes completely and should be removed (replaced with B)", async function () {
-            await testPool.removeStake(D, 400);
+            await expect(testPool.removeStake(D, 400))
+              .to.emit(validatorSet, "TopListNodeRemoved")
+              .withArgs(D)
+              .to.emit(validatorSet, "QueueListNodeRemoved")
+              .withArgs(B)
+              .to.emit(validatorSet, "TopListNodeAdded")
+              .withArgs(B);
             await expectArraysEqual([C, B], [A]);
           });
 
@@ -125,17 +171,23 @@ describe("ValidatorSet", function () {
             await testPool.addStake(E, { value: 250 });
             await expectArraysEqual([C, D, E], [A, B], "initial");
 
-            await testPool.removeStake(D, 400);
+            await expect(testPool.removeStake(D, 400))
+              .to.emit(validatorSet, "TopListNodeRemoved")
+              .withArgs(D)
+              .to.emit(validatorSet, "QueueListNodeRemoved")
+              .withArgs(B)
+              .to.emit(validatorSet, "TopListNodeAdded")
+              .withArgs(B);
             await expectArraysEqual([C, E, B], [A]);
           });
 
           it("A (in queue) unstakes completely and should be removed", async function () {
-            await testPool.removeStake(A, 100);
+            await expect(testPool.removeStake(A, 100)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(A);
             await expectArraysEqual([C, D], [B]);
           });
 
           it("B (in queue) unstakes completely and should be removed", async function () {
-            await testPool.removeStake(B, 200);
+            await expect(testPool.removeStake(B, 200)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(B);
             await expectArraysEqual([C, D], [A]);
           });
 
@@ -143,27 +195,27 @@ describe("ValidatorSet", function () {
             await testPool.addStake(E, { value: 150 });
             await expectArraysEqual([C, D], [A, B, E], "initial");
 
-            await testPool.removeStake(E, 150);
+            await expect(testPool.removeStake(E, 150)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(E);
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("A and B (in queue) unstakes completely and should be removed", async function () {
-            await testPool.removeStake(A, 100);
-            await testPool.removeStake(B, 200);
+            await expect(testPool.removeStake(A, 100)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(A);
+            await expect(testPool.removeStake(B, 200)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(B);
             await expectArraysEqual([C, D], []);
           });
 
           it("C (in top) unstakes completely (and queue is empty) and should be removed", async function () {
-            await testPool.removeStake(A, 100);
-            await testPool.removeStake(B, 200);
-            await testPool.removeStake(C, 300);
+            await expect(testPool.removeStake(A, 100)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(A);
+            await expect(testPool.removeStake(B, 200)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(B);
+            await expect(testPool.removeStake(C, 300)).to.emit(validatorSet, "TopListNodeRemoved").withArgs(C);
             await expectArraysEqual([D], []);
           });
 
           it("D (in top) unstakes completely (and queue is empty) and should be removed", async function () {
-            await testPool.removeStake(A, 100);
-            await testPool.removeStake(B, 200);
-            await testPool.removeStake(D, 400);
+            await expect(testPool.removeStake(A, 100)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(A);
+            await expect(testPool.removeStake(B, 200)).to.emit(validatorSet, "QueueListNodeRemoved").withArgs(B);
+            await expect(testPool.removeStake(D, 400)).to.emit(validatorSet, "TopListNodeRemoved").withArgs(D);
             await expectArraysEqual([C], []);
           });
         });
@@ -172,32 +224,52 @@ describe("ValidatorSet", function () {
           // initial state:     TOP [C, D]    QUEUE [A, B]
 
           it("C (in top) increase stake", async function () {
-            await testPool.addStake(C, { value: 500 });
+            await expect(testPool.addStake(C, { value: 500 }))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(C, testPool.address, 500);
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("D (in top) increase stake", async function () {
-            await testPool.addStake(D, { value: 500 });
+            await expect(testPool.addStake(D, { value: 500 }))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(D, testPool.address, 500);
             await expectArraysEqual([C, D], [A, B]);
           });
 
-          it("A (in queue) increase stake and should go to top", async function () {
-            await testPool.addStake(A, { value: 500 });
+          it("A (in queue) increase stake and should go to top instead C", async function () {
+            await expect(testPool.addStake(A, { value: 500 }))
+              .to.emit(validatorSet, "QueueListNodeRemoved")
+              .withArgs(A)
+              .to.emit(validatorSet, "TopListNodeAdded")
+              .withArgs(A)
+              .to.emit(validatorSet, "TopListNodeRemoved")
+              .withArgs(C)
+              .to.emit(validatorSet, "QueueListNodeAdded")
+              .withArgs(C);
             await expectArraysEqual([A, D], [C, B]);
           });
 
-          it("B (in queue) increase stake and should go to top", async function () {
-            await testPool.addStake(B, { value: 500 });
+          it("B (in queue) increase stake and should go to top instead of C", async function () {
+            await expect(testPool.addStake(B, { value: 500 }))
+              .to.emit(validatorSet, "QueueListNodeRemoved")
+              .withArgs(B)
+              .to.emit(validatorSet, "TopListNodeAdded")
+              .withArgs(B)
+              .to.emit(validatorSet, "TopListNodeRemoved")
+              .withArgs(C)
+              .to.emit(validatorSet, "QueueListNodeAdded")
+              .withArgs(C);
             await expectArraysEqual([B, D], [A, C]);
           });
 
           it("A (in queue) increase stake and shouldn't go to top", async function () {
-            await testPool.addStake(A, { value: 10 });
+            await expect(testPool.addStake(A, { value: 10 })).to.not.emit(validatorSet, "TopListNodeAdded");
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("B (in queue) increase stake and shouldn't go to top", async function () {
-            await testPool.addStake(B, { value: 10 });
+            await expect(testPool.addStake(B, { value: 10 })).to.not.emit(validatorSet, "TopListNodeAdded");
             await expectArraysEqual([C, D], [A, B]);
           });
         });
@@ -206,32 +278,63 @@ describe("ValidatorSet", function () {
           // initial state:     TOP [C, D]    QUEUE [A, B]
 
           it("C (in top) decreased stake and should be replaced with B", async function () {
-            await testPool.removeStake(C, 200);
+            await expect(testPool.removeStake(C, 200))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(C, testPool.address, -200)
+              .to.emit(validatorSet, "TopListNodeRemoved")
+              .withArgs(C)
+              .to.emit(validatorSet, "QueueListNodeAdded")
+              .withArgs(C)
+              .to.emit(validatorSet, "QueueListNodeRemoved")
+              .withArgs(B)
+              .to.emit(validatorSet, "TopListNodeAdded")
+              .withArgs(B);
+
             await expectArraysEqual([B, D], [A, C]);
           });
 
           it("D (in top) decreased stake and should be replaced with B", async function () {
-            await testPool.removeStake(D, 300);
+            await expect(testPool.removeStake(D, 300))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(D, testPool.address, -300)
+              .to.emit(validatorSet, "TopListNodeRemoved")
+              .withArgs(D)
+              .to.emit(validatorSet, "QueueListNodeAdded")
+              .withArgs(D)
+              .to.emit(validatorSet, "QueueListNodeRemoved")
+              .withArgs(B)
+              .to.emit(validatorSet, "TopListNodeAdded")
+              .withArgs(B);
             await expectArraysEqual([C, B], [A, D]);
           });
 
           it("C (in top) decreased stake and shouldn't be replaced", async function () {
-            await testPool.removeStake(C, 10);
+            await expect(testPool.removeStake(C, 10))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(C, testPool.address, -10)
+              .to.not.emit(validatorSet, "TopListNodeRemoved");
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("D (in top) decreased stake and shouldn't be replaced", async function () {
-            await testPool.removeStake(D, 10);
+            await expect(testPool.removeStake(D, 10))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(D, testPool.address, -10)
+              .to.not.emit(validatorSet, "TopListNodeRemoved");
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("A (in queue) decreased stake", async function () {
-            await testPool.removeStake(A, 10);
+            await expect(testPool.removeStake(A, 10))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(A, testPool.address, -10);
             await expectArraysEqual([C, D], [A, B]);
           });
 
           it("B (in queue) decreased stake", async function () {
-            await testPool.removeStake(B, 10);
+            await expect(testPool.removeStake(B, 10))
+              .to.emit(validatorSet, "StakeChanged")
+              .withArgs(B, testPool.address, -10);
             await expectArraysEqual([C, D], [A, B]);
           });
         });
