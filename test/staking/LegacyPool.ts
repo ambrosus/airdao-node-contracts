@@ -30,7 +30,6 @@ if (!process.env.CI)
       const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
       const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
         owner.address,
-        owner.address,
         10,
         2,
       ])) as TEST_ValidatorSet;

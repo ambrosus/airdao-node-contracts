@@ -36,7 +36,6 @@ export async function main() {
       validatorSet.address,
       lockKeeper.address,
       airBond.address,
-      multisig.address,
       onboardingDelay,
       unstakeLockTime,
       minStakeAmount,

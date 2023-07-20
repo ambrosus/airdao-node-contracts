@@ -11,13 +11,10 @@ import "../consensus/IValidatorSet.sol";
 contract BaseNodes_Manager is IStakeManager, AccessControl {
     IValidatorSet public validatorSet; // contract that manages validator set
 
-    constructor(
-        address _multisig,
-        address _validatorSet
-    ) {
+    constructor(address _validatorSet) {
         validatorSet = IValidatorSet(_validatorSet);
 
-        _setupRole(DEFAULT_ADMIN_ROLE, _multisig);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     // USER (MULTISIG) METHODS
@@ -25,7 +22,7 @@ contract BaseNodes_Manager is IStakeManager, AccessControl {
     function addStake(address nodeAddress) payable public onlyRole(DEFAULT_ADMIN_ROLE) {
         if (validatorSet.getNodeStake(nodeAddress) == 0)
             validatorSet.newStake(nodeAddress, msg.value, true);
-        else 
+        else
             validatorSet.stake(nodeAddress, msg.value);
     }
 

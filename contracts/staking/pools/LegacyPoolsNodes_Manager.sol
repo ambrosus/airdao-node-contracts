@@ -30,7 +30,9 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
     event PoolAdded(address poolAddress);
     event PoolRemoved(address poolAddress);
 
-    constructor(uint minApolloDeposit_, IValidatorSet validatorSet_,
+    constructor(
+        uint minApolloDeposit_,
+        IValidatorSet validatorSet_,
         PoolsStore _poolsStore,
         ApolloDepositStore _apolloDepositStore,
         RolesEventEmitter _rolesEventEmitter,

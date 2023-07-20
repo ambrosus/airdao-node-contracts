@@ -20,7 +20,7 @@ export async function main() {
   const validatorSet = await deploy<ValidatorSet__factory>({
     contractName: ContractNames.ValidatorSet,
     artifactName: "ValidatorSet",
-    deployArgs: [deployer.address, deployer.address, 1, 200],
+    deployArgs: [deployer.address, 1, 200],
     signer: deployer,
     isUpgradeableProxy: true,
   });

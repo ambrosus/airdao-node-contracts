@@ -46,7 +46,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     event RemovedFromTop(address indexed nodeAddress, address indexed ownerAddress);  // called when node is removed from topStakes
 
     function initialize(
-        address _validatorSet, address _lockKeeper, address _airBond, address _admin,
+        address _validatorSet, address _lockKeeper, address _airBond,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
     ) public initializer {
         validatorSet = IValidatorSet(_validatorSet);
@@ -57,7 +57,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         unstakeLockTime = _unstakeLockTime;
         minStakeAmount = _minStakeAmount;
 
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
 

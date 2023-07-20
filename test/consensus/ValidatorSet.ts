@@ -15,12 +15,7 @@ describe("ValidatorSet", function () {
     const [owner] = await ethers.getSigners();
 
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
-    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
-      owner.address,
-      owner.address,
-      10,
-      2,
-    ])) as TEST_ValidatorSet;
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
     // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");
     // const lockKeeper = await LockKeeperFactory.deploy();

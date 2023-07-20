@@ -21,7 +21,7 @@ export async function main() {
   const manager = await deploy<BaseNodes_Manager__factory>({
     contractName: ContractNames.BaseNodesManager,
     artifactName: "BaseNodes_Manager",
-    deployArgs: [multisig.address, validatorSet.address],
+    deployArgs: [validatorSet.address],
     signer: deployer,
   });
 }

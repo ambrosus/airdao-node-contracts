@@ -69,7 +69,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
 
 
     function initialize(
-        address _multisig,
         address _rewardOracle,
 
         uint _baseReward,
@@ -78,7 +77,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
         baseReward = _baseReward;
         topStakesCount = _topStakesCount;
 
-        _setupRole(DEFAULT_ADMIN_ROLE, _multisig);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(REWARD_ORACLE_ROLE, _rewardOracle);
     }
 

@@ -26,12 +26,7 @@ describe("ServerNodes", function () {
     const [owner] = await ethers.getSigners();
 
     const ValidatorSetFactory = await ethers.getContractFactory("ValidatorSet");
-    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
-      owner.address,
-      owner.address,
-      10,
-      2,
-    ])) as TEST_ValidatorSet;
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
@@ -42,7 +37,6 @@ describe("ServerNodes", function () {
       validatorSet.address,
       lockKeeper.address,
       airBond.address,
-      owner.address,
       onboardingDelay,
       60 * 5,
       42,

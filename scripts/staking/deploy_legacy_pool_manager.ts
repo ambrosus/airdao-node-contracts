@@ -52,8 +52,8 @@ async function main() {
 
   await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
 
-  await (await manager.transferOwnership(multisig.address)).wait();
-  console.log("transferred ownership to multisig", multisig.address);
+  // await (await manager.transferOwnership(multisig.address)).wait();
+  // console.log("transferred ownership to multisig", multisig.address);
 }
 
 if (require.main === module) {

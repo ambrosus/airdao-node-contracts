@@ -13,15 +13,10 @@ describe("BaseNodes", function () {
     const [owner] = await ethers.getSigners();
 
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
-    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
-      owner.address,
-      owner.address,
-      10,
-      2,
-    ])) as TEST_ValidatorSet;
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
     const BaseNodesFactory = await ethers.getContractFactory("BaseNodes_Manager");
-    const baseNodes = await BaseNodesFactory.deploy(owner.address, validatorSet.address);
+    const baseNodes = await BaseNodesFactory.deploy(validatorSet.address);
 
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), baseNodes.address);
 

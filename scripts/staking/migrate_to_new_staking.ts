@@ -13,6 +13,7 @@ import {
   RolesEventEmitter__factory,
   ServerNodes_Manager,
   StorageCatalogue__factory,
+  ValidatorSet,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { loadDeployment } from "deployments";
@@ -35,9 +36,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
-
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId) as BaseNodes_Manager;
   const poolNodesManager = loadDeployment(ContractNames.LegacyPoolManager, chainId) as LegacyPoolsNodes_Manager;
   const serverNodesManager = loadDeployment(ContractNames.ServerNodesManager, chainId) as ServerNodes_Manager;
@@ -96,7 +95,32 @@ async function main() {
   console.log("importing poolNodes", poolNodesAddresses);
   await (await poolNodesManager.importOldStakes(poolNodesAddresses, poolNodesStakes)).wait();
 
-  // todo setup ownerships
+  // finalize validatorset
+
+  console.log("finalizing validator set");
+  await (await validatorSet.finalizeChange()).wait();
+
+  // setup ownerships
+  const defaultAdminRole = await validatorSet.DEFAULT_ADMIN_ROLE();
+
+  console.log("setup ownership for baseNodes");
+  const baseNodesMultisig = loadDeployment(ContractNames.BaseNodesManagerMultisig, chainId).address;
+  await (await baseNodesManager.grantRole(defaultAdminRole, baseNodesMultisig)).wait();
+  await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+
+  console.log("setup ownership for serverNodes");
+  const serverNodesMultisig = loadDeployment(ContractNames.ServerNodesManagerMultisig, chainId).address;
+  await (await serverNodesManager.grantRole(defaultAdminRole, serverNodesMultisig)).wait();
+  await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+
+  console.log("setup ownership for poolNodes");
+  const poolNodesMultisig = loadDeployment(ContractNames.LegacyPoolManagerMultisig, chainId).address;
+  await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();
+
+  console.log("setup ownership for validatorset");
+  const validatorSetMultisig = loadDeployment(ContractNames.ValidatorSetMultisig, chainId).address;
+  await (await validatorSet.grantRole(defaultAdminRole, validatorSetMultisig)).wait();
+  await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
 }
 
 async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, rolesEventEmitterAddr: string) {
