@@ -11,22 +11,19 @@ export async function main() {
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
-  const multisig = await deploy<Multisig__factory>(
-    ContractNames.BaseNodesManagerMultisig,
-    chainId,
-    "Multisig",
-    [[deployer.address], [true], 75, masterMultisig],
-    deployer
-  );
+  const multisig = await deploy<Multisig__factory>({
+    contractName: ContractNames.BaseNodesManagerMultisig,
+    artifactName: "Multisig",
+    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    signer: deployer,
+  });
 
-  const manager = await deploy<BaseNodes_Manager__factory>(
-    ContractNames.BaseNodesManager,
-    chainId,
-    "BaseNodes_Manager",
-    [multisig.address, validatorSet.address],
-    deployer,
-    false
-  );
+  const manager = await deploy<BaseNodes_Manager__factory>({
+    contractName: ContractNames.BaseNodesManager,
+    artifactName: "BaseNodes_Manager",
+    deployArgs: [multisig.address, validatorSet.address],
+    signer: deployer,
+  });
 }
 
 if (require.main === module) {

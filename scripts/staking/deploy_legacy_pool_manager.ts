@@ -22,13 +22,12 @@ async function main() {
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
-  const multisig = await deploy<Multisig__factory>(
-    ContractNames.LegacyPoolManagerMultisig,
-    chainId,
-    "Multisig",
-    [[deployer.address], [true], 75, masterMultisig],
-    deployer
-  );
+  const multisig = await deploy<Multisig__factory>({
+    contractName: ContractNames.LegacyPoolManagerMultisig,
+    artifactName: "Multisig",
+    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    signer: deployer,
+  });
 
   const head: Head = await ethers.getContractAt("Head", HEAD);
   const oldContext = Context__factory.connect(await head.context(), deployer);
@@ -37,11 +36,10 @@ async function main() {
 
   const minApolloDeposit = await new ethers.Contract(await oldCatalogue.config(), configAbi, deployer).APOLLO_DEPOSIT();
 
-  const manager = await deploy<LegacyPoolsNodes_Manager__factory>(
-    ContractNames.LegacyPoolManager,
-    chainId,
-    "LegacyPoolsNodes_Manager",
-    [
+  const manager = await deploy<LegacyPoolsNodes_Manager__factory>({
+    contractName: ContractNames.LegacyPoolManager,
+    artifactName: "LegacyPoolsNodes_Manager",
+    deployArgs: [
       minApolloDeposit,
       validatorSet.address,
       await oldStorageCatalogue.poolsStore(),
@@ -49,9 +47,8 @@ async function main() {
       await oldStorageCatalogue.rolesEventEmitter(),
       await oldStorageCatalogue.poolEventsEmitter(),
     ],
-    deployer,
-    false
-  );
+    signer: deployer,
+  });
 
   await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
 

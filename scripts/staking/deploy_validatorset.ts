@@ -9,24 +9,22 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
-  const multisig = await deploy<Multisig__factory>(
-    ContractNames.ValidatorSetMultisig,
-    chainId,
-    "Multisig",
-    [[deployer.address], [true], 75, masterMultisig],
-    deployer
-  );
+  const multisig = await deploy<Multisig__factory>({
+    contractName: ContractNames.ValidatorSetMultisig,
+    artifactName: "Multisig",
+    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    signer: deployer,
+  });
 
   // todo
-  const validatorSet = await deploy<ValidatorSet__factory>(
-    ContractNames.ValidatorSet,
-    chainId,
-    "ValidatorSet",
-    [deployer.address, deployer.address, 1, 200],
-    deployer,
-    false,
-    true
-  );
+  const validatorSet = await deploy<ValidatorSet__factory>({
+    contractName: ContractNames.ValidatorSet,
+    artifactName: "ValidatorSet",
+    deployArgs: [deployer.address, deployer.address, 1, 200],
+    signer: deployer,
+    isUpgradeableProxy: true,
+    proxyOptions: {},
+  });
 }
 
 if (require.main === module) {

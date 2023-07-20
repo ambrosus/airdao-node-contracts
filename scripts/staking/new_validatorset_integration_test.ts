@@ -50,14 +50,12 @@ async function main() {
 
   // setup manager
 
-  const baseNodesManager = await deploy<BaseNodes_Manager__factory>(
-    ContractNames.BaseNodesManager,
-    chainId,
-    "BaseNodes_Manager",
-    [v1.address, validatorSet.address],
-    v1,
-    false
-  );
+  const baseNodesManager = await deploy<BaseNodes_Manager__factory>({
+    contractName: ContractNames.BaseNodesManager,
+    artifactName: "BaseNodes_Manager",
+    deployArgs: [v1.address, validatorSet.address],
+    signer: v1,
+  });
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), baseNodesManager.address)).wait();
 
   // add validators

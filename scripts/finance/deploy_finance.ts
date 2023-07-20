@@ -33,14 +33,18 @@ async function main() {
     const multisigName = (financeName + "_Multisig") as ContractNames;
     console.assert(Object.values(ContractNames).includes(multisigName), `can't find ${multisigName} in ContractNames`);
 
-    const multisig = await deploy<Multisig__factory>(
-      multisigName,
-      chainId,
-      "Multisig",
-      [signers, isInitiator, threshold, masterMultisig],
-      deployer
-    );
-    await deploy<Finance__factory>(financeName, chainId, "Finance", [multisig.address], deployer);
+    const multisig = await deploy<Multisig__factory>({
+      contractName: multisigName,
+      artifactName: "Multisig",
+      signer: deployer,
+      deployArgs: [signers, isInitiator, threshold, masterMultisig],
+    });
+    await deploy<Finance__factory>({
+      contractName: financeName,
+      artifactName: "Finance",
+      signer: deployer,
+      deployArgs: [multisig.address],
+    });
   }
 
   if (network.name == "main") {
@@ -50,20 +54,18 @@ async function main() {
     const bankCount = 50;
 
     // finance master
-    const multisig = await deploy<Multisig__factory>(
-      ContractNames.FinanceMasterMultisig,
-      chainId,
-      "Multisig",
-      [[Lang, Igor, Rory, Kevin], [true, true, true, true], 75, masterMultisig],
-      deployer
-    );
-    await deploy<MasterFinance__factory>(
-      ContractNames.FinanceMaster,
-      chainId,
-      "MasterFinance",
-      [multisig.address, bankCount, maxBankBalance],
-      deployer
-    );
+    const multisig = await deploy<Multisig__factory>({
+      contractName: ContractNames.FinanceMasterMultisig,
+      artifactName: "Multisig",
+      deployArgs: [[Lang, Igor, Rory, Kevin], [true, true, true, true], 75, masterMultisig],
+      signer: deployer,
+    });
+    await deploy<MasterFinance__factory>({
+      contractName: ContractNames.FinanceMaster,
+      artifactName: "MasterFinance",
+      deployArgs: [multisig.address, bankCount, maxBankBalance],
+      signer: deployer,
+    });
 
     // other finances
     await deployFinance(ContractNames.FinanceRewards, [Lang, Igor, Andrii], [true, true, false], 75);
@@ -75,25 +77,23 @@ async function main() {
     const bankCount = 50;
 
     // finance master
-    const multisig = await deploy<Multisig__factory>(
-      ContractNames.FinanceMasterMultisig,
-      chainId,
-      "Multisig",
-      [
+    const multisig = await deploy<Multisig__factory>({
+      contractName: ContractNames.FinanceMasterMultisig,
+      artifactName: "Multisig",
+      deployArgs: [
         [SharedDev, AndriiTest, DimaTest3C, DimaTest96, Igor, Lang, Rory, DimaTest2B],
         [true, true, true, true, true, true, true, false],
         100,
         masterMultisig,
       ],
-      deployer
-    );
-    await deploy<MasterFinance__factory>(
-      ContractNames.FinanceMaster,
-      chainId,
-      "MasterFinance",
-      [multisig.address, bankCount, maxBankBalance],
-      deployer
-    );
+      signer: deployer,
+    });
+    await deploy<MasterFinance__factory>({
+      contractName: ContractNames.FinanceMaster,
+      artifactName: "MasterFinance",
+      deployArgs: [multisig.address, bankCount, maxBankBalance],
+      signer: deployer,
+    });
 
     // other finances
     await deployFinance(
