@@ -289,11 +289,57 @@ describe("ServerNodes", function () {
     });
   });
 
+  describe("changeNodeOwner", async function () {
+    it("if requester is not owner of node, must be reverted", async function () {
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.changeNodeOwner(notOwner.address, owner.address)).to.be.revertedWith(
+        "Only owner can change owner"
+      );
+    });
+
+    it("should change node owner", async function () {
+      const [_, user] = await ethers.getSigners();
+
+      await serverNodes.newStake(owner.address, { value: 100 });
+
+      await serverNodes.changeNodeOwner(owner.address, user.address);
+
+      const owner2node = await serverNodes.owner2node(user.address);
+
+      expect(owner2node).to.equal(owner.address);
+    });
+  });
+
+  describe("changeMinStakeAmount", async function () {
+    it("should change min stake", async function () {
+      await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), owner.address);
+
+      await serverNodes.changeMinStakeAmount(1000);
+
+      const minStake = await serverNodes.minStakeAmount();
+
+      expect(minStake).to.equal(1000);
+    });
+  });
+
+  describe("changeUnstakeLockTime", async function () {
+    it("should change unstake lock time", async function () {
+      await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), owner.address);
+
+      await serverNodes.changeUnstakeLockTime(1000);
+
+      const minStake = await serverNodes.unstakeLockTime();
+
+      expect(minStake).to.equal(1000);
+    });
+  });
+
   describe("withdraw", function () {
     beforeEach(async function () {
       await airBond.mint(serverNodes.address, 10000);
       await owner.sendTransaction({ to: serverNodes.address, value: 10000 });
     });
+    // git add -A && git commit -m"feat: add tests for serverNodesManager[WIP] contract && BaseNodesManager
 
     it("withdrawAmb", async function () {
       await expect(serverNodes.withdrawAmb(owner.address, 1000)).to.changeEtherBalance(owner, 1000);

@@ -36,6 +36,9 @@ describe("BaseNodes", function () {
     it("ok", async function () {
       await expect(baseNodes.addStake(owner.address, { value: 50 })).to.changeEtherBalance(owner, -50);
       expect(await validatorSet.getNodeStake(owner.address)).to.be.equal(50);
+
+      await expect(baseNodes.addStake(owner.address, { value: 25 })).to.changeEtherBalance(owner, -25);
+      expect(await validatorSet.getNodeStake(owner.address)).to.be.equal(75);
     });
 
     it("not from admin", async function () {
