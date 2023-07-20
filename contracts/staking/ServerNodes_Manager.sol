@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
@@ -14,7 +14,7 @@ import "../utils/TransferViaCall.sol";
 
 // Manager, that allows users to register their **ONE** node in validator set
 
-contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener, AccessControlUpgradeable, Pausable {
+contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener, AccessControlUpgradeable, PausableUpgradeable {
     using SafeERC20 for IERC20;
 
     struct Stake {
