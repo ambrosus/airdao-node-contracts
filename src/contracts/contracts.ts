@@ -1,5 +1,6 @@
 import { Contract, Signer } from "ethers";
-import { loadAllDeployments } from "deployments";
+// @ts-ignore
+import { loadAllDeployments } from "deployments/dist/deployments.js";
 
 import { ContractNames } from "./names";
 

@@ -1,4 +1,4 @@
-import { loadFixture, time, impersonateAccount, setBalance } from "@nomicfoundation/hardhat-network-helpers";
+import { impersonateAccount, loadFixture, setBalance, time } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
@@ -7,7 +7,6 @@ import {
   LockKeeper,
   LockKeeper__factory,
   ServerNodes_Manager,
-  ServerNodes_Manager__factory,
   TEST_ValidatorSet,
 } from "../../typechain-types";
 import { expect } from "chai";
@@ -353,6 +352,97 @@ describe("ServerNodes", function () {
       await expect(serverNodes.connect(notAdmin).withdrawBonds(owner.address, 1000)).to.be.revertedWith(
         `AccessControl: account ${notAdmin.address.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
       );
+    });
+  });
+
+  describe("importOldStakes", async function () {
+    it("should import old stakes correctly", async function () {
+      const [user1, user2, user3] = await ethers.getSigners();
+      const amounts = [100, 200, 300];
+      const totalSum = amounts.reduce((a, b) => a + b, 0);
+      const timestamps = [T - 1000 * 60 * 60 * 24, T - 1000 * 60 * 60 * 12, T - 1000 * 60 * 60 * 6]; // Some timestamps in the past
+
+      expect((await serverNodes.stakes(user1.address)).stake).to.be.eq(0);
+      expect((await serverNodes.stakes(user2.address)).stake).to.be.eq(0);
+      expect((await serverNodes.stakes(user3.address)).stake).to.be.eq(0);
+
+      const addresses = [user1.address, user2.address, user3.address];
+
+      await serverNodes.importOldStakes(addresses, amounts, timestamps, { value: totalSum });
+
+      expect((await serverNodes.stakes(addresses[0])).stake).to.be.eq(amounts[0]);
+      expect((await serverNodes.stakes(addresses[1])).stake).to.be.eq(amounts[1]);
+      expect((await serverNodes.stakes(addresses[2])).stake).to.be.eq(amounts[2]);
+
+      expect(await serverNodes.owner2node(addresses[0])).to.be.equal(addresses[0]);
+      expect(await serverNodes.owner2node(addresses[1])).to.be.equal(addresses[1]);
+      expect(await serverNodes.owner2node(addresses[2])).to.be.equal(addresses[2]);
+    });
+
+    it("if input arrays have different lengths, should revert ", async function () {
+      const [_, user1, user2] = await ethers.getSigners();
+      const addresses = [user1.address, user2.address];
+      const amounts = [100, 200];
+      const timestamps = [T - 1000 * 60 * 60 * 24];
+
+      await expect(serverNodes.importOldStakes(addresses, amounts, timestamps)).to.be.revertedWith("Invalid input");
+    });
+
+    it("if stake already exists for the node, should revert", async function () {
+      const [_, user] = await ethers.getSigners();
+      const addresses = [user.address];
+      const amounts = [100];
+      const timestamps = [T - 1000 * 60 * 60 * 24];
+
+      // import first time to add import to address
+      await serverNodes.importOldStakes(addresses, amounts, timestamps, { value: 100 }); //100 - is total amount
+
+      // import second time to check revert
+      await expect(serverNodes.importOldStakes(addresses, amounts, timestamps, { value: 0 })).to.be.revertedWith(
+        "node already registered"
+      );
+    });
+
+    it("if msg.value is not equal to total stake amounts, should revert ", async function () {
+      const addresses = [owner.address, ethers.constants.AddressZero];
+      const amounts = [100, 200];
+      const timestamps = [T - 1000 * 60 * 60 * 24, T - 1000 * 60 * 60 * 12];
+
+      await expect(serverNodes.importOldStakes(addresses, amounts, timestamps, { value: 250 })).to.be.revertedWith(
+        "msg.value must be equal to amounts sum"
+      );
+    });
+
+    it("if stake amount is less than minStakeAmount, should revert ", async function () {
+      const addresses = [owner.address];
+      const amounts = [10];
+      const timestamps = [T - 1000 * 60 * 60 * 24];
+
+      await expect(serverNodes.importOldStakes(addresses, amounts, timestamps)).to.be.revertedWith(
+        "msg.value must be > minStakeAmount"
+      );
+    });
+  });
+
+  describe("pause", async function () {
+    it("should pause contract", async function () {
+      expect(await serverNodes.paused()).to.be.false;
+
+      await serverNodes.pause();
+
+      expect(await serverNodes.paused()).to.be.true;
+    });
+  });
+
+  describe("unpause", async function () {
+    it("should unpause contract", async function () {
+      await serverNodes.pause();
+
+      expect(await serverNodes.paused()).to.be.true;
+
+      await serverNodes.unpause();
+
+      expect(await serverNodes.paused()).to.be.false;
     });
   });
 });
