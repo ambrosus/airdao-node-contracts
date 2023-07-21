@@ -1,4 +1,4 @@
-import { impersonateAccount, loadFixture, setBalance, time } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, time, impersonateAccount, setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
@@ -7,6 +7,7 @@ import {
   LockKeeper,
   LockKeeper__factory,
   ServerNodes_Manager,
+  ServerNodes_Manager__factory,
   TEST_ValidatorSet,
 } from "../../typechain-types";
 import { expect } from "chai";

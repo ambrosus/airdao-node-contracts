@@ -224,6 +224,23 @@ describe("LockKeeper", function () {
       });
     });
   });
+
+  describe("cancelLock", function () {
+    it("if sender is not lock creator, should revert", async function () {
+      await lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 100 });
+
+      await expect(lockKeeper.connect(user2).cancelLock(1)).to.be.revertedWith(
+        "Only address that create lock can cancel it"
+      );
+    });
+    it("cancel lock", async function () {
+      await lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 100 });
+
+      await lockKeeper.cancelLock(1);
+
+      expect(await lockKeeper.allUserLocks(user2.address)).to.eql([]);
+    });
+  });
 });
 
 function normalizeStruct(struct: any) {
