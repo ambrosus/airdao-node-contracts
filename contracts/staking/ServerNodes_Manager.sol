@@ -25,25 +25,19 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     }
 
     IValidatorSet public validatorSet; // contract that manages validator set
-
     LockKeeper public lockKeeper; // contract that locks stakes
     IERC20 public airBond;
-
 
     uint public onboardingDelay;  // time that new node will be in queueStakes even if it has enough stake (only affects nodes without FLAG_ALWAYS_IN_TOP)
     uint public unstakeLockTime; // time that funds will be locked after unstake
     uint public minStakeAmount;  // min stake to become a validator
 
-
     mapping(address => Stake) public stakes; // nodeAddress => stake
     mapping(address => address) public owner2node; // owner => node addresses mapping
 
+    mapping(address => uint) public lockedWithdraw; // owner => lockId
+    address[] internal onboardingWaitingList; // list of nodes that are waiting for onboardingDelay to pass
 
-    address[] onboardingWaitingList; // list of nodes that are waiting for onboardingDelay to pass
-
-
-    // todo maybe in validatorSet?
-    event RemovedFromTop(address indexed nodeAddress, address indexed ownerAddress);  // called when node is removed from topStakes
 
     function initialize(
         address _validatorSet, address _lockKeeper, address _airBond,
@@ -104,12 +98,28 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         if (validatorSet.getNodeStake(nodeAddress) > 0) // only if node already validator
             validatorSet.unstake(nodeAddress, amount);
 
+
+        // cancel previous lock (if exists). canceledAmount will be added to new lock
+        uint canceledAmount;
+        if (lockKeeper.getLock(lockedWithdraw[msg.sender]).totalClaims > 0)  // prev lock exists
+            canceledAmount = lockKeeper.cancelLock(lockedWithdraw[msg.sender]);
+
         // lock funds
-        lockKeeper.lockSingle{value: amount}(
+        lockedWithdraw[msg.sender] = lockKeeper.lockSingle{value: amount + canceledAmount}(
             msg.sender, address(0),
             uint64(block.timestamp + unstakeLockTime), amount,
-            "Validator Unstake"
+            "ServerNodes unstake"
         );
+    }
+
+    // unlock latest withdraw to stake
+    function restake() public whenNotPaused {
+        uint canceledAmount = lockKeeper.cancelLock(lockedWithdraw[msg.sender]);
+
+        address nodeAddress = owner2node[msg.sender];
+        require(stakes[nodeAddress].stake > 0, "no stake for you address");
+
+        _addStake(nodeAddress, canceledAmount);
     }
 
     // address(0) address means that rewards will be added to stake

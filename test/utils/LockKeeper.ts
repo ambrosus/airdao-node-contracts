@@ -40,7 +40,7 @@ describe("LockKeeper", function () {
         .to.emit(lockKeeper, "Locked")
         .withArgs(1, user2.address, AddressZero, user1.address, T, T + 1000, 1, 1, 100, "Test");
 
-      expect(normalizeStruct(await lockKeeper.locks(1))).to.deep.eq({
+      expect(normalizeStruct(await lockKeeper.getLock(1))).to.deep.eq({
         locker: user1.address,
         receiver: user2.address,
         token: AddressZero,
@@ -51,7 +51,7 @@ describe("LockKeeper", function () {
         intervalAmount: 100,
       });
 
-      expect(await lockKeeper.allUserLocks(user2.address)).to.eql([BigNumber.from(1)]);
+      expect(await lockKeeper.allUserLocksIds(user2.address)).to.eql([BigNumber.from(1)]);
 
       expect(await ethers.provider.getBalance(lockKeeper.address)).to.eq(100);
     });
@@ -61,7 +61,7 @@ describe("LockKeeper", function () {
         .to.emit(lockKeeper, "Locked")
         .withArgs(1, user2.address, AddressZero, user1.address, T, T + 1000, 200, 3, 100, "Test");
 
-      expect(normalizeStruct(await lockKeeper.locks(1))).to.deep.eq({
+      expect(normalizeStruct(await lockKeeper.getLock(1))).to.deep.eq({
         locker: user1.address,
         receiver: user2.address,
         token: AddressZero,
