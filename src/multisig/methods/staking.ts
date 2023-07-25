@@ -1,7 +1,13 @@
 import { Contracts } from "../../contracts/contracts";
 import { BigNumberish } from "ethers";
 import { ContractNames } from "../../contracts/names";
-import { BaseNodes_Manager, LegacyPoolsNodes_Manager, Multisig, ValidatorSet } from "../../../typechain-types";
+import {
+  BaseNodes_Manager,
+  LegacyPoolsNodes_Manager,
+  Multisig,
+  ServerNodes_Manager,
+  ValidatorSet,
+} from "../../../typechain-types";
 import { submitTransaction } from "./internal";
 
 // coming soon...
@@ -52,9 +58,7 @@ export async function poolManagerChangeMinApolloDeposit(
 
 export async function baseNodesManagerAddStake(contracts: Contracts, nodeAddress: string) {
   const baseNodesManager = contracts.getContractByName(ContractNames.BaseNodesManager) as BaseNodes_Manager;
-  const multisigContract = contracts.getContractByName(
-    (ContractNames.BaseNodesManager + "_Multisig") as ContractNames
-  ) as Multisig;
+  const multisigContract = contracts.getContractByName(ContractNames.BaseNodesManagerMultisig) as Multisig;
 
   const calldata = (await baseNodesManager.populateTransaction.addStake(nodeAddress)).data!;
   return await submitTransaction(multisigContract, baseNodesManager.address, 0, calldata);
@@ -62,12 +66,64 @@ export async function baseNodesManagerAddStake(contracts: Contracts, nodeAddress
 
 export async function baseNodesManagerRemoveStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
   const baseNodesManager = contracts.getContractByName(ContractNames.BaseNodesManager) as BaseNodes_Manager;
-  const multisigContract = contracts.getContractByName(
-    (ContractNames.BaseNodesManager + "_Multisig") as ContractNames
-  ) as Multisig;
+  const multisigContract = contracts.getContractByName(ContractNames.BaseNodesManagerMultisig) as Multisig;
 
   const calldata = (await baseNodesManager.populateTransaction.removeStake(nodeAddress, amount)).data!;
   return await submitTransaction(multisigContract, baseNodesManager.address, 0, calldata);
 }
 
-//server nodes change min stake amount (contracts, amount)
+export async function serverNodesManagerNewStake(contracts: Contracts, nodeAddress: string) {
+  const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
+
+  const calldata = (await serverNodesManager.populateTransaction.newStake(nodeAddress)).data!;
+  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
+}
+
+export async function serverNodesManagerAddStake(contracts: Contracts) {
+  const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
+
+  const calldata = (await serverNodesManager.populateTransaction.addStake()).data!;
+  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
+}
+
+export async function serverNodesManagerUnstake(contracts: Contracts, amount: BigNumberish) {
+  const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
+
+  const calldata = (await serverNodesManager.populateTransaction.unstake(amount)).data!;
+  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
+}
+
+export async function serverNodesManagerSetRewardsAddress(
+  contracts: Contracts,
+  nodeAddress: string,
+  rewardsAddress: string
+) {
+  const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
+
+  const calldata = (await serverNodesManager.populateTransaction.setRewardsAddress(nodeAddress, rewardsAddress)).data!;
+  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
+}
+
+export async function serverNodesManagerChangeNodeOwner(
+  contracts: Contracts,
+  nodeAddress: string,
+  newOwnerAddress: string
+) {
+  const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
+
+  const calldata = (await serverNodesManager.populateTransaction.changeNodeOwner(nodeAddress, newOwnerAddress)).data!;
+  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
+}
+
+export async function serverNodesManagerRestake(contracts: Contracts) {
+  const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
+
+  const calldata = (await serverNodesManager.populateTransaction.restake()).data!;
+  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
+}
