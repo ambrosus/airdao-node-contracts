@@ -50,20 +50,20 @@ describe("BaseNodes", function () {
     });
 
     it("remove all stake", async function () {
-      await expect(baseNodes.removeStake(owner.address, 50)).to.changeEtherBalance(owner, 50);
+      await expect(baseNodes.removeStake(owner.address, 50, owner.address)).to.changeEtherBalance(owner, 50);
       expect(await validatorSet.getNodeStake(owner.address)).to.be.equal(0);
     });
     it("remove part of stake", async function () {
-      await expect(baseNodes.removeStake(owner.address, 30)).to.changeEtherBalance(owner, 30);
+      await expect(baseNodes.removeStake(owner.address, 30, owner.address)).to.changeEtherBalance(owner, 30);
       expect(await validatorSet.getNodeStake(owner.address)).to.be.equal(20);
     });
     it("remove more than staked", async function () {
-      await expect(baseNodes.removeStake(owner.address, 100)).to.be.revertedWith("Stake < amount");
+      await expect(baseNodes.removeStake(owner.address, 100, owner.address)).to.be.revertedWith("Stake < amount");
     });
 
     it("not from admin", async function () {
       const [_, notAdmin] = await ethers.getSigners();
-      await expect(baseNodes.connect(notAdmin).removeStake(owner.address, 50)).to.be.revertedWith(
+      await expect(baseNodes.connect(notAdmin).removeStake(owner.address, 50, owner.address)).to.be.revertedWith(
         `AccessControl: account ${notAdmin.address.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
       );
     });

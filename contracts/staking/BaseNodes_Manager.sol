@@ -26,11 +26,11 @@ contract BaseNodes_Manager is IStakeManager, AccessControl {
             validatorSet.stake(nodeAddress, msg.value);
     }
 
-    function removeStake(address nodeAddress, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function removeStake(address nodeAddress, uint amount, address sendTo) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(validatorSet.getNodeStake(nodeAddress) >= amount, "Stake < amount");
 
         validatorSet.unstake(nodeAddress, amount);
-        payable(msg.sender).transfer(amount);
+        payable(sendTo).transfer(amount);
     }
 
     // VALIDATOR SET METHODS
