@@ -16,7 +16,6 @@ async function validatorSetChangeTopCount(contracts: Contracts, newTop: BigNumbe
 // legacy pool manager
 
 type PoolManagersCN = ContractNames.LegacyPoolManager; // | ContractNames.PoolManager;
-type BaseNodesManagerCN = ContractNames.BaseNodesManager;
 
 export async function poolManagerGetPools(contracts: Contracts, contractName: PoolManagersCN): Promise<string[]> {
   const poolManager = contracts.getContractByName(contractName) as LegacyPoolsNodes_Manager;
@@ -51,26 +50,21 @@ export async function poolManagerChangeMinApolloDeposit(
   return await submitTransaction(multisigContract, poolManager.address, 0, calldata);
 }
 
-export async function baseNodesManagerAddStake(
-  contracts: Contracts,
-  contractName: BaseNodesManagerCN,
-  nodeAddress: string
-) {
-  const baseNodesManager = contracts.getContractByName(contractName) as BaseNodes_Manager;
-  const multisigContract = contracts.getContractByName((contractName + "_Multisig") as ContractNames) as Multisig;
+export async function baseNodesManagerAddStake(contracts: Contracts, nodeAddress: string) {
+  const baseNodesManager = contracts.getContractByName(ContractNames.BaseNodesManager) as BaseNodes_Manager;
+  const multisigContract = contracts.getContractByName(
+    (ContractNames.BaseNodesManager + "_Multisig") as ContractNames
+  ) as Multisig;
 
   const calldata = (await baseNodesManager.populateTransaction.addStake(nodeAddress)).data!;
   return await submitTransaction(multisigContract, baseNodesManager.address, 0, calldata);
 }
 
-export async function baseNodesManagerRemoveStake(
-  contracts: Contracts,
-  contractName: BaseNodesManagerCN,
-  nodeAddress: string,
-  amount: BigNumberish
-) {
-  const baseNodesManager = contracts.getContractByName(contractName) as BaseNodes_Manager;
-  const multisigContract = contracts.getContractByName((contractName + "_Multisig") as ContractNames) as Multisig;
+export async function baseNodesManagerRemoveStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+  const baseNodesManager = contracts.getContractByName(ContractNames.BaseNodesManager) as BaseNodes_Manager;
+  const multisigContract = contracts.getContractByName(
+    (ContractNames.BaseNodesManager + "_Multisig") as ContractNames
+  ) as Multisig;
 
   const calldata = (await baseNodesManager.populateTransaction.removeStake(nodeAddress, amount)).data!;
   return await submitTransaction(multisigContract, baseNodesManager.address, 0, calldata);
