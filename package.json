@@ -9,20 +9,22 @@
   "scripts": {
     "build": "npm run build:sol && npm run build:js && cp -r ./deployments ./dist/deployments  && ln -sf /home/svin/dev/work/ambrosus/airdao-node-contracts/dist /home/svin/dev/work/ambrosus/multisigApplication/node_modules/@airdao/airdao-node-contracts/dist",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
-    "build:sol": "hardhat compile",
+    "build:sol": "hardhat compile --force",
     "test": "REPORT_GAS=true hardhat test",
     "coverage": "COVERAGE=true hardhat coverage",
     "format:check": "eslint ./ && prettier --check ./",
     "format:fix": "eslint --fix ./ && prettier --write ./",
     "deploy_multisig": "hardhat run scripts/multisig/deploy_multisig.ts --network dev",
     "deploy_finance": "hardhat run scripts/finance/deploy_finance.ts --network dev",
-    "deploy_airdrop": "hardhat run scripts/finance/deploy_airdrop.ts --network test",
+    "deploy_airdrop": "hardhat run scripts/finance/deploy_airdrop.ts --network dev",
     "deploy_validatorset": "hardhat run scripts/staking/deploy_validatorset.ts --network dev",
     "deploy_basenodes_manager": "hardhat run scripts/staking/deploy_basenodes_manager.ts --network dev",
+    "deploy_servernodes_manager": "hardhat run scripts/staking/deploy_servernodes_manager.ts --network dev",
     "deploy_legacy_pool_manager": "hardhat run scripts/staking/deploy_legacy_pool_manager.ts --network dev",
     "deploy_migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network dev",
     "test_script": "hardhat run scripts/staking/test.ts --network test",
     "integration_test_script": "hardhat run scripts/staking/new_validatorset_integration_test.ts --network local",
+    "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"
   },
@@ -43,7 +45,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "deployments": "github:ambrosus/deployments#v0.1.1",
+    "deployments": "github:ambrosus/deployments#v0.1.2",
     "ethers": "^5.7.2"
   }
 }
