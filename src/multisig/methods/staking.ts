@@ -64,11 +64,16 @@ export async function baseNodesManagerAddStake(contracts: Contracts, nodeAddress
   return await submitTransaction(multisigContract, baseNodesManager.address, 0, calldata);
 }
 
-export async function baseNodesManagerRemoveStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+export async function baseNodesManagerRemoveStake(
+  contracts: Contracts,
+  nodeAddress: string,
+  amount: BigNumberish,
+  sendTo: string
+) {
   const baseNodesManager = contracts.getContractByName(ContractNames.BaseNodesManager) as BaseNodes_Manager;
   const multisigContract = contracts.getContractByName(ContractNames.BaseNodesManagerMultisig) as Multisig;
 
-  const calldata = (await baseNodesManager.populateTransaction.removeStake(nodeAddress, amount)).data!;
+  const calldata = (await baseNodesManager.populateTransaction.removeStake(nodeAddress, amount, sendTo)).data!;
   return await submitTransaction(multisigContract, baseNodesManager.address, 0, calldata);
 }
 
