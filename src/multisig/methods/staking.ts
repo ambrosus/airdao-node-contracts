@@ -109,19 +109,6 @@ export async function serverNodesManagerWithdrawBonds(contracts: Contracts, addr
   return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
 }
 
-export async function serverNodesManagerImportOldStakes(
-  contracts: Contracts,
-  addresses: string[],
-  amounts: BigNumberish[],
-  timestamps: BigNumberish[]
-) {
-  const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
-
-  const calldata = (await serverNodesManager.populateTransaction.importOldStakes(addresses, amounts, timestamps)).data!;
-  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
-}
-
 export async function serverNodesManagerPause(contracts: Contracts) {
   const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
