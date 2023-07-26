@@ -109,18 +109,17 @@ export async function serverNodesManagerWithdrawBonds(contracts: Contracts, addr
   return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
 }
 
-export async function serverNodesManagerPause(contracts: Contracts) {
+export async function serverNodesManagerChangePauseState(contracts: Contracts, pause: boolean) {
   const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
 
-  const calldata = (await serverNodesManager.populateTransaction.pause()).data!;
+  const calldata = pause
+    ? (await serverNodesManager.populateTransaction.pause()).data!
+    : (await serverNodesManager.populateTransaction.unpause()).data!;
   return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
 }
 
-export async function serverNodesManagerUnpause(contracts: Contracts) {
+export async function serverNodesManagerGetPauseState(contracts: Contracts) {
   const serverNodesManager = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  const multisigContract = contracts.getContractByName(ContractNames.ServerNodesManagerMultisig) as Multisig;
-
-  const calldata = (await serverNodesManager.populateTransaction.unpause()).data!;
-  return await submitTransaction(multisigContract, serverNodesManager.address, 0, calldata);
+  return await serverNodesManager.pause();
 }
