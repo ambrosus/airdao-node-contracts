@@ -56,11 +56,11 @@ export async function poolManagerChangeMinApolloDeposit(
   return await submitTransaction(multisigContract, poolManager.address, 0, calldata);
 }
 
-export async function baseNodesManagerAddStake(contracts: Contracts, nodeAddress: string) {
+export async function baseNodesManagerAddStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
   const baseNodesManager = contracts.getContractByName(ContractNames.BaseNodesManager) as BaseNodes_Manager;
   const multisigContract = contracts.getContractByName(ContractNames.BaseNodesManagerMultisig) as Multisig;
 
-  const calldata = (await baseNodesManager.populateTransaction.addStake(nodeAddress)).data!;
+  const calldata = (await baseNodesManager.populateTransaction.addStake(nodeAddress, { value: amount })).data!;
   return await submitTransaction(multisigContract, baseNodesManager.address, 0, calldata);
 }
 
