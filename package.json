@@ -7,7 +7,7 @@
   ],
   "homepage": "https://github.com/ambrosus/airdao-node-contracts",
   "scripts": {
-    "build": "npm run build:sol && npm run build:js && cp -r ./deployments ./dist/deployments  && cp -rf /home/svin/dev/work/ambrosus/airdao-node-contracts/dist /home/svin/dev/work/ambrosus/multisigApplication/node_modules/@airdao/airdao-node-contracts",
+    "build": "npm run build:sol && npm run build:js",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat compile --force",
     "test": "REPORT_GAS=true hardhat test",
