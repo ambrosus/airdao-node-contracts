@@ -4,7 +4,7 @@ import {
   BaseNodes_Manager,
   Catalogue__factory,
   Context__factory,
-  Head,
+  Head__factory,
   LegacyPool__factory,
   LegacyPoolsNodes_Manager,
   PoolsStore,
@@ -23,6 +23,7 @@ const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 const validatorSetAbi = ["function getValidators() view returns (address[])"];
+const feesAbi = ["function isAdmin(address) view returns (bool)", "function paused() view returns (bool)"];
 
 interface NodeInfo {
   address: string;
@@ -37,15 +38,27 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId) as BaseNodes_Manager;
-  const poolNodesManager = loadDeployment(ContractNames.LegacyPoolManager, chainId) as LegacyPoolsNodes_Manager;
-  const serverNodesManager = loadDeployment(ContractNames.ServerNodesManager, chainId) as ServerNodes_Manager;
+  const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;
+  const poolNodesManager = loadDeployment(
+    ContractNames.LegacyPoolManager,
+    chainId,
+    deployer
+  ) as LegacyPoolsNodes_Manager;
+  const serverNodesManager = loadDeployment(ContractNames.ServerNodesManager, chainId, deployer) as ServerNodes_Manager;
 
-  const head: Head = await ethers.getContractAt("Head", HEAD);
+  const head = Head__factory.connect(HEAD, deployer);
   const context = Context__factory.connect(await head.context(), deployer);
   const catalogue = Catalogue__factory.connect(await context.catalogue(), deployer);
   const storageCatalogue = StorageCatalogue__factory.connect(await context.storageCatalogue(), deployer);
   const roles = Roles__factory.connect(await catalogue.roles(), deployer);
+  const fees = new ethers.Contract(await catalogue.fees(), feesAbi, deployer);
+
+  const multiplexerAddress = await head.owner();
+  const multisigAddress = await Head__factory.connect(multiplexerAddress, deployer).owner();
+  console.log("multiplexer", multiplexerAddress, ", multisig", multisigAddress);
+
+  if (!(await fees.isAdmin(deployer.address))) throw `${deployer.address} is not a admin`;
+  if (!(await fees.paused())) throw "legacy contracts doesn't paused!";
 
   const oldStakes = await getOldStakes(
     await storageCatalogue.apolloDepositStore(),
@@ -60,6 +73,13 @@ async function main() {
     stake: serverNodesStakes,
     onboardTimestamp: serverNodesTimestamps,
   } = unzipNodeInfos(oldStakes.serverNodes);
+
+  // register stake managers in validator set
+  console.log("Granting STAKING_MANAGER_ROLE");
+  const stakingManagerRole = await validatorSet.STAKING_MANAGER_ROLE();
+  await (await validatorSet.grantRole(stakingManagerRole, baseNodesManager.address)).wait();
+  await (await validatorSet.grantRole(stakingManagerRole, serverNodesManager.address)).wait();
+  await (await validatorSet.grantRole(stakingManagerRole, poolNodesManager.address)).wait();
 
   // transfer basenodes and servernodes deposits to deployer
   console.log("withdraw stakes from baseNodes", baseNodeAddresses);
@@ -142,7 +162,7 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
 
   // get stake AMOUNT from deposit store for each address
   for (const address of validatorSetAddresses) {
-    if (!(await depositStore.isDepositing(address))) continue;
+    if (!(await depositStore.isDepositing(address))) throw new Error(`${address} is not depositing`);
 
     const stake = await depositStore.callStatic.releaseDeposit(address, owner.address, {
       from: depositStore.address,
