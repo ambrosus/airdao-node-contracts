@@ -7,7 +7,7 @@
   ],
   "homepage": "https://github.com/ambrosus/airdao-node-contracts",
   "scripts": {
-    "build": "npm run build:sol && npm run build:js && cp -r ./deployments ./dist/deployments  && ln -sf /Users/serezhaolshanivskyi/WebstormProjects/airdao-node-contracts/dist /Users/serezhaolshanivskyi/WebstormProjects/multisigApplication-dev/node_modules/@airdao/airdao-node-contracts/dist",
+    "build": "npm run build:sol && npm run build:js && cp -r ./deployments ./dist/deployments  && cp -rf /home/svin/dev/work/ambrosus/airdao-node-contracts/dist /home/svin/dev/work/ambrosus/multisigApplication/node_modules/@airdao/airdao-node-contracts",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat compile --force",
     "test": "REPORT_GAS=true hardhat test",
@@ -33,6 +33,8 @@
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "4.9.0",
     "@openzeppelin/hardhat-upgrades": "^1.26.0",
+    "@types/debug": "^4.1.8",
+    "@types/proper-lockfile": "^4.1.2",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
     "dotenv": "^16.0.3",
