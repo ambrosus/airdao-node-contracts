@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "./dist/src/index.js",
   "files": [
     "dist/**/*"
@@ -45,7 +45,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@airdao/deployments": "0.2.0",
+    "@airdao/deployments": "0.2.2",
     "ethers": "^5.7.2"
   }
 }

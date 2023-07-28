@@ -1,14 +1,16 @@
 import { Contract, Signer } from "ethers";
-import { loadAllDeployments } from "@airdao/deployments";
 
 import { ContractNames } from "./names";
+import { loadAllDeploymentsFromFile } from "@airdao/deployments";
 
 export class Contracts {
   private contracts: { [contractName: string]: Contract };
   private nameByAddress: { [address: string]: ContractNames };
 
   constructor(signer: Signer, chainId: number) {
-    this.contracts = loadAllDeployments(chainId, signer);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const deploymentFile = require(`../../../deployments/${chainId}.json`);
+    this.contracts = loadAllDeploymentsFromFile(deploymentFile, signer);
     this.nameByAddress = {};
 
     for (const [name, contract] of Object.entries(this.contracts))
