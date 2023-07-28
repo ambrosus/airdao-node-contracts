@@ -6,7 +6,7 @@ import { main as deployMultisig } from "../multisig/deploy_multisig";
 import { main as deployValidatorset } from "./deploy_validatorset";
 import { ContractNames } from "../../src";
 import { BaseNodes_Manager__factory, ValidatorSet } from "../../typechain-types";
-import { deploy, loadDeployment } from "deployments";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 
 const TRANSITION_ADDRESS = "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05";
 const TRANSITION_BLOCK = 15;

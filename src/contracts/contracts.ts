@@ -1,5 +1,5 @@
 import { Contract, Signer } from "ethers";
-import { loadAllDeployments } from "deployments";
+import { loadAllDeployments } from "@airdao/deployments";
 
 import { ContractNames } from "./names";
 

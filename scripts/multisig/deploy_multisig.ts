@@ -1,7 +1,7 @@
 import { ethers, network } from "hardhat";
 import { ContractNames } from "../../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "../addresses";
-import { deploy } from "deployments";
+import { deploy } from "@airdao/deployments/deploying";
 import { MasterMultisig__factory } from "../../typechain-types";
 
 export async function main() {

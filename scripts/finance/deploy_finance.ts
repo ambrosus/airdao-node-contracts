@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import { deploy, loadDeployment } from "deployments";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 import {
   Andrii,

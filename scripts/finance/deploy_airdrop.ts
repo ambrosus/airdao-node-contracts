@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
 import { ContractNames } from "../../src";
-import { deploy } from "deployments";
+import { deploy } from "@airdao/deployments/deploying";
 import { AirBond__factory, AirDrop__factory } from "../../typechain-types";
 
 async function main() {

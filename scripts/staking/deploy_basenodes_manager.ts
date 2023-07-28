@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../../src";
-import { deploy, loadDeployment } from "deployments";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { BaseNodes_Manager__factory, Multisig__factory } from "../../typechain-types";
 
 export async function main() {

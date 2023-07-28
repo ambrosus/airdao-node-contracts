@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../../src";
 import { LockKeeper__factory, Multisig__factory, ServerNodes_Manager__factory } from "../../typechain-types";
-import { deploy, loadDeployment } from "deployments";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();

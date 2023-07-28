@@ -16,8 +16,9 @@ import {
   ValidatorSet,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
-import { loadDeployment } from "deployments";
+import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
+import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
@@ -36,6 +37,8 @@ async function main() {
   const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
+
+  wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;

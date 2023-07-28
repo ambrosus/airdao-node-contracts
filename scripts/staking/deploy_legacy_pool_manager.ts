@@ -7,7 +7,7 @@ import {
   Multisig__factory,
   StorageCatalogue__factory,
 } from "../../typechain-types";
-import { deploy, loadDeployment } from "deployments";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
