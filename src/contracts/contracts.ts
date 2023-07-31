@@ -9,7 +9,7 @@ export class Contracts {
 
   constructor(signer: Signer, chainId: number) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const deploymentFile = require(`../../../deployments/${chainId}.json`);
+    const deploymentFile = require(`../../deployments/${chainId}.json`);
     this.contracts = loadAllDeploymentsFromFile(deploymentFile, signer);
     this.nameByAddress = {};
 

@@ -10,6 +10,6 @@
     "types": [],
     "resolveJsonModule": true
   },
-  "include": ["src", "deployments"],
+  "include": ["src", "deployments/*.json"],
   "exclude": ["node_modules", "src/dev"]
 }
