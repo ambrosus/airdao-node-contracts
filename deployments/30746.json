@@ -619,7 +619,7 @@
       "function lockKeeper() view returns (address)",
       "function lockedWithdraw(address) view returns (uint256)",
       "function minStakeAmount() view returns (uint256)",
-      "function newStake(address nodeAddress) payable",
+      "function newStake(address nodeAddress, address rewardAddress) payable",
       "function onBlock()",
       "function onboardingDelay() view returns (uint256)",
       "function owner2node(address) view returns (address)",
@@ -646,7 +646,7 @@
     "deployTx": "0x27f013f4802a6235c6b809f44917cb5642340427b93749136fa973cb8e2d3137",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x0D42C6BE7Dd9733Eef977491C2D426d778eAcc1c",
+      "implementation": "0xd205002d3c56E2BB337446Dac37EF856735Dbf44",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
