@@ -42,6 +42,19 @@ export enum ContractNames {
   LockKeeper = "LockKeeper",
 }
 
+export const MULTISIGS = {
+  [ContractNames.FinanceMaster]: ContractNames.FinanceMasterMultisig,
+  [ContractNames.FinanceRewards]: ContractNames.FinanceRewardsMultisig,
+  [ContractNames.FinanceInvestors]: ContractNames.FinanceInvestorsMultisig,
+  [ContractNames.FinanceTeam]: ContractNames.FinanceTeamMultisig,
+  [ContractNames.FinanceEcosystem]: ContractNames.FinanceEcosystemMultisig,
+
+  [ContractNames.ValidatorSet]: ContractNames.ValidatorSetMultisig,
+  [ContractNames.BaseNodesManager]: ContractNames.BaseNodesManagerMultisig,
+  [ContractNames.LegacyPoolManager]: ContractNames.LegacyPoolManagerMultisig,
+  [ContractNames.ServerNodesManager]: ContractNames.ServerNodesManagerMultisig,
+};
+
 export const slavesMultisigsNames = [
   ContractNames.FinanceMasterMultisig,
   ContractNames.FinanceRewardsMultisig,

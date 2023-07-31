@@ -1,7 +1,7 @@
-// INTERNAL
-
 import { Multisig } from "../../../typechain-types";
-import { BigNumberish } from "ethers";
+import { BaseContract, BigNumberish, PopulatedTransaction } from "ethers";
+import { MULTISIGS } from "../../contracts/names";
+import { Contracts } from "../../contracts/contracts";
 
 export async function submitTransaction(
   multisig: Multisig,
@@ -17,5 +17,17 @@ export async function submitTransaction(
     if (errorReason !== "OK" && errorReason !== "Error: OK") throw new Error(errorReason);
   }
 
-  return await multisig.submitTransaction(destination, value, calldata);
+  return await multisig.submitTransaction(destination, value, calldata, { value: value });
+}
+
+export async function submitTransaction2<T extends BaseContract>(
+  contracts: Contracts,
+  contractName: keyof typeof MULTISIGS,
+  value: BigNumberish,
+  calldataTx: (contract: T["populateTransaction"]) => Promise<PopulatedTransaction>
+) {
+  const contract = contracts.getContractByName(contractName) as T;
+  const multisig = contracts.getContractByName(MULTISIGS[contractName]) as Multisig;
+  const calldata = (await calldataTx(contract.populateTransaction)).data!;
+  return await submitTransaction(multisig, contract.address, value, calldata);
 }

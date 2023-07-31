@@ -1,44 +1,32 @@
 // NON VIEW
 
 import { Contracts } from "../../contracts/contracts";
-import { ContractNames, slavesMultisigsNames } from "../../contracts/names";
+import { ContractNames } from "../../contracts/names";
 import { BigNumberish } from "ethers";
-import { Finance, MasterFinance, MasterMultisig, Multisig } from "../../../typechain-types";
-import { submitTransaction } from "./internal";
+import { Finance, MasterFinance } from "../../../typechain-types";
+import { submitTransaction2 } from "./internal";
+
+type FinanceContractNames =
+  | ContractNames.FinanceMaster
+  | ContractNames.FinanceRewards
+  | ContractNames.FinanceInvestors
+  | ContractNames.FinanceTeam
+  | ContractNames.FinanceEcosystem;
 
 export async function financeWithdraw(
   contracts: Contracts,
-  financeContractName: ContractNames,
+  financeContractName: FinanceContractNames,
   addressTo: string,
   amount: BigNumberish
 ) {
-  const financeContract = contracts.getContractByName(financeContractName) as Finance;
-  const multisigContract = contracts.getContractByName(
-    (financeContractName + "_Multisig") as ContractNames
-  ) as Multisig;
-
-  const calldata = (await financeContract.populateTransaction.withdraw(addressTo, amount)).data!;
-  return await submitTransaction(multisigContract, financeContract.address, 0, calldata);
-}
-
-export async function changeMultisigOwners(contracts: Contracts, newOwner: string, multisigAddresses?: string[]) {
-  if (!multisigAddresses)
-    multisigAddresses = slavesMultisigsNames
-      .map((n) => contracts.getContractByNameSafe(n)?.address)
-      .filter((el) => el !== undefined) as string[];
-
-  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
-
-  if (multisigAddresses.includes(masterMultisig.address))
-    throw Error("You probably don't want to change the owner of the master multisig");
-
-  const calldata = (await masterMultisig.populateTransaction.changeOwners(multisigAddresses, newOwner)).data!;
-  return await submitTransaction(masterMultisig, masterMultisig.address, 0, calldata);
+  return await submitTransaction2<Finance>(contracts, financeContractName, 0, (financeContract) =>
+    financeContract.withdraw(addressTo, amount)
+  );
 }
 
 // VIEW
 
-export async function getFinanceBalance(contracts: Contracts, financeContractName: ContractNames) {
+export async function getFinanceBalance(contracts: Contracts, financeContractName: FinanceContractNames) {
   const financeContract = contracts.getContractByName(financeContractName) as Finance;
   return financeContract.provider.getBalance(financeContract.address);
 }
