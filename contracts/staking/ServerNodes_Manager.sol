@@ -57,12 +57,12 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
     // USER METHODS
 
-    function newStake(address nodeAddress) payable public whenNotPaused {
-        require(msg.value > minStakeAmount, "msg.value must be > minStakeAmount");
+    function newStake(address nodeAddress, address rewardAddress) payable public whenNotPaused {
+        require(msg.value >= minStakeAmount, "msg.value must be >= minStakeAmount");
         require(stakes[nodeAddress].stake == 0, "node already registered");
         require(owner2node[msg.sender] == address(0), "owner already has a stake");
 
-        stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, address(0));
+        stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, rewardAddress);
         owner2node[msg.sender] = nodeAddress;
 
         // add to queuedStakes

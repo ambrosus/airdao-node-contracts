@@ -11,6 +11,7 @@ import {
   TEST_ValidatorSet,
 } from "../../typechain-types";
 import { expect } from "chai";
+import { AddressZero } from "@ethersproject/constants";
 
 const T = 30000000000;
 const onboardingDelay = 60 * 5;
@@ -54,7 +55,7 @@ describe("ServerNodes", function () {
 
   describe("newStake", function () {
     it("ok", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
 
       const stake = await serverNodes.stakes(owner.address);
       expect(stake.stake).to.be.eq(50);
@@ -66,34 +67,36 @@ describe("ServerNodes", function () {
     });
 
     it("ok, onboarding delay", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(50);
       await serverNodes.onBlock(); // not enough time passed
       expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(0);
     });
 
     it("< minStakeAmount", async function () {
-      await expect(serverNodes.newStake(owner.address, { value: 42 })).to.be.revertedWith(
-        "msg.value must be > minStakeAmount"
+      await expect(serverNodes.newStake(owner.address, AddressZero, { value: 1 })).to.be.revertedWith(
+        "msg.value must be >= minStakeAmount"
       );
     });
 
     it("node already registered", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
-      await expect(serverNodes.newStake(owner.address, { value: 50 })).to.be.revertedWith("node already registered");
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await expect(serverNodes.newStake(owner.address, AddressZero, { value: 50 })).to.be.revertedWith(
+        "node already registered"
+      );
 
       // different owner
       const [_, anotherOwner] = await ethers.getSigners();
-      await expect(serverNodes.connect(anotherOwner).newStake(owner.address, { value: 50 })).to.be.revertedWith(
-        "node already registered"
-      );
+      await expect(
+        serverNodes.connect(anotherOwner).newStake(owner.address, AddressZero, { value: 50 })
+      ).to.be.revertedWith("node already registered");
     });
 
     it("same owner 2 nodes", async function () {
       const [_, anotherNode] = await ethers.getSigners();
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
 
-      await expect(serverNodes.newStake(anotherNode.address, { value: 50 })).to.be.revertedWith(
+      await expect(serverNodes.newStake(anotherNode.address, AddressZero, { value: 50 })).to.be.revertedWith(
         "owner already has a stake"
       );
     });
@@ -101,14 +104,14 @@ describe("ServerNodes", function () {
 
   describe("addStake", function () {
     it("ok", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await serverNodes.addStake({ value: 50 });
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(100);
       expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(0);
     });
 
     it("onboarded ok", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await time.setNextBlockTimestamp(T + onboardingDelay + 1);
       await serverNodes.onBlock();
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(50);
@@ -119,7 +122,7 @@ describe("ServerNodes", function () {
     });
 
     it("value == 0", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await expect(serverNodes.addStake()).to.be.revertedWith("msg.value must be > 0");
     });
 
@@ -130,21 +133,21 @@ describe("ServerNodes", function () {
 
   describe("unstake", function () {
     it("unstake", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
 
       await expect(serverNodes.unstake(50)).to.emit(lockKeeper, "Locked");
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(0);
     });
 
     it("unstake part", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
 
       await expect(serverNodes.unstake(1)).to.emit(lockKeeper, "Locked");
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(49);
     });
 
     it("unstake onboarded", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await time.setNextBlockTimestamp(T + onboardingDelay + 1);
       await serverNodes.onBlock();
       expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(50);
@@ -162,12 +165,12 @@ describe("ServerNodes", function () {
     });
 
     it("stake < amount", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await expect(serverNodes.unstake(100)).to.be.revertedWith("stake < amount");
     });
 
     it("resulting stake < minStakeAmount", async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await expect(serverNodes.unstake(40)).to.be.revertedWith("resulting stake < minStakeAmount");
     });
   });
@@ -175,11 +178,11 @@ describe("ServerNodes", function () {
   describe("onboard delay", function () {
     it("many nodes", async function () {
       const [_, node1, node2, node3, node4] = await ethers.getSigners();
-      await serverNodes.connect(node1).newStake(node1.address, { value: 50 });
-      await serverNodes.connect(node2).newStake(node2.address, { value: 50 });
-      await serverNodes.connect(node3).newStake(node3.address, { value: 50 });
+      await serverNodes.connect(node1).newStake(node1.address, AddressZero, { value: 50 });
+      await serverNodes.connect(node2).newStake(node2.address, AddressZero, { value: 50 });
+      await serverNodes.connect(node3).newStake(node3.address, AddressZero, { value: 50 });
       await time.setNextBlockTimestamp(T + onboardingDelay + 1);
-      await serverNodes.connect(node4).newStake(node4.address, { value: 50 });
+      await serverNodes.connect(node4).newStake(node4.address, AddressZero, { value: 50 });
       await serverNodes.connect(node3).unstake(50);
       await serverNodes.onBlock();
 
@@ -193,7 +196,7 @@ describe("ServerNodes", function () {
   describe("rewards", function () {
     let validatorSetSigner: SignerWithAddress;
     beforeEach(async function () {
-      await serverNodes.newStake(owner.address, { value: 50 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await time.setNextBlockTimestamp(T + onboardingDelay + 1);
       await serverNodes.onBlock();
       await validatorSet.finalizeChange();
@@ -295,7 +298,7 @@ describe("ServerNodes", function () {
     it("should change node owner", async function () {
       const [_, user] = await ethers.getSigners();
 
-      await serverNodes.newStake(owner.address, { value: 100 });
+      await serverNodes.newStake(owner.address, AddressZero, { value: 100 });
 
       await serverNodes.changeNodeOwner(owner.address, user.address);
 
