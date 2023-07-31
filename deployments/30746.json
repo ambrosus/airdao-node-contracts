@@ -442,6 +442,9 @@
       "function getNodeStake(address nodeAddress) view returns (uint256)",
       "function getQueuedStakes() view returns (address[])",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function getRoleMember(bytes32 role, uint256 index) view returns (address)",
+      "function getRoleMemberCount(bytes32 role) view returns (uint256)",
+      "function getStakesByManager(address manager) view returns (address[] result)",
       "function getTopStakes() view returns (address[])",
       "function getValidators() view returns (address[])",
       "function grantRole(bytes32 role, address account)",
@@ -463,10 +466,10 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x8d33e12a8047cef10ad30e61113bc5d6145b95398be55053dd30073296070c95",
+    "deployTx": "0x83a5a5635c3fa4368e24a1223f868448464062e62def0a13073351bbf8fd81c8",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0x6Ba32B310F752a05b6239312d9753b2df2B1Be1D",
+      "implementation": "0xb255E8F14cAbbB31D1f1877868ECE4bc921c8C47",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },

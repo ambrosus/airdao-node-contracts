@@ -11,7 +11,7 @@ pragma solidity ^0.8.17;
 
 
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "../LockKeeper.sol";
 import "../staking/IStakeManager.sol";
 import "./IValidatorSet.sol";
@@ -23,7 +23,8 @@ import "./OnBlockNotifier.sol";
 - only owner (set explicitly in constructor and transferable) can perform mutating functions
 https://wiki.parity.io/Validator-Set.html
 */
-contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradeable, IValidatorSet {
+
+contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerableUpgradeable, IValidatorSet {
 
     bytes32 public constant STAKING_MANAGER_ROLE = keccak256("STAKING_MANAGER_ROLE");  // can use addStake / removeStake methods
     bytes32 public constant REWARD_ORACLE_ROLE = keccak256("REWARD_ORACLE_ROLE");  // can provide baseReward
@@ -104,6 +105,22 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlUpgradea
     // @return array of addresses of nodes
     function getQueuedStakes() public view returns (address[] memory) {
         return queuedStakes;
+    }
+
+    function getStakesByManager(address manager) public view returns (address []memory result) {
+        result = new address[](topStakes.length + queuedStakes.length);
+        uint count;
+
+        for (uint i = 0; i < topStakes.length; i++)
+            if (address(stakes[topStakes[i]].stakingContract) == manager)
+                result[count++] = topStakes[i];
+        for (uint i = 0; i < queuedStakes.length; i++)
+            if (address(stakes[queuedStakes[i]].stakingContract) == manager)
+                result[count++] = queuedStakes[i];
+
+        assembly {mstore(result, count)}
+
+        return result;
     }
 
 
