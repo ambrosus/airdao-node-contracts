@@ -129,9 +129,10 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
 
     function reward(address nodeAddress, uint amount) external {
         require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
-        require(address(this).balance > amount, "[LPNM] Insufficient funds to pay reward");
         address poolAddress = node2pool[nodeAddress];
         require(poolAddress != address(0), "Can't find pool for node");
+
+        rewardsBank.withdrawAmb(payable(address(this)), amount);
         IPool(poolAddress).addReward{value: amount}();
     }
 

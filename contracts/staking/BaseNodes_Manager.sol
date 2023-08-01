@@ -39,9 +39,7 @@ contract BaseNodes_Manager is IStakeManager, AccessControl {
 
     function reward(address nodeAddress, uint amount) external {
         require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
-
-        address payable ownerAddress = payable(nodeAddress);
-        ownerAddress.transfer(amount);
+        rewardsBank.withdrawAmb(payable(nodeAddress), amount);
     }
 
     function report(address nodeAddress) external {
