@@ -1,7 +1,12 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BaseNodes_Manager, TEST_ValidatorSet } from "../../typechain-types";
+import {
+  BaseNodes_Manager,
+  BaseNodes_Manager__factory,
+  RewardsBank__factory,
+  TEST_ValidatorSet,
+} from "../../typechain-types";
 import { expect } from "chai";
 
 describe("BaseNodes", function () {
@@ -15,9 +20,10 @@ describe("BaseNodes", function () {
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
-    const BaseNodesFactory = await ethers.getContractFactory("BaseNodes_Manager");
-    const baseNodes = await BaseNodesFactory.deploy(validatorSet.address);
+    const rewardsBank = await new RewardsBank__factory(owner).deploy(ethers.constants.AddressZero);
+    const baseNodes = await new BaseNodes_Manager__factory(owner).deploy(validatorSet.address, rewardsBank.address);
 
+    await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), baseNodes.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), baseNodes.address);
 
     return { validatorSet, baseNodes, owner };

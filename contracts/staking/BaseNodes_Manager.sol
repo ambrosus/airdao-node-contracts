@@ -4,15 +4,17 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
-
+import "../funds/RewardsBank.sol";
 
 // Manager, that can add and remove nodes from validator set TOP list (controlled by multisig)
 
 contract BaseNodes_Manager is IStakeManager, AccessControl {
     IValidatorSet public validatorSet; // contract that manages validator set
+    RewardsBank public rewardsBank;
 
-    constructor(address _validatorSet) {
-        validatorSet = IValidatorSet(_validatorSet);
+    constructor(IValidatorSet _validatorSet, RewardsBank _rewardsBank) {
+        validatorSet = _validatorSet;
+        rewardsBank = _rewardsBank;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }

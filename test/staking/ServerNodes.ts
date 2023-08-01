@@ -1,4 +1,4 @@
-import { loadFixture, time, impersonateAccount, setBalance } from "@nomicfoundation/hardhat-network-helpers";
+import { impersonateAccount, loadFixture, setBalance, time } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
@@ -6,8 +6,8 @@ import {
   AirBond__factory,
   LockKeeper,
   LockKeeper__factory,
+  RewardsBank__factory,
   ServerNodes_Manager,
-  ServerNodes_Manager__factory,
   TEST_ValidatorSet,
 } from "../../typechain-types";
 import { expect } from "chai";
@@ -31,19 +31,22 @@ describe("ServerNodes", function () {
 
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
-    await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
+    const rewardsBank = await new RewardsBank__factory(owner).deploy(airBond.address);
 
     const ServerNodesFactory = await ethers.getContractFactory("ServerNodes_Manager");
     const serverNodes = (await upgrades.deployProxy(ServerNodesFactory, [
       validatorSet.address,
       lockKeeper.address,
-      airBond.address,
+      rewardsBank.address,
       onboardingDelay,
       60 * 5,
       42,
     ])) as ServerNodes_Manager;
 
+    await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
+    await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), serverNodes.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), serverNodes.address);
+
     await time.setNextBlockTimestamp(T);
 
     return { validatorSet, serverNodes, owner, lockKeeper, airBond };
@@ -201,8 +204,8 @@ describe("ServerNodes", function () {
       await serverNodes.onBlock();
       await validatorSet.finalizeChange();
 
-      await airBond.mint(serverNodes.address, 10000);
-      await owner.sendTransaction({ to: serverNodes.address, value: 10000 });
+      await airBond.mint(serverNodes.rewardsBank(), 10000);
+      await owner.sendTransaction({ to: serverNodes.rewardsBank(), value: 10000 });
 
       await impersonateAccount(validatorSet.address);
       await setBalance(validatorSet.address, ethers.utils.parseEther("1"));
@@ -329,33 +332,6 @@ describe("ServerNodes", function () {
       const minStake = await serverNodes.unstakeLockTime();
 
       expect(minStake).to.equal(1000);
-    });
-  });
-
-  describe("withdraw", function () {
-    beforeEach(async function () {
-      await airBond.mint(serverNodes.address, 10000);
-      await owner.sendTransaction({ to: serverNodes.address, value: 10000 });
-    });
-
-    it("withdrawAmb", async function () {
-      await expect(serverNodes.withdrawAmb(owner.address, 1000)).to.changeEtherBalance(owner, 1000);
-    });
-    it("withdrawBonds", async function () {
-      await expect(serverNodes.withdrawBonds(owner.address, 1000)).to.changeTokenBalance(airBond, owner, 1000);
-    });
-
-    it("withdrawAmb not admin", async function () {
-      const [_, notAdmin] = await ethers.getSigners();
-      await expect(serverNodes.connect(notAdmin).withdrawAmb(owner.address, 1000)).to.be.revertedWith(
-        `AccessControl: account ${notAdmin.address.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
-      );
-    });
-    it("withdrawBonds not admin", async function () {
-      const [_, notAdmin] = await ethers.getSigners();
-      await expect(serverNodes.connect(notAdmin).withdrawBonds(owner.address, 1000)).to.be.revertedWith(
-        `AccessControl: account ${notAdmin.address.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
-      );
     });
   });
 

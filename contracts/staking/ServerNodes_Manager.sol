@@ -2,20 +2,17 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
 import "../LockKeeper.sol";
-import "../utils/TransferViaCall.sol";
-
+import "../funds/RewardsBank.sol";
 
 // Manager, that allows users to register their **ONE** node in validator set
 
 contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener, AccessControlUpgradeable, PausableUpgradeable {
-    using SafeERC20 for IERC20;
 
     struct Stake {
         uint stake;
@@ -26,7 +23,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
     IValidatorSet public validatorSet; // contract that manages validator set
     LockKeeper public lockKeeper; // contract that locks stakes
-    IERC20 public airBond;
+    RewardsBank public rewardsBank;
 
     uint public onboardingDelay;  // time that new node will be in queueStakes even if it has enough stake (only affects nodes without FLAG_ALWAYS_IN_TOP)
     uint public unstakeLockTime; // time that funds will be locked after unstake
@@ -40,12 +37,12 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
 
     function initialize(
-        address _validatorSet, address _lockKeeper, address _airBond,
+        IValidatorSet _validatorSet, LockKeeper _lockKeeper, RewardsBank _rewardsBank,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
     ) public initializer {
-        validatorSet = IValidatorSet(_validatorSet);
-        lockKeeper = LockKeeper(_lockKeeper);
-        airBond = IERC20(_airBond);
+        validatorSet = _validatorSet;
+        lockKeeper = _lockKeeper;
+        rewardsBank = _rewardsBank;
 
         onboardingDelay = _onboardingDelay;
         unstakeLockTime = _unstakeLockTime;
@@ -148,14 +145,15 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         uint nativeReward = amount - bondsReward;
 
         if (stakeStruct.rewardsAddress == address(0)) {
+            rewardsBank.withdrawAmb(payable(address(this)), nativeReward);
             _addStake(nodeAddress, nativeReward);
         } else {
-            transferViaCall(payable(stakeStruct.rewardsAddress), nativeReward);
+            rewardsBank.withdrawAmb(payable(address(stakeStruct.rewardsAddress)), nativeReward);
         }
 
         if (bondsReward > 0) {
             address bondsRewardsAddress = stakeStruct.rewardsAddress == address(0) ? stakeStruct.ownerAddress : stakeStruct.rewardsAddress;
-            airBond.safeTransfer(bondsRewardsAddress, bondsReward);
+            rewardsBank.withdrawBonds(bondsRewardsAddress, bondsReward);
         }
 
     }
@@ -180,13 +178,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         unstakeLockTime = newUnstakeLockTime;
     }
 
-    function withdrawAmb(address payable addressTo, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        transferViaCall(addressTo, amount);
-    }
-
-    function withdrawBonds(address payable addressTo, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        airBond.safeTransfer(addressTo, amount);
-    }
 
     function importOldStakes(address[] memory addresses, uint[] memory amounts, uint[] memory timestamps) public payable onlyRole(DEFAULT_ADMIN_ROLE) {
         require(

@@ -9,6 +9,7 @@ import "../IStakeManager.sol";
 import "../../consensus/IValidatorSet.sol";
 import "./Legacy/IPoolsNodesManager.sol";
 import "./Legacy/ICatalogueContracts.sol";
+import "../../funds/RewardsBank.sol";
 
 // Manager that allows to register staking pools;
 // Each pool can onboard a node (via this manager) when reached some stake goal
@@ -16,7 +17,7 @@ import "./Legacy/ICatalogueContracts.sol";
 contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNodesManager {
 
     IValidatorSet public validatorSet; // contract that manages validator set
-
+    RewardsBank public rewardsBank;
 
     uint public  minApolloDeposit;
 
@@ -31,15 +32,17 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
     event PoolRemoved(address poolAddress);
 
     constructor(
-        uint minApolloDeposit_,
-        IValidatorSet validatorSet_,
+        uint _minApolloDeposit,
+        IValidatorSet _validatorSet,
+        RewardsBank _rewardsBank,
         PoolsStore _poolsStore,
         ApolloDepositStore _apolloDepositStore,
         RolesEventEmitter _rolesEventEmitter,
         PoolEventsEmitter _poolEventsEmitter
     ) Ownable() {
-        minApolloDeposit = minApolloDeposit_;
-        validatorSet = validatorSet_;
+        minApolloDeposit = _minApolloDeposit;
+        validatorSet = _validatorSet;
+        rewardsBank = _rewardsBank;
 
         poolsStore = _poolsStore;
         apolloDepositStore = _apolloDepositStore;
