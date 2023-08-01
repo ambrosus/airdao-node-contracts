@@ -1,6 +1,12 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../../src";
-import { LockKeeper__factory, Multisig__factory, ServerNodes_Manager__factory } from "../../typechain-types";
+import {
+  LockKeeper__factory,
+  Multisig__factory,
+  RewardsBank__factory,
+  ServerNodes_Manager__factory,
+  ValidatorSet,
+} from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 
 export async function main() {
@@ -8,9 +14,16 @@ export async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
+
+  const multisig = await deploy<Multisig__factory>({
+    contractName: ContractNames.ServerNodesManagerMultisig,
+    artifactName: "Multisig",
+    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    signer: deployer,
+  });
 
   const lockKeeper = await deploy<LockKeeper__factory>({
     contractName: ContractNames.LockKeeper,
@@ -19,12 +32,14 @@ export async function main() {
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
-  const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.ServerNodesManagerMultisig,
-    artifactName: "Multisig",
-    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+
+  const rewardsBank = await deploy<RewardsBank__factory>({
+    contractName: ContractNames.ServerNodesManagerRewardsBank,
+    artifactName: "RewardsBank",
+    deployArgs: [airBond.address],
     signer: deployer,
   });
+
   const onboardingDelay = 15 * 24 * 60 * 60; // 15d
   const unstakeLockTime = 15 * 24 * 60 * 60; // 15d
   const minStakeAmount = ethers.utils.parseEther("1000"); // 1000 AMB
@@ -35,7 +50,7 @@ export async function main() {
     deployArgs: [
       validatorSet.address,
       lockKeeper.address,
-      airBond.address,
+      rewardsBank.address,
       onboardingDelay,
       unstakeLockTime,
       minStakeAmount,
@@ -43,6 +58,11 @@ export async function main() {
     signer: deployer,
     isUpgradeableProxy: true,
   });
+
+  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address);
+  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address);
+  await manager.grantRole(await manager.DEFAULT_ADMIN_ROLE(), multisig.address);
+  await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
 }
 
 if (require.main === module) {

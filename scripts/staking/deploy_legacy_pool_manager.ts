@@ -5,7 +5,9 @@ import {
   Head,
   LegacyPoolsNodes_Manager__factory,
   Multisig__factory,
+  RewardsBank__factory,
   StorageCatalogue__factory,
+  ValidatorSet,
 } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
@@ -19,13 +21,21 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const airBond = loadDeployment(ContractNames.AirBond, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.LegacyPoolManagerMultisig,
     artifactName: "Multisig",
     deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    signer: deployer,
+  });
+
+  const rewardsBank = await deploy<RewardsBank__factory>({
+    contractName: ContractNames.LegacyPoolManagerRewardsBank,
+    artifactName: "RewardsBank",
+    deployArgs: [airBond.address],
     signer: deployer,
   });
 
@@ -42,6 +52,7 @@ async function main() {
     deployArgs: [
       minApolloDeposit,
       validatorSet.address,
+      rewardsBank.address,
       await oldStorageCatalogue.poolsStore(),
       await oldStorageCatalogue.apolloDepositStore(),
       await oldStorageCatalogue.rolesEventEmitter(),
@@ -50,6 +61,8 @@ async function main() {
     signer: deployer,
   });
 
+  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address);
+  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address);
   await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
 
   // await (await manager.transferOwnership(multisig.address)).wait();

@@ -24,6 +24,8 @@ export async function main() {
     signer: deployer,
     isUpgradeableProxy: true,
   });
+
+  await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), multisig.address);
 }
 
 if (require.main === module) {

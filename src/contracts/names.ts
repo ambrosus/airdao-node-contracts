@@ -24,12 +24,15 @@ export enum ContractNames {
 
   BaseNodesManager = "BaseNodesManager",
   BaseNodesManagerMultisig = "BaseNodesManager_Multisig",
+  BaseNodesManagerRewardsBank = "BaseNodesManager_RewardsBank",
 
   LegacyPoolManager = "LegacyPoolManager",
   LegacyPoolManagerMultisig = "LegacyPoolManager_Multisig",
+  LegacyPoolManagerRewardsBank = "LegacyPoolManager_RewardsBank",
 
   ServerNodesManager = "ServerNodesManager",
   ServerNodesManagerMultisig = "ServerNodesManager_Multisig",
+  ServerNodesManagerRewardsBank = "ServerNodesManager_RewardsBank",
 
   // funds
 
@@ -53,6 +56,9 @@ export const MULTISIGS = {
   [ContractNames.BaseNodesManager]: ContractNames.BaseNodesManagerMultisig,
   [ContractNames.LegacyPoolManager]: ContractNames.LegacyPoolManagerMultisig,
   [ContractNames.ServerNodesManager]: ContractNames.ServerNodesManagerMultisig,
+  [ContractNames.BaseNodesManagerRewardsBank]: ContractNames.BaseNodesManagerMultisig,
+  [ContractNames.LegacyPoolManagerRewardsBank]: ContractNames.LegacyPoolManagerMultisig,
+  [ContractNames.ServerNodesManagerRewardsBank]: ContractNames.ServerNodesManagerMultisig,
 };
 
 export const slavesMultisigsNames = [
