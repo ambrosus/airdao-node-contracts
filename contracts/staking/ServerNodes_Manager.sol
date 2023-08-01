@@ -30,6 +30,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     uint public minStakeAmount;  // min stake to become a validator
 
     mapping(address => Stake) public stakes; // nodeAddress => stake
+    address[] internal stakesList; // keys of stakes
 
     mapping(address => uint) public lockedWithdraws; // nodeAddress => lockId
     address[] internal onboardingWaitingList; // list of nodes that are waiting for onboardingDelay to pass
@@ -62,7 +63,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
         stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, rewardAddress);
 
-        // add to queuedStakes
+        stakesList.push(nodeAddress);
         onboardingWaitingList.push(nodeAddress);
 
         emit StakeChanged(nodeAddress, msg.sender, int(msg.value));
@@ -81,7 +82,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         require(stakeAmount >= amount, "stake < amount");
 
         if (stakeAmount == amount) {
-            delete stakes[nodeAddress];
+            _deleteStake(nodeAddress);
         } else {
             require(stakeAmount - amount >= minStakeAmount, "resulting stake < minStakeAmount");
             stakes[nodeAddress].stake -= amount;
@@ -122,6 +123,25 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function changeNodeOwner(address nodeAddress, address newOwnerAddress) public onlyNodeOwner(nodeAddress) {
         stakes[nodeAddress].ownerAddress = newOwnerAddress;
     }
+
+    // VIEW METHODS
+
+    function getStakesList() public view returns (address[] memory) {
+        return stakesList;
+    }
+
+    function getUserStakesList(address ownerAddress) public view returns (address[] memory result) {
+        result = new address[](stakesList.length);
+        uint count;
+
+        for (uint i = 0; i < stakesList.length; i++)
+            if (address(stakes[stakesList[i]].ownerAddress) == ownerAddress)
+                result[count++] = stakesList[i];
+
+        assembly {mstore(result, count)}
+        return result;
+    }
+
 
     // VALIDATOR SET METHODS
 
@@ -207,6 +227,17 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         // call validatorSet.stake() only when node already validator
         if (validatorSet.getNodeStake(nodeAddress) > 0)
             validatorSet.stake(nodeAddress, amount);
+    }
+
+    function _deleteStake(address nodeAddress) internal {
+        delete stakes[nodeAddress];
+        for (uint i = 0; i < stakesList.length; i++) {
+            if (stakesList[i] == nodeAddress) {
+                stakesList[i] = stakesList[stakesList.length - 1];
+                stakesList.pop();
+                break;
+            }
+        }
     }
 
 
