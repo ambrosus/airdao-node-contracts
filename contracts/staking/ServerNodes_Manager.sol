@@ -10,7 +10,7 @@ import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
 import "../LockKeeper.sol";
 import "../funds/RewardsBank.sol";
 
-// Manager, that allows users to register their **ONE** node in validator set
+// Manager, that allows users to register their nodes in validator set
 
 contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener, AccessControlUpgradeable, PausableUpgradeable {
 
@@ -30,10 +30,12 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     uint public minStakeAmount;  // min stake to become a validator
 
     mapping(address => Stake) public stakes; // nodeAddress => stake
-    mapping(address => address) public owner2node; // owner => node addresses mapping
 
-    mapping(address => uint) public lockedWithdraw; // owner => lockId
+    mapping(address => uint) public lockedWithdraws; // nodeAddress => lockId
     address[] internal onboardingWaitingList; // list of nodes that are waiting for onboardingDelay to pass
+
+    event StakeChanged(address indexed nodeAddress, address indexed nodeOwner, int amount);
+    event Reward(address indexed nodeAddress, address indexed rewardAddress, uint amountAmb, uint amountBonds);
 
 
     function initialize(
@@ -57,35 +59,29 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function newStake(address nodeAddress, address rewardAddress) payable public whenNotPaused {
         require(msg.value >= minStakeAmount, "msg.value must be >= minStakeAmount");
         require(stakes[nodeAddress].stake == 0, "node already registered");
-        require(owner2node[msg.sender] == address(0), "owner already has a stake");
 
         stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, rewardAddress);
-        owner2node[msg.sender] = nodeAddress;
 
         // add to queuedStakes
         onboardingWaitingList.push(nodeAddress);
+
+        emit StakeChanged(nodeAddress, msg.sender, int(msg.value));
     }
 
-    function addStake() payable public whenNotPaused {
+    function addStake(address nodeAddress) payable public onlyNodeOwner(nodeAddress) whenNotPaused {
         require(msg.value > 0, "msg.value must be > 0");
-        address nodeAddress = owner2node[msg.sender];
-        require(stakes[nodeAddress].stake > 0, "no stake for you address");
 
         _addStake(nodeAddress, msg.value);
+        emit StakeChanged(nodeAddress, msg.sender, int(msg.value));
     }
 
-    function unstake(uint amount) public whenNotPaused {
+    function unstake(address nodeAddress, uint amount) public onlyNodeOwner(nodeAddress) whenNotPaused {
         require(amount > 0, "amount must be > 0");
-
-        address nodeAddress = owner2node[msg.sender];
-        require(nodeAddress != address(0), "no stake for you address");
-
         uint stakeAmount = stakes[nodeAddress].stake;
         require(stakeAmount >= amount, "stake < amount");
 
         if (stakeAmount == amount) {
             delete stakes[nodeAddress];
-            delete owner2node[msg.sender];
         } else {
             require(stakeAmount - amount >= minStakeAmount, "resulting stake < minStakeAmount");
             stakes[nodeAddress].stake -= amount;
@@ -98,40 +94,33 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
         // cancel previous lock (if exists). canceledAmount will be added to new lock
         uint canceledAmount;
-        if (lockKeeper.getLock(lockedWithdraw[msg.sender]).totalClaims > 0)  // prev lock exists
-            canceledAmount = lockKeeper.cancelLock(lockedWithdraw[msg.sender]);
+        if (lockKeeper.getLock(lockedWithdraws[nodeAddress]).totalClaims > 0)  // prev lock exists
+            canceledAmount = lockKeeper.cancelLock(lockedWithdraws[nodeAddress]);
 
         // lock funds
-        lockedWithdraw[msg.sender] = lockKeeper.lockSingle{value: amount + canceledAmount}(
+        lockedWithdraws[nodeAddress] = lockKeeper.lockSingle{value: amount + canceledAmount}(
             msg.sender, address(0),
             uint64(block.timestamp + unstakeLockTime), amount,
             "ServerNodes unstake"
         );
+
+        emit StakeChanged(nodeAddress, msg.sender, -int(amount));
     }
 
     // unlock latest withdraw to stake
-    function restake() public whenNotPaused {
-        uint canceledAmount = lockKeeper.cancelLock(lockedWithdraw[msg.sender]);
-
-        address nodeAddress = owner2node[msg.sender];
-        require(stakes[nodeAddress].stake > 0, "no stake for you address");
-
+    function restake(address nodeAddress) public onlyNodeOwner(nodeAddress) whenNotPaused {
+        uint canceledAmount = lockKeeper.cancelLock(lockedWithdraws[nodeAddress]);
         _addStake(nodeAddress, canceledAmount);
+        emit StakeChanged(nodeAddress, msg.sender, int(canceledAmount));
     }
 
     // address(0) address means that rewards will be added to stake
-    function setRewardsAddress(address nodeAddress, address rewardsAddress) public {
-        require(stakes[nodeAddress].ownerAddress == msg.sender, "Only owner can set flag");
+    function setRewardsAddress(address nodeAddress, address rewardsAddress) public onlyNodeOwner(nodeAddress) {
         stakes[nodeAddress].rewardsAddress = rewardsAddress;
     }
 
-    function changeNodeOwner(address nodeAddress, address newOwnerAddress) public {
-        require(stakes[nodeAddress].ownerAddress == msg.sender, "Only owner can change owner");
-        require(owner2node[newOwnerAddress] == address(0), "New owner already have node");
-
+    function changeNodeOwner(address nodeAddress, address newOwnerAddress) public onlyNodeOwner(nodeAddress) {
         stakes[nodeAddress].ownerAddress = newOwnerAddress;
-        owner2node[newOwnerAddress] = nodeAddress;
-        owner2node[msg.sender] = address(0);
     }
 
     // VALIDATOR SET METHODS
@@ -139,7 +128,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function reward(address nodeAddress, uint amount) external {
         require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
         Stake memory stakeStruct = stakes[nodeAddress];
-        require(stakeStruct.stake > 0, "nodeAddress is not a validator");
+        require(stakeStruct.stake > 0, "nodeAddress not in stakes");
 
         uint bondsReward = amount * _getBondsPercent(stakeStruct.timestampStake) / 100;
         uint nativeReward = amount - bondsReward;
@@ -156,6 +145,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
             rewardsBank.withdrawBonds(bondsRewardsAddress, bondsReward);
         }
 
+        emit Reward(nodeAddress, stakeStruct.rewardsAddress, nativeReward, bondsReward);
     }
 
     // todo tests
@@ -190,10 +180,8 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
             address nodeAddress = addresses[i];
             require(amounts[i] > minStakeAmount, "msg.value must be > minStakeAmount");
             require(stakes[nodeAddress].stake == 0, "node already registered");
-            require(owner2node[nodeAddress] == address(0), "owner already has a stake");
 
             stakes[nodeAddress] = Stake(amounts[i], timestamps[i], nodeAddress, address(0));
-            owner2node[nodeAddress] = nodeAddress;
             totalAmount += amounts[i];
         }
 
@@ -250,4 +238,9 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     }
 
     receive() external payable {}
+
+    modifier onlyNodeOwner(address nodeAddress) {
+        require(stakes[nodeAddress].ownerAddress == msg.sender, "Only owner can do this");
+        _;
+    }
 }

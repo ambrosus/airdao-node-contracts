@@ -98,17 +98,14 @@ describe("ServerNodes", function () {
     it("same owner 2 nodes", async function () {
       const [_, anotherNode] = await ethers.getSigners();
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
-
-      await expect(serverNodes.newStake(anotherNode.address, AddressZero, { value: 50 })).to.be.revertedWith(
-        "owner already has a stake"
-      );
+      await expect(serverNodes.newStake(anotherNode.address, AddressZero, { value: 50 })).to.not.be.reverted;
     });
   });
 
   describe("addStake", function () {
     it("ok", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
-      await serverNodes.addStake({ value: 50 });
+      await serverNodes.addStake(owner.address, { value: 50 });
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(100);
       expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(0);
     });
@@ -119,18 +116,22 @@ describe("ServerNodes", function () {
       await serverNodes.onBlock();
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(50);
 
-      await serverNodes.addStake({ value: 50 });
+      await serverNodes.addStake(owner.address, { value: 50 });
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(100);
       expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(100);
     });
 
     it("value == 0", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
-      await expect(serverNodes.addStake()).to.be.revertedWith("msg.value must be > 0");
+      await expect(serverNodes.addStake(owner.address)).to.be.revertedWith("msg.value must be > 0");
     });
 
-    it("node not registered", async function () {
-      await expect(serverNodes.addStake({ value: 50 })).to.be.revertedWith("no stake for you address");
+    it("not owner", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.connect(notOwner).addStake(owner.address, { value: 50 })).to.be.revertedWith(
+        "Only owner can do this"
+      );
     });
   });
 
@@ -138,14 +139,14 @@ describe("ServerNodes", function () {
     it("unstake", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
 
-      await expect(serverNodes.unstake(50)).to.emit(lockKeeper, "Locked");
+      await expect(serverNodes.unstake(owner.address, 50)).to.emit(lockKeeper, "Locked");
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(0);
     });
 
     it("unstake part", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
 
-      await expect(serverNodes.unstake(1)).to.emit(lockKeeper, "Locked");
+      await expect(serverNodes.unstake(owner.address, 1)).to.emit(lockKeeper, "Locked");
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(49);
     });
 
@@ -155,26 +156,31 @@ describe("ServerNodes", function () {
       await serverNodes.onBlock();
       expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(50);
 
-      await serverNodes.unstake(5);
+      await serverNodes.unstake(owner.address, 5);
       expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(45);
     });
 
     it("amount == 0", async function () {
-      await expect(serverNodes.unstake(0)).to.be.revertedWith("amount must be > 0");
-    });
-
-    it("node not registered", async function () {
-      await expect(serverNodes.unstake(50)).to.be.revertedWith("no stake for you address");
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await expect(serverNodes.unstake(owner.address, 0)).to.be.revertedWith("amount must be > 0");
     });
 
     it("stake < amount", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
-      await expect(serverNodes.unstake(100)).to.be.revertedWith("stake < amount");
+      await expect(serverNodes.unstake(owner.address, 100)).to.be.revertedWith("stake < amount");
     });
 
     it("resulting stake < minStakeAmount", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
-      await expect(serverNodes.unstake(40)).to.be.revertedWith("resulting stake < minStakeAmount");
+      await expect(serverNodes.unstake(owner.address, 40)).to.be.revertedWith("resulting stake < minStakeAmount");
+    });
+
+    it("not owner", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.connect(notOwner).unstake(owner.address, 50)).to.be.revertedWith(
+        "Only owner can do this"
+      );
     });
   });
 
@@ -186,7 +192,7 @@ describe("ServerNodes", function () {
       await serverNodes.connect(node3).newStake(node3.address, AddressZero, { value: 50 });
       await time.setNextBlockTimestamp(T + onboardingDelay + 1);
       await serverNodes.connect(node4).newStake(node4.address, AddressZero, { value: 50 });
-      await serverNodes.connect(node3).unstake(50);
+      await serverNodes.connect(node3).unstake(node3.address, 50);
       await serverNodes.onBlock();
 
       expect(await validatorSet.getNodeStake(node1.address)).to.be.eq(50);
@@ -278,14 +284,14 @@ describe("ServerNodes", function () {
     it("nodeAddress is not a validator", async function () {
       const [_, notNode] = await ethers.getSigners();
       await expect(serverNodes.connect(validatorSetSigner).reward(notNode.address, 10)).to.be.revertedWith(
-        "nodeAddress is not a validator"
+        "nodeAddress not in stakes"
       );
     });
 
     it("setRewardsAddress by not owner", async function () {
       const [_, notOwner] = await ethers.getSigners();
       await expect(serverNodes.setRewardsAddress(notOwner.address, owner.address)).to.be.revertedWith(
-        "Only owner can set flag"
+        "Only owner can do this"
       );
     });
   });
@@ -294,7 +300,7 @@ describe("ServerNodes", function () {
     it("if requester is not owner of node, must be reverted", async function () {
       const [_, notOwner] = await ethers.getSigners();
       await expect(serverNodes.changeNodeOwner(notOwner.address, owner.address)).to.be.revertedWith(
-        "Only owner can change owner"
+        "Only owner can do this"
       );
     });
 
@@ -302,12 +308,9 @@ describe("ServerNodes", function () {
       const [_, user] = await ethers.getSigners();
 
       await serverNodes.newStake(owner.address, AddressZero, { value: 100 });
-
       await serverNodes.changeNodeOwner(owner.address, user.address);
 
-      const owner2node = await serverNodes.owner2node(user.address);
-
-      expect(owner2node).to.equal(owner.address);
+      expect((await serverNodes.stakes(owner.address)).ownerAddress).to.equal(user.address);
     });
   });
 
@@ -353,10 +356,6 @@ describe("ServerNodes", function () {
       expect((await serverNodes.stakes(addresses[0])).stake).to.be.eq(amounts[0]);
       expect((await serverNodes.stakes(addresses[1])).stake).to.be.eq(amounts[1]);
       expect((await serverNodes.stakes(addresses[2])).stake).to.be.eq(amounts[2]);
-
-      expect(await serverNodes.owner2node(addresses[0])).to.be.equal(addresses[0]);
-      expect(await serverNodes.owner2node(addresses[1])).to.be.equal(addresses[1]);
-      expect(await serverNodes.owner2node(addresses[2])).to.be.equal(addresses[2]);
     });
 
     it("if input arrays have different lengths, should revert ", async function () {
