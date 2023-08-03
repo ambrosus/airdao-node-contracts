@@ -2,9 +2,7 @@ import { Contracts } from "../../contracts/contracts";
 import { BigNumberish } from "ethers";
 import { ContractNames } from "../../contracts/names";
 import {
-  AirBond,
   BaseNodes_Manager,
-  Finance,
   PoolsNodes_Manager,
   RewardsBank,
   ServerNodes_Manager,
