@@ -2,13 +2,16 @@ import { Contracts } from "../../contracts/contracts";
 import { BigNumberish } from "ethers";
 import { ContractNames } from "../../contracts/names";
 import {
+  AirBond,
   BaseNodes_Manager,
+  Finance,
   PoolsNodes_Manager,
   RewardsBank,
   ServerNodes_Manager,
   ValidatorSet,
 } from "../../../typechain-types";
 import { submitTransaction2 } from "./internal";
+import { rewardsBankContactNames } from "./types";
 
 // validator set
 
@@ -93,7 +96,7 @@ export async function serverNodesManagerChangeUnstakeLockTime(contracts: Contrac
 
 export async function rewardsBanksManagerWithdrawAmb(
   contracts: Contracts,
-  contractName: ContractNames.BaseNodesManager | ContractNames.ServerNodesManager,
+  contractName: rewardsBankContactNames,
   addressTo: string,
   amount: BigNumberish
 ) {
@@ -104,7 +107,7 @@ export async function rewardsBanksManagerWithdrawAmb(
 
 export async function rewardsBanksManagerWithdrawBonds(
   contracts: Contracts,
-  contractName: ContractNames.BaseNodesManager | ContractNames.ServerNodesManager,
+  contractName: rewardsBankContactNames,
   addressTo: string,
   amount: BigNumberish
 ) {
@@ -128,4 +131,15 @@ export async function changePauseState(
 export async function getPauseState(contracts: Contracts, contractName: ContractNames) {
   const contract = contracts.getContractByName(contractName);
   return await contract.paused();
+}
+
+export async function getAmbBalance(contracts: Contracts, contractName: ContractNames) {
+  const contract = contracts.getContractByName(contractName);
+  return await contract.provider.getBalance(contract.address);
+}
+
+export async function getBondsBalance(contracts: Contracts, contractName: ContractNames) {
+  const contract = contracts.getContractByName(contractName);
+  const airBond = contracts.getContractByName(ContractNames.AirBond);
+  return await airBond.getBalance(contract.address);
 }
