@@ -2,6 +2,7 @@ import { Contracts } from "../../contracts/contracts";
 import { BigNumberish } from "ethers";
 import { ContractNames } from "../../contracts/names";
 import {
+  AirBond,
   BaseNodes_Manager,
   PoolsNodes_Manager,
   RewardsBank,
@@ -92,7 +93,14 @@ export async function serverNodesManagerChangeUnstakeLockTime(contracts: Contrac
   );
 }
 
-export async function rewardsBanksManagerWithdrawAmb(
+// rewards bank
+
+type rewardsBankContactNames =
+  | ContractNames.BaseNodesManagerRewardsBank
+  | ContractNames.LegacyPoolManagerRewardsBank
+  | ContractNames.ServerNodesManagerRewardsBank;
+
+export async function rewardsBanksWithdrawAmb(
   contracts: Contracts,
   contractName: rewardsBankContactNames,
   addressTo: string,
@@ -103,7 +111,7 @@ export async function rewardsBanksManagerWithdrawAmb(
   );
 }
 
-export async function rewardsBanksManagerWithdrawBonds(
+export async function rewardsBanksWithdrawBonds(
   contracts: Contracts,
   contractName: rewardsBankContactNames,
   addressTo: string,
@@ -137,7 +145,7 @@ export async function getAmbBalance(contracts: Contracts, contractName: Contract
 }
 
 export async function getBondsBalance(contracts: Contracts, contractName: ContractNames) {
-  const contract = contracts.getContractByName(contractName);
+  const contract = contracts.getContractByName(contractName) as AirBond;
   const airBond = contracts.getContractByName(ContractNames.AirBond);
   return await airBond.getBalance(contract.address);
 }
