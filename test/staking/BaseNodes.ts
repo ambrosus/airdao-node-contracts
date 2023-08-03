@@ -5,6 +5,7 @@ import {
   BaseNodes_Manager,
   BaseNodes_Manager__factory,
   RewardsBank__factory,
+  RewardsEmitter__factory,
   TEST_ValidatorSet,
 } from "../../typechain-types";
 import { expect } from "chai";
@@ -17,12 +18,20 @@ describe("BaseNodes", function () {
   async function deploy() {
     const [owner] = await ethers.getSigners();
 
-    const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
-    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
+    const rewardsEmitter = await new RewardsEmitter__factory(owner).deploy();
 
-    const rewardsBank = await new RewardsBank__factory(owner).deploy(ethers.constants.AddressZero);
+    const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
+      owner.address,
+      rewardsEmitter.address,
+      10,
+      2,
+    ])) as TEST_ValidatorSet;
+
+    const rewardsBank = await new RewardsBank__factory(owner).deploy();
     const baseNodes = await new BaseNodes_Manager__factory(owner).deploy(validatorSet.address, rewardsBank.address);
 
+    await rewardsEmitter.grantRole(await rewardsEmitter.EMITTER_ROLE(), validatorSet.address);
     await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), baseNodes.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), baseNodes.address);
 

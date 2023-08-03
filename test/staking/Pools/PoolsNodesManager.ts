@@ -1,7 +1,7 @@
 import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { PoolsNodes_Manager, TEST_ValidatorSet } from "../../../typechain-types";
+import { PoolsNodes_Manager, RewardsEmitter__factory, TEST_ValidatorSet } from "../../../typechain-types";
 import { AddressZero } from "@ethersproject/constants";
 
 describe("PoolsNodes_Manager", function () {
@@ -15,13 +15,22 @@ describe("PoolsNodes_Manager", function () {
   async function deploy() {
     const [owner, pool1, pool2, user] = await ethers.getSigners();
 
+    const rewardsEmitter = await new RewardsEmitter__factory(owner).deploy();
+
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
-    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
+      owner.address,
+      rewardsEmitter.address,
+      10,
+      2,
+    ])) as TEST_ValidatorSet;
 
     const PoolsNodes_ManagerFactory = await ethers.getContractFactory("PoolsNodes_Manager");
     const poolsNodes = await PoolsNodes_ManagerFactory.deploy(ethers.utils.parseEther("10"), validatorSet.address, 1);
 
+    await rewardsEmitter.grantRole(await rewardsEmitter.EMITTER_ROLE(), validatorSet.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), poolsNodes.address);
+
     return { validatorSet, poolsNodes, owner, pool1, pool2, user };
   }
 

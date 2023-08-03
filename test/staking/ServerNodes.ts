@@ -7,6 +7,7 @@ import {
   LockKeeper,
   LockKeeper__factory,
   RewardsBank__factory,
+  RewardsEmitter__factory,
   ServerNodes_Manager,
   TEST_ValidatorSet,
 } from "../../typechain-types";
@@ -26,23 +27,31 @@ describe("ServerNodes", function () {
   async function deploy() {
     const [owner] = await ethers.getSigners();
 
-    const ValidatorSetFactory = await ethers.getContractFactory("ValidatorSet");
-    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
+    const rewardsEmitter = await new RewardsEmitter__factory(owner).deploy();
 
+    const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
+      owner.address,
+      rewardsEmitter.address,
+      10,
+      2,
+    ])) as TEST_ValidatorSet;
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
-    const rewardsBank = await new RewardsBank__factory(owner).deploy(airBond.address);
+    const rewardsBank = await new RewardsBank__factory(owner).deploy();
 
     const ServerNodesFactory = await ethers.getContractFactory("ServerNodes_Manager");
     const serverNodes = (await upgrades.deployProxy(ServerNodesFactory, [
       validatorSet.address,
       lockKeeper.address,
       rewardsBank.address,
+      airBond.address,
       onboardingDelay,
       60 * 5,
       42,
     ])) as ServerNodes_Manager;
 
+    await rewardsEmitter.grantRole(await rewardsEmitter.EMITTER_ROLE(), validatorSet.address);
     await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
     await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), serverNodes.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), serverNodes.address);

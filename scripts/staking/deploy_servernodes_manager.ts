@@ -36,7 +36,7 @@ export async function main() {
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.ServerNodesManagerRewardsBank,
     artifactName: "RewardsBank",
-    deployArgs: [airBond.address],
+    deployArgs: [],
     signer: deployer,
   });
 
@@ -51,6 +51,7 @@ export async function main() {
       validatorSet.address,
       lockKeeper.address,
       rewardsBank.address,
+      airBond.address,
       onboardingDelay,
       unstakeLockTime,
       minStakeAmount,

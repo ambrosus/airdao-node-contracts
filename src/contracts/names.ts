@@ -19,6 +19,7 @@ export enum ContractNames {
 
   // staking
 
+  RewardsEmitter = "RewardsEmitter",
   ValidatorSet = "ValidatorSet",
   ValidatorSetMultisig = "ValidatorSet_Multisig",
 
