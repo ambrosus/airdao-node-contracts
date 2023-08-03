@@ -10,7 +10,6 @@ import {
   ValidatorSet,
 } from "../../../typechain-types";
 import { submitTransaction2 } from "./internal";
-import { rewardsBankContactNames } from "./types";
 
 // validator set
 
