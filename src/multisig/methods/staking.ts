@@ -1,7 +1,13 @@
 import { Contracts } from "../../contracts/contracts";
 import { BigNumberish } from "ethers";
 import { ContractNames } from "../../contracts/names";
-import { BaseNodes_Manager, PoolsNodes_Manager, ServerNodes_Manager, ValidatorSet } from "../../../typechain-types";
+import {
+  BaseNodes_Manager,
+  PoolsNodes_Manager,
+  RewardsBank,
+  ServerNodes_Manager,
+  ValidatorSet,
+} from "../../../typechain-types";
 import { submitTransaction2 } from "./internal";
 
 // validator set
@@ -85,21 +91,25 @@ export async function serverNodesManagerChangeUnstakeLockTime(contracts: Contrac
   );
 }
 
-export async function serverNodesManagerWithdrawAmb(contracts: Contracts, addressTo: string, amount: BigNumberish) {
-  return await submitTransaction2<ServerNodes_Manager>(
-    contracts,
-    ContractNames.ServerNodesManager,
-    0,
-    (serverNodesManager) => serverNodesManager.withdrawAmb(addressTo, amount)
+export async function rewardsBanksManagerWithdrawAmb(
+  contracts: Contracts,
+  contractName: ContractNames.BaseNodesManager | ContractNames.ServerNodesManager,
+  addressTo: string,
+  amount: BigNumberish
+) {
+  return await submitTransaction2<RewardsBank>(contracts, contractName, 0, (rewardsBank) =>
+    rewardsBank.withdrawAmb(addressTo, amount)
   );
 }
 
-export async function serverNodesManagerWithdrawBonds(contracts: Contracts, addressTo: string, amount: BigNumberish) {
-  return await submitTransaction2<ServerNodes_Manager>(
-    contracts,
-    ContractNames.ServerNodesManager,
-    0,
-    (serverNodesManager) => serverNodesManager.withdrawBonds(addressTo, amount)
+export async function rewardsBanksManagerWithdrawBonds(
+  contracts: Contracts,
+  contractName: ContractNames.BaseNodesManager | ContractNames.ServerNodesManager,
+  addressTo: string,
+  amount: BigNumberish
+) {
+  return await submitTransaction2<RewardsBank>(contracts, contractName, 0, (rewardsBank) =>
+    rewardsBank.withdrawBonds(addressTo, amount)
   );
 }
 
