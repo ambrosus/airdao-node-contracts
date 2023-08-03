@@ -61,9 +61,9 @@ async function main() {
     signer: deployer,
   });
 
-  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address);
-  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address);
-  await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
+  await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address)).wait();
+  await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address)).wait();
 
   // await (await manager.transferOwnership(multisig.address)).wait();
   // console.log("transferred ownership to multisig", multisig.address);

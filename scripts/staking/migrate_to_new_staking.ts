@@ -127,13 +127,9 @@ async function main() {
   const defaultAdminRole = await validatorSet.DEFAULT_ADMIN_ROLE();
 
   console.log("setup ownership for baseNodes");
-  const baseNodesMultisig = loadDeployment(ContractNames.BaseNodesManagerMultisig, chainId).address;
-  await (await baseNodesManager.grantRole(defaultAdminRole, baseNodesMultisig)).wait();
   await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for serverNodes");
-  const serverNodesMultisig = loadDeployment(ContractNames.ServerNodesManagerMultisig, chainId).address;
-  await (await serverNodesManager.grantRole(defaultAdminRole, serverNodesMultisig)).wait();
   await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for poolNodes");
@@ -141,8 +137,6 @@ async function main() {
   await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();
 
   console.log("setup ownership for validatorset");
-  const validatorSetMultisig = loadDeployment(ContractNames.ValidatorSetMultisig, chainId).address;
-  await (await validatorSet.grantRole(defaultAdminRole, validatorSetMultisig)).wait();
   await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
 }
 

@@ -59,10 +59,10 @@ export async function main() {
     isUpgradeableProxy: true,
   });
 
-  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address);
-  await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address);
-  await manager.grantRole(await manager.DEFAULT_ADMIN_ROLE(), multisig.address);
-  await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address);
+  await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address)).wait();
+  await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await manager.grantRole(await manager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address)).wait();
 }
 
 if (require.main === module) {
