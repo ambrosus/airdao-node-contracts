@@ -152,7 +152,10 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
     }
 
     function getPools() public view returns (address[] memory) {
-        return poolsStore.getPools(0, poolsStore.getPoolsCount());
+        uint count = poolsStore.getPoolsCount();
+        if (count == 0)
+            return new address[](0);
+        return poolsStore.getPools(0, count);
     }
 
 

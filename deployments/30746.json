@@ -698,7 +698,7 @@
     }
   },
   "LegacyPoolManager_Multisig": {
-    "address": "0x3fbb4BfEfB478fcE4fb52503ce95e7602E4BB760",
+    "address": "0xA9646A0281996fDcB88f8f6f01Af52BB0268c494",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -734,11 +734,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x9dfcac62b4fa306c52a47248e4a28a07a6098bd7405099c435bd7f3bc6fa79f9",
+    "deployTx": "0xcb3be28ba3c5983d3d4331792983e35226b9c1eeb21d94c03158c5c0ce67e408",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LegacyPoolManager_RewardsBank": {
-    "address": "0x585896742516DF0703D72018E5c049D2C293718F",
+    "address": "0x4798Cbd108e3D7b531ef2f3d67E7fFabdEe29867",
     "abi": [
       "constructor(address _airBond)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -755,11 +755,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawBonds(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x2f27b54bca4e296b6023e564b7e7421aec5395892011a05f96249eb2e730cd33",
+    "deployTx": "0x091db8ccdb71bd9584c476f20184c592d52ad0cd2199d223ad94323c43edca95",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LegacyPoolManager": {
-    "address": "0x00385a84F8ea4A244B2E084D81460e768fAE8ec3",
+    "address": "0xb805D144dCF9eEEe0E12e1a55E9AD46905Ef47fe",
     "abi": [
       "constructor(uint256 _minApolloDeposit, address _validatorSet, address _rewardsBank, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -794,7 +794,7 @@
       "function unpause()",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x0a62006f3b6e5b2f53809b72a1387cf16c1838d9939fc048a4867d252a179017",
+    "deployTx": "0x6e3980c1176b99be5851bb3b2dd88db433f549e6f8e0b4838bd8ec27c6bfafb1",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager"
   }
 }
