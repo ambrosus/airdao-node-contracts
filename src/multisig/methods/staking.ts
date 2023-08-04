@@ -116,8 +116,9 @@ export async function rewardsBanksWithdrawBonds(
   addressTo: string,
   amount: BigNumberish
 ) {
+  const airBond = contracts.getContractByName(ContractNames.AirBond) as AirBond;
   return await submitTransaction2<RewardsBank>(contracts, contractName, 0, (rewardsBank) =>
-    rewardsBank.withdrawBonds(addressTo, amount)
+    rewardsBank.withdrawErc20(airBond.address, addressTo, amount)
   );
 }
 
@@ -144,7 +145,7 @@ export async function getAmbBalance(contracts: Contracts, contractName: Contract
 }
 
 export async function getBondsBalance(contracts: Contracts, contractName: ContractNames) {
-  const contract = contracts.getContractByName(contractName) as AirBond;
-  const airBond = contracts.getContractByName(ContractNames.AirBond);
-  return await airBond.getBalance(contract.address);
+  const contract = contracts.getContractByName(contractName);
+  const airBond = contracts.getContractByName(ContractNames.AirBond) as AirBond;
+  return await airBond.balanceOf(contract.address);
 }
