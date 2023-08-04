@@ -1,5 +1,5 @@
 import { Contracts } from "../../contracts/contracts";
-import { BigNumberish } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import { ContractNames } from "../../contracts/names";
 import {
   AirBond,
@@ -23,7 +23,29 @@ async function validatorSetChangeTopCount(contracts: Contracts, newTop: BigNumbe
 
 type PoolManagersCN = ContractNames.LegacyPoolManager; // | ContractNames.PoolManager;
 
-export async function poolManagerGetPools(contracts: Contracts, contractName: PoolManagersCN): Promise<string[]> {
+export async function poolManagerGetPools(contracts: Contracts, contractName: PoolManagersCN) {
+  const provider = contracts.getContractByName(contractName).provider;
+  const poolContract = new ethers.Contract(
+    ethers.constants.AddressZero,
+    ["function name() view returns (string)"],
+    provider
+  );
+  const getPoolName = async (poolAddress: string) => poolContract.attach(poolAddress).name();
+
+  const addresses = await poolManagerGetPoolsAddresses(contracts, contractName);
+  const pools = await Promise.all(
+    addresses.map(async (poolAddress) => ({
+      address: poolAddress,
+      name: await getPoolName(poolAddress),
+    }))
+  );
+  return pools;
+}
+
+export async function poolManagerGetPoolsAddresses(
+  contracts: Contracts,
+  contractName: PoolManagersCN
+): Promise<string[]> {
   const poolManager = contracts.getContractByName(contractName) as PoolsNodes_Manager;
   return await poolManager.getPools();
 }
