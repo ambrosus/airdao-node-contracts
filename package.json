@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@airdao/deployments": "0.2.4",
+    "@airdao/error-provider": "^1.0.0",
     "ethers": "^5.7.2"
   }
 }
