@@ -19,6 +19,29 @@ async function validatorSetChangeTopCount(contracts: Contracts, newTop: BigNumbe
   );
 }
 
+async function validatorSetNewStake(
+  contracts: Contracts,
+  nodeAddress: string,
+  amount: BigNumberish,
+  isAlwaysTop: boolean
+) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.newStake(nodeAddress, amount, isAlwaysTop)
+  );
+}
+
+async function validatorSetStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.stake(nodeAddress, amount)
+  );
+}
+
+async function validatorSetUnstake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.unstake(nodeAddress, amount)
+  );
+}
+
 // pool manager
 
 type PoolManagersCN = ContractNames.LegacyPoolManager; // | ContractNames.PoolManager;
