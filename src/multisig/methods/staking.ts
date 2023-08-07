@@ -4,6 +4,7 @@ import { ContractNames } from "../../contracts/names";
 import {
   AirBond,
   BaseNodes_Manager,
+  IOnBlockListener,
   PoolsNodes_Manager,
   RewardsBank,
   ServerNodes_Manager,

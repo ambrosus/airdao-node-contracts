@@ -1,8 +1,9 @@
 import { Contracts } from "../../contracts/contracts";
 import { ValidatorSet } from "../../../typechain-types";
 import { ContractNames } from "../../contracts/names";
+import { submitTransaction2 } from "./internal";
 
-// validator set
+// view methods
 async function validatorSetGetNodeStake(contracts: Contracts, nodeAddress: string) {
   const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
   return validatorSet.getNodeStake(nodeAddress);
@@ -26,4 +27,18 @@ async function validatorSetGetQueuedStakes(contracts: Contracts) {
 async function validatorSetGetStakesByManager(contracts: Contracts, managerAddress: string) {
   const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
   return validatorSet.getStakesByManager(managerAddress);
+}
+
+// admin methods
+
+async function validatorSetAddBlockListener(contracts: Contracts, listener: string) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.addBlockListener(listener)
+  );
+}
+
+async function validatorSetRemoveBlockListener(contracts: Contracts, listener: string) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.removeBlockListener(listener)
+  );
 }
