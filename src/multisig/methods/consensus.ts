@@ -1,35 +1,29 @@
 import { Contracts } from "../../contracts/contracts";
-import { submitTransaction2 } from "./internal";
 import { ValidatorSet } from "../../../typechain-types";
 import { ContractNames } from "../../contracts/names";
 
 // validator set
 async function validatorSetGetNodeStake(contracts: Contracts, nodeAddress: string) {
-  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
-    validatorSet.getNodeStake(nodeAddress)
-  );
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.getNodeStake(nodeAddress);
 }
 
 async function validatorSetGetValidators(contracts: Contracts) {
-  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
-    validatorSet.getValidators()
-  );
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.getValidators();
 }
 
 async function validatorSetGetTopStakes(contracts: Contracts) {
-  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
-    validatorSet.getTopStakes()
-  );
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.getTopStakes();
 }
 
 async function validatorSetGetQueuedStakes(contracts: Contracts) {
-  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
-    validatorSet.getQueuedStakes()
-  );
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.getQueuedStakes();
 }
 
 async function validatorSetGetStakesByManager(contracts: Contracts, managerAddress: string) {
-  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
-    validatorSet.getStakesByManager(managerAddress)
-  );
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.getStakesByManager(managerAddress);
 }
