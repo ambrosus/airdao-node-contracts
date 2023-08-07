@@ -29,6 +29,11 @@ async function validatorSetGetStakesByManager(contracts: Contracts, managerAddre
   return validatorSet.getStakesByManager(managerAddress);
 }
 
+async function validatorSetGetBlockListeners(contracts: Contracts) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.listeners();
+}
+
 // admin methods
 
 async function validatorSetAddBlockListener(contracts: Contracts, listener: string) {
