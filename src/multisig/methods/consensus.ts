@@ -1,9 +1,3 @@
-//getNodeStake
-// getValidators
-// getTopStakes
-// getQueuedStakes
-// getStakesByManager
-
 import { Contracts } from "../../contracts/contracts";
 import { submitTransaction2 } from "./internal";
 import { ValidatorSet } from "../../../typechain-types";
