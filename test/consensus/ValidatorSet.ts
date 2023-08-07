@@ -1,12 +1,7 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import {
-  RewardsEmitter__factory,
-  TEST_BlockListener,
-  TEST_Pool_Manager,
-  TEST_ValidatorSet,
-} from "../../typechain-types";
+import { TEST_BlockListener, TEST_Pool_Manager, TEST_ValidatorSet } from "../../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("ValidatorSet", function () {
@@ -22,15 +17,8 @@ describe("ValidatorSet", function () {
   async function deploy() {
     [owner] = await ethers.getSigners();
 
-    const rewardsEmitter = await new RewardsEmitter__factory(owner).deploy();
-
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
-    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [
-      owner.address,
-      rewardsEmitter.address,
-      10,
-      2,
-    ])) as TEST_ValidatorSet;
+    const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
     // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");
     // const lockKeeper = await LockKeeperFactory.deploy();
@@ -42,7 +30,6 @@ describe("ValidatorSet", function () {
     blockListener = await BlockListener.deploy();
     await blockListener.deployed();
 
-    await rewardsEmitter.grantRole(await rewardsEmitter.EMITTER_ROLE(), validatorSet.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), testPool.address);
 
     return { validatorSet, testPool, owner };

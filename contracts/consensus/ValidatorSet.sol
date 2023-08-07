@@ -16,7 +16,6 @@ import "../LockKeeper.sol";
 import "../staking/IStakeManager.sol";
 import "./IValidatorSet.sol";
 import "./OnBlockNotifier.sol";
-import "./RewardsEmitter.sol";
 
 /**
 @title Implementation of Parities ValidatorSet contract with:
@@ -35,8 +34,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         IStakeManager stakingContract;
         bool isAlwaysTop;
     }
-
-    RewardsEmitter public rewardsEmitter; // emit info about block rewards.
 
     mapping(address => Stake) public stakes;  // nodeAddress => Stake
 
@@ -71,18 +68,22 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     event TopListNodeAdded(address indexed nodeAddress);
     event TopListNodeRemoved(address indexed nodeAddress);
 
-    event Reward(address indexed nodeAddress);
     event Report(address indexed nodeAddress, uint malisciousType);
+    event Reward(
+        address indexed manager,
+        address indexed nodeAddress,
+        address indexed nodeOwner,
+        address rewardReceiver,
+        address tokenAddress,
+        uint256 amount
+    );
 
 
     function initialize(
         address _rewardOracle,
-        RewardsEmitter _rewardsEmitter,
-
         uint _baseReward,
         uint _topStakesCount
     ) public initializer {
-        rewardsEmitter = _rewardsEmitter;
         baseReward = _baseReward;
         topStakesCount = _topStakesCount;
 
@@ -179,7 +180,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
 
     function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount) external onlyRole(STAKING_MANAGER_ROLE) {
-        rewardsEmitter.emitReward(msg.sender, nodeAddress, nodeOwner, rewardReceiver, tokenAddress, amount);
+        emit Reward(msg.sender, nodeAddress, nodeOwner, rewardReceiver, tokenAddress, amount);
     }
 
 

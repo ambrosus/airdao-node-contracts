@@ -16,23 +16,15 @@ export async function main() {
     signer: deployer,
   });
 
-  const rewardsEmitter = await deploy<RewardsEmitter__factory>({
-    contractName: ContractNames.RewardsEmitter,
-    artifactName: "RewardsEmitter",
-    deployArgs: [],
-    signer: deployer,
-  });
-
   // todo
   const validatorSet = await deploy<ValidatorSet__factory>({
     contractName: ContractNames.ValidatorSet,
     artifactName: "ValidatorSet",
-    deployArgs: [deployer.address, rewardsEmitter.address, 1, 200],
+    deployArgs: [deployer.address, 1, 200],
     signer: deployer,
     isUpgradeableProxy: true,
   });
 
-  await rewardsEmitter.grantRole(await rewardsEmitter.EMITTER_ROLE(), validatorSet.address);
   await (await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 }
 
