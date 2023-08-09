@@ -65,6 +65,7 @@ export async function main() {
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await manager.grantRole(await manager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address)).wait();
+  await (await validatorSet.addBlockListener(manager.address)).wait();
 }
 
 if (require.main === module) {
