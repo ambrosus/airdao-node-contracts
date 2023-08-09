@@ -619,7 +619,7 @@
     "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper"
   },
   "ServerNodesManager_RewardsBank": {
-    "address": "0xb04D84FC6BA3202f741d0db0124d890e7A3493b7",
+    "address": "0x99d7DEf637ad71Da08D1a1f9b917789B805cCb0a",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -635,11 +635,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x6736ed53d945a3b5f7710dc93599eb3ece3fcf2723b9906f1abcce6ed0ffed91",
+    "deployTx": "0xa5166e619ffc20595d0464969689c0e86b82438e8372bb187693ee4fcb143f02",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "ServerNodesManager": {
-    "address": "0x7A70536307a0411d2Df2FE832CFa16231089dD6F",
+    "address": "0xD3A7E420Aa128Cb6AcFDd998258Ea938E50Ae600",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -690,10 +690,10 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0xcb03cbb73aa7d0e99a614b6096cee2900e23e46d941659b5e0681973a00c8dfc",
+    "deployTx": "0xb5196e572d1026a70632295da12976e35ad2c87e9d9d55264afc8bdf0d68f87c",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0xC6613c683f2d4684D806FAcb9D413f41221537c6",
+      "implementation": "0xE3C532aD50B16e59c1866DCC0C672F7b4c685f00",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
