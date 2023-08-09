@@ -29,6 +29,7 @@ async function main() {
     artifactName: "Multisig",
     deployArgs: [[deployer.address], [true], 75, masterMultisig],
     signer: deployer,
+    loadIfAlreadyDeployed: true,
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({

@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../../src";
-import { Multisig__factory, RewardsEmitter__factory, ValidatorSet__factory } from "../../typechain-types";
+import { Multisig__factory, ValidatorSet__factory } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 
 export async function main() {
@@ -14,6 +14,7 @@ export async function main() {
     artifactName: "Multisig",
     deployArgs: [[deployer.address], [true], 75, masterMultisig],
     signer: deployer,
+    loadIfAlreadyDeployed: true,
   });
 
   // todo

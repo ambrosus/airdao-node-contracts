@@ -412,7 +412,7 @@
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "ValidatorSet": {
-    "address": "0x8eb921E5F4C3e04a6cd9D7934e533225aEf722e5",
+    "address": "0xF3EE25f6600B68cDBeECa955B4bCcF9c9ABF9a40",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -421,7 +421,7 @@
       "event QueueListNodeAdded(address indexed nodeAddress)",
       "event QueueListNodeRemoved(address indexed nodeAddress)",
       "event Report(address indexed nodeAddress, uint256 malisciousType)",
-      "event Reward(address indexed nodeAddress)",
+      "event Reward(address indexed manager, address indexed nodeAddress, address indexed rewardReceiver, address nodeOwner, address tokenAddress, uint256 amount)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
@@ -438,6 +438,7 @@
       "function addBlockListener(address listener)",
       "function baseReward() view returns (uint256)",
       "function changeTopStakesCount(uint256 newTopStakesCount)",
+      "function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
       "function finalizeChange()",
       "function getNodeStake(address nodeAddress) view returns (uint256)",
       "function getQueuedStakes() view returns (address[])",
@@ -466,10 +467,10 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x5c616c3716b368f957a1b5a20dd4d54004248941d133be94b4cc70068f5b9206",
+    "deployTx": "0x95f3a513507ee4ad1eaa07b710b545a586678152f79afa99d5bef068f0955527",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xeeff62628dcD8E8AF2aA376C718f54602a54B5c5",
+      "implementation": "0xE6b3585c2E2Fe8C39EECB163e5D8C90346c873F4",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -514,14 +515,13 @@
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "BaseNodesManager_RewardsBank": {
-    "address": "0x7cee2ae3042D2C646Aa24FACfA92dfeE589046f0",
+    "address": "0x0aE9a337A10F1E31cAf4Ff7b0F915277361708c6",
     "abi": [
-      "constructor(address _airBond)",
+      "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function airBond() view returns (address)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
@@ -529,13 +529,13 @@
       "function revokeRole(bytes32 role, address account)",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
       "function withdrawAmb(address addressTo, uint256 amount)",
-      "function withdrawBonds(address addressTo, uint256 amount)"
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x49d034a2338e5d3feeb67eedb97708a1985168aabe03d7372fefdb3d48021b78",
+    "deployTx": "0xd4899c04f462cba264bf07b1b93a07e739dc99b3cc09951f7f2adb94ae45d720",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "BaseNodesManager": {
-    "address": "0x871c1F199bD17F1cbed559DE974a7F1568b6E1Ea",
+    "address": "0x761314376Ac00758DB402b47F44104529768605b",
     "abi": [
       "constructor(address _validatorSet, address _rewardsBank)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -555,7 +555,7 @@
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x9174bd45cc651de8aeed65b052ccf838d19c6e018fbec77b619fa1022b03c543",
+    "deployTx": "0x96242bfd18b082f89fbf2b6b7c1354aa8ae81782c77c60439252f4b1f5b4e31d",
     "fullyQualifiedName": "contracts/staking/BaseNodes_Manager.sol:BaseNodes_Manager"
   },
   "ServerNodesManager_Multisig": {
@@ -599,7 +599,7 @@
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LockKeeper": {
-    "address": "0x450A606B9D42D081CE58bC5cDF6acA380acF7731",
+    "address": "0xB45121Ea4DB3878b564c617287bf9BDDD17CfD2A",
     "abi": [
       "constructor()",
       "event Claim(uint256 indexed lockId, address indexed userAddress, uint256 amount)",
@@ -615,18 +615,17 @@
       "function lockLinear(address receiver, address token, uint64 firstUnlockTime, uint64 totalClaims, uint64 unlockPeriod, uint256 unlockAmount, string description) payable returns (uint256)",
       "function lockSingle(address receiver, address token, uint64 unlockTime, uint256 amount, string description) payable returns (uint256)"
     ],
-    "deployTx": "0x9f0e15f3c11478a2f93da13bc032ce798db0966f7e8d3044ac151929d997355e",
+    "deployTx": "0xc7110561a99270aaf85c299221f4007d6486273ae8b5e8aa6c38f14a2cab12ba",
     "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper"
   },
   "ServerNodesManager_RewardsBank": {
-    "address": "0xe8DA2709BCAD1e2045f25A13347ed994b3d2cBaD",
+    "address": "0xb04D84FC6BA3202f741d0db0124d890e7A3493b7",
     "abi": [
-      "constructor(address _airBond)",
+      "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function airBond() view returns (address)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
@@ -634,13 +633,13 @@
       "function revokeRole(bytes32 role, address account)",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
       "function withdrawAmb(address addressTo, uint256 amount)",
-      "function withdrawBonds(address addressTo, uint256 amount)"
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x1d2cb29ac439c240a736e183952917819d25e30b37e103cb7b1b10c9a8649fe9",
+    "deployTx": "0x6736ed53d945a3b5f7710dc93599eb3ece3fcf2723b9906f1abcce6ed0ffed91",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "ServerNodesManager": {
-    "address": "0x97464F18b71cbF5f42B134CE48b47341f4B4fddf",
+    "address": "0x7A70536307a0411d2Df2FE832CFa16231089dD6F",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -655,6 +654,7 @@
       "event Upgraded(address indexed implementation)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
       "function addStake(address nodeAddress) payable",
+      "function airBond() view returns (address)",
       "function changeMinStakeAmount(uint256 newMinStakeAmount)",
       "function changeNodeOwner(address nodeAddress, address newOwnerAddress)",
       "function changeUnstakeLockTime(uint256 newUnstakeLockTime)",
@@ -664,7 +664,7 @@
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
       "function importOldStakes(address[] addresses, uint256[] amounts, uint256[] timestamps) payable",
-      "function initialize(address _validatorSet, address _lockKeeper, address _rewardsBank, uint256 _onboardingDelay, uint256 _unstakeLockTime, uint256 _minStakeAmount)",
+      "function initialize(address _validatorSet, address _lockKeeper, address _rewardsBank, address _airBond, uint256 _onboardingDelay, uint256 _unstakeLockTime, uint256 _minStakeAmount)",
       "function lockKeeper() view returns (address)",
       "function lockedWithdraws(address) view returns (uint256)",
       "function minStakeAmount() view returns (uint256)",
@@ -690,10 +690,10 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x4ccb0a8233aeb836980c4ec890edfea86d033efa9fb3aba7e570cb69e2efd6d9",
+    "deployTx": "0xcb03cbb73aa7d0e99a614b6096cee2900e23e46d941659b5e0681973a00c8dfc",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x7aE1eAFC7a9b106b392ddEE027449b09dbDE1347",
+      "implementation": "0xC6613c683f2d4684D806FAcb9D413f41221537c6",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -738,14 +738,13 @@
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LegacyPoolManager_RewardsBank": {
-    "address": "0x4798Cbd108e3D7b531ef2f3d67E7fFabdEe29867",
+    "address": "0xD11a85386e3C5Cc493A1440Ef7Fd99BFAF72477d",
     "abi": [
-      "constructor(address _airBond)",
+      "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function airBond() view returns (address)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
@@ -753,13 +752,13 @@
       "function revokeRole(bytes32 role, address account)",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
       "function withdrawAmb(address addressTo, uint256 amount)",
-      "function withdrawBonds(address addressTo, uint256 amount)"
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x091db8ccdb71bd9584c476f20184c592d52ad0cd2199d223ad94323c43edca95",
+    "deployTx": "0x8240c663cd11a1998057d6a791a1df3ce0d645b3502e0f93ab184d8451a35bde",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LegacyPoolManager": {
-    "address": "0xb805D144dCF9eEEe0E12e1a55E9AD46905Ef47fe",
+    "address": "0x1Aa64D2f8747DDc62a78e033D2Ee8bC04a63cd79",
     "abi": [
       "constructor(uint256 _minApolloDeposit, address _validatorSet, address _rewardsBank, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -794,7 +793,7 @@
       "function unpause()",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x6e3980c1176b99be5851bb3b2dd88db433f549e6f8e0b4838bd8ec27c6bfafb1",
+    "deployTx": "0x66d5c6b9f595b846fe5513e89117b368c994a6ec28766cf29586dd11f745bd49",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager"
   }
 }

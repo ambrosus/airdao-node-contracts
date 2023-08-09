@@ -23,6 +23,7 @@ export async function main() {
     artifactName: "Multisig",
     deployArgs: [[deployer.address], [true], 75, masterMultisig],
     signer: deployer,
+    loadIfAlreadyDeployed: true,
   });
 
   const lockKeeper = await deploy<LockKeeper__factory>({
