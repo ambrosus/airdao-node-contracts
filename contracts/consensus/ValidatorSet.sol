@@ -68,13 +68,19 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     event TopListNodeAdded(address indexed nodeAddress);
     event TopListNodeRemoved(address indexed nodeAddress);
 
-    event Reward(address indexed nodeAddress);
     event Report(address indexed nodeAddress, uint malisciousType);
+    event Reward(
+        address indexed manager,
+        address indexed nodeAddress,
+        address indexed rewardReceiver,
+        address nodeOwner,
+        address tokenAddress,
+        uint256 amount
+    );
 
 
     function initialize(
         address _rewardOracle,
-
         uint _baseReward,
         uint _topStakesCount
     ) public initializer {
@@ -173,9 +179,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     }
 
 
-
-
-
+    function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount) external onlyRole(STAKING_MANAGER_ROLE) {
+        emit Reward(msg.sender, nodeAddress, rewardReceiver, nodeOwner, tokenAddress, amount);
+    }
 
 
 

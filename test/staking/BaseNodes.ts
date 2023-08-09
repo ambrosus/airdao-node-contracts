@@ -20,7 +20,7 @@ describe("BaseNodes", function () {
     const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
-    const rewardsBank = await new RewardsBank__factory(owner).deploy(ethers.constants.AddressZero);
+    const rewardsBank = await new RewardsBank__factory(owner).deploy();
     const baseNodes = await new BaseNodes_Manager__factory(owner).deploy(validatorSet.address, rewardsBank.address);
 
     await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), baseNodes.address);

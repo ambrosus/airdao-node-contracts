@@ -23,7 +23,9 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
     IValidatorSet public validatorSet; // contract that manages validator set
     LockKeeper public lockKeeper; // contract that locks stakes
+
     RewardsBank public rewardsBank;
+    address public airBond;
 
     uint public onboardingDelay;  // time that new node will be in queueStakes even if it has enough stake (only affects nodes without FLAG_ALWAYS_IN_TOP)
     uint public unstakeLockTime; // time that funds will be locked after unstake
@@ -40,12 +42,13 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
 
     function initialize(
-        IValidatorSet _validatorSet, LockKeeper _lockKeeper, RewardsBank _rewardsBank,
+        IValidatorSet _validatorSet, LockKeeper _lockKeeper, RewardsBank _rewardsBank, address _airBond,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
     ) public initializer {
         validatorSet = _validatorSet;
         lockKeeper = _lockKeeper;
         rewardsBank = _rewardsBank;
+        airBond = _airBond;
 
         onboardingDelay = _onboardingDelay;
         unstakeLockTime = _unstakeLockTime;
@@ -162,10 +165,11 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
         if (bondsReward > 0) {
             address bondsRewardsAddress = stakeStruct.rewardsAddress == address(0) ? stakeStruct.ownerAddress : stakeStruct.rewardsAddress;
-            rewardsBank.withdrawBonds(bondsRewardsAddress, bondsReward);
+            rewardsBank.withdrawErc20(airBond, bondsRewardsAddress, bondsReward);
         }
 
-        emit Reward(nodeAddress, stakeStruct.rewardsAddress, nativeReward, bondsReward);
+        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), amount);
+        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), amount);
     }
 
     // todo tests

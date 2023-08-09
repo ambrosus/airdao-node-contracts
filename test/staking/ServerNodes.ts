@@ -26,18 +26,18 @@ describe("ServerNodes", function () {
   async function deploy() {
     const [owner] = await ethers.getSigners();
 
-    const ValidatorSetFactory = await ethers.getContractFactory("ValidatorSet");
+    const ValidatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
-
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
-    const rewardsBank = await new RewardsBank__factory(owner).deploy(airBond.address);
+    const rewardsBank = await new RewardsBank__factory(owner).deploy();
 
     const ServerNodesFactory = await ethers.getContractFactory("ServerNodes_Manager");
     const serverNodes = (await upgrades.deployProxy(ServerNodesFactory, [
       validatorSet.address,
       lockKeeper.address,
       rewardsBank.address,
+      airBond.address,
       onboardingDelay,
       60 * 5,
       42,

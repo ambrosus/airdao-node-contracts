@@ -13,7 +13,7 @@ describe("RewardsBank", function () {
     const [owner] = await ethers.getSigners();
 
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
-    const rewardsBank = await new RewardsBank__factory(owner).deploy(airBond.address);
+    const rewardsBank = await new RewardsBank__factory(owner).deploy();
 
     await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
 
@@ -34,7 +34,11 @@ describe("RewardsBank", function () {
       await expect(rewardsBank.withdrawAmb(owner.address, 1000)).to.changeEtherBalance(owner, 1000);
     });
     it("withdrawBonds", async function () {
-      await expect(rewardsBank.withdrawBonds(owner.address, 1000)).to.changeTokenBalance(airBond, owner, 1000);
+      await expect(rewardsBank.withdrawErc20(airBond.address, owner.address, 1000)).to.changeTokenBalance(
+        airBond,
+        owner,
+        1000
+      );
     });
 
     it("withdrawAmb not admin", async function () {
@@ -45,7 +49,9 @@ describe("RewardsBank", function () {
     });
     it("withdrawBonds not admin", async function () {
       const [_, notAdmin] = await ethers.getSigners();
-      await expect(rewardsBank.connect(notAdmin).withdrawBonds(owner.address, 1000)).to.be.revertedWith(
+      await expect(
+        rewardsBank.connect(notAdmin).withdrawErc20(airBond.address, owner.address, 1000)
+      ).to.be.revertedWith(
         `AccessControl: account ${notAdmin.address.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
       );
     });

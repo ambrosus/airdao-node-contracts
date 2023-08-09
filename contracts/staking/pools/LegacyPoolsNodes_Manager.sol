@@ -134,6 +134,7 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
 
         rewardsBank.withdrawAmb(payable(address(this)), amount);
         IPool(poolAddress).addReward{value: amount}();
+        validatorSet.emitReward(nodeAddress, address(this), address(this), address(0), amount);
     }
 
     function report(address nodeAddress) external {

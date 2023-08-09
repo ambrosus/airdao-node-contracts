@@ -22,6 +22,7 @@ describe("PoolsNodes_Manager", function () {
     const poolsNodes = await PoolsNodes_ManagerFactory.deploy(ethers.utils.parseEther("10"), validatorSet.address, 1);
 
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), poolsNodes.address);
+
     return { validatorSet, poolsNodes, owner, pool1, pool2, user };
   }
 
