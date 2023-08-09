@@ -38,7 +38,9 @@ export async function validatorSetGetStakesBalancesByManager(contracts: Contract
   const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
   const manager = contracts.getContractByName(contractName);
   const stakes = await validatorSetGetStakesByManager(contracts, manager.address);
-  await Promise.all(stakes.map((stake) => validatorSet.getNodeStake(stake)));
+  return await Promise.all(
+    stakes.map((stakeAddress) => ({ address: stakeAddress, stake: validatorSet.getNodeStake(stakeAddress) }))
+  );
 }
 
 // admin methods
