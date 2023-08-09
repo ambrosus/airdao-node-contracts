@@ -72,8 +72,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     event Reward(
         address indexed manager,
         address indexed nodeAddress,
-        address indexed nodeOwner,
-        address rewardReceiver,
+        address indexed rewardReceiver,
+        address nodeOwner,
         address tokenAddress,
         uint256 amount
     );
@@ -180,7 +180,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
 
     function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount) external onlyRole(STAKING_MANAGER_ROLE) {
-        emit Reward(msg.sender, nodeAddress, nodeOwner, rewardReceiver, tokenAddress, amount);
+        emit Reward(msg.sender, nodeAddress, rewardReceiver, nodeOwner, tokenAddress, amount);
     }
 
 
