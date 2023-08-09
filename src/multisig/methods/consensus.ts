@@ -34,6 +34,13 @@ export async function validatorSetGetBlockListeners(contracts: Contracts) {
   return validatorSet.listeners();
 }
 
+export async function validatorSetGetStakesBalancesByManager(contracts: Contracts, contractName: ContractNames) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  const manager = contracts.getContractByName(contractName);
+  const stakes = await validatorSetGetStakesByManager(contracts, manager.address);
+  await Promise.all(stakes.map((stake) => validatorSet.getNodeStake(stake)));
+}
+
 // admin methods
 
 export async function validatorSetAddBlockListener(contracts: Contracts, listener: string) {
