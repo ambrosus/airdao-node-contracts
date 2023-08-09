@@ -207,6 +207,11 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
             stakes[nodeAddress] = Stake(amounts[i], timestamps[i], nodeAddress, address(0));
             totalAmount += amounts[i];
+
+            stakesList.push(nodeAddress);
+            onboardingWaitingList.push(nodeAddress);
+
+            emit StakeChanged(nodeAddress, nodeAddress, int(amounts[i]));
         }
 
         require(totalAmount == msg.value, "msg.value must be equal to amounts sum");
