@@ -35,29 +35,17 @@ export async function validatorSetGetBlockListeners(contracts: Contracts) {
   return validatorSet.listeners();
 }
 
-export async function validatorSetGetStakesBalancesByManager(contracts: Contracts, contractName: ContractNames) {
-  const manager = contracts.getContractByName(contractName);
-  return await _getStakesWithBalances(contracts, async () => {
-    return await validatorSetGetStakesByManager(contracts, manager.address);
-  });
-}
+export async function validatorSetMapAmounts(contracts: Contracts, addresses: string[]) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  const result: { [address: string]: BigNumberish } = {}; // not so convenient as [{address, stake}] but can deal with duplicate addresses
 
-export async function validatorSetGetTopStakesBalances(contracts: Contracts) {
-  return await _getStakesWithBalances(contracts, async () => {
-    return await validatorSetGetTopStakes(contracts);
-  });
-}
+  await Promise.all(
+    addresses.map(async (stakeAddress) => {
+      if (!result[stakeAddress]) result[stakeAddress] = await validatorSet.getNodeStake(stakeAddress);
+    })
+  );
 
-export async function validatorSetGetQueuedStakesBalances(contracts: Contracts) {
-  return await _getStakesWithBalances(contracts, async () => {
-    return await validatorSetGetQueuedStakes(contracts);
-  });
-}
-
-export async function validatorSetGetValidatorsBalances(contracts: Contracts) {
-  return await _getStakesWithBalances(contracts, async () => {
-    return await validatorSetGetValidators(contracts);
-  });
+  return result;
 }
 
 // admin methods
@@ -79,20 +67,9 @@ export async function validatorSetChangeTopStakesCount(contracts: Contracts, new
     validatorSet.changeTopStakesCount(newTopStakesCount)
   );
 }
+
 export async function validatorSetSetReward(contracts: Contracts, baseReward: BigNumberish) {
   return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
     validatorSet.setReward(baseReward)
-  );
-}
-
-async function _getStakesWithBalances(contracts: Contracts, stakeGetter: (contracts: Contracts) => Promise<string[]>) {
-  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
-  const stakes = await stakeGetter(contracts);
-
-  return await Promise.all(
-    stakes.map(async (stakeAddress) => ({
-      address: stakeAddress,
-      stake: await validatorSet.getNodeStake(stakeAddress),
-    }))
   );
 }
