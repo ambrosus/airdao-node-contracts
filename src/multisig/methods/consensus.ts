@@ -32,7 +32,7 @@ export async function validatorSetGetStakesByManager(contracts: Contracts, manag
 
 export async function validatorSetGetBlockListeners(contracts: Contracts) {
   const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
-  return validatorSet.listeners();
+  return validatorSet.getBlockListeners();
 }
 
 export async function validatorSetMapAmounts(contracts: Contracts, addresses: string[]) {

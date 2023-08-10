@@ -9,6 +9,10 @@ abstract contract OnBlockNotifier {
     uint private constant E404 = type(uint256).max;
     IOnBlockListener[] internal listeners;
 
+    function getBlockListeners() external view returns (IOnBlockListener[] memory) {
+        return listeners;
+    }
+
     function _addListener(IOnBlockListener listener) internal {
         uint index = _findIndexByValue(listener);
         require(index == E404, "Already listener");

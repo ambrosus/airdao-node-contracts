@@ -440,6 +440,7 @@
       "function changeTopStakesCount(uint256 newTopStakesCount)",
       "function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
       "function finalizeChange()",
+      "function getBlockListeners() view returns (address[])",
       "function getNodeStake(address nodeAddress) view returns (uint256)",
       "function getQueuedStakes() view returns (address[])",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
@@ -470,7 +471,7 @@
     "deployTx": "0x95f3a513507ee4ad1eaa07b710b545a586678152f79afa99d5bef068f0955527",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xE6b3585c2E2Fe8C39EECB163e5D8C90346c873F4",
+      "implementation": "0x5Fb2adefDC0cF350B87E6Ac31A66E3844afFcfD1",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
