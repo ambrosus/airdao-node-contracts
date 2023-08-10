@@ -2,6 +2,7 @@ import { Contracts } from "../../contracts/contracts";
 import { ValidatorSet } from "../../../typechain-types";
 import { ContractNames } from "../../contracts/names";
 import { submitTransaction2 } from "./internal";
+import { BigNumberish } from "ethers";
 
 // view methods
 export async function validatorSetGetNodeStake(contracts: Contracts, nodeAddress: string) {
@@ -54,5 +55,16 @@ export async function validatorSetAddBlockListener(contracts: Contracts, listene
 export async function validatorSetRemoveBlockListener(contracts: Contracts, listener: string) {
   return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
     validatorSet.removeBlockListener(listener)
+  );
+}
+
+export async function validatorSetChangeTopStakesCount(contracts: Contracts, newTopStakesCount: BigNumberish) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.changeTopStakesCount(newTopStakesCount)
+  );
+}
+export async function validatorSetSetReward(contracts: Contracts, baseReward: BigNumberish) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.setReward(baseReward)
   );
 }

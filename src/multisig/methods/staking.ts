@@ -105,6 +105,15 @@ export async function serverNodesManagerChangeMinStakeAmount(contracts: Contract
   );
 }
 
+export async function serverNodesManagerChangeOnboardingDelay(contracts: Contracts, newOnboardingDelay: BigNumberish) {
+  return await submitTransaction2<ServerNodes_Manager>(
+    contracts,
+    ContractNames.ServerNodesManager,
+    0,
+    (serverNodesManager) => serverNodesManager.changeOnboardingDelay(newOnboardingDelay)
+  );
+}
+
 export async function serverNodesManagerChangeUnstakeLockTime(contracts: Contracts, unstakeLockTime: BigNumberish) {
   return await submitTransaction2<ServerNodes_Manager>(
     contracts,
