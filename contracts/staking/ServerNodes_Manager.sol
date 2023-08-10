@@ -188,6 +188,10 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         minStakeAmount = newMinStakeAmount;
     }
 
+    function changeOnboardingDelay(uint newOnboardingDelay) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        onboardingDelay = newOnboardingDelay;
+    }
+
     function changeUnstakeLockTime(uint newUnstakeLockTime) public onlyRole(DEFAULT_ADMIN_ROLE) {
         unstakeLockTime = newUnstakeLockTime;
     }

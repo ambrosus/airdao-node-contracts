@@ -657,6 +657,7 @@
       "function airBond() view returns (address)",
       "function changeMinStakeAmount(uint256 newMinStakeAmount)",
       "function changeNodeOwner(address nodeAddress, address newOwnerAddress)",
+      "function changeOnboardingDelay(uint256 newOnboardingDelay)",
       "function changeUnstakeLockTime(uint256 newUnstakeLockTime)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStakesList() view returns (address[])",
@@ -693,7 +694,7 @@
     "deployTx": "0xb5196e572d1026a70632295da12976e35ad2c87e9d9d55264afc8bdf0d68f87c",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0xE3C532aD50B16e59c1866DCC0C672F7b4c685f00",
+      "implementation": "0xbfFD6436a923D7bb93775edb79A10EB8A69d4381",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
