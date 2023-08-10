@@ -36,12 +36,28 @@ export async function validatorSetGetBlockListeners(contracts: Contracts) {
 }
 
 export async function validatorSetGetStakesBalancesByManager(contracts: Contracts, contractName: ContractNames) {
-  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
   const manager = contracts.getContractByName(contractName);
-  const stakes = await validatorSetGetStakesByManager(contracts, manager.address);
-  return await Promise.all(
-    stakes.map((stakeAddress) => ({ address: stakeAddress, stake: validatorSet.getNodeStake(stakeAddress) }))
-  );
+  return await _getStakesWithBalances(contracts, async () => {
+    return await validatorSetGetStakesByManager(contracts, manager.address);
+  });
+}
+
+export async function validatorSetGetTopStakesBalances(contracts: Contracts) {
+  return await _getStakesWithBalances(contracts, async () => {
+    return await validatorSetGetTopStakes(contracts);
+  });
+}
+
+export async function validatorSetGetQueuedStakesBalances(contracts: Contracts) {
+  return await _getStakesWithBalances(contracts, async () => {
+    return await validatorSetGetQueuedStakes(contracts);
+  });
+}
+
+export async function validatorSetGetValidatorsBalances(contracts: Contracts) {
+  return await _getStakesWithBalances(contracts, async () => {
+    return await validatorSetGetQueuedStakes(contracts);
+  });
 }
 
 // admin methods
@@ -66,5 +82,17 @@ export async function validatorSetChangeTopStakesCount(contracts: Contracts, new
 export async function validatorSetSetReward(contracts: Contracts, baseReward: BigNumberish) {
   return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
     validatorSet.setReward(baseReward)
+  );
+}
+
+async function _getStakesWithBalances(contracts: Contracts, stakeGetter: (contracts: Contracts) => Promise<string[]>) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  const stakes = await stakeGetter(contracts);
+
+  return await Promise.all(
+    stakes.map(async (stakeAddress) => ({
+      address: stakeAddress,
+      stake: await validatorSet.getNodeStake(stakeAddress),
+    }))
   );
 }
