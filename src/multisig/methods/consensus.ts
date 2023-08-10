@@ -56,7 +56,7 @@ export async function validatorSetGetQueuedStakesBalances(contracts: Contracts) 
 
 export async function validatorSetGetValidatorsBalances(contracts: Contracts) {
   return await _getStakesWithBalances(contracts, async () => {
-    return await validatorSetGetQueuedStakes(contracts);
+    return await validatorSetGetValidators(contracts);
   });
 }
 
