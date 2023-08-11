@@ -159,17 +159,18 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         if (stakeStruct.rewardsAddress == address(0)) {
             rewardsBank.withdrawAmb(payable(address(this)), nativeReward);
             _addStake(nodeAddress, nativeReward);
+            validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.ownerAddress, address(0), nativeReward);
         } else {
-            rewardsBank.withdrawAmb(payable(address(stakeStruct.rewardsAddress)), nativeReward);
+            rewardsBank.withdrawAmb(payable(stakeStruct.rewardsAddress), nativeReward);
+            validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), nativeReward);
         }
 
         if (bondsReward > 0) {
             address bondsRewardsAddress = stakeStruct.rewardsAddress == address(0) ? stakeStruct.ownerAddress : stakeStruct.rewardsAddress;
             rewardsBank.withdrawErc20(airBond, bondsRewardsAddress, bondsReward);
+            validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, bondsRewardsAddress, airBond, bondsReward);
         }
 
-        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), nativeReward);
-        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, airBond, bondsReward);
     }
 
     // todo tests
