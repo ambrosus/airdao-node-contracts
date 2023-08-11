@@ -168,8 +168,8 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
             rewardsBank.withdrawErc20(airBond, bondsRewardsAddress, bondsReward);
         }
 
-        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), amount);
-        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), amount);
+        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), nativeReward);
+        validatorSet.emitReward(nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, airBond, bondsReward);
     }
 
     // todo tests
