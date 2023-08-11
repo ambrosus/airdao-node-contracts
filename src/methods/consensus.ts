@@ -10,6 +10,11 @@ export async function validatorSetGetNodeStake(contracts: Contracts, nodeAddress
   return validatorSet.getNodeStake(nodeAddress);
 }
 
+export async function validatorSetGetNodeStakeData(contracts: Contracts, nodeAddress: string) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.stakes(nodeAddress);
+}
+
 export async function validatorSetGetValidators(contracts: Contracts) {
   const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
   return validatorSet.getValidators();
@@ -33,19 +38,6 @@ export async function validatorSetGetStakesByManager(contracts: Contracts, manag
 export async function validatorSetGetBlockListeners(contracts: Contracts) {
   const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
   return validatorSet.getBlockListeners();
-}
-
-export async function validatorSetMapAmounts(contracts: Contracts, addresses: string[]) {
-  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
-  const result: { [address: string]: BigNumberish } = {}; // not so convenient as [{address, stake}] but can deal with duplicate addresses
-
-  await Promise.all(
-    addresses.map(async (stakeAddress) => {
-      if (!result[stakeAddress]) result[stakeAddress] = await validatorSet.getNodeStake(stakeAddress);
-    })
-  );
-
-  return result;
 }
 
 // admin methods
