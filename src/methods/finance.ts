@@ -1,9 +1,9 @@
 // NON VIEW
 
-import { Contracts } from "../../contracts/contracts";
-import { ContractNames } from "../../contracts/names";
+import { Contracts } from "../contracts/contracts";
+import { ContractNames } from "../contracts/names";
 import { BigNumberish } from "ethers";
-import { Finance, MasterFinance } from "../../../typechain-types";
+import { Finance, MasterFinance } from "../../typechain-types";
 import { submitTransaction2 } from "./internal";
 
 type FinanceContractNames =

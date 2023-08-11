@@ -1,7 +1,7 @@
 import { MasterMultisig, Multisig } from "../../typechain-types";
 import { Contracts } from "../contracts/contracts";
 import { ContractNames, multisigsNames } from "../contracts/names";
-import { submitTransaction } from "./methods/internal";
+import { submitTransaction } from "../methods/internal";
 
 interface Perm {
   // address is

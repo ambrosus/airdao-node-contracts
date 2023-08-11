@@ -1,6 +1,6 @@
-import { Contracts } from "../../contracts/contracts";
+import { Contracts } from "../contracts/contracts";
 import { BigNumberish, ethers } from "ethers";
-import { ContractNames } from "../../contracts/names";
+import { ContractNames } from "../contracts/names";
 import {
   AirBond,
   BaseNodes_Manager,
@@ -8,7 +8,7 @@ import {
   RewardsBank,
   ServerNodes_Manager,
   ValidatorSet,
-} from "../../../typechain-types";
+} from "../../typechain-types";
 import { submitTransaction2 } from "./internal";
 
 // validator set

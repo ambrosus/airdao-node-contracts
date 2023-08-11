@@ -1,6 +1,6 @@
-import { Contracts } from "../../contracts/contracts";
-import { ContractNames, slavesMultisigsNames } from "../../contracts/names";
-import { MasterMultisig } from "../../../typechain-types";
+import { Contracts } from "../contracts/contracts";
+import { ContractNames, slavesMultisigsNames } from "../contracts/names";
+import { MasterMultisig } from "../../typechain-types";
 import { submitTransaction } from "./internal";
 
 export async function changeMultisigOwners(contracts: Contracts, newOwner: string, multisigAddresses?: string[]) {
