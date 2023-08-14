@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "main": "./dist/src/index.js",
   "files": [
     "dist/**/*"

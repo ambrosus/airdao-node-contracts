@@ -14,7 +14,7 @@ export async function submitTransaction(
     throw new Error("checkBeforeSubmitTransaction doesn't respond with any error, but it should!");
   } catch (e: any) {
     const errorReason = (e.error || e).toString();
-    if (errorReason !== "OK" && errorReason !== "Error: OK") throw new Error(errorReason);
+    if (errorReason !== "OK" && errorReason !== "Error: OK") throw e;
   }
 
   return await multisig.submitTransaction(destination, value, calldata, { value: value });
