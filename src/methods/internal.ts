@@ -10,14 +10,14 @@ export async function submitTransaction(
   calldata: string
 ) {
   try {
-    await multisig.callStatic.checkBeforeSubmitTransaction(destination, value, calldata);
+    await multisig.callStatic.checkBeforeSubmitTransaction(destination, value, calldata, { value });
     throw new Error("checkBeforeSubmitTransaction doesn't respond with any error, but it should!");
   } catch (e: any) {
     const errorReason = (e.error || e).toString();
-    if (errorReason !== "OK" && errorReason !== "Error: OK") throw e;
+    if (errorReason !== "OK" && errorReason !== "Error: OK") throw errorReason;
   }
 
-  return await multisig.submitTransaction(destination, value, calldata, { value: value });
+  return await multisig.submitTransaction(destination, value, calldata, { value });
 }
 
 export async function submitTransaction2<T extends BaseContract>(
