@@ -3,7 +3,7 @@ import { Contracts } from "../contracts/contracts";
 import { ContractNames, multisigsNames } from "../contracts/names";
 import { submitTransaction } from "../methods/internal";
 
-interface Perm {
+export interface Perm {
   // address is
   //  - user address for list of users in group modal
   //  - multisig (group) address for list of groups in user modal
@@ -11,14 +11,14 @@ interface Perm {
   isInitiator: boolean;
 }
 
-interface Group {
+export interface Group {
   multisig: string;
   users: Perm[];
   thresholdPercent: number;
   threshold: number;
 }
 
-interface User {
+export interface User {
   address: string;
   groups: Perm[];
 }

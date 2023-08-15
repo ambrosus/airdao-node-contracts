@@ -1,0 +1,20 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "doRevert",
+        "type": "bool"
+      }
+    ],
+    "name": "func",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
+]

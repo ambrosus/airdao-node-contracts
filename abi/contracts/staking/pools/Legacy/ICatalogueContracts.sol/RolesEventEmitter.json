@@ -1,0 +1,157 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nodeAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "placedDeposit",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "nodeUrl",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum Consts.NodeType",
+        "name": "role",
+        "type": "uint8"
+      }
+    ],
+    "name": "NodeOnboarded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nodeAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "releasedDeposit",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum Consts.NodeType",
+        "name": "role",
+        "type": "uint8"
+      }
+    ],
+    "name": "NodeRetired",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nodeAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "oldNodeUrl",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newNodeUrl",
+        "type": "string"
+      }
+    ],
+    "name": "NodeUrlChanged",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nodeAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "placedDeposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "nodeUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "enum Consts.NodeType",
+        "name": "role",
+        "type": "uint8"
+      }
+    ],
+    "name": "nodeOnboarded",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nodeAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "releasedDeposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum Consts.NodeType",
+        "name": "role",
+        "type": "uint8"
+      }
+    ],
+    "name": "nodeRetired",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nodeAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "oldNodeUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "newNodeUrl",
+        "type": "string"
+      }
+    ],
+    "name": "nodeUrlChanged",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

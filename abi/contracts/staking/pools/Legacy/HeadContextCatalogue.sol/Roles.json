@@ -1,0 +1,20 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "apollo",
+        "type": "address[]"
+      },
+      {
+        "name": "to",
+        "type": "address[]"
+      }
+    ],
+    "name": "transferApollo",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
