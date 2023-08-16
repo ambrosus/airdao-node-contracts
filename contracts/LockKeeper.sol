@@ -3,15 +3,15 @@ pragma solidity ^0.8.0;
 
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
 
 
-contract LockKeeper {
+contract LockKeeper is IOnBlockListener {
     using SafeERC20 for IERC20;
 
     //______________[]__.__.__[]__.__.__[]__.__.__[]________________
     // firstUnlock -^           \     / -- unlockPeriod;          intervals count = totalClaims - 1
     // totalClaims here == 4                     ^- last unlock = firstUnlock + unlockPeriod * (totalClaims - 1)
-
 
     // examples:
     //    lockKeeper.lockLinear{value: 400}({
@@ -40,7 +40,7 @@ contract LockKeeper {
 
     uint public latestLockId;
     mapping(uint => Lock) internal locks;
-    mapping(address => uint[]) internal userLocks;
+    uint[] internal locksList;
 
     struct Lock {
         address locker;
@@ -69,22 +69,25 @@ contract LockKeeper {
 
     }
 
-
     // VIEW
 
     function getLock(uint id) public view returns (Lock memory) {
         return locks[id];
     }
 
-    function allUserLocksIds(address user) public view returns (uint[] memory) {
-        return userLocks[user];
-    }
-
-    function allUserLocks(address user) public view returns (Lock[] memory) {
-        Lock[] memory result = new Lock[](userLocks[user].length);
-        for (uint i; i<userLocks[user].length; i++)
-            result[i] = locks[userLocks[user][i]];
-        return result;
+    function allUserLocks(address user) public view returns (uint[] memory, Lock[] memory) {
+        uint[] memory resultIds = new uint[](locksList.length);
+        Lock[] memory resultLocks = new Lock[](locksList.length);
+        uint count;
+        for (uint i; i < locksList.length; i++) {
+            uint lockId = locksList[i];
+            if (locks[lockId].receiver != user) continue;
+            resultIds[count] = lockId;
+            resultLocks[count++] = locks[lockId];
+        }
+        assembly {mstore(resultIds, count)}
+        assembly {mstore(resultLocks, count)}
+        return (resultIds, resultLocks);
     }
 
     // LOCKING
@@ -112,7 +115,7 @@ contract LockKeeper {
         }
 
         locks[++latestLockId] = Lock({
-            locker : msg.sender,
+            locker: msg.sender,
             receiver: receiver,
             token: token,
             firstUnlockTime: firstUnlockTime,
@@ -122,7 +125,7 @@ contract LockKeeper {
             intervalAmount: unlockAmount
         });
 
-        userLocks[receiver].push(latestLockId);
+        locksList.push(latestLockId);
 
         emit Locked(
             latestLockId,
@@ -145,17 +148,32 @@ contract LockKeeper {
     // CLAIMING
 
     function claimAll() public {
-        uint[] memory userLocks_ = userLocks[msg.sender];
+        uint[] memory locksIds = locksList; // copy list coz it may change during claim
         bool somethingClaimed;
-        for (uint i = 0; i < userLocks_.length; i++) {
-            if (_claim(userLocks_[i]) > 0)
+        for (uint i = 0; i < locksIds.length; i++) {
+            Lock storage lock = locks[locksIds[i]];
+            if (lock.receiver != msg.sender) continue;
+
+            if (_claim(locksIds[i], lock) > 0)
                 somethingClaimed = true;
         }
         require(somethingClaimed, "LockKeeper: nothing to claim");
     }
 
     function claim(uint lockId) public {
-        require(_claim(lockId) != 0, "LockKeeper: too early to claim");
+        Lock storage lock = locks[lockId];
+        require(lock.receiver == msg.sender, "LockKeeper: not your lock");
+        require(_claim(lockId, lock) != 0, "LockKeeper: too early to claim");
+    }
+
+    function autoClaim() public {
+        uint[] memory locksIds = locksList; // copy list coz it may change during claim
+        uint i = uint(block.number) % locksIds.length; // prevent claiming first lock every time
+        for (; i < locksIds.length; i++) {
+            bool isClaimed = _claim(locksIds[i], locks[locksIds[i]]) > 0;
+            if (isClaimed) break; // currently can claim only one lock per tx
+            // todo maybe limit by count or by used gas with ability to change
+        }
     }
 
     // CANCELLING
@@ -171,18 +189,21 @@ contract LockKeeper {
             IERC20(lock.token).transfer(lock.locker, unclaimedAmount);
         }
 
-        _deleteLock(lockId, lock.receiver);
+        _deleteLock(lockId);
         emit LockCanceled(lockId, unclaimedAmount);
         return unclaimedAmount;
     }
 
+    // EXTERNAL
+
+    function onBlock() external {
+        autoClaim();
+    }
+
+
     // INTERNAL
 
-    function _claim(uint lockId) internal returns (uint256) {
-        Lock storage lock = locks[lockId];
-        require(lock.totalClaims > 0, "LockKeeper: lock not found");
-        require(lock.receiver == msg.sender, "LockKeeper: not your lock");
-
+    function _claim(uint lockId, Lock storage lock) internal returns (uint256) {
         uint64 timeNow = uint64(block.timestamp);
         if (timeNow < lock.firstUnlockTime) return 0;
 
@@ -199,7 +220,7 @@ contract LockKeeper {
         }
 
         if (lastCanClaimIndex == lock.totalClaims) {
-            _deleteLock(lockId, lock.receiver);
+            _deleteLock(lockId);
         } else {
             lock.timesClaimed = uint64(lastCanClaimIndex);
         }
@@ -209,15 +230,13 @@ contract LockKeeper {
         return amountToClaim;
     }
 
-    function _deleteLock(uint lockId, address user) internal {
+    function _deleteLock(uint lockId) internal {
         delete locks[lockId];
 
-        uint[] storage userLocks_ = userLocks[user];
-
-        for (uint i = 0; i < userLocks_.length; i++) {
-            if (userLocks_[i] != lockId) continue;
-            userLocks_[i] = userLocks_[userLocks_.length - 1];
-            userLocks_.pop();
+        for (uint i = 0; i < locksList.length; i++) {
+            if (locksList[i] != lockId) continue;
+            locksList[i] = locksList[locksList.length - 1];
+            locksList.pop();
             break;
         }
     }

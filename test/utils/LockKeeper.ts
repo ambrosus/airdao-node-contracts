@@ -51,7 +51,7 @@ describe("LockKeeper", function () {
         intervalAmount: 100,
       });
 
-      expect(await lockKeeper.allUserLocksIds(user2.address)).to.eql([BigNumber.from(1)]);
+      expect((await lockKeeper.allUserLocks(user2.address))[0]).to.eql([BigNumber.from(1)]);
 
       expect(await ethers.provider.getBalance(lockKeeper.address)).to.eq(100);
     });
@@ -148,7 +148,7 @@ describe("LockKeeper", function () {
       it("try to claim second time", async function () {
         await time.setNextBlockTimestamp(T + 1000);
         await expect(lockKeeper.claim(1)).to.changeEtherBalance(user1, 100);
-        await expect(lockKeeper.claim(1)).to.be.revertedWith("LockKeeper: lock not found");
+        await expect(lockKeeper.claim(1)).to.be.revertedWith("LockKeeper: not your lock");
       });
     });
 
@@ -192,7 +192,7 @@ describe("LockKeeper", function () {
         await time.setNextBlockTimestamp(T + 1000 + 200 + 200);
         await expect(lockKeeper.claim(1)).to.changeEtherBalance(user1, 300);
 
-        await expect(lockKeeper.claim(1)).to.be.revertedWith("LockKeeper: lock not found");
+        await expect(lockKeeper.claim(1)).to.be.revertedWith("LockKeeper: not your lock");
       });
     });
 
@@ -238,7 +238,7 @@ describe("LockKeeper", function () {
 
       await lockKeeper.cancelLock(1);
 
-      expect(await lockKeeper.allUserLocks(user2.address)).to.eql([]);
+      expect(await lockKeeper.allUserLocks(user2.address)).to.eql([[], []]);
     });
   });
 });
