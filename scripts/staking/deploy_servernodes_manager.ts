@@ -66,6 +66,7 @@ export async function main() {
   await (await manager.grantRole(await manager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address)).wait();
   await (await validatorSet.addBlockListener(manager.address)).wait();
+  await (await validatorSet.addBlockListener(lockKeeper.address)).wait();
 }
 
 if (require.main === module) {
