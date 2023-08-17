@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
+import {IOnBlockListener} from "./consensus/OnBlockNotifier.sol";
 
 
 contract LockKeeper is IOnBlockListener {
