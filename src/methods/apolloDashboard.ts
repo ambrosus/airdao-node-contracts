@@ -49,14 +49,29 @@ export function serverNodesRestake(contracts: Contracts, nodeAddress: string) {
   return serverNodes.restake(nodeAddress);
 }
 
-export async function serverNodesGetStake(contracts: Contracts, nodeAddress: string) {
+export function serverNodesGetStake(contracts: Contracts, nodeAddress: string) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return await serverNodes.stakes(nodeAddress);
+  return serverNodes.stakes(nodeAddress);
 }
 
-export async function serverNodesGetNodesByOwner(contracts: Contracts, ownerAddress: string) {
+export function serverNodesGetNodesByOwner(contracts: Contracts, ownerAddress: string) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return await serverNodes.getUserStakesList(ownerAddress);
+  return serverNodes.getUserStakesList(ownerAddress);
+}
+
+export function serverNodesChangeNodeOwner(contracts: Contracts, nodeAddress: string, newOwner: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.changeNodeOwner(nodeAddress, newOwner);
+}
+
+export function serverNodesSetRewardsAddress(contracts: Contracts, nodeAddress: string, newRewardReceiver: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.setRewardsAddress(nodeAddress, newRewardReceiver);
+}
+
+export function serverNodesGetMinStake(contracts: Contracts) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.minStakeAmount();
 }
 
 async function lockKeeperGetLock(contracts: Contracts, lockId: BigNumberish) {
