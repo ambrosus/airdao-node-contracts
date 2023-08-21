@@ -78,6 +78,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         uint256 amount
     );
 
+    event RewardError(address stakingManager, string error);
 
     function initialize(
         address _rewardOracle,
@@ -243,7 +244,12 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         Stake storage stake = stakes[msg.sender];
         uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
 
-        try stake.stakingContract.reward(msg.sender, rewardAmount) {} catch {}
+        try stake.stakingContract.reward(msg.sender, rewardAmount) {
+        } catch Error(string memory reason) {
+            emit RewardError(address(stake.stakingContract), reason);
+        } catch {
+            emit RewardError(address(stake.stakingContract), "unknown error");
+        }
     }
 
 

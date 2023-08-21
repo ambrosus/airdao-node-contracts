@@ -422,6 +422,7 @@
       "event QueueListNodeRemoved(address indexed nodeAddress)",
       "event Report(address indexed nodeAddress, uint256 malisciousType)",
       "event Reward(address indexed manager, address indexed nodeAddress, address indexed rewardReceiver, address nodeOwner, address tokenAddress, uint256 amount)",
+      "event RewardError(address stakingManager, string error)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
@@ -471,7 +472,7 @@
     "deployTx": "0x16e2ff485ebfd4101cc5e4cf5109f3af283f14f18c85822e290f341e1a7792a9",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xB17eEc1d977bea26c67c8Be86DF98C33a21F7fE9",
+      "implementation": "0xb51C3D68E21C5A6d2F5514b7337F7f055a383B26",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
