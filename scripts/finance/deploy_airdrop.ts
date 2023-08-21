@@ -43,10 +43,10 @@ async function main() {
     const airDrop = await deploy<AirDrop__factory>({
       contractName: ContractNames.AirDrop,
       artifactName: "AirDrop",
-      deployArgs: [airBond.address, "0x6cde5C2473DAcc1b80142D3d54ae65Cf97355682", ethers.utils.parseEther("999"), []],
+      deployArgs: [airBond.address, deployer.address, ethers.utils.parseEther("999"), []],
       signer: deployer,
     });
-    await airBond.mint(airDrop.address, ethers.utils.parseEther("5000000"));
+    // await airBond.mint(airDrop.address, ethers.utils.parseEther("5000000"));
   }
 }
 

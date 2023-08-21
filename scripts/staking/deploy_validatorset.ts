@@ -18,6 +18,7 @@ export async function main() {
   });
 
   // todo
+  // todo get block rewards from legacy fee contract
   const validatorSet = await deploy<ValidatorSet__factory>({
     contractName: ContractNames.ValidatorSet,
     artifactName: "ValidatorSet",

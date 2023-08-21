@@ -77,13 +77,6 @@ async function main() {
     onboardTimestamp: serverNodesTimestamps,
   } = unzipNodeInfos(oldStakes.serverNodes);
 
-  // register stake managers in validator set
-  console.log("Granting STAKING_MANAGER_ROLE");
-  const stakingManagerRole = await validatorSet.STAKING_MANAGER_ROLE();
-  await (await validatorSet.grantRole(stakingManagerRole, baseNodesManager.address)).wait();
-  await (await validatorSet.grantRole(stakingManagerRole, serverNodesManager.address)).wait();
-  await (await validatorSet.grantRole(stakingManagerRole, poolNodesManager.address)).wait();
-
   // transfer basenodes and servernodes deposits to deployer
   console.log("withdraw stakes from baseNodes", baseNodeAddresses);
   await (await roles.transferApollo(baseNodeAddresses, repeat(deployer.address, baseNodeAddresses.length))).wait();
@@ -116,7 +109,8 @@ async function main() {
   await (await context.setTrustedAddress(poolNodesManager.address, true)).wait();
 
   console.log("importing poolNodes", poolNodesAddresses);
-  await (await poolNodesManager.importOldStakes(poolNodesAddresses, poolNodesStakes)).wait();
+  if (poolNodesAddresses && poolNodesAddresses.length > 0)
+    await (await poolNodesManager.importOldStakes(poolNodesAddresses, poolNodesStakes)).wait();
 
   // finalize validatorset
 
@@ -126,18 +120,19 @@ async function main() {
   // setup ownerships
   const defaultAdminRole = await validatorSet.DEFAULT_ADMIN_ROLE();
 
+  // todo uncomment lines below before prod
   console.log("setup ownership for baseNodes");
-  await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+  // await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for serverNodes");
-  await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+  // await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for poolNodes");
   const poolNodesMultisig = loadDeployment(ContractNames.LegacyPoolManagerMultisig, chainId).address;
   await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();
 
   console.log("setup ownership for validatorset");
-  await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
+  // await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
 }
 
 async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, rolesEventEmitterAddr: string) {
