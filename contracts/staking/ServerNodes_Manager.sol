@@ -104,7 +104,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         // lock funds
         lockedWithdraws[nodeAddress] = lockKeeper.lockSingle{value: amount + canceledAmount}(
             msg.sender, address(0),
-            uint64(block.timestamp + unstakeLockTime), amount,
+            uint64(block.timestamp + unstakeLockTime), amount + canceledAmount,
             "ServerNodes unstake"
         );
 
@@ -275,6 +275,8 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
 
     function _getBondsPercent(uint timestampStake) internal view returns (uint) {
+        return 0;  // for now
+
         uint stakingTime = block.timestamp - timestampStake;
         uint nativePercent = 25 + stakingTime * 75 / (3 * 365  days);
         if (nativePercent > 100) nativePercent = 100;
