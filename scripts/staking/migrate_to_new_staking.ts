@@ -10,12 +10,13 @@ import {
   PoolsStore,
   PoolsStore__factory,
   Roles__factory,
+  RolesEventEmitter,
   RolesEventEmitter__factory,
   ServerNodes_Manager,
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { BigNumber } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
@@ -25,13 +26,6 @@ const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 const validatorSetAbi = ["function getValidators() view returns (address[])"];
 const feesAbi = ["function isAdmin(address) view returns (bool)", "function paused() view returns (bool)"];
-
-interface NodeInfo {
-  address: string;
-  stake: BigNumber;
-  onboardBlock?: number | string;
-  onboardTimestamp?: number;
-}
 
 async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -63,23 +57,22 @@ async function main() {
   if (!(await fees.isAdmin(deployer.address))) throw `${deployer.address} is not a admin`;
   if (!(await fees.paused())) throw "legacy contracts doesn't paused!";
 
-  const oldStakes = await getOldStakes(
+  const {
+    baseNodesAddresses,
+    poolNodesAddresses,
+    serverNodesAddresses,
+    stakes,
+    poolNodes2Pool,
+    serverNodesOnboardTime,
+  } = await getOldStakes(
     await storageCatalogue.apolloDepositStore(),
     await storageCatalogue.poolsStore(),
     await storageCatalogue.rolesEventEmitter()
   );
 
-  const { address: baseNodeAddresses } = unzipNodeInfos(oldStakes.baseNodes);
-  const { address: poolNodesAddresses, stake: poolNodesStakes } = unzipNodeInfos(oldStakes.poolNodes);
-  const {
-    address: serverNodesAddresses,
-    stake: serverNodesStakes,
-    onboardTimestamp: serverNodesTimestamps,
-  } = unzipNodeInfos(oldStakes.serverNodes);
-
   // transfer basenodes and servernodes deposits to deployer
-  console.log("withdraw stakes from baseNodes", baseNodeAddresses);
-  await (await roles.transferApollo(baseNodeAddresses, repeat(deployer.address, baseNodeAddresses.length))).wait();
+  console.log("withdraw stakes from baseNodes", baseNodesAddresses);
+  await (await roles.transferApollo(baseNodesAddresses, repeat(deployer.address, baseNodesAddresses.length))).wait();
 
   console.log("withdraw stakes from serverNodes", serverNodesAddresses);
   await (
@@ -87,17 +80,18 @@ async function main() {
   ).wait();
 
   // migrate base nodes
-  for (const baseNode of oldStakes.baseNodes) {
-    console.log("adding baseNode", baseNode.address);
-    await (await baseNodesManager.addStake(baseNode.address, { value: baseNode.stake })).wait();
+  for (const baseNode of baseNodesAddresses) {
+    console.log("adding baseNode", baseNode);
+    await (await baseNodesManager.addStake(baseNode, { value: stakes[baseNode] })).wait();
   }
 
   // migrate server nodes
+  const serverNodesStakes = serverNodesAddresses.map((address) => stakes[address]);
+  const serverNodesTimestamps = serverNodesAddresses.map((address) => serverNodesOnboardTime[address]);
   const stakeSum = serverNodesStakes.reduce((acc, val) => acc.add(val), BigNumber.from(0));
-  const serverNodesTimestamps_ = serverNodesTimestamps as number[];
   console.log("importing serverNodes", serverNodesAddresses);
   await (
-    await serverNodesManager.importOldStakes(serverNodesAddresses, serverNodesStakes, serverNodesTimestamps_, {
+    await serverNodesManager.importOldStakes(serverNodesAddresses, serverNodesStakes, serverNodesTimestamps, {
       value: stakeSum,
     })
   ).wait();
@@ -109,8 +103,11 @@ async function main() {
   await (await context.setTrustedAddress(poolNodesManager.address, true)).wait();
 
   console.log("importing poolNodes", poolNodesAddresses);
-  if (poolNodesAddresses && poolNodesAddresses.length > 0)
-    await (await poolNodesManager.importOldStakes(poolNodesAddresses, poolNodesStakes)).wait();
+  if (poolNodesAddresses && poolNodesAddresses.length > 0) {
+    const poolNodesStakes = poolNodesAddresses.map((address) => stakes[address]);
+    const poolNodesPools = poolNodesAddresses.map((address) => poolNodes2Pool[address]);
+    await (await poolNodesManager.importOldStakes(poolNodesAddresses, poolNodesPools, poolNodesStakes)).wait();
+  }
 
   // finalize validatorset
 
@@ -143,12 +140,11 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
   const rolesEventEmitter = RolesEventEmitter__factory.connect(rolesEventEmitterAddr, owner);
 
   const baseNodesAddresses = await getBaseNodes();
-  const poolNodesAddresses = await getPoolNodesAddresses(poolsStore);
+  const poolNodes2Pool = await getPoolNodesAddresses(poolsStore);
+  const poolNodesAddresses = Object.keys(poolNodes2Pool);
+  const serverNodesAddresses: string[] = [];
 
-  // fetch addresses and their stakes from validator set
-  const serverNodes: Record<string, NodeInfo> = {};
-  const poolNodes: Record<string, NodeInfo> = {};
-  const baseNodes: Record<string, NodeInfo> = {};
+  const stakes: { [node: string]: BigNumber } = {};
 
   const validatorSetAddresses = await validatorSet.getValidators();
 
@@ -156,35 +152,41 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
   for (const address of validatorSetAddresses) {
     if (!(await depositStore.isDepositing(address))) throw new Error(`${address} is not depositing`);
 
-    const stake = await depositStore.callStatic.releaseDeposit(address, owner.address, {
+    if (!poolNodesAddresses.includes(address) && !baseNodesAddresses.includes(address))
+      serverNodesAddresses.push(address);
+
+    stakes[address] = await depositStore.callStatic.releaseDeposit(address, owner.address, {
       from: depositStore.address,
     });
-    const stakeInfo = { address, stake };
-
-    if (poolNodesAddresses.includes(address)) poolNodes[address] = stakeInfo;
-    else if (baseNodesAddresses.includes(address)) baseNodes[address] = stakeInfo;
-    else serverNodes[address] = stakeInfo;
   }
 
   // get onboard time for server nodes
+  const serverNodesOnboardTime = await getOnboardTimeForServerNodes(rolesEventEmitter, serverNodesAddresses);
 
+  return {
+    baseNodesAddresses,
+    poolNodesAddresses,
+    serverNodesAddresses,
+    stakes,
+    poolNodes2Pool,
+    serverNodesOnboardTime,
+  };
+}
+
+async function getOnboardTimeForServerNodes(rolesEventEmitter: RolesEventEmitter, serverNodesAddresses: string[]) {
+  const serverNodesOnboardTime: { [node: string]: number } = {};
   const events = await fetchEvents((start, end) =>
     rolesEventEmitter.queryFilter(rolesEventEmitter.filters.NodeOnboarded(), start, end)
   );
   for (const event of events) {
-    if (!serverNodes[event.args.nodeAddress]) continue;
-    serverNodes[event.args.nodeAddress].onboardBlock = event.blockNumber;
+    if (!serverNodesAddresses.includes(event.args.nodeAddress)) continue;
+    serverNodesOnboardTime[event.args.nodeAddress] = event.blockNumber;
   }
-  for (const serverNodeInfo of Object.values(serverNodes)) {
-    const { timestamp } = await owner.provider!.getBlock(serverNodeInfo.onboardBlock!);
-    serverNodeInfo.onboardTimestamp = timestamp;
+  for (const [address, block] of Object.entries(serverNodesOnboardTime)) {
+    const { timestamp } = await rolesEventEmitter.provider.getBlock(block);
+    serverNodesOnboardTime[address] = timestamp;
   }
-
-  return {
-    poolNodes: Object.values(poolNodes),
-    baseNodes: Object.values(baseNodes),
-    serverNodes: Object.values(serverNodes),
-  };
+  return serverNodesOnboardTime;
 }
 
 async function fetchEvents(fetchCall: (startBlock: number, endBlock: number) => Promise<any[]>) {
@@ -233,27 +235,18 @@ async function getBaseNodes() {
 
 async function getPoolNodesAddresses(poolsStore: PoolsStore) {
   const pools = await poolsStore.getPools(0, await poolsStore.getPoolsCount());
-  const poolNodes = [];
+  const node2poll: { [node: string]: string } = {};
+
   for (const poolAddress of pools) {
     const pool = LegacyPool__factory.connect(poolAddress, poolsStore.provider);
     const nodesCount = await pool.getNodesCount();
     if (nodesCount.eq(0)) continue;
 
     const nodes = await pool.getNodes(0, nodesCount);
-    poolNodes.push(...nodes);
+
+    for (const node of nodes) node2poll[node] = poolAddress;
   }
-  return poolNodes;
-}
-
-function unzipNodeInfos<T extends NodeInfo>(nodes: T[]): { [K in keyof T]: T[K][] } {
-  const result: { [K in keyof T]: T[K][] } = {} as { [K in keyof T]: T[K][] };
-
-  for (const node of nodes)
-    for (const key in node) {
-      if (!result[key]) result[key] = [];
-      result[key].push(node[key]);
-    }
-  return result;
+  return node2poll;
 }
 
 function repeat<T>(item: T, times: number): T[] {
