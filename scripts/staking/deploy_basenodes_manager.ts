@@ -36,6 +36,7 @@ export async function main() {
     artifactName: "BaseNodes_Manager",
     deployArgs: [validatorSet.address, rewardsBank.address],
     signer: deployer,
+    isUpgradeableProxy: true,
   });
 
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address)).wait();

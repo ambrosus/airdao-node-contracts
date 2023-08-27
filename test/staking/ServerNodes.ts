@@ -150,6 +150,16 @@ describe("ServerNodes", function () {
       expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(49);
     });
 
+    it("unstake part locked correctly", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+
+      await expect(serverNodes.unstake(owner.address, 1)).to.emit(lockKeeper, "Locked");
+      const lockId = await serverNodes.lockedWithdraws(owner.address);
+      const lock = await lockKeeper.getLock(lockId);
+      console.log(lock);
+      console.log(lock);
+    });
+
     it("unstake onboarded", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await time.setNextBlockTimestamp(T + onboardingDelay + 1);

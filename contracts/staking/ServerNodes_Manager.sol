@@ -40,6 +40,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     event StakeChanged(address indexed nodeAddress, address indexed nodeOwner, int amount);
     event Reward(address indexed nodeAddress, address indexed rewardAddress, uint amountAmb, uint amountBonds);
 
+    uint256[20] private __gap;
 
     function initialize(
         IValidatorSet _validatorSet, LockKeeper _lockKeeper, RewardsBank _rewardsBank, address _airBond,
@@ -105,7 +106,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         lockedWithdraws[nodeAddress] = lockKeeper.lockSingle{value: amount + canceledAmount}(
             msg.sender, address(0),
             uint64(block.timestamp + unstakeLockTime), amount + canceledAmount,
-            "ServerNodes unstake"
+            string(abi.encodePacked("ServerNodes unstake: ", nodeAddress))
         );
 
         emit StakeChanged(nodeAddress, msg.sender, -int(amount));

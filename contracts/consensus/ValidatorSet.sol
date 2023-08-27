@@ -54,6 +54,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
     uint internal _latestRewardBlock; // block when reward was called last time (to prevent call more then once)
 
+    uint256[20] private __gap;
 
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators

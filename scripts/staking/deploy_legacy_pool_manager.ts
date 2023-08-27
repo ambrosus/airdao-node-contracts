@@ -59,6 +59,7 @@ async function main() {
       await oldStorageCatalogue.poolEventsEmitter(),
     ],
     signer: deployer,
+    isUpgradeableProxy: true,
   });
 
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address)).wait();

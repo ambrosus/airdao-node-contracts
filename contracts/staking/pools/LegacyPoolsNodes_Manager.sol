@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./IPool.sol";
 import "../IStakeManager.sol";
 import "../../consensus/IValidatorSet.sol";
@@ -14,7 +14,7 @@ import "../../funds/RewardsBank.sol";
 // Manager that allows to register staking pools;
 // Each pool can onboard a node (via this manager) when reached some stake goal
 
-contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNodesManager {
+contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, PausableUpgradeable, IStakeManager, IPoolsNodesManager {
 
     IValidatorSet public validatorSet; // contract that manages validator set
     RewardsBank public rewardsBank;
@@ -28,10 +28,13 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
 
     mapping(address => address) public node2pool;
 
+    uint256[20] private __gap;
+
     event PoolAdded(address poolAddress);
     event PoolRemoved(address poolAddress);
 
-    constructor(
+
+    function initialize(
         uint _minApolloDeposit,
         IValidatorSet _validatorSet,
         RewardsBank _rewardsBank,
@@ -39,7 +42,8 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
         ApolloDepositStore _apolloDepositStore,
         RolesEventEmitter _rolesEventEmitter,
         PoolEventsEmitter _poolEventsEmitter
-    ) Ownable() {
+    ) public initializer {
+        __Ownable_init();
         minApolloDeposit = _minApolloDeposit;
         validatorSet = _validatorSet;
         rewardsBank = _rewardsBank;
@@ -58,7 +62,7 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
         require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
         apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
-        validatorSet.newStake(nodeAddress, msg.value, false); // todo false?
+        validatorSet.newStake(nodeAddress, msg.value, true);
         rolesEventEmitter.nodeOnboarded(nodeAddress, msg.value, "", Consts.NodeType.APOLLO);
         node2pool[nodeAddress] = msg.sender;
     }
@@ -125,6 +129,8 @@ contract LegacyPoolsNodes_Manager is Ownable, Pausable, IStakeManager, IPoolsNod
     function unpause() public onlyOwner {
         _unpause();
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     // IStakeManager METHODS
 

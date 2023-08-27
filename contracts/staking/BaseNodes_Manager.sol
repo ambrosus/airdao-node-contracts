@@ -1,18 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 import "../funds/RewardsBank.sol";
 
 // Manager, that can add and remove nodes from validator set TOP list (controlled by multisig)
 
-contract BaseNodes_Manager is IStakeManager, AccessControl {
+contract BaseNodes_Manager is UUPSUpgradeable, IStakeManager, AccessControlUpgradeable {
     IValidatorSet public validatorSet; // contract that manages validator set
     RewardsBank public rewardsBank;
 
-    constructor(IValidatorSet _validatorSet, RewardsBank _rewardsBank) {
+    uint256[20] private __gap;
+
+    function initialize(
+        IValidatorSet _validatorSet, RewardsBank _rewardsBank
+    ) public initializer {
         validatorSet = _validatorSet;
         rewardsBank = _rewardsBank;
 
@@ -46,6 +51,8 @@ contract BaseNodes_Manager is IStakeManager, AccessControl {
     function report(address nodeAddress) external {
 
     }
+
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     receive() external payable {}
 }

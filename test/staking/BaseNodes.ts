@@ -21,7 +21,11 @@ describe("BaseNodes", function () {
     const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
-    const baseNodes = await new BaseNodes_Manager__factory(owner).deploy(validatorSet.address, rewardsBank.address);
+    const BaseNodesFactory = await ethers.getContractFactory("BaseNodes_Manager");
+    const baseNodes = (await upgrades.deployProxy(BaseNodesFactory, [
+      validatorSet.address,
+      rewardsBank.address,
+    ])) as BaseNodes_Manager;
 
     await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), baseNodes.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), baseNodes.address);
