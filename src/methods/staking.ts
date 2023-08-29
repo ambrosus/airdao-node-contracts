@@ -126,16 +126,7 @@ export async function serverNodesManagerChangeUnstakeLockTime(contracts: Contrac
 
 export async function serverNodesManagerGetNodesList(contracts: Contracts) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  const nodesAddresses = await serverNodes.getStakesList();
-  const validators = await validatorSetGetValidators(contracts);
-
-  return await Promise.all(
-    nodesAddresses.map(async (address) => {
-      const stake = await serverNodes.stakes(address);
-      const isOnboarded = validators.includes(address);
-      return { address, isOnboarded, stake };
-    })
-  );
+  return await serverNodes.getStakesList();
 }
 
 // rewards bank
