@@ -74,6 +74,11 @@ export function serverNodesGetMinStake(contracts: Contracts) {
   return serverNodes.minStakeAmount();
 }
 
+export function serverNodesGetUnstakeLockTime(contracts: Contracts) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.unstakeLockTime();
+}
+
 async function lockKeeperGetLock(contracts: Contracts, lockId: BigNumberish) {
   const lockKeeper = contracts.getContractByName(ContractNames.LockKeeper) as LockKeeper;
   return await lockKeeper.getLock(lockId);
