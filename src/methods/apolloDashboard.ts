@@ -69,16 +69,6 @@ export function serverNodesSetRewardsAddress(contracts: Contracts, nodeAddress: 
   return serverNodes.setRewardsAddress(nodeAddress, newRewardReceiver);
 }
 
-export function serverNodesGetMinStake(contracts: Contracts) {
-  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.minStakeAmount();
-}
-
-export function serverNodesGetUnstakeLockTime(contracts: Contracts) {
-  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.unstakeLockTime();
-}
-
 async function lockKeeperGetLock(contracts: Contracts, lockId: BigNumberish) {
   const lockKeeper = contracts.getContractByName(ContractNames.LockKeeper) as LockKeeper;
   return await lockKeeper.getLock(lockId);

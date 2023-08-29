@@ -97,6 +97,21 @@ export async function baseNodesManagerRemoveStake(
 
 // server nodes manager
 
+export function serverNodesGetMinStake(contracts: Contracts) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.minStakeAmount();
+}
+
+export function serverNodesGetOnboardingDelay(contracts: Contracts) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.onboardingDelay();
+}
+
+export function serverNodesGetUnstakeLockTime(contracts: Contracts) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.unstakeLockTime();
+}
+
 export async function serverNodesManagerChangeMinStakeAmount(contracts: Contracts, newMinStakeAmount: BigNumberish) {
   return await submitTransaction2<ServerNodes_Manager>(
     contracts,
