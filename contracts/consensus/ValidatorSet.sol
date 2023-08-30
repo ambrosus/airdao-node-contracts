@@ -298,7 +298,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
                 _update();
             }
         } else {
-            if (nodeAddress != queuedStakes[_highestStakeIndex]) {// highest stake in queue decreased his stake, need to find new highestStakeIndex
+            if (nodeAddress == queuedStakes[_highestStakeIndex]) {// highest stake in queue decreased his stake, need to find new highestStakeIndex
                 _findHighestStakeIndex();
                 _update();
             }
@@ -327,6 +327,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
                 // if _highestStakeIndex in queuedStakes is cooler than _lowestStakeIndex in topStakes - swap them
                 (topStakes[_lowestStakeIndex], queuedStakes[_highestStakeIndex]) = (queuedStakes[_highestStakeIndex], topStakes[_lowestStakeIndex]);
+                _topValidatorsChanged();
 
                 // find new heads
                 _findLowestStakeIndex();
