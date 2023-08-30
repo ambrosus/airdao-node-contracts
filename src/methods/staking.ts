@@ -10,7 +10,6 @@ import {
   ValidatorSet,
 } from "../../typechain-types";
 import { submitTransaction2 } from "./internal";
-import { validatorSetGetValidators } from "./consensus";
 
 // validator set
 
@@ -25,22 +24,13 @@ async function validatorSetChangeTopCount(contracts: Contracts, newTop: BigNumbe
 type PoolManagersCN = ContractNames.LegacyPoolManager; // | ContractNames.PoolManager;
 
 export async function poolManagerGetPools(contracts: Contracts, contractName: PoolManagersCN) {
-  const provider = contracts.getContractByName(contractName).provider;
-  const poolContract = new ethers.Contract(
-    ethers.constants.AddressZero,
-    ["function name() view returns (string)"],
-    provider
-  );
-  const getPoolName = async (poolAddress: string) => poolContract.attach(poolAddress).name();
-
   const addresses = await poolManagerGetPoolsAddresses(contracts, contractName);
-  const pools = await Promise.all(
+  return await Promise.all(
     addresses.map(async (poolAddress) => ({
       address: poolAddress,
-      name: await getPoolName(poolAddress),
+      name: await getPoolName(contracts, poolAddress),
     }))
   );
-  return pools;
 }
 
 export async function poolManagerGetPoolsAddresses(
@@ -52,9 +42,10 @@ export async function poolManagerGetPoolsAddresses(
 }
 
 export async function poolManagerAddPool(contracts: Contracts, contractName: PoolManagersCN, poolAddress: string) {
-  return await submitTransaction2<PoolsNodes_Manager>(contracts, contractName, 0, (poolManager) =>
-    poolManager.addPool(poolAddress)
-  );
+  return await submitTransaction2<PoolsNodes_Manager>(contracts, contractName, 0, async (poolManager) => {
+    if ((await getPoolName(contracts, poolAddress)) == null) throw new Error("Provided address probably is not a pool");
+    return poolManager.addPool(poolAddress);
+  });
 }
 
 export async function poolManagerRemovePool(contracts: Contracts, contractName: PoolManagersCN, poolAddress: string) {
@@ -200,4 +191,11 @@ export async function getBondsBalance(contracts: Contracts, contractName: Contra
   const contract = contracts.getContractByName(contractName);
   const airBond = contracts.getContractByName(ContractNames.AirBond) as AirBond;
   return await airBond.balanceOf(contract.address);
+}
+
+async function getPoolName(contracts: Contracts, poolAddress: string) {
+  const provider = contracts.getContractByName(ContractNames.LegacyPoolManager).provider;
+  const abi = ["function name() view returns (string)"];
+  const poolContract = new ethers.Contract(poolAddress, abi, provider);
+  return poolContract.name().catch(() => null);
 }
