@@ -43,6 +43,12 @@ export class Contracts {
   public getNameByAddressSafe(address: string): ContractNames | undefined {
     return this.nameByAddress[address];
   }
+
+  static getContract(chainId: number, contractName: ContractNames) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const deployments = require(`../../deployments/${chainId}.json`);
+    return { address: deployments[contractName].address, abi: deployments[contractName].abi };
+  }
 }
 
 export function loadAllDeploymentsFromFile(chainId: number, signer?: Signer) {

@@ -2,7 +2,7 @@ import { Contracts } from "../contracts/contracts";
 import { ValidatorSet } from "../../typechain-types";
 import { ContractNames } from "../contracts/names";
 import { submitTransaction2 } from "./internal";
-import { BigNumberish } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 
 // view methods
 export async function validatorSetGetNodeStake(contracts: Contracts, nodeAddress: string) {
