@@ -150,6 +150,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
 
         bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
+        if (isInTopStakes)
+            totalStakeAmount += amount;
         stake.amount += amount;
         _increaseStake(nodeAddress, isInTopStakes);
 
@@ -162,7 +164,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         require(stake.amount >= amount, "amount bigger than stake");
 
         bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
-
+        if (isInTopStakes)
+            totalStakeAmount -= amount;
         stake.amount -= amount;
 
         emit StakeChanged(nodeAddress, msg.sender, -int(amount));
