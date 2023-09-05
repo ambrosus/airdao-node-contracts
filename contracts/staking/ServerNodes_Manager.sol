@@ -64,6 +64,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function newStake(address nodeAddress, address rewardAddress) payable public whenNotPaused {
         require(msg.value >= minStakeAmount, "msg.value must be >= minStakeAmount");
         require(stakes[nodeAddress].stake == 0, "node already registered");
+        require(validatorSet.getNodeStake(nodeAddress) == 0, "node already registered");
 
         stakes[nodeAddress] = Stake(msg.value, block.timestamp, msg.sender, rewardAddress);
 

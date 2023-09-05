@@ -472,7 +472,7 @@
     "deployTx": "0xc73756f5f1888e48b0d5ab6ee02e5b723a19c4ddcca089523b2c6a167d68f36d",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xD3A7E420Aa128Cb6AcFDd998258Ea938E50Ae600",
+      "implementation": "0xea3011C9Efeb1e2A63A0c6cb23a0e0314970735F",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -708,12 +708,12 @@
     "deployTx": "0x994510392c60340e4be1e22ec85dcee0ccb858b218b5ad2b4e23e5b49f6b1776",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x1de2419B8CD823A23B534df136506C37A816947F",
+      "implementation": "0x5f0EA6276D40A3529E060EA5Acb9bf963f5c430a",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "LegacyPoolManager_Multisig": {
-    "address": "0x689020fd1aa4e064bdf9c6D1d19F0Cf378b19753",
+    "address": "0xb08cFc95eEA0F1d9Bb79002d23FA204B8836A536",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -749,11 +749,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xdc5fc20b6dc8c3926f03969f57c5a6e18e83b3532915fa828a1e748ec09c5ad5",
+    "deployTx": "0xef97a7447b5d9ffbdfcad4e46317615c75ef2b9aec864c0e79a35689181242f6",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LegacyPoolManager_RewardsBank": {
-    "address": "0xb08cFc95eEA0F1d9Bb79002d23FA204B8836A536",
+    "address": "0x3fbb4BfEfB478fcE4fb52503ce95e7602E4BB760",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -769,11 +769,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x3899ad64f0643455517627d9f103dd1ca3f3b84408f4aab3b71dd0c884bbf6db",
+    "deployTx": "0x8763abac4f208b211a616bbde2fce69da88d9165dcddfe7ca8f8c23dd9760174",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LegacyPoolManager": {
-    "address": "0x585896742516DF0703D72018E5c049D2C293718F",
+    "address": "0x00385a84F8ea4A244B2E084D81460e768fAE8ec3",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -815,10 +815,10 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0xb79f92c407d2d7641710a1172388da2e0d4cc6c227ace514e3a0abd1fa48de56",
+    "deployTx": "0xed701d8c12f66404e0de3e28ec582ee4787feaaace299dbd2df9b376d584946e",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
-      "implementation": "0x3fbb4BfEfB478fcE4fb52503ce95e7602E4BB760",
+      "implementation": "0x585896742516DF0703D72018E5c049D2C293718F",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }
