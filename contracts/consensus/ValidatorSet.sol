@@ -139,7 +139,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
         stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), isAlwaysTop);
         _addStake(nodeAddress);
-        totalStakeAmount += amount;
 
         emit StakeCreated(nodeAddress, msg.sender, amount, isAlwaysTop);
         emit StakeChanged(nodeAddress, msg.sender, int(amount));
@@ -153,7 +152,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
         stake.amount += amount;
         _increaseStake(nodeAddress, isInTopStakes);
-        totalStakeAmount += amount;
 
         emit StakeChanged(nodeAddress, msg.sender, int(amount));
     }
@@ -166,7 +164,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
 
         stake.amount -= amount;
-        totalStakeAmount -= amount;
 
         emit StakeChanged(nodeAddress, msg.sender, -int(amount));
 
@@ -325,6 +322,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
                 emit TopListNodeRemoved(topStakes[_lowestStakeIndex]);
                 emit QueueListNodeAdded(topStakes[_lowestStakeIndex]);
 
+                totalStakeAmount += stakes[queuedStakes[_highestStakeIndex]].amount;
+                totalStakeAmount -= stakes[topStakes[_lowestStakeIndex]].amount;
+
                 // if _highestStakeIndex in queuedStakes is cooler than _lowestStakeIndex in topStakes - swap them
                 (topStakes[_lowestStakeIndex], queuedStakes[_highestStakeIndex]) = (queuedStakes[_highestStakeIndex], topStakes[_lowestStakeIndex]);
                 _topValidatorsChanged();
@@ -357,6 +357,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         if (_compareWithLowestStake(topStakes[topStakes.length - 1]) < 0) // check if new node is now  _lowestStakeIndex
             _lowestStakeIndex = topStakes.length - 1;
 
+        totalStakeAmount += stakes[nodeAddress].amount;
+
         emit TopListNodeAdded(nodeAddress);
     }
 
@@ -381,6 +383,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
             _findLowestStakeIndex();
         else if (_lowestStakeIndex == topStakes.length) // if lowestStakeIndex was last in topStakes - now it moved to `index`
             _lowestStakeIndex = index;
+
+        totalStakeAmount -= stakes[nodeAddress].amount;
 
         emit TopListNodeRemoved(nodeAddress);
     }
