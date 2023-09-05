@@ -28,6 +28,7 @@ export async function main() {
   });
 
   await (await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await validatorSet.grantRole(await validatorSet.REWARD_ORACLE_ROLE(), multisig.address)).wait();
 }
 
 if (require.main === module) {
