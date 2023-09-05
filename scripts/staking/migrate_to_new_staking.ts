@@ -234,14 +234,18 @@ async function getBaseNodes() {
 }
 
 async function getPoolNodesAddresses(poolsStore: PoolsStore) {
-  const pools = await poolsStore.getPools(0, await poolsStore.getPoolsCount());
   const node2poll: { [node: string]: string } = {};
+
+  const poolsCount = await poolsStore.getPoolsCount();
+  if (poolsCount.eq(0)) return node2poll;
+  const pools = await poolsStore.getPools(0, poolsCount);
 
   for (const poolAddress of pools) {
     const pool = LegacyPool__factory.connect(poolAddress, poolsStore.provider);
     const nodesCount = await pool.getNodesCount();
     if (nodesCount.eq(0)) continue;
 
+    console.log("get nodes");
     const nodes = await pool.getNodes(0, nodesCount);
 
     for (const node of nodes) node2poll[node] = poolAddress;
