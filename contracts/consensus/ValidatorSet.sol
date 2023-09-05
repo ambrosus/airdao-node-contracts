@@ -79,7 +79,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         uint256 amount
     );
 
-    event RewardError(address stakingManager, string error);
+    event RewardError(address stakingManager, string errorText);
 
     function initialize(
         address _rewardOracle,
