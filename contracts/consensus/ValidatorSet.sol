@@ -215,6 +215,12 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     function process() external onlyValidator() {
         _notifyAll();  // call `onBlock` method on listeners
         _reward();
+        try this._updateExternal() {} catch {}
+    }
+
+    function _updateExternal() external {
+        require(msg.sender == address(this));
+        _update();
     }
 
 
