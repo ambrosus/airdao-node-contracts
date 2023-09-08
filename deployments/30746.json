@@ -39,7 +39,7 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x4e5c759e96d3bd490d5e52b79f6ec650c752ff5acc9413da5d617d4190a916fd",
+    "deployTx": "0xaa73aec53cf39b18deefcd47515cdba310f67d78be2082ac0390adbc0f67aec1",
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   },
   "FinanceMaster_Multisig": {
