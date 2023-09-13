@@ -160,7 +160,7 @@ describe("ValidatorSet", function () {
             .withArgs(A)
             .to.emit(validatorSet, "QueueListNodeAdded")
             .withArgs(A);
-          await expectArraysEqual([C, B], [A]);
+          await expectArraysEqual([B, C], [A]);
         });
 
         it("D should go to queueStakes", async function () {
@@ -169,7 +169,7 @@ describe("ValidatorSet", function () {
           await expect(testPool.addStake(D, { value: 50 }))
             .to.emit(validatorSet, "QueueListNodeAdded")
             .withArgs(D);
-          await expectArraysEqual([C, B], [A, D]);
+          await expectArraysEqual([B, C], [A, D]);
         });
 
         it("D should go to topStakes instead B", async function () {
@@ -307,7 +307,7 @@ describe("ValidatorSet", function () {
               .withArgs(C)
               .to.emit(validatorSet, "QueueListNodeAdded")
               .withArgs(C);
-            await expectArraysEqual([A, D], [C, B]);
+            await expectArraysEqual([D, A], [B, C]);
           });
 
           it("B (in queue) increase stake and should go to top instead of C", async function () {
@@ -320,7 +320,7 @@ describe("ValidatorSet", function () {
               .withArgs(C)
               .to.emit(validatorSet, "QueueListNodeAdded")
               .withArgs(C);
-            await expectArraysEqual([B, D], [A, C]);
+            await expectArraysEqual([D, B], [A, C]);
           });
 
           it("A (in queue) increase stake and shouldn't go to top", async function () {
@@ -350,7 +350,7 @@ describe("ValidatorSet", function () {
               .to.emit(validatorSet, "TopListNodeAdded")
               .withArgs(B);
 
-            await expectArraysEqual([B, D], [A, C]);
+            await expectArraysEqual([D, B], [A, C]);
           });
 
           it("D (in top) decreased stake and should be replaced with B", async function () {

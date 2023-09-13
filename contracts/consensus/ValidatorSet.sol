@@ -53,8 +53,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     uint internal _highestStakeIndex; // index of the highest stake in queueStakes array
 
     uint internal _latestRewardBlock; // block when reward was called last time (to prevent call more then once)
+    uint internal _latestRemoveFromTopBlock; // block when node was removed from top list last time (to prevent call more then once per finalization)
 
-    uint256[20] private __gap;
+    uint256[19] private __gap;
 
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
@@ -192,6 +193,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
     function changeTopStakesCount(uint newTopStakesCount) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(newTopStakesCount > 0, "newTopStakesCount must be > 0");
+        if (newTopStakesCount < topStakesCount)
+            require(newTopStakesCount + (topStakesCount / 8) >= topStakesCount, "decrease of more than 12.5% is not allowed");
+
         topStakesCount = newTopStakesCount;
     }
 
@@ -223,7 +227,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
     function _updateExternal() external {
         require(msg.sender == address(this));
-        _update();
+        _tryMoveToQueue();
+        _tryMoveFromQueue();
     }
 
 
@@ -266,7 +271,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     function _addStake(address nodeAddress) internal {
         // add to queue and call _update() to move it to topStakes if needed
         _addToQueue(nodeAddress);
-        _update();
+        _tryMoveFromQueue();
     }
 
     function _removeStake(address nodeAddress, bool isInTop) internal {
@@ -276,7 +281,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         if (isInTop) {
             _removeFromTop(nodeAddress);
             // we have free space in topStakes, need to move node from queuedStakes to topStakes
-            _update();
+            _tryMoveFromQueue();
         } else {
             _removeFromQueue(nodeAddress);
         }
@@ -287,12 +292,12 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         if (isInTop) {
             if (nodeAddress == topStakes[_lowestStakeIndex]) {// lowest stake in top increased his stake, need to find new lowestStakeIndex
                 _findLowestStakeIndex();
-                _update();
+                _tryMoveFromQueue();
             }
         } else {
             if (_compareWithHighestStake(nodeAddress) >= 0) {// current node now has highest stake in queue, set highestStakeIndex to index of current node
                 _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
-                _update();
+                _tryMoveFromQueue();
             }
         }
     }
@@ -301,49 +306,40 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         if (isInTop) {
             if (_compareWithLowestStake(nodeAddress) <= 0) {// current node now has lowest stake in top, set lowestStakeIndex to index of current node
                 _lowestStakeIndex = _findIndexByValue(topStakes, nodeAddress);
-                _update();
+                _tryMoveFromQueue();
             }
         } else {
             if (nodeAddress == queuedStakes[_highestStakeIndex]) {// highest stake in queue decreased his stake, need to find new highestStakeIndex
                 _findHighestStakeIndex();
-                _update();
+                _tryMoveFromQueue();
             }
         }
     }
 
-    function _update() internal {
+    function _tryMoveFromQueue() internal {
         if (queuedStakes.length == 0) return;
 
         if (topStakes.length < topStakesCount) {
-            emit QueueListNodeRemoved(queuedStakes[_highestStakeIndex]);
-
             // move highest stake in queue to topStakes
-            _addToTop(queuedStakes[_highestStakeIndex]);
-
-            // remove it from queuedStakes
-            _removeByIndex(queuedStakes, _highestStakeIndex);
-            _findHighestStakeIndex();
+            address removedFromQueue = _removeFromQueueByIndex(_highestStakeIndex);
+            _addToTop(removedFromQueue);
 
         } else if (topStakes.length == topStakesCount) {
             if (_compareWithLowestStake(queuedStakes[_highestStakeIndex]) > 0) {
-                emit QueueListNodeRemoved(queuedStakes[_highestStakeIndex]);
-                emit TopListNodeAdded(queuedStakes[_highestStakeIndex]);
-                emit TopListNodeRemoved(topStakes[_lowestStakeIndex]);
-                emit QueueListNodeAdded(topStakes[_lowestStakeIndex]);
-
-                totalStakeAmount += stakes[queuedStakes[_highestStakeIndex]].amount;
-                totalStakeAmount -= stakes[topStakes[_lowestStakeIndex]].amount;
-
-                // if _highestStakeIndex in queuedStakes is cooler than _lowestStakeIndex in topStakes - swap them
-                (topStakes[_lowestStakeIndex], queuedStakes[_highestStakeIndex]) = (queuedStakes[_highestStakeIndex], topStakes[_lowestStakeIndex]);
-                _topValidatorsChanged();
-
-                // find new heads
-                _findLowestStakeIndex();
-                _findHighestStakeIndex();
+                address removedFromTop = _removeFromTopByIndex(_lowestStakeIndex);
+                address removedFromQueue = _removeFromQueueByIndex(_highestStakeIndex);
+                _addToQueue(removedFromTop);
+                _addToTop(removedFromQueue);
             }
         }
 
+    }
+    function _tryMoveToQueue() internal {
+        if (topStakes.length <= topStakesCount) return;
+        if (block.number < _latestRemoveFromTopBlock + finalizedValidators.length) return;  // no more than once per round
+
+        address removedFromTop = _removeFromTopByIndex(_lowestStakeIndex);
+        _addToQueue(removedFromTop);
     }
 
     // MORE LOW LEVEL HELPERS
@@ -354,7 +350,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         if (queuedStakes.length == 1) // if current node is the only one in queuedStakes - it is highestStakeIndex
             _highestStakeIndex = 0;
         else if (_compareWithHighestStake(nodeAddress) > 0) // current node now has highest stake
-            _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
+            _highestStakeIndex = queuedStakes.length - 1;
 
         emit QueueListNodeAdded(nodeAddress);
     }
@@ -373,6 +369,11 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
     function _removeFromQueue(address nodeAddress) internal {
         uint index = _findIndexByValue(queuedStakes, nodeAddress);
+        _removeFromQueueByIndex(index);
+    }
+
+    function _removeFromQueueByIndex(uint index) internal returns (address) {
+        address nodeAddress = queuedStakes[index];
         _removeByIndex(queuedStakes, index);
 
         if (_highestStakeIndex == index)  // need to find new highestStakeIndex
@@ -381,10 +382,16 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
             _highestStakeIndex = index;
 
         emit QueueListNodeRemoved(nodeAddress);
+        return nodeAddress;
     }
 
     function _removeFromTop(address nodeAddress) internal {
         uint index = _findIndexByValue(topStakes, nodeAddress);
+        _removeFromTopByIndex(index);
+    }
+
+    function _removeFromTopByIndex(uint index) internal returns (address) {
+        address nodeAddress = topStakes[index];
         _removeByIndex(topStakes, index);
         _topValidatorsChanged();
 
@@ -394,8 +401,10 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
             _lowestStakeIndex = index;
 
         totalStakeAmount -= stakes[nodeAddress].amount;
+        _latestRemoveFromTopBlock = block.number;
 
         emit TopListNodeRemoved(nodeAddress);
+        return nodeAddress;
     }
 
     // ANOTHER TYPE OF HELPERS
