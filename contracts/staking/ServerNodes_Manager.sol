@@ -87,12 +87,12 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         uint stakeAmount = stakes[nodeAddress].stake;
         require(stakeAmount >= amount, "stake < amount");
 
-        if (stakeAmount == amount) {
+        if (stakeAmount == amount)
             _deleteStake(nodeAddress);
-        } else {
+        else
             require(stakeAmount - amount >= minStakeAmount, "resulting stake < minStakeAmount");
-            stakes[nodeAddress].stake -= amount;
-        }
+
+        stakes[nodeAddress].stake -= amount;
 
 
         if (validatorSet.getNodeStake(nodeAddress) > 0) // only if node already validator
@@ -247,7 +247,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     }
 
     function _deleteStake(address nodeAddress) internal {
-        delete stakes[nodeAddress];
+//        delete stakes[nodeAddress];  // keep info about node coz it can be restaked
         for (uint i = 0; i < stakesList.length; i++) {
             if (stakesList[i] == nodeAddress) {
                 stakesList[i] = stakesList[stakesList.length - 1];

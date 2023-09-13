@@ -709,7 +709,7 @@
     "deployTx": "0xe7f0921182b3832b1ed810ae2c41a89fb6de7167e1c67347af6600c3fc3ce62b",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0xdC103bf9a3789f78958f365321F3BA07e369667A",
+      "implementation": "0xe2672E824C249b24851389e69225959d1c6c1A1F",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
