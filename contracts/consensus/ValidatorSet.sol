@@ -40,7 +40,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     uint public topStakesCount;  // max validators count
 
     uint public baseReward; // base reward for validators; updated by reward oracle
-
+    uint64[5] internal _baseRewardSettings; // settings for base reward oracle:  [0] - isEnabled
+    // [1] - min %, [2] - max %   (bips),
+    // [3] - min reward, [4] - max reward   (bips of amb)
 
     // NOTE: nodeAddresses here
     address[] internal finalizedValidators;  // consensus validators
@@ -55,7 +57,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     uint internal _latestRewardBlock; // block when reward was called last time (to prevent call more then once)
     uint internal _latestRemoveFromTopBlock; // block when node was removed from top list last time (to prevent call more then once per finalization)
 
-    uint256[19] private __gap;
+    uint256[20] private __gap;
 
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
@@ -89,6 +91,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     ) public initializer {
         baseReward = _baseReward;
         topStakesCount = _topStakesCount;
+
+        _baseRewardSettings = [1, 16.6 * 10000, 100 * 10000, 14 * 10000, 60.8 * 10000]; // default settings: enabled, 16.6% = 14 amb, 100% = 60.8 amb
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(REWARD_ORACLE_ROLE, _rewardOracle);
@@ -132,7 +136,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         return result;
     }
 
-
     // STAKING POOL METHODS
 
     function newStake(address nodeAddress, uint amount, bool isAlwaysTop) external onlyRole(STAKING_MANAGER_ROLE) {
@@ -169,7 +172,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
             totalStakeAmount -= amount;
         stake.amount -= amount;
 
-        emit StakeChanged(nodeAddress, msg.sender, -int(amount));
+        emit StakeChanged(nodeAddress, msg.sender, - int(amount));
 
         if (stake.amount == 0) {
             _removeStake(nodeAddress, isInTopStakes);
@@ -185,8 +188,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount) external onlyRole(STAKING_MANAGER_ROLE) {
         emit Reward(msg.sender, nodeAddress, rewardReceiver, nodeOwner, tokenAddress, amount);
     }
-
-
 
     // ADMIN METHODS
 
@@ -206,6 +207,11 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     function removeBlockListener(IOnBlockListener listener) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _removeListener(listener);
     }
+
+    function setRewardSettings(uint64[5] memory newSettings) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _baseRewardSettings = newSettings;
+    }
+
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
@@ -231,15 +237,15 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         _tryMoveFromQueue();
     }
 
-
     // ORACLE METHODS
+
+    function getRewardSettings() public view returns (uint64[5] memory){
+        return _baseRewardSettings;
+    }
 
     function setReward(uint _baseReward) public onlyRole(REWARD_ORACLE_ROLE) {
         baseReward = _baseReward;
     }
-
-
-
 
     // PRIVATE METHODS
 
@@ -263,7 +269,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
             emit RewardError(address(stake.stakingContract), "unknown error");
         }
     }
-
 
     // HELPERS
 
@@ -334,6 +339,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         }
 
     }
+
     function _tryMoveToQueue() internal {
         if (topStakes.length <= topStakesCount) return;
         if (block.number < _latestRemoveFromTopBlock + finalizedValidators.length) return;  // no more than once per round
