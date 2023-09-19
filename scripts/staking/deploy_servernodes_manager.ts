@@ -17,6 +17,7 @@ export async function main() {
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
+  const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.ServerNodesManagerMultisig,
@@ -53,6 +54,7 @@ export async function main() {
       lockKeeper.address,
       rewardsBank.address,
       airBond.address,
+      treasury.address,
       onboardingDelay,
       unstakeLockTime,
       minStakeAmount,

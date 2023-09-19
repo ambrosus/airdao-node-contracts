@@ -9,6 +9,7 @@ import "../consensus/IValidatorSet.sol";
 import {IOnBlockListener} from "../consensus/OnBlockNotifier.sol";
 import "../LockKeeper.sol";
 import "../funds/RewardsBank.sol";
+import "../finance/Treasury.sol";
 
 // Manager, that allows users to register their nodes in validator set
 
@@ -23,9 +24,9 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
     IValidatorSet public validatorSet; // contract that manages validator set
     LockKeeper public lockKeeper; // contract that locks stakes
-
     RewardsBank public rewardsBank;
     address public airBond;
+    Treasury public treasury;
 
     uint public onboardingDelay;  // time that new node will be in queueStakes even if it has enough stake (only affects nodes without FLAG_ALWAYS_IN_TOP)
     uint public unstakeLockTime; // time that funds will be locked after unstake
@@ -43,13 +44,14 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     uint256[20] private __gap;
 
     function initialize(
-        IValidatorSet _validatorSet, LockKeeper _lockKeeper, RewardsBank _rewardsBank, address _airBond,
+        IValidatorSet _validatorSet, LockKeeper _lockKeeper, RewardsBank _rewardsBank, address _airBond, Treasury _treasury,
         uint _onboardingDelay, uint _unstakeLockTime, uint _minStakeAmount
     ) public initializer {
         validatorSet = _validatorSet;
         lockKeeper = _lockKeeper;
         rewardsBank = _rewardsBank;
         airBond = _airBond;
+        treasury = _treasury;
 
         onboardingDelay = _onboardingDelay;
         unstakeLockTime = _unstakeLockTime;
@@ -57,7 +59,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
-
 
     // USER METHODS
 
@@ -98,7 +99,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         if (validatorSet.getNodeStake(nodeAddress) > 0) // only if node already validator
             validatorSet.unstake(nodeAddress, amount);
 
-
         // cancel previous lock (if exists). canceledAmount will be added to new lock
         uint canceledAmount;
         if (lockKeeper.getLock(lockedWithdraws[nodeAddress]).totalClaims > 0)  // prev lock exists
@@ -111,7 +111,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
             string(abi.encodePacked("ServerNodes unstake: ", nodeAddress))
         );
 
-        emit StakeChanged(nodeAddress, msg.sender, -int(amount));
+        emit StakeChanged(nodeAddress, msg.sender, - int(amount));
     }
 
     // unlock latest withdraw to stake
@@ -148,13 +148,16 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         return result;
     }
 
-
     // VALIDATOR SET METHODS
 
     function reward(address nodeAddress, uint amount) external {
         require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
         Stake memory stakeStruct = stakes[nodeAddress];
         require(stakeStruct.stake > 0, "nodeAddress not in stakes");
+
+        uint treasuryAmount = treasury.calcFee(amount);
+        rewardsBank.withdrawAmb(payable(address(treasury)), treasuryAmount);
+        amount -= treasuryAmount;
 
         uint bondsReward = amount * _getBondsPercent(stakeStruct.timestampStake) / 100;
         uint nativeReward = amount - bondsReward;
@@ -184,7 +187,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function report(address nodeAddress) external {
         // todo
     }
-
 
     // MULTISIG METHODS
 
@@ -256,7 +258,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
             }
         }
     }
-
 
     // move nodes from onboardingWaitingList to topStakes
     function _checkOnboardingWaitingList() internal {

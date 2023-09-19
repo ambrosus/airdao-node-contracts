@@ -73,16 +73,11 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     event TopListNodeRemoved(address indexed nodeAddress);
 
     event Report(address indexed nodeAddress, uint malisciousType);
-    event Reward(
-        address indexed manager,
-        address indexed nodeAddress,
-        address indexed rewardReceiver,
-        address nodeOwner,
-        address tokenAddress,
-        uint256 amount
-    );
+    event Reward(address indexed manager, address indexed nodeAddress, address indexed rewardReceiver,
+        address nodeOwner, address tokenAddress, uint256 amount);
 
     event RewardError(address stakingManager, string errorText);
+
 
     function initialize(
         address _rewardOracle,
@@ -216,6 +211,17 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
 
+    // ORACLE METHODS
+
+    function getRewardSettings() public view returns (uint64[5] memory){
+        return _baseRewardSettings;
+    }
+
+    function setReward(uint _baseReward) public onlyRole(REWARD_ORACLE_ROLE) {
+        baseReward = _baseReward;
+    }
+
+
     // SUPERUSER (NODE) METHODS
 
 
@@ -235,16 +241,6 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         require(msg.sender == address(this));
         _tryMoveToQueue();
         _tryMoveFromQueue();
-    }
-
-    // ORACLE METHODS
-
-    function getRewardSettings() public view returns (uint64[5] memory){
-        return _baseRewardSettings;
-    }
-
-    function setReward(uint _baseReward) public onlyRole(REWARD_ORACLE_ROLE) {
-        baseReward = _baseReward;
     }
 
     // PRIVATE METHODS

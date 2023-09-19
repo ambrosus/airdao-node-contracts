@@ -23,6 +23,7 @@ async function main() {
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.LegacyPoolManagerMultisig,
@@ -53,6 +54,7 @@ async function main() {
       minApolloDeposit,
       validatorSet.address,
       rewardsBank.address,
+      treasury.address,
       await oldStorageCatalogue.poolsStore(),
       await oldStorageCatalogue.apolloDepositStore(),
       await oldStorageCatalogue.rolesEventEmitter(),

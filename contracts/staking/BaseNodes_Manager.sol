@@ -6,20 +6,23 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 import "../funds/RewardsBank.sol";
+import "../finance/Treasury.sol";
 
 // Manager, that can add and remove nodes from validator set TOP list (controlled by multisig)
 
 contract BaseNodes_Manager is UUPSUpgradeable, IStakeManager, AccessControlUpgradeable {
     IValidatorSet public validatorSet; // contract that manages validator set
     RewardsBank public rewardsBank;
+    Treasury public treasury;
 
     uint256[20] private __gap;
 
     function initialize(
-        IValidatorSet _validatorSet, RewardsBank _rewardsBank
+        IValidatorSet _validatorSet, RewardsBank _rewardsBank, Treasury _treasury
     ) public initializer {
         validatorSet = _validatorSet;
         rewardsBank = _rewardsBank;
+        treasury = _treasury;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -44,6 +47,11 @@ contract BaseNodes_Manager is UUPSUpgradeable, IStakeManager, AccessControlUpgra
 
     function reward(address nodeAddress, uint amount) external {
         require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
+
+        uint treasuryAmount = treasury.calcFee(amount);
+        rewardsBank.withdrawAmb(payable(address(treasury)), treasuryAmount);
+        amount -= treasuryAmount;
+
         rewardsBank.withdrawAmb(payable(nodeAddress), amount);
         validatorSet.emitReward(nodeAddress, nodeAddress, nodeAddress, address(0), amount);
     }

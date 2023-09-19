@@ -15,6 +15,7 @@ export async function main() {
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.BaseNodesManagerMultisig,
@@ -34,7 +35,7 @@ export async function main() {
   const manager = await deploy<BaseNodes_Manager__factory>({
     contractName: ContractNames.BaseNodesManager,
     artifactName: "BaseNodes_Manager",
-    deployArgs: [validatorSet.address, rewardsBank.address],
+    deployArgs: [validatorSet.address, rewardsBank.address, treasury.address],
     signer: deployer,
     isUpgradeableProxy: true,
   });
