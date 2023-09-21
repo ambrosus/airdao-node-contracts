@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.0.35",
+  "version": "1.1.1",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
@@ -19,10 +19,11 @@
     "deploy_finance": "hardhat run scripts/finance/deploy_finance.ts --network dev",
     "deploy_airdrop": "hardhat run scripts/finance/deploy_airdrop.ts --network dev",
     "deploy_validatorset": "hardhat run scripts/staking/deploy_validatorset.ts --network dev",
+    "deploy_treasury": "hardhat run scripts/staking/deploy_treasury.ts --network dev",
     "deploy_basenodes_manager": "hardhat run scripts/staking/deploy_basenodes_manager.ts --network dev",
     "deploy_servernodes_manager": "hardhat run scripts/staking/deploy_servernodes_manager.ts --network dev",
     "deploy_legacy_pool_manager": "hardhat run scripts/staking/deploy_legacy_pool_manager.ts --network dev",
-    "deploy_all": "npm run deploy_multisig && npm run deploy_finance && npm run deploy_airdrop && npm run deploy_validatorset && npm run deploy_basenodes_manager && npm run deploy_servernodes_manager && npm run deploy_legacy_pool_manager",
+    "deploy_all": "npm run deploy_multisig && npm run deploy_finance && npm run deploy_airdrop && npm run deploy_validatorset && npm run deploy_treasury && npm run deploy_basenodes_manager && npm run deploy_servernodes_manager && npm run deploy_legacy_pool_manager",
     "deploy_migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network dev",
     "test_script": "hardhat run scripts/staking/test.ts --network test",
     "integration_test_script": "hardhat run scripts/staking/new_validatorset_integration_test.ts --network local",
