@@ -13,7 +13,7 @@ run local nodes - `make run` or `docker-compose up`
 
 - **validator2**:  
   address: `0x90B2Ce3741188bCFCe25822113e93983ecacfcA0`  
-  pk: `0x80f702eb861f36fe8fbbe1a7ccceb04ef7ddef714604010501a5f67c8065d446`  
+  pk: `0x78a689fa56a36ac3a82aaa7b7b4bfefde66e57bd589bc08c14ae49d1b9c96026`  
 
 - **validator3**:  
   address: `0xAccdb7a2268BC4Af0a1898e725138888ba1Ca6Fc`  

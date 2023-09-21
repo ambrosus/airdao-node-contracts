@@ -1,6 +1,6 @@
-import { ethers } from "hardhat";
-import { chainIDToName, loadDeployment } from "../src/utils/deployments";
-import { ContractNames } from "../src";
+import { ethers, network } from "hardhat";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
+import { ContractNames } from "../../src";
 import {
   Andrii,
   AndriiTest,
@@ -14,17 +14,15 @@ import {
   Lang,
   Rory,
   SharedDev,
-} from "./addresses";
-import { deploy } from "../src/dev/deploy";
-import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../typechain-types";
+} from "../addresses";
+import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../../typechain-types";
 
 async function main() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
-  const networkName = chainIDToName[chainId];
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, networkName).address;
+  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   async function deployFinance(
     financeName: ContractNames,
@@ -35,37 +33,39 @@ async function main() {
     const multisigName = (financeName + "_Multisig") as ContractNames;
     console.assert(Object.values(ContractNames).includes(multisigName), `can't find ${multisigName} in ContractNames`);
 
-    const multisig = await deploy<Multisig__factory>(
-      multisigName,
-      networkName,
-      "Multisig",
-      [signers, isInitiator, threshold, masterMultisig],
-      deployer
-    );
-    await deploy<Finance__factory>(financeName, networkName, "Finance", [multisig.address], deployer);
+    const multisig = await deploy<Multisig__factory>({
+      contractName: multisigName,
+      artifactName: "Multisig",
+      signer: deployer,
+      deployArgs: [signers, isInitiator, threshold, masterMultisig],
+    });
+    await deploy<Finance__factory>({
+      contractName: financeName,
+      artifactName: "Finance",
+      signer: deployer,
+      deployArgs: [multisig.address],
+    });
   }
 
-  if (networkName == "main") {
+  if (network.name == "main") {
     console.log("--- MAINNET DEPLOYMENT ---");
 
     const maxBankBalance = ethers.utils.parseEther("100000000"); // 100 millions amb per bank
     const bankCount = 50;
 
     // finance master
-    const multisig = await deploy<Multisig__factory>(
-      ContractNames.FinanceMasterMultisig,
-      networkName,
-      "Multisig",
-      [[Lang, Igor, Rory, Kevin], [true, true, true, true], 75, masterMultisig],
-      deployer
-    );
-    await deploy<MasterFinance__factory>(
-      ContractNames.FinanceMaster,
-      networkName,
-      "MasterFinance",
-      [multisig.address, bankCount, maxBankBalance],
-      deployer
-    );
+    const multisig = await deploy<Multisig__factory>({
+      contractName: ContractNames.FinanceMasterMultisig,
+      artifactName: "Multisig",
+      deployArgs: [[Lang, Igor, Rory, Kevin], [true, true, true, true], 75, masterMultisig],
+      signer: deployer,
+    });
+    await deploy<MasterFinance__factory>({
+      contractName: ContractNames.FinanceMaster,
+      artifactName: "MasterFinance",
+      deployArgs: [multisig.address, bankCount, maxBankBalance],
+      signer: deployer,
+    });
 
     // other finances
     await deployFinance(ContractNames.FinanceRewards, [Lang, Igor, Andrii], [true, true, false], 75);
@@ -77,25 +77,23 @@ async function main() {
     const bankCount = 50;
 
     // finance master
-    const multisig = await deploy<Multisig__factory>(
-      ContractNames.FinanceMasterMultisig,
-      networkName,
-      "Multisig",
-      [
+    const multisig = await deploy<Multisig__factory>({
+      contractName: ContractNames.FinanceMasterMultisig,
+      artifactName: "Multisig",
+      deployArgs: [
         [SharedDev, AndriiTest, DimaTest3C, DimaTest96, Igor, Lang, Rory, DimaTest2B],
         [true, true, true, true, true, true, true, false],
         100,
         masterMultisig,
       ],
-      deployer
-    );
-    await deploy<MasterFinance__factory>(
-      ContractNames.FinanceMaster,
-      networkName,
-      "MasterFinance",
-      [multisig.address, bankCount, maxBankBalance],
-      deployer
-    );
+      signer: deployer,
+    });
+    await deploy<MasterFinance__factory>({
+      contractName: ContractNames.FinanceMaster,
+      artifactName: "MasterFinance",
+      deployArgs: [multisig.address, bankCount, maxBankBalance],
+      signer: deployer,
+    });
 
     // other finances
     await deployFinance(
@@ -125,7 +123,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "./IStaking.sol";
+import "./IStakeManager.sol";
 import "../consensus/IValidatorSet.sol";
 
-contract TestPool is IStaking {
+contract TEST_Pool_Manager is IStakeManager {
     IValidatorSet public validatorSet; // contract that manages validator set
 
     constructor(
@@ -14,13 +14,16 @@ contract TestPool is IStaking {
     }
 
     function addStake(address nodeAddress) payable public {
-        validatorSet.addStake(nodeAddress, msg.value);
+        if (validatorSet.getNodeStake(nodeAddress) == 0)
+            validatorSet.newStake(nodeAddress, msg.value, false);
+        else 
+            validatorSet.stake(nodeAddress, msg.value);
     }
 
     function removeStake(address nodeAddress, uint amount) public {
         require(validatorSet.getNodeStake(nodeAddress) >= amount, "Stake < amount");
 
-        validatorSet.removeStake(nodeAddress, amount);
+        validatorSet.unstake(nodeAddress, amount);
         payable(msg.sender).transfer(amount);
     }
 

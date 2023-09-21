@@ -14,16 +14,7 @@ import "hardhat/console.sol";
 import "./ValidatorSet.sol";
 
 
-contract ValidatorSetTest is ValidatorSet {
-
-    constructor(
-        address _multisig,
-        address _rewardOracle,
-
-        uint _baseReward,
-        uint _topStakesCount
-    ) ValidatorSet(_multisig, _rewardOracle, _baseReward, _topStakesCount) {}
-
+contract TEST_ValidatorSet is ValidatorSet {
 
     function lowestStakeIndex() public view returns (uint) {
         return _lowestStakeIndex;
@@ -39,6 +30,10 @@ contract ValidatorSetTest is ValidatorSet {
 
     function compareStakes(Stake memory a, Stake memory b) public pure returns (int) {
         return _compareStakes(a, b);
+    }
+
+    function getListeners() public view returns (IOnBlockListener[] memory) {
+        return listeners;
     }
 
 }

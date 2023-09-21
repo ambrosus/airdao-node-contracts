@@ -1,9 +1,9 @@
 import { MasterMultisig, Multisig } from "../../typechain-types";
 import { Contracts } from "../contracts/contracts";
 import { ContractNames, multisigsNames } from "../contracts/names";
-import { submitTransaction } from "./methods";
+import { submitTransaction } from "../methods/internal";
 
-interface Perm {
+export interface Perm {
   // address is
   //  - user address for list of users in group modal
   //  - multisig (group) address for list of groups in user modal
@@ -11,14 +11,14 @@ interface Perm {
   isInitiator: boolean;
 }
 
-interface Group {
+export interface Group {
   multisig: string;
   users: Perm[];
   thresholdPercent: number;
   threshold: number;
 }
 
-interface User {
+export interface User {
   address: string;
   groups: Perm[];
 }
@@ -26,7 +26,10 @@ interface User {
 // VIEW
 
 export async function getPermissions(contracts: Contracts, multisigAddresses?: string[]) {
-  if (!multisigAddresses) multisigAddresses = multisigsNames.map((mn) => contracts.getContractByName(mn).address);
+  if (!multisigAddresses)
+    multisigAddresses = multisigsNames
+      .map((mn) => contracts.getContractByNameSafe(mn)?.address)
+      .filter((el) => el !== undefined) as string[];
 
   const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
   const contractResults = await masterMultisig.getAllSigners(multisigAddresses);

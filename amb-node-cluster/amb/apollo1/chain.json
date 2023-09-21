@@ -7,12 +7,20 @@
         "blockRewardContractAddress": "0x0000000000000000000000000000000000000F01",
         "blockRewardContractTransition": "0x0",
         "blockRewardContractTransitions": {
-          "10": "0x2C6808Be96aB532DA69d09137E4632C8C513A33B",
-          "180": "0x97161E6D82b8835F8e1A2969Ea766E7eE35F48D9"
+          "15": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
         },
-
+        "blockRewardModeTransitions": {
+          "15": "1"
+        },
         "validators": {
-          "safeContract": "0x0000000000000000000000000000000000000F00"
+          "multi": {
+            "0": {
+              "safeContract": "0x0000000000000000000000000000000000000F00"
+            },
+            "15": {
+              "safeContract": "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05"
+            }
+          }
         }
       }
     }
@@ -22,7 +30,7 @@
     "accountStartNonce": "0x0",
     "maximumExtraDataSize": "0x20",
     "minGasLimit": "0x1388",
-    "networkID": "0x0001",
+    "networkID": "0x1488",
     "maxCodeSize": 24576,
     "maxCodeSizeTransition": "0x0",
     "eip150Transition": "0x0",
@@ -34,7 +42,13 @@
     "eip211Transition": "0x0",
     "eip214Transition": "0x0",
     "eip155Transition": "0x0",
-    "eip658Transition": "0x0"
+    "eip658Transition": "0x0",
+    "eip1014Transition": "0x0",
+    "eip1052Transition": "0x0",
+    "fixValidatorSetTransition": "0x0",
+    "refixValidatorSetTransition": "0x1A838",
+    "eip145Transition": "0x0",
+    "eip1344Transition": "0x0"
   },
   "genesis": {
     "seal": {
@@ -44,7 +58,7 @@
       }
     },
     "difficulty": "0x20000",
-    "gasLimit": "0x1c9c380"
+    "gasLimit": "0x5B8D800"
   },
   "accounts": {
     "0x0000000000000000000000000000000000000001": {

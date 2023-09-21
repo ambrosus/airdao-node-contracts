@@ -10,12 +10,12 @@ This Source Code Form is “Incompatible With Secondary Licenses”, as defined 
 pragma solidity ^0.8.17;
 
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../utils/SuperUser.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "../LockKeeper.sol";
-import "../staking/IStaking.sol";
+import "../staking/IStakeManager.sol";
 import "./IValidatorSet.sol";
-import "hardhat/console.sol";
+import "./OnBlockNotifier.sol";
 
 /**
 @title Implementation of Parities ValidatorSet contract with:
@@ -23,14 +23,15 @@ import "hardhat/console.sol";
 - only owner (set explicitly in constructor and transferable) can perform mutating functions
 https://wiki.parity.io/Validator-Set.html
 */
-contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
-    bytes32 public constant STAKING_POOL_ROLE = keccak256("STAKING_POOL_ROLE");  // can use addStake / removeStake methods
+contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerableUpgradeable, IValidatorSet {
+
+    bytes32 public constant STAKING_MANAGER_ROLE = keccak256("STAKING_MANAGER_ROLE");  // can use addStake / removeStake methods
     bytes32 public constant REWARD_ORACLE_ROLE = keccak256("REWARD_ORACLE_ROLE");  // can provide baseReward
 
     struct Stake {
         uint amount;
-        IStaking stakingContract;
+        IStakeManager stakingContract;
         bool isAlwaysTop;
     }
 
@@ -42,29 +43,54 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
 
     // NOTE: nodeAddresses here
-    address[] finalizedValidators;  // consensus validators
-    address[] topStakes; // top N stakes
-    address[] queuedStakes; // other stakes
+    address[] internal finalizedValidators;  // consensus validators
+    address[] internal topStakes; // top N stakes
+    address[] internal queuedStakes; // other stakes
 
     uint public totalStakeAmount; // sum of all stakes
 
-    uint  _lowestStakeIndex; // index of the lowest stake in topStakes array
-    uint  _highestStakeIndex; // index of the highest stake in queueStakes array
+    uint internal _lowestStakeIndex; // index of the lowest stake in topStakes array
+    uint internal _highestStakeIndex; // index of the highest stake in queueStakes array
+
+    uint internal _latestRewardBlock; // block when reward was called last time (to prevent call more then once)
+    uint internal _latestRemoveFromTopBlock; // block when node was removed from top list last time (to prevent call more then once per finalization)
+
+    uint256[19] private __gap;
 
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
 
-    constructor(
-        address _multisig,
-        address _rewardOracle,
+    event StakeCreated(address indexed nodeAddress, address indexed stakingContract, uint amount, bool isAlwaysTop);
+    event StakeRemoved(address indexed nodeAddress, address indexed stakingContract);
+    event StakeChanged(address indexed nodeAddress, address indexed stakingContract, int changeAmount);
 
+    event QueueListNodeAdded(address indexed nodeAddress);
+    event QueueListNodeRemoved(address indexed nodeAddress);
+
+    event TopListNodeAdded(address indexed nodeAddress);
+    event TopListNodeRemoved(address indexed nodeAddress);
+
+    event Report(address indexed nodeAddress, uint malisciousType);
+    event Reward(
+        address indexed manager,
+        address indexed nodeAddress,
+        address indexed rewardReceiver,
+        address nodeOwner,
+        address tokenAddress,
+        uint256 amount
+    );
+
+    event RewardError(address stakingManager, string errorText);
+
+    function initialize(
+        address _rewardOracle,
         uint _baseReward,
         uint _topStakesCount
-    ) {
+    ) public initializer {
         baseReward = _baseReward;
         topStakesCount = _topStakesCount;
 
-        _setupRole(DEFAULT_ADMIN_ROLE, _multisig);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(REWARD_ORACLE_ROLE, _rewardOracle);
     }
 
@@ -90,39 +116,64 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         return queuedStakes;
     }
 
+    function getStakesByManager(address manager) public view returns (address []memory result) {
+        result = new address[](topStakes.length + queuedStakes.length);
+        uint count;
+
+        for (uint i = 0; i < topStakes.length; i++)
+            if (address(stakes[topStakes[i]].stakingContract) == manager)
+                result[count++] = topStakes[i];
+        for (uint i = 0; i < queuedStakes.length; i++)
+            if (address(stakes[queuedStakes[i]].stakingContract) == manager)
+                result[count++] = queuedStakes[i];
+
+        assembly {mstore(result, count)}
+
+        return result;
+    }
+
 
     // STAKING POOL METHODS
 
-    function addStake(address nodeAddress, uint amount) external {
-        Stake storage stake = stakes[nodeAddress];
-        if (stake.amount == 0) {
-            // new stake
-            stakes[nodeAddress] = Stake(amount, IStaking(msg.sender), false);
+    function newStake(address nodeAddress, uint amount, bool isAlwaysTop) external onlyRole(STAKING_MANAGER_ROLE) {
+        require(stakes[nodeAddress].amount == 0, "Already has stake");
 
-            _addStake(nodeAddress);
-        } else {
-            // existing stake
-            require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
+        stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), isAlwaysTop);
+        _addStake(nodeAddress);
 
-            bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
-            stake.amount += amount;
-            _increaseStake(nodeAddress, isInTopStakes);
-        }
-        totalStakeAmount += amount;
+        emit StakeCreated(nodeAddress, msg.sender, amount, isAlwaysTop);
+        emit StakeChanged(nodeAddress, msg.sender, int(amount));
     }
 
-    function removeStake(address nodeAddress, uint amount) external {
+    function stake(address nodeAddress, uint amount) external {
+        Stake storage stake = stakes[nodeAddress];
+        require(stake.amount > 0, "Stake doesn't exist");
+        require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
+
+        bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
+        if (isInTopStakes)
+            totalStakeAmount += amount;
+        stake.amount += amount;
+        _increaseStake(nodeAddress, isInTopStakes);
+
+        emit StakeChanged(nodeAddress, msg.sender, int(amount));
+    }
+
+    function unstake(address nodeAddress, uint amount) external {
         Stake storage stake = stakes[nodeAddress];
         require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
         require(stake.amount >= amount, "amount bigger than stake");
 
         bool isInTopStakes = _compareWithLowestStake(nodeAddress) >= 0;
-
+        if (isInTopStakes)
+            totalStakeAmount -= amount;
         stake.amount -= amount;
-        totalStakeAmount -= amount;
+
+        emit StakeChanged(nodeAddress, msg.sender, -int(amount));
 
         if (stake.amount == 0) {
             _removeStake(nodeAddress, isInTopStakes);
+            emit StakeRemoved(nodeAddress, msg.sender);
         } else {
             _decreaseStake(nodeAddress, isInTopStakes);
         }
@@ -131,9 +182,9 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
     }
 
 
-
-
-
+    function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount) external onlyRole(STAKING_MANAGER_ROLE) {
+        emit Reward(msg.sender, nodeAddress, rewardReceiver, nodeOwner, tokenAddress, amount);
+    }
 
 
 
@@ -141,10 +192,22 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
 
     function changeTopStakesCount(uint newTopStakesCount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(newTopStakesCount > 0);
+        require(newTopStakesCount > 0, "newTopStakesCount must be > 0");
+        if (newTopStakesCount < topStakesCount)
+            require(newTopStakesCount + (topStakesCount / 8) >= topStakesCount, "decrease of more than 12.5% is not allowed");
+
         topStakesCount = newTopStakesCount;
     }
 
+    function addBlockListener(IOnBlockListener listener) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _addListener(listener);
+    }
+
+    function removeBlockListener(IOnBlockListener listener) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _removeListener(listener);
+    }
+
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
 
     // SUPERUSER (NODE) METHODS
@@ -152,20 +215,20 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
     function finalizeChange() onlySuperUser() public {
         finalizedValidators = topStakes;
-        emit ValidatorSetFinalized(finalizedValidators);
+        emit ValidatorSetFinalized(finalizedValidators);  // todo
     }
 
 
-    function reward(address[] memory beneficiaries, uint16[] memory kind) external onlySuperUser() returns (address[] memory, uint256[] memory) {
-        Stake storage stake = stakes[beneficiaries[0]];
-        uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
+    function process() external onlyValidator() {
+        _notifyAll();  // call `onBlock` method on listeners
+        _reward();
+        try this._updateExternal() {} catch {}
+    }
 
-        stake.stakingContract.reward(beneficiaries[0], rewardAmount);
-
-
-        address[] memory _addr = new address[](0);
-        uint256[] memory _uint = new uint256[](0);
-        return (_addr, _uint);
+    function _updateExternal() external {
+        require(msg.sender == address(this));
+        _tryMoveToQueue();
+        _tryMoveFromQueue();
     }
 
 
@@ -186,13 +249,29 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
     }
 
+    function _reward() internal {
+        require(block.number > _latestRewardBlock, "reward already called in this block");
+        _latestRewardBlock = block.number;
+
+        Stake storage stake = stakes[msg.sender];
+        uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
+
+        try stake.stakingContract.reward(msg.sender, rewardAmount) {
+        } catch Error(string memory reason) {
+            emit RewardError(address(stake.stakingContract), reason);
+        } catch {
+            emit RewardError(address(stake.stakingContract), "unknown error");
+        }
+    }
+
+
     // HELPERS
 
 
     function _addStake(address nodeAddress) internal {
         // add to queue and call _update() to move it to topStakes if needed
         _addToQueue(nodeAddress);
-        _update();
+        _tryMoveFromQueue();
     }
 
     function _removeStake(address nodeAddress, bool isInTop) internal {
@@ -202,7 +281,7 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         if (isInTop) {
             _removeFromTop(nodeAddress);
             // we have free space in topStakes, need to move node from queuedStakes to topStakes
-            _update();
+            _tryMoveFromQueue();
         } else {
             _removeFromQueue(nodeAddress);
         }
@@ -213,12 +292,12 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         if (isInTop) {
             if (nodeAddress == topStakes[_lowestStakeIndex]) {// lowest stake in top increased his stake, need to find new lowestStakeIndex
                 _findLowestStakeIndex();
-                _update();
+                _tryMoveFromQueue();
             }
         } else {
             if (_compareWithHighestStake(nodeAddress) >= 0) {// current node now has highest stake in queue, set highestStakeIndex to index of current node
                 _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
-                _update();
+                _tryMoveFromQueue();
             }
         }
     }
@@ -227,37 +306,40 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         if (isInTop) {
             if (_compareWithLowestStake(nodeAddress) <= 0) {// current node now has lowest stake in top, set lowestStakeIndex to index of current node
                 _lowestStakeIndex = _findIndexByValue(topStakes, nodeAddress);
-                _update();
+                _tryMoveFromQueue();
             }
         } else {
-            if (nodeAddress != queuedStakes[_highestStakeIndex]) {// highest stake in queue decreased his stake, need to find new highestStakeIndex
+            if (nodeAddress == queuedStakes[_highestStakeIndex]) {// highest stake in queue decreased his stake, need to find new highestStakeIndex
                 _findHighestStakeIndex();
-                _update();
+                _tryMoveFromQueue();
             }
         }
     }
 
-    function _update() internal {
+    function _tryMoveFromQueue() internal {
         if (queuedStakes.length == 0) return;
 
         if (topStakes.length < topStakesCount) {
             // move highest stake in queue to topStakes
-            _addToTop(queuedStakes[_highestStakeIndex]);
-
-            // remove it from queuedStakes
-            _removeByIndex(queuedStakes, _highestStakeIndex);
-            _findHighestStakeIndex();
+            address removedFromQueue = _removeFromQueueByIndex(_highestStakeIndex);
+            _addToTop(removedFromQueue);
 
         } else if (topStakes.length == topStakesCount) {
             if (_compareWithLowestStake(queuedStakes[_highestStakeIndex]) > 0) {
-                // if _highestStakeIndex in queuedStakes is cooler than _lowestStakeIndex in topStakes - swap them
-                (topStakes[_lowestStakeIndex], queuedStakes[_highestStakeIndex]) = (queuedStakes[_highestStakeIndex], topStakes[_lowestStakeIndex]);
-                // find new heads
-                _findLowestStakeIndex();
-                _findHighestStakeIndex();
+                address removedFromTop = _removeFromTopByIndex(_lowestStakeIndex);
+                address removedFromQueue = _removeFromQueueByIndex(_highestStakeIndex);
+                _addToQueue(removedFromTop);
+                _addToTop(removedFromQueue);
             }
         }
 
+    }
+    function _tryMoveToQueue() internal {
+        if (topStakes.length <= topStakesCount) return;
+        if (block.number < _latestRemoveFromTopBlock + finalizedValidators.length) return;  // no more than once per round
+
+        address removedFromTop = _removeFromTopByIndex(_lowestStakeIndex);
+        _addToQueue(removedFromTop);
     }
 
     // MORE LOW LEVEL HELPERS
@@ -268,7 +350,9 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
         if (queuedStakes.length == 1) // if current node is the only one in queuedStakes - it is highestStakeIndex
             _highestStakeIndex = 0;
         else if (_compareWithHighestStake(nodeAddress) > 0) // current node now has highest stake
-            _highestStakeIndex = _findIndexByValue(queuedStakes, nodeAddress);
+            _highestStakeIndex = queuedStakes.length - 1;
+
+        emit QueueListNodeAdded(nodeAddress);
     }
 
     function _addToTop(address nodeAddress) internal {
@@ -277,20 +361,37 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
 
         if (_compareWithLowestStake(topStakes[topStakes.length - 1]) < 0) // check if new node is now  _lowestStakeIndex
             _lowestStakeIndex = topStakes.length - 1;
+
+        totalStakeAmount += stakes[nodeAddress].amount;
+
+        emit TopListNodeAdded(nodeAddress);
     }
 
     function _removeFromQueue(address nodeAddress) internal {
         uint index = _findIndexByValue(queuedStakes, nodeAddress);
+        _removeFromQueueByIndex(index);
+    }
+
+    function _removeFromQueueByIndex(uint index) internal returns (address) {
+        address nodeAddress = queuedStakes[index];
         _removeByIndex(queuedStakes, index);
 
         if (_highestStakeIndex == index)  // need to find new highestStakeIndex
             _findHighestStakeIndex();
         else if (_highestStakeIndex == queuedStakes.length)  // if highestStakeIndex was last in queue - now it moved to `index`
             _highestStakeIndex = index;
+
+        emit QueueListNodeRemoved(nodeAddress);
+        return nodeAddress;
     }
 
     function _removeFromTop(address nodeAddress) internal {
         uint index = _findIndexByValue(topStakes, nodeAddress);
+        _removeFromTopByIndex(index);
+    }
+
+    function _removeFromTopByIndex(uint index) internal returns (address) {
+        address nodeAddress = topStakes[index];
         _removeByIndex(topStakes, index);
         _topValidatorsChanged();
 
@@ -298,6 +399,12 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
             _findLowestStakeIndex();
         else if (_lowestStakeIndex == topStakes.length) // if lowestStakeIndex was last in topStakes - now it moved to `index`
             _lowestStakeIndex = index;
+
+        totalStakeAmount -= stakes[nodeAddress].amount;
+        _latestRemoveFromTopBlock = block.number;
+
+        emit TopListNodeRemoved(nodeAddress);
+        return nodeAddress;
     }
 
     // ANOTHER TYPE OF HELPERS
@@ -366,6 +473,19 @@ contract ValidatorSet is SuperUser, AccessControl, IValidatorSet {
     function _removeByIndex(address[] storage array, uint i) internal {
         array[i] = array[array.length - 1];
         array.pop();
+    }
+
+    // MODIFIERS
+
+    modifier onlySuperUser() {
+        require(msg.sender == 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "only super user can call this function");
+        _;
+    }
+
+    modifier onlyValidator() {
+        // current validator or multisig
+        require(msg.sender == block.coinbase, "only super user can call this function");
+        _;
     }
 
 }

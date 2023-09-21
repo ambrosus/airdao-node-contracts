@@ -1,0 +1,106 @@
+@startuml
+
+hide empty members
+
+
+struct Consensus {}
+
+class ValidatorSet {
+    +validators
+
+    #onboard(nodeAddress)
+    #deonboard(nodeAddress)
+    -finalizeChange()
+    -reward(beneficiaries[], kind[])
+    -report(nodeAddress)
+}
+
+
+interface IValidatorSet {
+    #onboard(nodeAddress)
+    #deonboard(nodeAddress)
+}
+interface IStakeManager {
+    #reward(nodeAddress, amount)
+    #report(nodeAddress)
+}
+
+
+interface IPoolsManager {
+    #addNodeRequest(stake, reqId, nodeId)
+    #addNodeRequestResolved(reqId, status)
+    #onboard(nodeAddress)
+    #retire(nodeAddress)
+
+    #poolStakeChanged(user, amount, tokens)
+    #poolReward(reward, tokenPrice)
+}
+
+
+class BaseNodes {
+    + **multisig can register nodes**
+    + **nodes always in top**
+    + receives 100% reward
+    + all rewards in AMB
+    + no limits
+}
+
+class LimitedTop {
+    + **allows only 200 best nodes **\n**to get into the list of validators**
+}
+
+
+
+class ServerNodes {
+    + **one user = one node**
+    - **can be slashed**
+    + receives 100% reward
+    - receive some reward in Amb Bonds
+    - has minimum stake amount limit
+    - 24 hours onboarding period
+    - 14 days unstaking period
+}
+
+
+class PoolsNodes {
+    + **many users shares node**
+    + **nodes always in top**
+}
+
+class AirdaoStakingPool {
+    - receives 80% reward
+    + all rewards in AMB [???]
+    - first reward after 15 days
+    - 15 days unstaking period
+}
+
+class LiquidStakingPool {
+    - receives 60% reward
+    + all rewards in AMB [???]
+    + no delays, no unstaking period
+    - whitelist [???]
+}
+
+Consensus <.-> ValidatorSet
+
+
+ValidatorSet --> IStakeManager
+ValidatorSet <-- IValidatorSet
+
+IStakeManager --> BaseNodes
+IStakeManager --> LimitedTop
+IStakeManager --> PoolsNodes
+
+IValidatorSet <-- BaseNodes
+IValidatorSet <-- LimitedTop
+IValidatorSet <-- PoolsNodes
+
+
+LimitedTop <--> ServerNodes
+
+
+PoolsNodes <-- IPoolsManager
+IPoolsManager <-- AirdaoStakingPool
+IPoolsManager <-- LiquidStakingPool
+
+@enduml

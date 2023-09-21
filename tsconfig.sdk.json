@@ -3,6 +3,8 @@
     "target": "es2020",
     "module": "commonjs",
     "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
@@ -10,6 +12,6 @@
     "types": [],
     "resolveJsonModule": true
   },
-  "include": ["src", "deployments"],
+  "include": ["src", "deployments/*.json"],
   "exclude": ["node_modules", "src/dev"]
 }

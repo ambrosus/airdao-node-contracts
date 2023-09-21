@@ -1,0 +1,75 @@
+import { Contracts } from "../contracts/contracts";
+import { BigNumberish } from "ethers";
+import { LockKeeper, ServerNodes_Manager } from "../../typechain-types";
+import { ContractNames } from "../contracts/names";
+import { validatorSetGetNodeStake } from "./consensus";
+
+export async function getApolloInfo(contracts: Contracts, nodeAddress: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  const stake = await serverNodes.stakes(nodeAddress);
+  if (stake.stake.isZero()) return undefined;
+
+  const withdrawLockId = await serverNodes.lockedWithdraws(nodeAddress);
+  const withdrawLock_ = await lockKeeperGetLock(contracts, withdrawLockId);
+  const withdrawLock = withdrawLock_.totalClaims.isZero()
+    ? undefined
+    : {
+        receiver: withdrawLock_.receiver,
+        amount: withdrawLock_.intervalAmount,
+        unlockTime: withdrawLock_.firstUnlockTime,
+      };
+
+  const isOnboarded = !(await validatorSetGetNodeStake(contracts, nodeAddress)).isZero();
+
+  return { apollo: stake, withdrawLock, isOnboarded };
+}
+
+export function serverNodesNewStake(
+  contracts: Contracts,
+  nodeAddress: string,
+  rewardAddress: string,
+  amount: BigNumberish
+) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.newStake(nodeAddress, rewardAddress, { value: amount });
+}
+
+export function serverNodesAddStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.addStake(nodeAddress, { value: amount });
+}
+
+export function serverNodesUnstake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.unstake(nodeAddress, amount);
+}
+
+export function serverNodesRestake(contracts: Contracts, nodeAddress: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.restake(nodeAddress);
+}
+
+export function serverNodesGetStake(contracts: Contracts, nodeAddress: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.stakes(nodeAddress);
+}
+
+export function serverNodesGetNodesByOwner(contracts: Contracts, ownerAddress: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.getUserStakesList(ownerAddress);
+}
+
+export function serverNodesChangeNodeOwner(contracts: Contracts, nodeAddress: string, newOwner: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.changeNodeOwner(nodeAddress, newOwner);
+}
+
+export function serverNodesSetRewardsAddress(contracts: Contracts, nodeAddress: string, newRewardReceiver: string) {
+  const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
+  return serverNodes.setRewardsAddress(nodeAddress, newRewardReceiver);
+}
+
+async function lockKeeperGetLock(contracts: Contracts, lockId: BigNumberish) {
+  const lockKeeper = contracts.getContractByName(ContractNames.LockKeeper) as LockKeeper;
+  return await lockKeeper.getLock(lockId);
+}
