@@ -30,6 +30,11 @@ export async function validatorSetGetQueuedStakes(contracts: Contracts) {
   return validatorSet.getQueuedStakes();
 }
 
+export async function validatorSetGetRewardSettings(contracts: Contracts) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  return validatorSet.getQueuedStakes();
+}
+
 export async function validatorSetGetStakesByManager(contracts: Contracts, managerAddress: string) {
   const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
   return validatorSet.getStakesByManager(managerAddress);
@@ -45,6 +50,13 @@ export async function validatorSetGetBlockListeners(contracts: Contracts) {
 export async function validatorSetAddBlockListener(contracts: Contracts, listener: string) {
   return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
     validatorSet.addBlockListener(listener)
+  );
+}
+
+export async function validatorSetSetRewardSettings(contracts: Contracts, newSettings: Array<unknown>) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    // @ts-ignore
+    validatorSet.setRewardSettings(newSettings)
   );
 }
 
