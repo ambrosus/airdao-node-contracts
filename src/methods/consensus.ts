@@ -45,6 +45,13 @@ export async function validatorSetGetBlockListeners(contracts: Contracts) {
   return validatorSet.getBlockListeners();
 }
 
+export async function validatorSetGetRewardSettings(contracts: Contracts) {
+  const validatorSet = contracts.getContractByName(ContractNames.ValidatorSet) as ValidatorSet;
+  const [isEnabled, ...settings] = await validatorSet.getRewardSettings();
+  const [lowerPercent, upperPercent, lowerReward, upperReward] = settings.map((e) => +e / 10000);
+  return { isEnabled: +isEnabled != 0, lowerPercent, upperPercent, lowerReward, upperReward };
+}
+
 // admin methods
 
 export async function validatorSetAddBlockListener(contracts: Contracts, listener: string) {
@@ -75,5 +82,24 @@ export async function validatorSetChangeTopStakesCount(contracts: Contracts, new
 export async function validatorSetSetReward(contracts: Contracts, baseReward: BigNumberish) {
   return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
     validatorSet.setReward(baseReward)
+  );
+}
+
+export async function validatorSetSetRewardSettings(
+  contracts: Contracts,
+  isEnabled: boolean,
+  lowerPercent: number,
+  upperPercent: number,
+  lowerReward: number,
+  upperReward: number
+) {
+  return await submitTransaction2<ValidatorSet>(contracts, ContractNames.ValidatorSet, 0, (validatorSet) =>
+    validatorSet.setRewardSettings([
+      +isEnabled,
+      lowerPercent * 10000,
+      upperPercent * 10000,
+      lowerReward * 10000,
+      upperReward * 10000,
+    ])
   );
 }

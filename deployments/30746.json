@@ -475,7 +475,7 @@
     "deployTx": "0x286eaea83658bc832aa10a194dc4a3e20d01b5d0f943b82460ccf6feae12194c",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xea3011C9Efeb1e2A63A0c6cb23a0e0314970735F",
+      "implementation": "0xC54450028dAE52c1DC1bb9Dabe553457eABd4Aa3",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
