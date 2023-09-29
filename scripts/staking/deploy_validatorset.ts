@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { ContractNames } from "../../src";
 import { Multisig__factory, ValidatorSet__factory } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
@@ -27,12 +27,14 @@ export async function main() {
     isUpgradeableProxy: true,
   });
 
-  const elasticRewardsSetterAddress = "0xb0857e3203f9e392c83f746da9a6a2ddeb6b69af"; //TODO change it for mainnet
+  const rewardsOracleAddress =
+    network.name == "main"
+      ? "?" // todo
+      : "0xb0857e3203f9e392c83f746da9a6a2ddeb6b69af"; //384cbfc4a2218ab4a5ba81e6888073ad97f98f7f7a4ff52f3c6c0eb5407fee6b
 
   await (await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.REWARD_ORACLE_ROLE(), multisig.address)).wait();
-  await (await validatorSet.grantRole(await validatorSet.REWARD_ORACLE_ROLE(), elasticRewardsSetterAddress)).wait();
-  //384cbfc4a2218ab4a5ba81e6888073ad97f98f7f7a4ff52f3c6c0eb5407fee6b
+  await (await validatorSet.grantRole(await validatorSet.REWARD_ORACLE_ROLE(), rewardsOracleAddress)).wait();
 }
 
 if (require.main === module) {
