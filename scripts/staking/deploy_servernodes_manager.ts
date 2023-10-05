@@ -42,7 +42,8 @@ export async function main() {
     signer: deployer,
   });
 
-  const onboardingDelay = 15 * 24 * 60 * 60; // 15d
+  // const onboardingDelay = 15 * 24 * 60 * 60; // 15d
+  const onboardingDelay = 0; // for testing, todo remove
   const unstakeLockTime = 15 * 24 * 60 * 60; // 15d
   const minStakeAmount = ethers.utils.parseEther("1000"); // 1000 AMB
 
