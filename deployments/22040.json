@@ -533,7 +533,7 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xe13921fafaea0bafe81562ab6e7f5990714590bb8041b40dfdf212fe2d058d77",
+    "deployTx": "0x0f9b1c2e0b684ae0b43f0da0d70c9d8d2287273ca3270831c737676e3a9e3a28",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
   "BaseNodesManager_Multisig": {
@@ -767,7 +767,7 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x5dd895b7442e8b3ea0fefb53ad55969fe2fce0cf8ef39a190d5c5f74c94f4a78",
+    "deployTx": "0x31e7049f75755014b3b37aec700d878812cfcbb1f5a3bcc54105613b526ac87d",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
       "implementation": "0x7aE1eAFC7a9b106b392ddEE027449b09dbDE1347",
@@ -849,13 +849,11 @@
       "function addNodeRequest(uint256 stake, uint256 requestId, uint256 nodeId, uint8 role)",
       "function addNodeRequestResolved(uint256 requestId, uint256 status)",
       "function addPool(address pool)",
-      "function changeMinApolloDeposit(uint256 newMinApolloDeposit)",
       "function getDeposit(address nodeAddress) view returns (uint256)",
       "function getPools() view returns (address[])",
       "function importOldStakes(address[] addresses, address[] pools, uint256[] amounts)",
-      "function initialize(uint256 _minApolloDeposit, address _validatorSet, address _rewardsBank, address _treasury, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
+      "function initialize(address _validatorSet, address _rewardsBank, address _treasury, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
       "function isPool(address poolAddress) view returns (bool)",
-      "function minApolloDeposit() view returns (uint256)",
       "function nextId() returns (uint256)",
       "function node2pool(address) view returns (address)",
       "function onboard(address nodeAddress, uint8 nodeType) payable",
@@ -878,7 +876,7 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0xdadf8c8dd6bfb5e5921017af33c01b4bad0882b6b7f84b63b525d50f9c416602",
+    "deployTx": "0x973af5c50e180b0d5391387d75f91df87b36f761700cec90994114cdacb3b3ae",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
       "implementation": "0xC54007213080526139d38eAe66777dFac413772C",

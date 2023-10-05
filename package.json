@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
@@ -26,8 +26,8 @@
     "deploy_legacy_pool_manager": "hardhat run scripts/staking/deploy_legacy_pool_manager.ts --network test",
     "deploy_staking": "npm run deploy_validatorset && npm run deploy_treasury && npm run deploy_basenodes_manager && npm run deploy_servernodes_manager && npm run deploy_legacy_pool_manager",
     "deploy_all": "npm run deploy_multisig && npm run deploy_finance && npm run deploy_airdrop && npm run deploy_staking",
-    "deploy_migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network dev",
-    "test_script": "hardhat run scripts/staking/test.ts --network test",
+    "deploy_migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network test",
+    "test_script": "hardhat run scripts/test.ts",
     "integration_test_script": "hardhat run scripts/staking/new_validatorset_integration_test.ts --network local",
     "sourcify:dev": "SOURCIFY_API=https://sourcify.ambrosus-dev.io/ hardhat sourcify --network dev",
     "sourcify:test": "SOURCIFY_API=https://sourcify.ambrosus-dev.io/ hardhat sourcify --network test",
