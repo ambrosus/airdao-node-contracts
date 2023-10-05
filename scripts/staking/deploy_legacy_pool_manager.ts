@@ -42,16 +42,12 @@ async function main() {
 
   const head: Head = await ethers.getContractAt("Head", HEAD);
   const oldContext = Context__factory.connect(await head.context(), deployer);
-  const oldCatalogue = Catalogue__factory.connect(await oldContext.catalogue(), deployer);
   const oldStorageCatalogue = StorageCatalogue__factory.connect(await oldContext.storageCatalogue(), deployer);
-
-  const minApolloDeposit = await new ethers.Contract(await oldCatalogue.config(), configAbi, deployer).APOLLO_DEPOSIT();
 
   const manager = await deploy<LegacyPoolsNodes_Manager__factory>({
     contractName: ContractNames.LegacyPoolManager,
     artifactName: "LegacyPoolsNodes_Manager",
     deployArgs: [
-      minApolloDeposit,
       validatorSet.address,
       rewardsBank.address,
       treasury.address,

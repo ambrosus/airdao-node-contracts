@@ -54,16 +54,6 @@ export async function poolManagerRemovePool(contracts: Contracts, contractName: 
   );
 }
 
-export async function poolManagerChangeMinApolloDeposit(
-  contracts: Contracts,
-  contractName: PoolManagersCN,
-  minApolloDeposit: BigNumberish
-) {
-  return await submitTransaction2<PoolsNodes_Manager>(contracts, contractName, 0, (poolManager) =>
-    poolManager.changeMinApolloDeposit(minApolloDeposit)
-  );
-}
-
 // base nodes manager
 
 export async function baseNodesManagerAddStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {

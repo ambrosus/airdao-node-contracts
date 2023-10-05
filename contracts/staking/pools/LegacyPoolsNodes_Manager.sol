@@ -21,8 +21,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
     RewardsBank public rewardsBank;
     Treasury public treasury;
 
-    uint public  minApolloDeposit;
-
     PoolsStore private poolsStore;
     ApolloDepositStore private apolloDepositStore;
     RolesEventEmitter private rolesEventEmitter;
@@ -37,7 +35,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
 
 
     function initialize(
-        uint _minApolloDeposit,
         IValidatorSet _validatorSet,
         RewardsBank _rewardsBank,
         Treasury _treasury,
@@ -47,7 +44,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
         PoolEventsEmitter _poolEventsEmitter
     ) public initializer {
         __Ownable_init();
-        minApolloDeposit = _minApolloDeposit;
         validatorSet = _validatorSet;
         rewardsBank = _rewardsBank;
         treasury = _treasury;
@@ -62,7 +58,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
 
 
     function onboard(address nodeAddress, Consts.NodeType nodeType) external payable onlyPoolsCalls whenNotPaused {
-        require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
         apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
         validatorSet.newStake(nodeAddress, msg.value, true);
@@ -110,10 +105,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
 
     function removePool(address pool) public onlyOwner {
         poolsStore.removePool(pool);
-    }
-
-    function changeMinApolloDeposit(uint newMinApolloDeposit) public onlyOwner {
-        minApolloDeposit = newMinApolloDeposit;
     }
 
     function importOldStakes(address[] memory addresses, address[] memory pools, uint[] memory amounts) public onlyOwner {
