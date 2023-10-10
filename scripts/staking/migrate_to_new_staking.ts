@@ -19,7 +19,6 @@ import {
 import { BigNumber, Contract, PopulatedTransaction } from "ethers";
 import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 // import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
@@ -57,12 +56,17 @@ async function main() {
   const multisigAddress = await Head__factory.connect(multiplexerAddress, deployer).owner();
   console.log("multiplexer", multiplexerAddress, ", multisig", multisigAddress);
 
+  const multisig = new ethers.Contract(multisigAddress, multisigAbi);
+  const multiplexer = new ethers.Contract(multiplexerAddress, multiplexerAbi);
+
   if (!(await fees.isAdmin(deployer.address))) {
     console.warn(`${deployer.address} is not a admin`);
-    await assignAdminRole(deployer.address);
-
+    await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.addAdmin(deployer.address));
   }
-  if (!(await fees.paused())) throw "legacy contracts doesn't paused!";
+  if (!(await fees.paused())) {
+    console.warn("legacy contracts doesn't paused!");
+    await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.setPaused(true));
+  }
 
   const oldStakes = await getOldStakes(
     await storageCatalogue.apolloDepositStore(),
@@ -71,7 +75,7 @@ async function main() {
   );
 
   console.log("old stakes", oldStakes);
-  return;
+  // return;
 
   const {
     baseNodesAddresses,
@@ -251,33 +255,20 @@ async function getPoolNodesAddresses(poolsStore: PoolsStore) {
   return node2poll;
 }
 
-async function assignAdminRole(address: string) {
+
+async function submitMultisigTx(multisig: Contract, targetContract: Contract, populateTransactionPromise: Promise<PopulatedTransaction>) {
   const [owner, multisig1, multisig2] = await ethers.getSigners();
-  const multiplexer = new ethers.Contract("Multiplexer", multiplexerAbi, multisig1);
-  const multisig = new ethers.Contract("MultiSigWallet", multisigAbi, multisig1);
 
-  const pausedTxId = await submitAndExtractTxId(multiplexer, multisig, multiplexer.populateTransaction.setPaused(true));
-  await confirmTransaction(multisig, multisig2, pausedTxId);
-
-  const adminTxId = await submitAndExtractTxId(multiplexer, multisig, multiplexer.populateTransaction.addAdmin(address));
-  await confirmTransaction(multisig, multisig2, adminTxId);
-}
-
-async function submitAndExtractTxId(targetContract: Contract, multisig: Contract, populateTransactionPromise: Promise<PopulatedTransaction>) {
   const calldata = (await populateTransactionPromise).data!;
-  const txResponse = await multisig.submitTransaction(targetContract.address, 0, calldata);
-  const receipt = await txResponse.wait();
+  const receipt = await (await multisig.connect(multisig1).submitTransaction(targetContract.address, 0, calldata)).wait();
 
-  const submissionEvent = receipt.events?.find(e => e.event === "Submission");
+  const submissionEvent = receipt.events?.find((e: any) => e.event === "Submission");
   if (!submissionEvent || !submissionEvent.args) throw new Error("Submission event not found");
   const txId = submissionEvent.args[0];
 
-  return txId;
+  await (await multisig.connect(multisig2).confirmTransaction(txId)).wait();
 }
 
-async function confirmTransaction(multisig: Contract, signer: SignerWithAddress, txId: BigNumber) {
-  await multisig.connect(signer).confirmTransaction(txId);
-}
 
 function repeat<T>(item: T, times: number): T[] {
   return Array(times).fill(item);
