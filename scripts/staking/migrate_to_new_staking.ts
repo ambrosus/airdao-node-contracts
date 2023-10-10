@@ -16,15 +16,18 @@ import {
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract, PopulatedTransaction } from "ethers";
 import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
-import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+// import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 const validatorSetAbi = ["function getValidators() view returns (address[])"];
+const multiplexerAbi = ["function addAdmin(address _admin)", "function setPaused(bool _paused)"];
+const multisigAbi = ["function confirmTransaction(uint256 transactionId)", "function submitTransaction(address destination, uint256 value, bytes data) public returns (uint256 transactionId)"];
 const feesAbi = ["function isAdmin(address) view returns (bool)", "function paused() view returns (bool)"];
 
 async function main() {
@@ -32,7 +35,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  wrapProviderToError(deployer.provider!);
+  // wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;
@@ -54,7 +57,11 @@ async function main() {
   const multisigAddress = await Head__factory.connect(multiplexerAddress, deployer).owner();
   console.log("multiplexer", multiplexerAddress, ", multisig", multisigAddress);
 
-  if (!(await fees.isAdmin(deployer.address))) throw `${deployer.address} is not a admin`;
+  if (!(await fees.isAdmin(deployer.address))) {
+    console.warn(`${deployer.address} is not a admin`);
+    await assignAdminRole(deployer.address);
+
+  }
   if (!(await fees.paused())) throw "legacy contracts doesn't paused!";
 
   const oldStakes = await getOldStakes(
@@ -242,6 +249,34 @@ async function getPoolNodesAddresses(poolsStore: PoolsStore) {
     for (const node of nodes) node2poll[node] = poolAddress;
   }
   return node2poll;
+}
+
+async function assignAdminRole(address: string) {
+  const [owner, multisig1, multisig2] = await ethers.getSigners();
+  const multiplexer = new ethers.Contract("Multiplexer", multiplexerAbi, multisig1);
+  const multisig = new ethers.Contract("MultiSigWallet", multisigAbi, multisig1);
+
+  const pausedTxId = await submitAndExtractTxId(multiplexer, multisig, multiplexer.populateTransaction.setPaused(true));
+  await confirmTransaction(multisig, multisig2, pausedTxId);
+
+  const adminTxId = await submitAndExtractTxId(multiplexer, multisig, multiplexer.populateTransaction.addAdmin(address));
+  await confirmTransaction(multisig, multisig2, adminTxId);
+}
+
+async function submitAndExtractTxId(targetContract: Contract, multisig: Contract, populateTransactionPromise: Promise<PopulatedTransaction>) {
+  const calldata = (await populateTransactionPromise).data!;
+  const txResponse = await multisig.submitTransaction(targetContract.address, 0, calldata);
+  const receipt = await txResponse.wait();
+
+  const submissionEvent = receipt.events?.find(e => e.event === "Submission");
+  if (!submissionEvent || !submissionEvent.args) throw new Error("Submission event not found");
+  const txId = submissionEvent.args[0];
+
+  return txId;
+}
+
+async function confirmTransaction(multisig: Contract, signer: SignerWithAddress, txId: BigNumber) {
+  await multisig.connect(signer).confirmTransaction(txId);
 }
 
 function repeat<T>(item: T, times: number): T[] {
