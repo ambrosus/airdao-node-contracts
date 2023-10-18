@@ -16,15 +16,17 @@ import {
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract, PopulatedTransaction } from "ethers";
 import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
-import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
+// import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 const validatorSetAbi = ["function getValidators() view returns (address[])"];
+const multiplexerAbi = ["function addAdmin(address _admin)", "function setPaused(bool _paused)"];
+const multisigAbi = ["function confirmTransaction(uint256 transactionId)", "function submitTransaction(address destination, uint256 value, bytes data) public returns (uint256 transactionId)"];
 const feesAbi = ["function isAdmin(address) view returns (bool)", "function paused() view returns (bool)"];
 
 async function main() {
@@ -32,7 +34,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  wrapProviderToError(deployer.provider!);
+  // wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;
@@ -54,8 +56,17 @@ async function main() {
   const multisigAddress = await Head__factory.connect(multiplexerAddress, deployer).owner();
   console.log("multiplexer", multiplexerAddress, ", multisig", multisigAddress);
 
-  if (!(await fees.isAdmin(deployer.address))) throw `${deployer.address} is not a admin`;
-  if (!(await fees.paused())) throw "legacy contracts doesn't paused!";
+  const multisig = new ethers.Contract(multisigAddress, multisigAbi);
+  const multiplexer = new ethers.Contract(multiplexerAddress, multiplexerAbi);
+
+  if (!(await fees.isAdmin(deployer.address))) {
+    console.warn(`${deployer.address} is not a admin`);
+    await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.addAdmin(deployer.address));
+  }
+  if (!(await fees.paused())) {
+    console.warn("legacy contracts doesn't paused!");
+    await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.setPaused(true));
+  }
 
   const oldStakes = await getOldStakes(
     await storageCatalogue.apolloDepositStore(),
@@ -64,7 +75,7 @@ async function main() {
   );
 
   console.log("old stakes", oldStakes);
-  return;
+  // return;
 
   const {
     baseNodesAddresses,
@@ -243,6 +254,21 @@ async function getPoolNodesAddresses(poolsStore: PoolsStore) {
   }
   return node2poll;
 }
+
+
+async function submitMultisigTx(multisig: Contract, targetContract: Contract, populateTransactionPromise: Promise<PopulatedTransaction>) {
+  const [owner, multisig1, multisig2] = await ethers.getSigners();
+
+  const calldata = (await populateTransactionPromise).data!;
+  const receipt = await (await multisig.connect(multisig1).submitTransaction(targetContract.address, 0, calldata)).wait();
+
+  const submissionEvent = receipt.events?.find((e: any) => e.event === "Submission");
+  if (!submissionEvent || !submissionEvent.args) throw new Error("Submission event not found");
+  const txId = submissionEvent.args[0];
+
+  await (await multisig.connect(multisig2).confirmTransaction(txId)).wait();
+}
+
 
 function repeat<T>(item: T, times: number): T[] {
   return Array(times).fill(item);
