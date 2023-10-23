@@ -60,10 +60,12 @@ async function main() {
   const multiplexer = new ethers.Contract(multiplexerAddress, multiplexerAbi);
 
   if (!(await fees.isAdmin(deployer.address))) {
+    if (network.name === "main") throw new Error(`${deployer.address} is not a admin`);
     console.warn(`${deployer.address} is not a admin`);
     await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.addAdmin(deployer.address));
   }
   if (!(await fees.paused())) {
+    if (network.name === "main") throw new Error("legacy contracts doesn't paused!");
     console.warn("legacy contracts doesn't paused!");
     await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.setPaused(true));
   }
@@ -135,17 +137,17 @@ async function main() {
 
   // todo uncomment lines below before prod
   console.log("setup ownership for baseNodes");
-  // await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+  await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for serverNodes");
-  // await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+  await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for poolNodes");
   const poolNodesMultisig = loadDeployment(ContractNames.LegacyPoolManagerMultisig, chainId).address;
   await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();
 
   console.log("setup ownership for validatorset");
-  // await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
+  await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
 }
 
 async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, rolesEventEmitterAddr: string) {

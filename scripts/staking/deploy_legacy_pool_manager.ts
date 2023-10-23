@@ -1,6 +1,5 @@
-import { ethers } from "hardhat";
+import {ethers} from "hardhat";
 import {
-  Catalogue__factory,
   Context__factory,
   Head,
   LegacyPoolsNodes_Manager__factory,
@@ -9,12 +8,11 @@ import {
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import { ContractNames } from "../../src";
+import {deploy, loadDeployment} from "@airdao/deployments/deploying";
+import {ContractNames} from "../../src";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
-
-const configAbi = ["function APOLLO_DEPOSIT() view returns (uint)"];
 
 async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -28,7 +26,7 @@ async function main() {
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.LegacyPoolManagerMultisig,
     artifactName: "Multisig",
-    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
@@ -64,8 +62,6 @@ async function main() {
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address)).wait();
 
-  // await (await manager.transferOwnership(multisig.address)).wait();
-  // console.log("transferred ownership to multisig", multisig.address);
 }
 
 if (require.main === module) {
