@@ -8,6 +8,7 @@ import {
   ValidatorSet,
 } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -17,11 +18,12 @@ export async function main() {
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
+  const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.ServerNodesManagerMultisig,
     artifactName: "Multisig",
-    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
@@ -41,9 +43,9 @@ export async function main() {
     signer: deployer,
   });
 
-  const onboardingDelay = 15 * 24 * 60 * 60; // 15d
-  const unstakeLockTime = 15 * 24 * 60 * 60; // 15d
-  const minStakeAmount = ethers.utils.parseEther("1000"); // 1000 AMB
+  const onboardingDelay = 0;
+  const unstakeLockTime = 0;
+  const minStakeAmount = ethers.utils.parseEther("1000000"); // 1M AMB
 
   const manager = await deploy<ServerNodes_Manager__factory>({
     contractName: ContractNames.ServerNodesManager,
@@ -53,6 +55,7 @@ export async function main() {
       lockKeeper.address,
       rewardsBank.address,
       airBond.address,
+      treasury.address,
       onboardingDelay,
       unstakeLockTime,
       minStakeAmount,

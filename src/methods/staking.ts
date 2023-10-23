@@ -7,6 +7,7 @@ import {
   PoolsNodes_Manager,
   RewardsBank,
   ServerNodes_Manager,
+  Treasury,
   ValidatorSet,
 } from "../../typechain-types";
 import { submitTransaction2 } from "./internal";
@@ -51,16 +52,6 @@ export async function poolManagerAddPool(contracts: Contracts, contractName: Poo
 export async function poolManagerRemovePool(contracts: Contracts, contractName: PoolManagersCN, poolAddress: string) {
   return await submitTransaction2<PoolsNodes_Manager>(contracts, contractName, 0, (poolManager) =>
     poolManager.removePool(poolAddress)
-  );
-}
-
-export async function poolManagerChangeMinApolloDeposit(
-  contracts: Contracts,
-  contractName: PoolManagersCN,
-  minApolloDeposit: BigNumberish
-) {
-  return await submitTransaction2<PoolsNodes_Manager>(contracts, contractName, 0, (poolManager) =>
-    poolManager.changeMinApolloDeposit(minApolloDeposit)
   );
 }
 
@@ -198,4 +189,11 @@ async function getPoolName(contracts: Contracts, poolAddress: string) {
   const abi = ["function name() view returns (string)"];
   const poolContract = new ethers.Contract(poolAddress, abi, provider);
   return poolContract.name().catch(() => null);
+}
+
+
+export async function treasurySetFee(contracts: Contracts, newFee: BigNumberish) {
+  return await submitTransaction2<Treasury>(
+    contracts, ContractNames.Treasury, 0, (treasury) => treasury.setFee(newFee)
+  );
 }

@@ -7,6 +7,7 @@ import {
   RewardsBank__factory,
   ValidatorSet,
 } from "../../typechain-types";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -15,11 +16,12 @@ export async function main() {
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.BaseNodesManagerMultisig,
     artifactName: "Multisig",
-    deployArgs: [[deployer.address], [true], 75, masterMultisig],
+    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
@@ -34,7 +36,7 @@ export async function main() {
   const manager = await deploy<BaseNodes_Manager__factory>({
     contractName: ContractNames.BaseNodesManager,
     artifactName: "BaseNodes_Manager",
-    deployArgs: [validatorSet.address, rewardsBank.address],
+    deployArgs: [validatorSet.address, rewardsBank.address, treasury.address],
     signer: deployer,
     isUpgradeableProxy: true,
   });

@@ -9,6 +9,7 @@ import {
   RewardsBank__factory,
   ServerNodes_Manager,
   TEST_ValidatorSet,
+  Treasury__factory,
 } from "../../typechain-types";
 import { expect } from "chai";
 import { AddressZero } from "@ethersproject/constants";
@@ -31,6 +32,7 @@ describe("ServerNodes", function () {
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
+    const treasury = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
 
     const ServerNodesFactory = await ethers.getContractFactory("ServerNodes_Manager");
     const serverNodes = (await upgrades.deployProxy(ServerNodesFactory, [
@@ -38,6 +40,7 @@ describe("ServerNodes", function () {
       lockKeeper.address,
       rewardsBank.address,
       airBond.address,
+      treasury.address,
       onboardingDelay,
       60 * 5,
       42,
@@ -230,7 +233,7 @@ describe("ServerNodes", function () {
 
     it("reward with bonds (amb to stake, bonds to owner address)", async function () {
       await time.setNextBlockTimestamp(T + 10000);
-      const [nativeReward, bondsReward] = getRewardsValues(10, getBondsPercent(10000));
+      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(10000));
 
       await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
         .to.changeEtherBalance(owner, 0) // todo why owner balance is changed?
@@ -243,7 +246,7 @@ describe("ServerNodes", function () {
       await serverNodes.setRewardsAddress(owner.address, rewardAddress.address);
 
       await time.setNextBlockTimestamp(T + 10000);
-      const [nativeReward, bondsReward] = getRewardsValues(10, getBondsPercent(10000));
+      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(10000));
 
       await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
         .to.changeEtherBalance(rewardAddress, nativeReward)
@@ -254,7 +257,7 @@ describe("ServerNodes", function () {
     it("reward with bonds (amb and bonds to reward address (which is owner))", async function () {
       await serverNodes.setRewardsAddress(owner.address, owner.address);
       await time.setNextBlockTimestamp(T + 10000);
-      const [nativeReward, bondsReward] = getRewardsValues(10, getBondsPercent(10000));
+      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(10000));
 
       await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
         .to.changeEtherBalance(owner, nativeReward)
@@ -266,7 +269,7 @@ describe("ServerNodes", function () {
     it("reward without bonds (3 years)", async function () {
       const years3 = 3 * 365 * 24 * 60 * 60;
       await time.setNextBlockTimestamp(T + years3);
-      const [nativeReward, bondsReward] = getRewardsValues(10, getBondsPercent(years3));
+      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(years3));
       expect(bondsReward).to.be.eq(0);
 
       await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
@@ -278,7 +281,7 @@ describe("ServerNodes", function () {
     it("reward without bonds (4 years)", async function () {
       const years4 = 4 * 365 * 24 * 60 * 60;
       await time.setNextBlockTimestamp(T + years4);
-      const [nativeReward, bondsReward] = getRewardsValues(10, getBondsPercent(years4));
+      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(years4));
       expect(bondsReward).to.be.eq(0);
 
       await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
@@ -434,13 +437,16 @@ describe("ServerNodes", function () {
       expect(await serverNodes.paused()).to.be.false;
     });
   });
-});
 
-function getRewardsValues(amount: number, bondsPercent: number) {
-  const bondsReward = Math.floor((amount * bondsPercent) / 100);
-  const nativeReward = amount - bondsReward;
-  return [nativeReward, bondsReward];
-}
+  async function getRewardsValues(amount: number, bondsPercent: number) {
+    const treasuryFee = +(await Treasury__factory.connect(await serverNodes.treasury(), owner).calcFee(amount));
+    amount -= treasuryFee;
+
+    const bondsReward = Math.floor((amount * bondsPercent) / 100);
+    const nativeReward = amount - bondsReward;
+    return [nativeReward, bondsReward];
+  }
+});
 
 function getBondsPercent(stakingTime: number) {
   return 0; // for now

@@ -16,15 +16,17 @@ import {
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumber, Contract, PopulatedTransaction } from "ethers";
 import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
-import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
+// import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 const validatorSetAbi = ["function getValidators() view returns (address[])"];
+const multiplexerAbi = ["function addAdmin(address _admin)", "function setPaused(bool _paused)"];
+const multisigAbi = ["function confirmTransaction(uint256 transactionId)", "function submitTransaction(address destination, uint256 value, bytes data) public returns (uint256 transactionId)"];
 const feesAbi = ["function isAdmin(address) view returns (bool)", "function paused() view returns (bool)"];
 
 async function main() {
@@ -32,7 +34,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  wrapProviderToError(deployer.provider!);
+  // wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;
@@ -54,8 +56,28 @@ async function main() {
   const multisigAddress = await Head__factory.connect(multiplexerAddress, deployer).owner();
   console.log("multiplexer", multiplexerAddress, ", multisig", multisigAddress);
 
-  if (!(await fees.isAdmin(deployer.address))) throw `${deployer.address} is not a admin`;
-  if (!(await fees.paused())) throw "legacy contracts doesn't paused!";
+  const multisig = new ethers.Contract(multisigAddress, multisigAbi);
+  const multiplexer = new ethers.Contract(multiplexerAddress, multiplexerAbi);
+
+  if (!(await fees.isAdmin(deployer.address))) {
+    if (network.name === "main") throw new Error(`${deployer.address} is not a admin`);
+    console.warn(`${deployer.address} is not a admin`);
+    await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.addAdmin(deployer.address));
+  }
+  if (!(await fees.paused())) {
+    if (network.name === "main") throw new Error("legacy contracts doesn't paused!");
+    console.warn("legacy contracts doesn't paused!");
+    await submitMultisigTx(multisig, multiplexer, multiplexer.populateTransaction.setPaused(true));
+  }
+
+  const oldStakes = await getOldStakes(
+    await storageCatalogue.apolloDepositStore(),
+    await storageCatalogue.poolsStore(),
+    await storageCatalogue.rolesEventEmitter()
+  );
+
+  console.log("old stakes", oldStakes);
+  // return;
 
   const {
     baseNodesAddresses,
@@ -64,11 +86,7 @@ async function main() {
     stakes,
     poolNodes2Pool,
     serverNodesOnboardTime,
-  } = await getOldStakes(
-    await storageCatalogue.apolloDepositStore(),
-    await storageCatalogue.poolsStore(),
-    await storageCatalogue.rolesEventEmitter()
-  );
+  } = oldStakes;
 
   // transfer basenodes and servernodes deposits to deployer
   console.log("withdraw stakes from baseNodes", baseNodesAddresses);
@@ -119,17 +137,17 @@ async function main() {
 
   // todo uncomment lines below before prod
   console.log("setup ownership for baseNodes");
-  // await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+  await (await baseNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for serverNodes");
-  // await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
+  await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for poolNodes");
   const poolNodesMultisig = loadDeployment(ContractNames.LegacyPoolManagerMultisig, chainId).address;
   await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();
 
   console.log("setup ownership for validatorset");
-  // await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
+  await (await validatorSet.revokeRole(defaultAdminRole, deployer.address)).wait();
 }
 
 async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, rolesEventEmitterAddr: string) {
@@ -139,14 +157,14 @@ async function getOldStakes(depositStoreAddr: string, poolsStoreAddr: string, ro
   const poolsStore = PoolsStore__factory.connect(poolsStoreAddr, owner);
   const rolesEventEmitter = RolesEventEmitter__factory.connect(rolesEventEmitterAddr, owner);
 
-  const baseNodesAddresses = await getBaseNodes();
+  const validatorSetAddresses = await validatorSet.getValidators();
+
+  const baseNodesAddresses = await getBaseNodes(validatorSetAddresses);
   const poolNodes2Pool = await getPoolNodesAddresses(poolsStore);
   const poolNodesAddresses = Object.keys(poolNodes2Pool);
   const serverNodesAddresses: string[] = [];
 
   const stakes: { [node: string]: BigNumber } = {};
-
-  const validatorSetAddresses = await validatorSet.getValidators();
 
   // get stake AMOUNT from deposit store for each address
   for (const address of validatorSetAddresses) {
@@ -201,35 +219,21 @@ async function fetchEvents(fetchCall: (startBlock: number, endBlock: number) => 
   return result;
 }
 
-async function getBaseNodes() {
-  const baseNodes = {
-    dev: [
-      "0xdecA85befcC43ed1891758E37c35053aFF935AC1",
-      "0x427933454115d6D55E8e24821d430F944d3eD936",
-      "0x87a3d2CcacDe32f366Bd01bcbeB202643cD38A4E",
-    ],
-    test: [
-      "0x311B7E7d0795c9697c6ED20B962f844E1e1F08ba",
-      "0x5a16b69a09013C077A70fc62a3705Dbf1b60c2B0",
-      "0x91a48ebAfb1C6bc89000B0F63850BeF1258A082B",
-      "0x042cab4fe91f0fb00936a2b9B262A1f9cf88aAd2",
-      "0x62291e77Dc079897751e26a9F6b3BC4630D7454c",
-      "0xA373F89F90ecEf9f430719Ed83eD49722b98FD09",
-      "0x51213F81319E42f6296C29BEeA1245C5F78f2dEf",
-      "0xDE3939BEe9A4B0aB8272bDd06d6B6E7E917FB514",
-      "0x52aB486A5067cd8e2705DbC90Ed72D6dA549D0EB",
-    ],
-    main: [
-      "0x162BA761Fc75f5873197A340F9e7fb926bA7517D",
-      "0x129C0057AF3f91d4fa729AEA7910b46F7cE3d081",
-      "0x73574449cbEd6213F5340e806E9Dec36f05A25ec",
-      "0x742c823aC6963f43E3Fa218be3B8aBb4b786BdBe",
-      "0x9b1822da3F6450832DD92713f49C075b2538F057",
-      "0x9f8B33a65A61F3382904611020EdC17E64745622",
-      // todo
-    ],
+async function getBaseNodes(validators: string[]) {
+  const url = {
+    dev: "https://chainspec.ambrosus-dev.io/",
+    test: "https://chainspec.ambrosus-test.io/",
+    main: "https://chainspec.ambrosus.io/",
   }[network.name];
-  if (baseNodes == undefined) throw new Error(`Unknown network ${network.name}`);
+  if (url == undefined) throw new Error(`Unknown network ${network.name}`);
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Can't fetch ${url}`);
+  const json = await res.json();
+  const baseNodes = (Object.entries(json.accounts) as [string, any][])
+    .filter(([addr, val]) => validators.includes(addr) && val.balance)
+    .map(([addr]) => addr);
+
   return baseNodes;
 }
 
@@ -252,6 +256,21 @@ async function getPoolNodesAddresses(poolsStore: PoolsStore) {
   }
   return node2poll;
 }
+
+
+async function submitMultisigTx(multisig: Contract, targetContract: Contract, populateTransactionPromise: Promise<PopulatedTransaction>) {
+  const [owner, multisig1, multisig2] = await ethers.getSigners();
+
+  const calldata = (await populateTransactionPromise).data!;
+  const receipt = await (await multisig.connect(multisig1).submitTransaction(targetContract.address, 0, calldata)).wait();
+
+  const submissionEvent = receipt.events?.find((e: any) => e.event === "Submission");
+  if (!submissionEvent || !submissionEvent.args) throw new Error("Submission event not found");
+  const txId = submissionEvent.args[0];
+
+  await (await multisig.connect(multisig2).confirmTransaction(txId)).wait();
+}
+
 
 function repeat<T>(item: T, times: number): T[] {
   return Array(times).fill(item);

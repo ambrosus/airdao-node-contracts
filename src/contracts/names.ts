@@ -35,6 +35,9 @@ export enum ContractNames {
   ServerNodesManagerMultisig = "ServerNodesManager_Multisig",
   ServerNodesManagerRewardsBank = "ServerNodesManager_RewardsBank",
 
+  Treasury = "Treasury",
+  TreasuryMultisig = "Treasury_Multisig",
+
   // funds
 
   AirBond = "AirBond",
@@ -60,19 +63,9 @@ export const MULTISIGS = {
   [ContractNames.BaseNodesManagerRewardsBank]: ContractNames.BaseNodesManagerMultisig,
   [ContractNames.LegacyPoolManagerRewardsBank]: ContractNames.LegacyPoolManagerMultisig,
   [ContractNames.ServerNodesManagerRewardsBank]: ContractNames.ServerNodesManagerMultisig,
+  [ContractNames.Treasury]: ContractNames.TreasuryMultisig,
 };
 
-export const slavesMultisigsNames = [
-  ContractNames.FinanceMasterMultisig,
-  ContractNames.FinanceRewardsMultisig,
-  ContractNames.FinanceInvestorsMultisig,
-  ContractNames.FinanceTeamMultisig,
-  ContractNames.FinanceEcosystemMultisig,
-
-  ContractNames.ValidatorSetMultisig,
-  ContractNames.BaseNodesManagerMultisig,
-  ContractNames.LegacyPoolManagerMultisig,
-  ContractNames.ServerNodesManagerMultisig,
-];
+export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
 
 export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];

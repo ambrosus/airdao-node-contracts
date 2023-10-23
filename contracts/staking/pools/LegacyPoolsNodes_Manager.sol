@@ -10,6 +10,7 @@ import "../../consensus/IValidatorSet.sol";
 import "./Legacy/IPoolsNodesManager.sol";
 import "./Legacy/ICatalogueContracts.sol";
 import "../../funds/RewardsBank.sol";
+import "../../finance/Treasury.sol";
 
 // Manager that allows to register staking pools;
 // Each pool can onboard a node (via this manager) when reached some stake goal
@@ -18,8 +19,7 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
 
     IValidatorSet public validatorSet; // contract that manages validator set
     RewardsBank public rewardsBank;
-
-    uint public  minApolloDeposit;
+    Treasury public treasury;
 
     PoolsStore private poolsStore;
     ApolloDepositStore private apolloDepositStore;
@@ -35,18 +35,18 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
 
 
     function initialize(
-        uint _minApolloDeposit,
         IValidatorSet _validatorSet,
         RewardsBank _rewardsBank,
+        Treasury _treasury,
         PoolsStore _poolsStore,
         ApolloDepositStore _apolloDepositStore,
         RolesEventEmitter _rolesEventEmitter,
         PoolEventsEmitter _poolEventsEmitter
     ) public initializer {
         __Ownable_init();
-        minApolloDeposit = _minApolloDeposit;
         validatorSet = _validatorSet;
         rewardsBank = _rewardsBank;
+        treasury = _treasury;
 
         poolsStore = _poolsStore;
         apolloDepositStore = _apolloDepositStore;
@@ -54,12 +54,10 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
         poolEventsEmitter = _poolEventsEmitter;
     }
 
-
     // ONLY POOL METHODS
 
 
     function onboard(address nodeAddress, Consts.NodeType nodeType) external payable onlyPoolsCalls whenNotPaused {
-        require(msg.value >= minApolloDeposit, "Invalid deposit value");
         require(getDeposit(nodeAddress) == 0, "Already staking");
         apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
         validatorSet.newStake(nodeAddress, msg.value, true);
@@ -99,7 +97,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
         return poolsStore.nextId();
     }
 
-
     // OWNER METHODS
 
     function addPool(address pool) public onlyOwner {
@@ -108,10 +105,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
 
     function removePool(address pool) public onlyOwner {
         poolsStore.removePool(pool);
-    }
-
-    function changeMinApolloDeposit(uint newMinApolloDeposit) public onlyOwner {
-        minApolloDeposit = newMinApolloDeposit;
     }
 
     function importOldStakes(address[] memory addresses, address[] memory pools, uint[] memory amounts) public onlyOwner {
@@ -140,6 +133,10 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
         address poolAddress = node2pool[nodeAddress];
         require(poolAddress != address(0), "Can't find pool for node");
 
+        uint treasuryAmount = treasury.calcFee(amount);
+        rewardsBank.withdrawAmb(payable(address(treasury)), treasuryAmount);
+        amount -= treasuryAmount;
+
         rewardsBank.withdrawAmb(payable(address(this)), amount);
         IPool(poolAddress).addReward{value: amount}();
         validatorSet.emitReward(nodeAddress, address(this), address(this), address(0), amount);
@@ -148,7 +145,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
     function report(address nodeAddress) external {
 
     }
-
 
     // VIEW METHODS
 
@@ -166,7 +162,6 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
             return new address[](0);
         return poolsStore.getPools(0, count);
     }
-
 
     // INTERNAL
 

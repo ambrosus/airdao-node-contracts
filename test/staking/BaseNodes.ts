@@ -6,6 +6,7 @@ import {
   BaseNodes_Manager__factory,
   RewardsBank__factory,
   TEST_ValidatorSet,
+  Treasury__factory,
 } from "../../typechain-types";
 import { expect } from "chai";
 
@@ -21,10 +22,13 @@ describe("BaseNodes", function () {
     const validatorSet = (await upgrades.deployProxy(ValidatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
+    const treasury = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
+
     const BaseNodesFactory = await ethers.getContractFactory("BaseNodes_Manager");
     const baseNodes = (await upgrades.deployProxy(BaseNodesFactory, [
       validatorSet.address,
       rewardsBank.address,
+      treasury.address,
     ])) as BaseNodes_Manager;
 
     await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), baseNodes.address);
