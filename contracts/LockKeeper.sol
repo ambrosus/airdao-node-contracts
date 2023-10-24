@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IOnBlockListener} from "./consensus/OnBlockNotifier.sol";
 
 
-contract LockKeeper is IOnBlockListener {
+contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
     using SafeERC20 for IERC20;
 
     //______________[]__.__.__[]__.__.__[]__.__.__[]________________
@@ -54,6 +55,7 @@ contract LockKeeper is IOnBlockListener {
         uint64 timesClaimed;
 
         uint256 intervalAmount;
+        string description;
     }
 
     event Locked(
@@ -65,8 +67,8 @@ contract LockKeeper is IOnBlockListener {
     event Claim(uint indexed lockId, address indexed userAddress, uint amount);
     event LockCanceled(uint indexed lockId, uint canceledAmount);
 
-    constructor() {
-
+    function initialize() public initializer {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     // VIEW
@@ -74,6 +76,18 @@ contract LockKeeper is IOnBlockListener {
     function getLock(uint id) public view returns (Lock memory) {
         return locks[id];
     }
+
+    function getAllLocksIds() public view returns (uint[] memory) {
+        return locksList;
+    }
+
+    function getAllLocks() public view returns (Lock[] memory) {
+        Lock[] memory resultLocks = new Lock[](locksList.length);
+        for (uint i; i < locksList.length; i++)
+            resultLocks[i] = locks[locksList[i]];
+        return resultLocks;
+    }
+
 
     function allUserLocks(address user) public view returns (uint[] memory, Lock[] memory) {
         uint[] memory resultIds = new uint[](locksList.length);
@@ -122,7 +136,8 @@ contract LockKeeper is IOnBlockListener {
             unlockPeriod: unlockPeriod,
             totalClaims: totalClaims,
             timesClaimed: 0,
-            intervalAmount: unlockAmount
+            intervalAmount: unlockAmount,
+            description : description
         });
 
         locksList.push(latestLockId);
@@ -241,4 +256,5 @@ contract LockKeeper is IOnBlockListener {
         }
     }
 
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 }

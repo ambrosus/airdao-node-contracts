@@ -49,6 +49,7 @@ describe("LockKeeper", function () {
         totalClaims: 1,
         timesClaimed: 0,
         intervalAmount: 100,
+        description: "Test",
       });
 
       expect((await lockKeeper.allUserLocks(user2.address))[0]).to.eql([BigNumber.from(1)]);
@@ -70,6 +71,7 @@ describe("LockKeeper", function () {
         totalClaims: 3,
         timesClaimed: 0,
         intervalAmount: 100,
+        description: "Test",
       });
     });
 
