@@ -108,7 +108,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         lockedWithdraws[nodeAddress] = lockKeeper.lockSingle{value: amount + canceledAmount}(
             msg.sender, address(0),
             uint64(block.timestamp + unstakeLockTime), amount + canceledAmount,
-            string(abi.encodePacked("ServerNodes unstake: ", nodeAddress))
+            string(abi.encodePacked("ServerNodes unstake: ", _addressToString(nodeAddress)))
         );
 
         emit StakeChanged(nodeAddress, msg.sender, - int(amount));
@@ -237,6 +237,11 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
+
+    function _upgrade(address newLockKeeper) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        lockKeeper = LockKeeper(newLockKeeper);
+    }
+
     // PRIVATE METHODS
 
 
@@ -286,6 +291,21 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         if (nativePercent > 100) nativePercent = 100;
 
         return 100 - nativePercent;
+    }
+
+    function _addressToString(address x) internal pure returns (string memory) {
+        bytes memory s = new bytes(40);
+        for (uint i = 0; i < 20; i++) {
+            uint8 b = uint8(uint(uint160(x)) / (2**(8*(19 - i))));
+            uint8 hi = (b / 16);
+            uint8 lo = (b - 16 * hi);
+            s[2*i] = _char(hi);
+            s[2*i+1] = _char(lo);
+        }
+        return string(s);
+    }
+    function _char(uint8 b) internal pure returns (bytes1 c) {
+        return bytes1(b + (b < 10 ? 0x30 : 0x57));
     }
 
     receive() external payable {}
