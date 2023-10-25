@@ -7,7 +7,6 @@ import { validatorSetGetNodeStake } from "./consensus";
 export async function getApolloInfo(contracts: Contracts, nodeAddress: string) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   const stake = await serverNodes.stakes(nodeAddress);
-  if (stake.stake.isZero()) return undefined;
 
   const withdrawLockId = await serverNodes.lockedWithdraws(nodeAddress);
   const withdrawLock_ = await lockKeeperGetLock(contracts, withdrawLockId);
