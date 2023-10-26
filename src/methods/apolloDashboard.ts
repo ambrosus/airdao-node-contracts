@@ -34,37 +34,37 @@ export function serverNodesNewStake(
   return serverNodes.newStake(nodeAddress, rewardAddress, { value: amount, ...options });
 }
 
-export function serverNodesAddStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish, options?: object) {
+export function serverNodesAddStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish, options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.addStake(nodeAddress, { value: amount, ...options });
 }
 
-export function serverNodesUnstake(contracts: Contracts, nodeAddress: string, amount: BigNumberish,  options?: object) {
+export function serverNodesUnstake(contracts: Contracts, nodeAddress: string, amount: BigNumberish,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.unstake(nodeAddress, amount, options);
 }
 
-export function serverNodesRestake(contracts: Contracts, nodeAddress: string,  options?: object) {
+export function serverNodesRestake(contracts: Contracts, nodeAddress: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.restake(nodeAddress, options);
 }
 
-export function serverNodesGetStake(contracts: Contracts, nodeAddress: string,  options?: object) {
+export function serverNodesGetStake(contracts: Contracts, nodeAddress: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.stakes(nodeAddress, options);
 }
 
-export function serverNodesGetNodesByOwner(contracts: Contracts, ownerAddress: string,  options?: object) {
+export function serverNodesGetNodesByOwner(contracts: Contracts, ownerAddress: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.getUserStakesList(ownerAddress, options);
 }
 
-export function serverNodesChangeNodeOwner(contracts: Contracts, nodeAddress: string, newOwner: string,  options?: object) {
+export function serverNodesChangeNodeOwner(contracts: Contracts, nodeAddress: string, newOwner: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.changeNodeOwner(nodeAddress, newOwner, options);
 }
 
-export function serverNodesSetRewardsAddress(contracts: Contracts, nodeAddress: string, newRewardReceiver: string,  options?: object) {
+export function serverNodesSetRewardsAddress(contracts: Contracts, nodeAddress: string, newRewardReceiver: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.setRewardsAddress(nodeAddress, newRewardReceiver, options);
 }
