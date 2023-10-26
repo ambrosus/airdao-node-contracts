@@ -28,7 +28,7 @@ export function serverNodesNewStake(
   nodeAddress: string,
   rewardAddress: string,
   amount: BigNumberish,
-  options?: object
+  options: object = {},
 ) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return serverNodes.newStake(nodeAddress, rewardAddress, { value: amount, ...options });
