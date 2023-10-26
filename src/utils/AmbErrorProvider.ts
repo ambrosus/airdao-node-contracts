@@ -68,5 +68,6 @@ function _parseError(error: any): any {
 
   reason = ethers.utils.hexDataSlice(reason, 4);
   reason = ethers.utils.defaultAbiCoder.decode(["string"], reason);
+  console.warn("Error provider successfully parse error: ", reason);
   return new Error(reason);
 }
