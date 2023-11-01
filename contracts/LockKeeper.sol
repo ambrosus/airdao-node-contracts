@@ -199,7 +199,7 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         unclaimedAmount = (lock.totalClaims - lock.timesClaimed) * lock.intervalAmount;
 
         if (lock.token == address(0)) {
-            payable(lock.receiver).transfer(unclaimedAmount);
+            payable(lock.locker).transfer(unclaimedAmount);
         } else {
             IERC20(lock.token).transfer(lock.locker, unclaimedAmount);
         }
