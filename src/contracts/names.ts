@@ -17,6 +17,9 @@ export enum ContractNames {
   FinanceEcosystem = "FinanceEcosystem",
   FinanceEcosystemMultisig = "FinanceEcosystem_Multisig",
 
+  FinanceRevenue = "FinanceRevenue",
+  FinanceRevenueMultisig = "FinanceRevenue_Multisig",
+
   // staking
 
   RewardsEmitter = "RewardsEmitter",
@@ -55,6 +58,7 @@ export const MULTISIGS = {
   [ContractNames.FinanceInvestors]: ContractNames.FinanceInvestorsMultisig,
   [ContractNames.FinanceTeam]: ContractNames.FinanceTeamMultisig,
   [ContractNames.FinanceEcosystem]: ContractNames.FinanceEcosystemMultisig,
+  [ContractNames.FinanceRevenue]: ContractNames.FinanceRevenueMultisig,
 
   [ContractNames.ValidatorSet]: ContractNames.ValidatorSetMultisig,
   [ContractNames.BaseNodesManager]: ContractNames.BaseNodesManagerMultisig,
