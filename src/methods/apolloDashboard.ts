@@ -7,7 +7,6 @@ import { validatorSetGetNodeStake } from "./consensus";
 export async function getApolloInfo(contracts: Contracts, nodeAddress: string) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   const stake = await serverNodes.stakes(nodeAddress);
-  if (stake.stake.isZero()) return undefined;
 
   const withdrawLockId = await serverNodes.lockedWithdraws(nodeAddress);
   const withdrawLock_ = await lockKeeperGetLock(contracts, withdrawLockId);
@@ -28,45 +27,46 @@ export function serverNodesNewStake(
   contracts: Contracts,
   nodeAddress: string,
   rewardAddress: string,
-  amount: BigNumberish
+  amount: BigNumberish,
+  options: object = {},
 ) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.newStake(nodeAddress, rewardAddress, { value: amount });
+  return serverNodes.newStake(nodeAddress, rewardAddress, { value: amount, ...options });
 }
 
-export function serverNodesAddStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+export function serverNodesAddStake(contracts: Contracts, nodeAddress: string, amount: BigNumberish, options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.addStake(nodeAddress, { value: amount });
+  return serverNodes.addStake(nodeAddress, { value: amount, ...options });
 }
 
-export function serverNodesUnstake(contracts: Contracts, nodeAddress: string, amount: BigNumberish) {
+export function serverNodesUnstake(contracts: Contracts, nodeAddress: string, amount: BigNumberish,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.unstake(nodeAddress, amount);
+  return serverNodes.unstake(nodeAddress, amount, options);
 }
 
-export function serverNodesRestake(contracts: Contracts, nodeAddress: string) {
+export function serverNodesRestake(contracts: Contracts, nodeAddress: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.restake(nodeAddress);
+  return serverNodes.restake(nodeAddress, options);
 }
 
-export function serverNodesGetStake(contracts: Contracts, nodeAddress: string) {
+export function serverNodesGetStake(contracts: Contracts, nodeAddress: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.stakes(nodeAddress);
+  return serverNodes.stakes(nodeAddress, options);
 }
 
-export function serverNodesGetNodesByOwner(contracts: Contracts, ownerAddress: string) {
+export function serverNodesGetNodesByOwner(contracts: Contracts, ownerAddress: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.getUserStakesList(ownerAddress);
+  return serverNodes.getUserStakesList(ownerAddress, options);
 }
 
-export function serverNodesChangeNodeOwner(contracts: Contracts, nodeAddress: string, newOwner: string) {
+export function serverNodesChangeNodeOwner(contracts: Contracts, nodeAddress: string, newOwner: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.changeNodeOwner(nodeAddress, newOwner);
+  return serverNodes.changeNodeOwner(nodeAddress, newOwner, options);
 }
 
-export function serverNodesSetRewardsAddress(contracts: Contracts, nodeAddress: string, newRewardReceiver: string) {
+export function serverNodesSetRewardsAddress(contracts: Contracts, nodeAddress: string, newRewardReceiver: string,  options: object = {}) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
-  return serverNodes.setRewardsAddress(nodeAddress, newRewardReceiver);
+  return serverNodes.setRewardsAddress(nodeAddress, newRewardReceiver, options);
 }
 
 async function lockKeeperGetLock(contracts: Contracts, lockId: BigNumberish) {

@@ -34,6 +34,7 @@ export async function main() {
     deployArgs: [],
     signer: deployer,
     loadIfAlreadyDeployed: true,
+    isUpgradeableProxy: true,
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({

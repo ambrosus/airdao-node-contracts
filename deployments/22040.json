@@ -672,27 +672,6 @@
     "deployTx": "0x5a02c4f7f5962ed8914d58d637bf839d3c0e71f19632931b02775e74d031d7bb",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "LockKeeper": {
-    "address": "0x009Ae4Bf3A00Ee4f9981bf7a808702f18b86d217",
-    "abi": [
-      "constructor()",
-      "event Claim(uint256 indexed lockId, address indexed userAddress, uint256 amount)",
-      "event LockCanceled(uint256 indexed lockId, uint256 canceledAmount)",
-      "event Locked(uint256 indexed lockId, address indexed receiver, address indexed token, address locker, uint64 lockTime, uint64 firstUnlockTime, uint64 unlockPeriod, uint64 totalClaims, uint256 intervalAmount, string description)",
-      "function allUserLocks(address user) view returns (uint256[], tuple(address locker, address receiver, address token, uint64 firstUnlockTime, uint64 unlockPeriod, uint64 totalClaims, uint64 timesClaimed, uint256 intervalAmount)[])",
-      "function autoClaim()",
-      "function cancelLock(uint256 lockId) returns (uint256 unclaimedAmount)",
-      "function claim(uint256 lockId)",
-      "function claimAll()",
-      "function getLock(uint256 id) view returns (tuple(address locker, address receiver, address token, uint64 firstUnlockTime, uint64 unlockPeriod, uint64 totalClaims, uint64 timesClaimed, uint256 intervalAmount))",
-      "function latestLockId() view returns (uint256)",
-      "function lockLinear(address receiver, address token, uint64 firstUnlockTime, uint64 totalClaims, uint64 unlockPeriod, uint256 unlockAmount, string description) payable returns (uint256)",
-      "function lockSingle(address receiver, address token, uint64 unlockTime, uint256 amount, string description) payable returns (uint256)",
-      "function onBlock()"
-    ],
-    "deployTx": "0x4e56c71f53a7bd60519ce84f216eb063bcff5dcfad15095a68edaf587114361d",
-    "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper"
-  },
   "ServerNodesManager_RewardsBank": {
     "address": "0x480ca9040a1e64E9337c6Adac6730069B509DC08",
     "abi": [
@@ -728,6 +707,7 @@
       "event Unpaused(address account)",
       "event Upgraded(address indexed implementation)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function _upgrade(address newLockKeeper)",
       "function addStake(address nodeAddress) payable",
       "function airBond() view returns (address)",
       "function changeMinStakeAmount(uint256 newMinStakeAmount)",
@@ -770,7 +750,7 @@
     "deployTx": "0xa7f9c2f0b9846005bd014faf75a0e312f13f901d0d2e81a81c9d3f10f50e6a52",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x52d026B38b3382Fe1b8a28EA55895aF875191750",
+      "implementation": "0x3a5633bAE0243bB360e25624DC6dFd241333B575",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -880,6 +860,50 @@
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
       "implementation": "0x5Fb2adefDC0cF350B87E6Ac31A66E3844afFcfD1",
+      "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    }
+  },
+  "LockKeeper": {
+    "address": "0xc42728e44836e9B4E620DE33d9833916c6CF45da",
+    "abi": [
+      "event AdminChanged(address previousAdmin, address newAdmin)",
+      "event BeaconUpgraded(address indexed beacon)",
+      "event Claim(uint256 indexed lockId, address indexed userAddress, uint256 amount)",
+      "event Initialized(uint8 version)",
+      "event LockCanceled(uint256 indexed lockId, uint256 canceledAmount)",
+      "event Locked(uint256 indexed lockId, address indexed receiver, address indexed token, address locker, uint64 lockTime, uint64 firstUnlockTime, uint64 unlockPeriod, uint64 totalClaims, uint256 intervalAmount, string description)",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event Upgraded(address indexed implementation)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function allUserLocks(address user) view returns (uint256[], tuple(address locker, address receiver, address token, uint64 firstUnlockTime, uint64 unlockPeriod, uint64 totalClaims, uint64 timesClaimed, uint256 intervalAmount, string description)[])",
+      "function autoClaim()",
+      "function cancelLock(uint256 lockId) returns (uint256 unclaimedAmount)",
+      "function claim(uint256 lockId)",
+      "function claimAll()",
+      "function getAllLocks() view returns (tuple(address locker, address receiver, address token, uint64 firstUnlockTime, uint64 unlockPeriod, uint64 totalClaims, uint64 timesClaimed, uint256 intervalAmount, string description)[])",
+      "function getAllLocksIds() view returns (uint256[])",
+      "function getLock(uint256 id) view returns (tuple(address locker, address receiver, address token, uint64 firstUnlockTime, uint64 unlockPeriod, uint64 totalClaims, uint64 timesClaimed, uint256 intervalAmount, string description))",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function initialize()",
+      "function latestLockId() view returns (uint256)",
+      "function lockLinear(address receiver, address token, uint64 firstUnlockTime, uint64 totalClaims, uint64 unlockPeriod, uint256 unlockAmount, string description) payable returns (uint256)",
+      "function lockSingle(address receiver, address token, uint64 unlockTime, uint256 amount, string description) payable returns (uint256)",
+      "function onBlock()",
+      "function proxiableUUID() view returns (bytes32)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function upgradeTo(address newImplementation)",
+      "function upgradeToAndCall(address newImplementation, bytes data) payable"
+    ],
+    "deployTx": "0x602462596c1b7369d30c83678fe879a1e15c28cf0f37a67e7d2d6e06995e1e73",
+    "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper",
+    "proxy": {
+      "implementation": "0xc40756ccEaEE7f2DB7847B63793c23bF45611b55",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }
