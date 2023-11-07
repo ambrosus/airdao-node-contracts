@@ -134,6 +134,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     // STAKING POOL METHODS
 
     function newStake(address nodeAddress, uint amount, bool isAlwaysTop) external onlyRole(STAKING_MANAGER_ROLE) {
+        require(amount > 0, "amount must be > 0");
         require(stakes[nodeAddress].amount == 0, "Already has stake");
 
         stakes[nodeAddress] = Stake(amount, IStakeManager(msg.sender), isAlwaysTop);
@@ -144,6 +145,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     }
 
     function stake(address nodeAddress, uint amount) external {
+        require(amount > 0, "amount must be > 0");
         Stake storage stake = stakes[nodeAddress];
         require(stake.amount > 0, "Stake doesn't exist");
         require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
@@ -158,6 +160,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     }
 
     function unstake(address nodeAddress, uint amount) external {
+        require(amount > 0, "amount must be > 0");
         Stake storage stake = stakes[nodeAddress];
         require(address(stake.stakingContract) == msg.sender, "stakingContract must be the same");
         require(stake.amount >= amount, "amount bigger than stake");
