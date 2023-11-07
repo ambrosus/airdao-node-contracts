@@ -117,7 +117,15 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     // unlock latest withdraw to stake
     function restake(address nodeAddress) public onlyNodeOwner(nodeAddress) whenNotPaused {
         uint canceledAmount = lockKeeper.cancelLock(lockedWithdraws[nodeAddress]);
+
         _addStake(nodeAddress, canceledAmount);
+
+        // re-register node if it was retired
+        if (stakes[nodeAddress].stake == 0) {
+            stakesList.push(nodeAddress);
+            onboardingWaitingList.push(nodeAddress);
+        }
+
         emit StakeChanged(nodeAddress, msg.sender, int(canceledAmount));
     }
 
@@ -270,12 +278,20 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
         for (uint i = 0; i < onboardingWaitingList.length; i++) {
             address nodeAddress = onboardingWaitingList[i];
-            if (stakes[nodeAddress].timestampStake <= minTimestampForOnboarding) {
+
+            // remove node if stake == 0
+            if (stakes[nodeAddress].stake == 0) {
+                onboardingWaitingList[i] = onboardingWaitingList[onboardingWaitingList.length - 1];
+                onboardingWaitingList.pop();
+                if (i != 0) i--;
+            }
+
+            // register node in validator set if onboarding delay passed
+            else if (stakes[nodeAddress].timestampStake <= minTimestampForOnboarding) {
                 validatorSet.newStake(nodeAddress, stakes[nodeAddress].stake, false);
 
                 onboardingWaitingList[i] = onboardingWaitingList[onboardingWaitingList.length - 1];
                 onboardingWaitingList.pop();
-
                 if (i != 0) i--;
             }
         }
