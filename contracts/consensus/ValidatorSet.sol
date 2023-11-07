@@ -180,8 +180,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     }
 
 
-    function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount) external onlyRole(STAKING_MANAGER_ROLE) {
-        emit Reward(msg.sender, nodeAddress, rewardReceiver, nodeOwner, tokenAddress, amount);
+    function emitReward(address rewardsBank, address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount) external onlyRole(STAKING_MANAGER_ROLE) {
+        emit Reward(rewardsBank, nodeAddress, rewardReceiver, nodeOwner, tokenAddress, amount);
     }
 
     // ADMIN METHODS

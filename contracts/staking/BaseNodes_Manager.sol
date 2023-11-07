@@ -53,7 +53,7 @@ contract BaseNodes_Manager is UUPSUpgradeable, IStakeManager, AccessControlUpgra
         amount -= treasuryAmount;
 
         rewardsBank.withdrawAmb(payable(nodeAddress), amount);
-        validatorSet.emitReward(nodeAddress, nodeAddress, nodeAddress, address(0), amount);
+        validatorSet.emitReward(address(rewardsBank), nodeAddress, nodeAddress, nodeAddress, address(0), amount);
     }
 
     function report(address nodeAddress) external {
