@@ -118,13 +118,12 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function restake(address nodeAddress) public onlyNodeOwner(nodeAddress) whenNotPaused {
         uint canceledAmount = lockKeeper.cancelLock(lockedWithdraws[nodeAddress]);
 
-        _addStake(nodeAddress, canceledAmount);
-
         // re-register node if it was retired
         if (stakes[nodeAddress].stake == 0) {
             stakesList.push(nodeAddress);
             onboardingWaitingList.push(nodeAddress);
         }
+        _addStake(nodeAddress, canceledAmount);
 
         emit StakeChanged(nodeAddress, msg.sender, int(canceledAmount));
     }
@@ -154,6 +153,10 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
         assembly {mstore(result, count)}
         return result;
+    }
+
+    function getOnboardingWaitingList() public view returns (address[] memory) {
+        return onboardingWaitingList;
     }
 
     // VALIDATOR SET METHODS
@@ -256,9 +259,10 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function _addStake(address nodeAddress, uint amount) internal {
         stakes[nodeAddress].stake += amount;
 
-        // call validatorSet.stake() only when node already validator
-        if (validatorSet.getNodeStake(nodeAddress) > 0)
-            validatorSet.stake(nodeAddress, amount);
+        uint stakeInValidatorSet = validatorSet.getNodeStake(nodeAddress);
+        if (stakeInValidatorSet > 0)
+            // call validatorSet.stake() only when node is already validator
+            validatorSet.stake(nodeAddress, stakes[nodeAddress].stake - stakeInValidatorSet);
     }
 
     function _deleteStake(address nodeAddress) internal {
@@ -286,7 +290,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
                 if (i != 0) i--;
             }
 
-            // register node in validator set if onboarding delay passed
+                // register node in validator set if onboarding delay passed
             else if (stakes[nodeAddress].timestampStake <= minTimestampForOnboarding) {
                 validatorSet.newStake(nodeAddress, stakes[nodeAddress].stake, false);
 
@@ -312,14 +316,15 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     function _addressToString(address x) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
         for (uint i = 0; i < 20; i++) {
-            uint8 b = uint8(uint(uint160(x)) / (2**(8*(19 - i))));
+            uint8 b = uint8(uint(uint160(x)) / (2 ** (8 * (19 - i))));
             uint8 hi = (b / 16);
             uint8 lo = (b - 16 * hi);
-            s[2*i] = _char(hi);
-            s[2*i+1] = _char(lo);
+            s[2 * i] = _char(hi);
+            s[2 * i + 1] = _char(lo);
         }
         return string(s);
     }
+
     function _char(uint8 b) internal pure returns (bytes1 c) {
         return bytes1(b + (b < 10 ? 0x30 : 0x57));
     }
