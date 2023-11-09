@@ -315,7 +315,6 @@
     "deployTx": "0x3f167d4ba9de22fc23cdf8d0378543e97a0fb9ba386776489edb804abfd9d6eb",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
-
   "FinanceRevenue_Multisig": {
     "address": "0x1A4D8ECc2277599d1Da5ffc43Ad91f5e81E79296",
     "abi": [
@@ -495,7 +494,7 @@
       "function addBlockListener(address listener)",
       "function baseReward() view returns (uint256)",
       "function changeTopStakesCount(uint256 newTopStakesCount)",
-      "function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
+      "function emitReward(address rewardsBank, address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
       "function finalizeChange()",
       "function getBlockListeners() view returns (address[])",
       "function getNodeStake(address nodeAddress) view returns (uint256)",
@@ -530,7 +529,7 @@
     "deployTx": "0x9ee8e13979f5ab5d8421cf6c5513d103fd91baab8dd81c3709702abbe1696ae7",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xac3298d5826F62150779B117Bd7661a642da9794",
+      "implementation": "0x2EaD8a10aB38b6F0e396151A24C5C6BaeAb3b72a",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -683,7 +682,7 @@
     "deployTx": "0xff3bf6c402b8acc0cc907d707bc80bf769fa034f35675104301f5976d48124f1",
     "fullyQualifiedName": "contracts/staking/BaseNodes_Manager.sol:BaseNodes_Manager",
     "proxy": {
-      "implementation": "0xF510819762dcd580274149832d55234514645Aa8",
+      "implementation": "0x1cde89EE9654296dDA9c7a263E0475C1FECe232D",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -769,6 +768,7 @@
       "function changeNodeOwner(address nodeAddress, address newOwnerAddress)",
       "function changeOnboardingDelay(uint256 newOnboardingDelay)",
       "function changeUnstakeLockTime(uint256 newUnstakeLockTime)",
+      "function getOnboardingWaitingList() view returns (address[])",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStakesList() view returns (address[])",
       "function getUserStakesList(address ownerAddress) view returns (address[] result)",
@@ -805,7 +805,7 @@
     "deployTx": "0xa89d74036f95e5bb606cc87540319311e2a7712fb34b5cb75e9d2aa4eca97750",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x38EeF14Ee55fA78e656A295BAD0a45c447F4e170",
+      "implementation": "0x44079c827dBc6cD731CA22d12Db29310E249F9bC",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -914,7 +914,7 @@
     "deployTx": "0xe7c8ae932f5305f4653f45c24fa7aca1aa3c0b83c5627130321086085a37ba0f",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
-      "implementation": "0x91D53681154daA58aB5a75D2Ff297e0876b7366d",
+      "implementation": "0xe2A4c8ba76D8e8F2A756a4B847D9082AF5ce0601",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },

@@ -488,6 +488,7 @@
       "event Upgraded(address indexed implementation)",
       "event ValidatorSetFinalized(address[] newSet)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function FIX_removeFromTop(address nodeAddress)",
       "function REWARD_ORACLE_ROLE() view returns (bytes32)",
       "function STAKING_MANAGER_ROLE() view returns (bytes32)",
       "function _updateExternal()",
@@ -529,7 +530,7 @@
     "deployTx": "0x286eaea83658bc832aa10a194dc4a3e20d01b5d0f943b82460ccf6feae12194c",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0x1D335E8B7787fB6c51F98713df5BCb56884FD023",
+      "implementation": "0x6C4eCd425e421259E63a65f9FDa121BeaeE877aA",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -812,6 +813,7 @@
       "function changeNodeOwner(address nodeAddress, address newOwnerAddress)",
       "function changeOnboardingDelay(uint256 newOnboardingDelay)",
       "function changeUnstakeLockTime(uint256 newUnstakeLockTime)",
+      "function getOnboardingWaitingList() view returns (address[])",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStakesList() view returns (address[])",
       "function getUserStakesList(address ownerAddress) view returns (address[] result)",
@@ -848,7 +850,7 @@
     "deployTx": "0x9afda1b30db816a8f76295add9526ea7cd5ad86ed60bdf1fcaee72b2ce5db246",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0xfc277855999cF6452F9027BbdC1B56264A736E3A",
+      "implementation": "0xb4de4aA27C9B0aa3f6A91639a572A430AD59700D",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
