@@ -488,13 +488,14 @@
       "event Upgraded(address indexed implementation)",
       "event ValidatorSetFinalized(address[] newSet)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function FIX_removeFromTop(address nodeAddress)",
       "function REWARD_ORACLE_ROLE() view returns (bytes32)",
       "function STAKING_MANAGER_ROLE() view returns (bytes32)",
       "function _updateExternal()",
       "function addBlockListener(address listener)",
       "function baseReward() view returns (uint256)",
       "function changeTopStakesCount(uint256 newTopStakesCount)",
-      "function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
+      "function emitReward(address rewardsBank, address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
       "function finalizeChange()",
       "function getBlockListeners() view returns (address[])",
       "function getNodeStake(address nodeAddress) view returns (uint256)",
@@ -529,7 +530,7 @@
     "deployTx": "0x286eaea83658bc832aa10a194dc4a3e20d01b5d0f943b82460ccf6feae12194c",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xC54450028dAE52c1DC1bb9Dabe553457eABd4Aa3",
+      "implementation": "0x6C4eCd425e421259E63a65f9FDa121BeaeE877aA",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -682,7 +683,7 @@
     "deployTx": "0xdbd2ec84a558f17f8cf83d06cc72e850d9e0aac2ffc134899dec7f86404b4879",
     "fullyQualifiedName": "contracts/staking/BaseNodes_Manager.sol:BaseNodes_Manager",
     "proxy": {
-      "implementation": "0x130c0e94E79DbA9F8A63D6452210C89e5942130c",
+      "implementation": "0xACf183fB8C6382d7cB0D5e9832528AEafC151Fcf",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -812,6 +813,7 @@
       "function changeNodeOwner(address nodeAddress, address newOwnerAddress)",
       "function changeOnboardingDelay(uint256 newOnboardingDelay)",
       "function changeUnstakeLockTime(uint256 newUnstakeLockTime)",
+      "function getOnboardingWaitingList() view returns (address[])",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStakesList() view returns (address[])",
       "function getUserStakesList(address ownerAddress) view returns (address[] result)",
@@ -848,7 +850,7 @@
     "deployTx": "0x9afda1b30db816a8f76295add9526ea7cd5ad86ed60bdf1fcaee72b2ce5db246",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x13BAE98762100CD918f936dA98e186E9a88A5C1E",
+      "implementation": "0xb4de4aA27C9B0aa3f6A91639a572A430AD59700D",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -927,13 +929,11 @@
       "function addNodeRequest(uint256 stake, uint256 requestId, uint256 nodeId, uint8 role)",
       "function addNodeRequestResolved(uint256 requestId, uint256 status)",
       "function addPool(address pool)",
-      "function changeMinApolloDeposit(uint256 newMinApolloDeposit)",
       "function getDeposit(address nodeAddress) view returns (uint256)",
       "function getPools() view returns (address[])",
       "function importOldStakes(address[] addresses, address[] pools, uint256[] amounts)",
-      "function initialize(uint256 _minApolloDeposit, address _validatorSet, address _rewardsBank, address _treasury, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
+      "function initialize(address _validatorSet, address _rewardsBank, address _treasury, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
       "function isPool(address poolAddress) view returns (bool)",
-      "function minApolloDeposit() view returns (uint256)",
       "function nextId() returns (uint256)",
       "function node2pool(address) view returns (address)",
       "function onboard(address nodeAddress, uint8 nodeType) payable",
@@ -959,7 +959,7 @@
     "deployTx": "0x48693507f023a73650c4a24137a57eba99ca06e94698dffc576ab4c1471480fe",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
-      "implementation": "0x99B1A627604dB1479379c2c576dAFdC8AE4C546E",
+      "implementation": "0x7AAE5Af1787D5b0C33C93398c378912cf5e05a7E",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }

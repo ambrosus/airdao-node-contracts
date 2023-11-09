@@ -494,7 +494,7 @@
       "function addBlockListener(address listener)",
       "function baseReward() view returns (uint256)",
       "function changeTopStakesCount(uint256 newTopStakesCount)",
-      "function emitReward(address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
+      "function emitReward(address rewardsBank, address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
       "function finalizeChange()",
       "function getBlockListeners() view returns (address[])",
       "function getNodeStake(address nodeAddress) view returns (uint256)",
@@ -529,7 +529,7 @@
     "deployTx": "0x9e1df63f708c6b6cc348ed7c9ef8afd23a1062d38bfd328e36c215291ea61fad",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xBDc316826B77d198Eec93BC813F2796e7f26c2b3",
+      "implementation": "0x5a733c4cf22473fedAF0Dfd4020d0eC5C0B1Be04",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -682,7 +682,7 @@
     "deployTx": "0x10c1978eb927e0e59791a30fa101c917c4921459268c1aa432d0149057427238",
     "fullyQualifiedName": "contracts/staking/BaseNodes_Manager.sol:BaseNodes_Manager",
     "proxy": {
-      "implementation": "0xe5A673b4BfCc7c6804185F35b94693b4CAfCF43c",
+      "implementation": "0xba8a3C15C2feaa0673de98F0cc468D5267A5c798",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -768,6 +768,7 @@
       "function changeNodeOwner(address nodeAddress, address newOwnerAddress)",
       "function changeOnboardingDelay(uint256 newOnboardingDelay)",
       "function changeUnstakeLockTime(uint256 newUnstakeLockTime)",
+      "function getOnboardingWaitingList() view returns (address[])",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStakesList() view returns (address[])",
       "function getUserStakesList(address ownerAddress) view returns (address[] result)",
@@ -804,7 +805,7 @@
     "deployTx": "0xa7f9c2f0b9846005bd014faf75a0e312f13f901d0d2e81a81c9d3f10f50e6a52",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x3a5633bAE0243bB360e25624DC6dFd241333B575",
+      "implementation": "0x8F80eB85E2288acf67407f317c9237c8bD1c1687",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -913,7 +914,7 @@
     "deployTx": "0xd178130ffb89c3043a5a7bd34598eacd232fe68f99fd6c71de6bdf3ba0343537",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
-      "implementation": "0x5Fb2adefDC0cF350B87E6Ac31A66E3844afFcfD1",
+      "implementation": "0xA77Aa9b855638D566F087E3E40F05a0D8d5f6cF9",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },

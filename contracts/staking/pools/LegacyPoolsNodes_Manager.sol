@@ -139,7 +139,7 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
 
         rewardsBank.withdrawAmb(payable(address(this)), amount);
         IPool(poolAddress).addReward{value: amount}();
-        validatorSet.emitReward(nodeAddress, address(this), address(this), address(0), amount);
+        validatorSet.emitReward(address(rewardsBank), nodeAddress, address(this), address(this), address(0), amount);
     }
 
     function report(address nodeAddress) external {
