@@ -19,6 +19,9 @@ import {
 import { BigNumber, Contract, PopulatedTransaction } from "ethers";
 import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
+import {Parallel} from "../parallel";
+import {NodeOnboardedEvent} from "../../typechain-types/contracts/staking/pools/Legacy/RolesEventEmitter";
+import {formatEther} from "ethers/lib/utils";
 // import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
@@ -198,7 +201,8 @@ async function getOnboardTimeForServerNodes(rolesEventEmitter: RolesEventEmitter
   );
   for (const event of events) {
     if (!serverNodesAddresses.includes(event.args.nodeAddress)) continue;
-    serverNodesOnboardTime[event.args.nodeAddress] = event.blockNumber;
+    if (event.blockNumber > (serverNodesOnboardTime[event.args.nodeAddress] || 0))
+      serverNodesOnboardTime[event.args.nodeAddress] = event.blockNumber;
   }
   for (const [address, block] of Object.entries(serverNodesOnboardTime)) {
     const { timestamp } = await rolesEventEmitter.provider.getBlock(block);
@@ -207,15 +211,24 @@ async function getOnboardTimeForServerNodes(rolesEventEmitter: RolesEventEmitter
   return serverNodesOnboardTime;
 }
 
-async function fetchEvents(fetchCall: (startBlock: number, endBlock: number) => Promise<any[]>) {
-  const batchSize = 200_000;
-  const toBlock = await ethers.provider.getBlockNumber();
+async function fetchEvents(fetchCall: (startBlock: number, endBlock: number | string) => Promise<any[]>) {
+  const batchSize = 50_000;
+  const lastBlock = await ethers.provider.getBlockNumber();
 
-  const result = [];
-  for (let startBlock = 0; startBlock <= toBlock; startBlock += batchSize) {
-    const endBlock = Math.min(startBlock + batchSize - 1, toBlock);
-    result.push(...(await fetchCall(startBlock, endBlock)));
+  const result: NodeOnboardedEvent[] = [];
+  const parallel = new Parallel(10);
+
+  for (let startBlock = 0; startBlock <= lastBlock; startBlock += batchSize) {
+    parallel.addTask(async () => {
+      const endBlock = Math.min(startBlock + batchSize - 1, lastBlock);
+      result.push(...(await fetchCall(startBlock, endBlock)));
+      console.log("fetched events", startBlock, endBlock);
+    });
   }
+  await parallel.wait();
+
+  result.push(...(await fetchCall(lastBlock, "latest")));  // fetch events up to new last block
+
   return result;
 }
 
