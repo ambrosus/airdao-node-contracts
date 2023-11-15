@@ -234,13 +234,13 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
             IERC20(lock.token).transfer(lock.receiver, amountToClaim);
         }
 
+        emit Claim(lockId, lock.receiver, amountToClaim);
+
         if (lastCanClaimIndex == lock.totalClaims) {
             _deleteLock(lockId);
         } else {
             lock.timesClaimed = uint64(lastCanClaimIndex);
         }
-
-        emit Claim(lockId, lock.receiver, amountToClaim);
 
         return amountToClaim;
     }
