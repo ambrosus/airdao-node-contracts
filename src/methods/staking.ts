@@ -126,7 +126,7 @@ export async function serverNodesManagerGetNodesList(contracts: Contracts) {
   return await serverNodes.getStakesList();
 }
 
-export async function severNodesForceUnstake(contracts: Contracts, nodeAddress: string) {
+export async function severNodesManagerForceUnstake(contracts: Contracts, nodeAddress: string) {
   return await submitTransaction2<ServerNodes_Manager>(contracts, ContractNames.ServerNodesManager, 0,
     (serverNodesManager) => serverNodesManager.forceUnstake(nodeAddress)
   );
