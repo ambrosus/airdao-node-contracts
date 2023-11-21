@@ -201,6 +201,21 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
     // MULTISIG METHODS
 
+    function forceUnstake(address nodeAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint amount = stakes[nodeAddress].stake;
+        require(amount > 0, "nodeAddress not in stakes");
+
+        _deleteStake(nodeAddress);
+        stakes[nodeAddress].stake = 0;
+
+        if (validatorSet.getNodeStake(nodeAddress) > 0) // only if node already validator
+            validatorSet.unstake(nodeAddress, amount);
+
+        payable(stakes[nodeAddress].ownerAddress).transfer(amount);
+
+        emit StakeChanged(nodeAddress, stakes[nodeAddress].ownerAddress, - int(amount));
+    }
+
     function changeMinStakeAmount(uint newMinStakeAmount) public onlyRole(DEFAULT_ADMIN_ROLE) {
         minStakeAmount = newMinStakeAmount;
     }
