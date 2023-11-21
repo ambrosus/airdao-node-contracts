@@ -1,6 +1,6 @@
-import { Contracts } from "../contracts/contracts";
-import { BigNumberish, ethers } from "ethers";
-import { ContractNames } from "../contracts/names";
+import {Contracts} from "../contracts/contracts";
+import {BigNumberish, ethers} from "ethers";
+import {ContractNames} from "../contracts/names";
 import {
   AirBond,
   BaseNodes_Manager,
@@ -10,7 +10,7 @@ import {
   Treasury,
   ValidatorSet,
 } from "../../typechain-types";
-import { submitTransaction2 } from "./internal";
+import {submitTransaction2} from "./internal";
 
 // validator set
 
@@ -124,6 +124,12 @@ export async function serverNodesManagerChangeUnstakeLockTime(contracts: Contrac
 export async function serverNodesManagerGetNodesList(contracts: Contracts) {
   const serverNodes = contracts.getContractByName(ContractNames.ServerNodesManager) as ServerNodes_Manager;
   return await serverNodes.getStakesList();
+}
+
+export async function severNodesForceUnstake(contracts: Contracts, nodeAddress: string) {
+  return await submitTransaction2<ServerNodes_Manager>(contracts, ContractNames.ServerNodesManager, 0,
+    (serverNodesManager) => serverNodesManager.forceUnstake(nodeAddress)
+  );
 }
 
 // rewards bank
