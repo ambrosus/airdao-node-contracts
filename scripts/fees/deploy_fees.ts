@@ -1,8 +1,8 @@
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { ethers } from "hardhat";
-import { Multisig__factory, Fees__factory } from "../typechain-types";
-import { ContractNames } from "../src";
-import { Roadmap2023MultisigSettings } from "./addresses";
+import { Multisig__factory, Fees__factory } from "../../typechain-types";
+import { ContractNames } from "../../src";
+import { Roadmap2023MultisigSettings } from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -31,5 +31,12 @@ export async function main() {
     isUpgradeableProxy: true,
   });
 
-  await (await fees.grantRole(await fees.FEES_MANAGER_ROLE(), multisig.address)).wait();
+  // await (await fees.grantRole(await fees.FEES_MANAGER_ROLE(), multisig.address)).wait();
+}
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 }
