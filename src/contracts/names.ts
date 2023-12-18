@@ -50,6 +50,9 @@ export enum ContractNames {
   AirDrop = "AirDrop",
 
   LockKeeper = "LockKeeper",
+
+  Fees = "Fees",
+  FeesMultisig = "Fees_Multisig",
 }
 
 export const MULTISIGS = {
@@ -68,6 +71,7 @@ export const MULTISIGS = {
   [ContractNames.LegacyPoolManagerRewardsBank]: ContractNames.LegacyPoolManagerMultisig,
   [ContractNames.ServerNodesManagerRewardsBank]: ContractNames.ServerNodesManagerMultisig,
   [ContractNames.Treasury]: ContractNames.TreasuryMultisig,
+  [ContractNames.Fees]: ContractNames.FeesMultisig,
 };
 
 export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
