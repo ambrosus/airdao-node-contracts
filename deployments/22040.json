@@ -768,6 +768,7 @@
       "function changeNodeOwner(address nodeAddress, address newOwnerAddress)",
       "function changeOnboardingDelay(uint256 newOnboardingDelay)",
       "function changeUnstakeLockTime(uint256 newUnstakeLockTime)",
+      "function forceUnstake(address nodeAddress)",
       "function getOnboardingWaitingList() view returns (address[])",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStakesList() view returns (address[])",
@@ -805,7 +806,7 @@
     "deployTx": "0xa7f9c2f0b9846005bd014faf75a0e312f13f901d0d2e81a81c9d3f10f50e6a52",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x8F80eB85E2288acf67407f317c9237c8bD1c1687",
+      "implementation": "0xCeb337d76bC50E39864Ec019ee8972001F488C5A",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
