@@ -1,8 +1,8 @@
-import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import { ethers } from "hardhat";
-import { Treasury__factory, Multisig__factory, Fees__factory } from "../../typechain-types";
-import { ContractNames } from "../../src";
-import { Roadmap2023MultisigSettings } from "../addresses";
+import {deploy, loadDeployment} from "@airdao/deployments/deploying";
+import {ethers} from "hardhat";
+import {Fees__factory, Finance__factory, Multisig__factory} from "../../typechain-types";
+import {ContractNames} from "../../src";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -18,17 +18,17 @@ export async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-  const treasure = await deploy<Treasury__factory>({
+  const treasure = await deploy<Finance__factory>({
     contractName: ContractNames.FeesTreasure,
     artifactName: "Finance",
     deployArgs: [multisig.address],
     signer: deployer,
   });
-  
+
   const gasPrice = 10;
   const payAddress = treasure.address;
   const feePercent = 300000;
-  
+
   const fees = await deploy<Fees__factory>({
     contractName: ContractNames.Fees,
     artifactName: "Fees",
