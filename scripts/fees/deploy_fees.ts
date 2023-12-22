@@ -37,7 +37,7 @@ export async function main() {
     isUpgradeableProxy: true,
   });
 
-  await (await fees.grantRole(await fees.FEES_MANAGER_ROLE(), multisig.address)).wait();
+  await (await fees.grantRole(await fees.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 }
 
 if (require.main === module) {

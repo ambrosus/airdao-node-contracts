@@ -964,7 +964,7 @@
     }
   },
   "Fees_Multisig": {
-    "address": "0x69aa7bBB818fD39BfF3785e7ca881CE16E408D2E",
+    "address": "0xeAAd95c57BC920A175767f1b6187820B193E0889",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1000,11 +1000,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xce1072af58aba6e7507446c2bf79c746dc6123789500713b54fd5a22f4a46a87",
+    "deployTx": "0x23b436a5636802cb07c7f5c56a2a175fba4618096e1fcf22d31380a238ac04f0",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Fees_Treasure": {
-    "address": "0x48725992AF77cdAFfec7Fc0246C8a91dde015491",
+    "address": "0x009Ae4Bf3A00Ee4f9981bf7a808702f18b86d217",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -1014,11 +1014,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xae48e7ffa4e4e93f2ae2a32ddb3ee7017bae2e8dd9fa8da605074d6dbebe55bf",
+    "deployTx": "0x08ebe2e73acea5ec155d8d09ee653a55fcbc75cddd24ac9bc3d46a73b725ecfb",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "Fees": {
-    "address": "0x687ef462cc0B6A599C99F9141A55a8B2a4d99203",
+    "address": "0x52d026B38b3382Fe1b8a28EA55895aF875191750",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1030,7 +1030,6 @@
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
       "event Upgraded(address indexed implementation)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function FEES_MANAGER_ROLE() view returns (bytes32)",
       "function getFeesParams() view returns (address addr, uint256 percent)",
       "function getGasPrice() view returns (uint256)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
@@ -1048,10 +1047,10 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x32c6faea0204a51955f70c20b61e47acab7b57b1b74d9dd205e274b5a337dc9d",
+    "deployTx": "0xe723bab69fd455737f1660348691c1361f83636ef8ed09ca4538b31e59c9328c",
     "fullyQualifiedName": "contracts/fees/Fees.sol:Fees",
     "proxy": {
-      "implementation": "0x0e1Fde008925D5414C8073A4e87C0D4255B85b7B",
+      "implementation": "0x480ca9040a1e64E9337c6Adac6730069B509DC08",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }

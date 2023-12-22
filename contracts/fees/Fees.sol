@@ -14,9 +14,6 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "./IFees.sol";
 
 contract Fees is UUPSUpgradeable, AccessControlEnumerableUpgradeable, IFees {
-
-    bytes32 public constant FEES_MANAGER_ROLE = keccak256("FEES_MANAGER_ROLE");
-
     uint gasPrice;
     address payAddress;
     uint feePercent;
@@ -33,10 +30,10 @@ contract Fees is UUPSUpgradeable, AccessControlEnumerableUpgradeable, IFees {
         payAddress = _payAddress;
         feePercent = _feePercent;
 
-        _setupRole(FEES_MANAGER_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
-   
-    function setGasPrice(uint price) external onlyRole(FEES_MANAGER_ROLE) {
+
+    function setGasPrice(uint price) external onlyRole(DEFAULT_ADMIN_ROLE) {
         gasPrice = price;
 
         emit GasPriceChanged(price);
@@ -46,7 +43,7 @@ contract Fees is UUPSUpgradeable, AccessControlEnumerableUpgradeable, IFees {
         return gasPrice;
     }
 
-    function setFeesParams(address addr, uint percent) external onlyRole(FEES_MANAGER_ROLE) {
+    function setFeesParams(address addr, uint percent) external onlyRole(DEFAULT_ADMIN_ROLE) {
         payAddress = addr;
         feePercent = percent;
 
