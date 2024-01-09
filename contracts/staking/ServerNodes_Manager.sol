@@ -319,8 +319,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
 
     function _getBondsPercent(uint timestampStake) internal view returns (uint) {
-        return 0;  // for now
-
         uint stakingTime = block.timestamp - timestampStake;
         uint nativePercent = 25 + stakingTime * 75 / (3 * 365  days);
         if (nativePercent > 100) nativePercent = 100;
