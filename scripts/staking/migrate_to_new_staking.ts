@@ -29,7 +29,9 @@ const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
 
 const validatorSetAbi = ["function getValidators() view returns (address[])"];
 const multiplexerAbi = ["function addAdmin(address _admin)", "function setPaused(bool _paused)"];
-const multisigAbi = ["function confirmTransaction(uint256 transactionId)", "function submitTransaction(address destination, uint256 value, bytes data) public returns (uint256 transactionId)"];
+const multisigAbi = ["function confirmTransaction(uint256 transactionId)",
+  "function submitTransaction(address destination, uint256 value, bytes data) public returns (uint256 transactionId)",
+  "event Submission(uint256 indexed transactionId)"];
 const feesAbi = ["function isAdmin(address) view returns (bool)", "function paused() view returns (bool)"];
 
 async function main() {
