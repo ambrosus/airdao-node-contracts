@@ -449,8 +449,6 @@ describe("ServerNodes", function () {
 });
 
 function getBondsPercent(stakingTime: number) {
-  return 0; // for now
-
   const nativePercent = 25 + (stakingTime * 75) / (3 * 365 * 24 * 60 * 60);
   return 100 - Math.min(nativePercent, 100);
 }
