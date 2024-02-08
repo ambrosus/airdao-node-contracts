@@ -54,6 +54,11 @@ export enum ContractNames {
   Fees = "Fees",
   FeesMultisig = "Fees_Multisig",
   FeesTreasure = "Fees_Treasure",
+
+  // Bond marketplace
+
+  BondMarketplaceTreasury = "BondMarketplaceTreasury",
+  BondMarketplaceMultisig = "BondMarketplaceTreasury_Multisig",
 }
 
 export const MULTISIGS = {
