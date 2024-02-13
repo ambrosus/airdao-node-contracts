@@ -137,7 +137,8 @@ export async function serverNodesManagerForceUnstake(contracts: Contracts, nodeA
 type rewardsBankContactNames =
   | ContractNames.BaseNodesManagerRewardsBank
   | ContractNames.LegacyPoolManagerRewardsBank
-  | ContractNames.ServerNodesManagerRewardsBank;
+  | ContractNames.ServerNodesManagerRewardsBank
+  | ContractNames.BondMarketplaceRewardsBank;
 
 export async function rewardsBanksWithdrawAmb(
   contracts: Contracts,
@@ -159,6 +160,18 @@ export async function rewardsBanksWithdrawBonds(
   const airBond = contracts.getContractByName(ContractNames.AirBond);
   return await submitTransaction2<RewardsBank>(contracts, contractName, 0, (rewardsBank) =>
     rewardsBank.withdrawErc20(airBond.address, addressTo, amount)
+  );
+}
+
+export async function rewardsBanksWithdrawTokens(
+  contracts: Contracts,
+  contractName: rewardsBankContactNames,
+  tokenAddress: string,
+  addressTo: string,
+  amount: BigNumberish
+) {
+  return await submitTransaction2<RewardsBank>(contracts, contractName, 0, (rewardsBank) =>
+    rewardsBank.withdrawErc20(tokenAddress, addressTo, amount)
   );
 }
 
