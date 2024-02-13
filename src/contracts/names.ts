@@ -54,6 +54,11 @@ export enum ContractNames {
   Fees = "Fees",
   FeesMultisig = "Fees_Multisig",
   FeesTreasure = "Fees_Treasure",
+
+  // bond marketplace
+
+  BondMarketplaceMultisig = "BondMarketplace_Multisig",
+  BondMarketplaceRewardsBank = "BondMarketplace_RewardsBank",
 }
 
 export const MULTISIGS = {
@@ -74,6 +79,8 @@ export const MULTISIGS = {
   [ContractNames.Treasury]: ContractNames.TreasuryMultisig,
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
+
+  [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
 };
 
 export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
