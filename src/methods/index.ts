@@ -5,6 +5,7 @@ import * as consensus from "./consensus";
 import * as apolloDashboard from "./apolloDashboard";
 import * as fees from "./fees";
 import * as rewardsBank from "./rewards-bank";
+import { submitTransaction } from "./internal";
 
 const Methods = {
   ...multisigs,
@@ -13,7 +14,8 @@ const Methods = {
   ...consensus,
   ...apolloDashboard,
   ...fees,
-  ...rewardsBank
+  ...rewardsBank,
+  submitTransaction
 };
 
 export default Methods;
