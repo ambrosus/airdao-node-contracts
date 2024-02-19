@@ -22,7 +22,7 @@ import { ContractNames } from "../../src";
 import {Parallel} from "../parallel";
 import {NodeOnboardedEvent} from "../../typechain-types/contracts/staking/pools/Legacy/RolesEventEmitter";
 import {formatEther} from "ethers/lib/utils";
-// import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
+import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
@@ -39,7 +39,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  // wrapProviderToError(deployer.provider!);
+  wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;
@@ -283,7 +283,7 @@ async function submitMultisigTx(multisig: Contract, targetContract: Contract, po
   if (!submissionEvent || !submissionEvent.args) throw new Error("Submission event not found");
   const txId = submissionEvent.args[0];
 
-  await (await multisig.connect(multisig2).confirmTransaction(txId)).wait();
+  await (await multisig.connect(multisig2).confirmTransaction(txId, {gasLimit: 1000000})).wait();
 }
 
 
