@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.2.20",
+  "version": "1.2.21",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
@@ -36,6 +36,7 @@
     "sourcify:main": "hardhat sourcify --network main"
   },
   "devDependencies": {
+    "@airdao/deployments": "0.2.4",
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "4.9.0",
@@ -52,7 +53,6 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@airdao/deployments": "0.2.4",
     "ethers": "^5.7.2"
   }
 }
