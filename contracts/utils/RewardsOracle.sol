@@ -3,14 +3,14 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-interface ValidatorSet {
+interface IValidatorSet {
     function setReward(uint _baseReward) external;
 }
 
 contract RewardsOracle is AccessControl {
     bytes32 public constant REWARD_ORACLE_ROLE = keccak256("REWARD_ORACLE_ROLE");  // can provide baseReward
 
-    ValidatorSet public validatorSet;
+    IValidatorSet public validatorSet;
 
     uint64[5] internal _baseRewardSettings; // settings for base reward oracle:  [0] - isEnabled
     // [1] - min %, [2] - max %   (bips),
@@ -20,7 +20,7 @@ contract RewardsOracle is AccessControl {
     event RewardSettingsChanged(uint64[5] newSettings);
 
     constructor(address _validatorSet){
-        validatorSet = ValidatorSet(_validatorSet);
+        validatorSet = IValidatorSet(_validatorSet);
         _baseRewardSettings = [1, 16.6 * 10000, 100 * 10000, 14 * 10000, 60.8 * 10000]; // default settings: enabled, 16.6% = 14 amb, 100% = 60.8 amb
     }
 
