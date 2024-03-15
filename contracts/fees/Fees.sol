@@ -26,6 +26,7 @@ contract Fees is UUPSUpgradeable, AccessControlEnumerableUpgradeable, IFees {
         address _payAddress,
         uint _feePercent
     ) public initializer {
+        require(_feePercent <= 1000000, "Fees: feePercent should be less than 1000000");
         gasPrice = _gasPrice;
         payAddress = _payAddress;
         feePercent = _feePercent;
@@ -44,6 +45,7 @@ contract Fees is UUPSUpgradeable, AccessControlEnumerableUpgradeable, IFees {
     }
 
     function setFeesParams(address addr, uint percent) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(percent <= 1000000, "Fees: feePercent should be less than 1000000");
         payAddress = addr;
         feePercent = percent;
 
