@@ -15,3 +15,6 @@ dist
 
 # local network deployments
 deployments/5256.json
+
+.DS_Store
+
