@@ -26,4 +26,4 @@ npx hardhat run scripts/staking/deploy_legacy_pool_manager.ts --network "${NETWO
 npx hardhat run scripts/fees/deploy_fees.ts --network "${NETWORK}"
 npx hardhat run scripts/bond-marketplace/deploy_rewards_bank.ts --network "${NETWORK}"
 npx hardhat run scripts/staking/migrate_to_new_staking.ts --network "${NETWORK}"
-npx hardhat run scripts/utils/genChainspec.ts --network "${NETWORK}"
+npx hardhat run scripts/redeploy/genChainspec.ts --network "${NETWORK}"
