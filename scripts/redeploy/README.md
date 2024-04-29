@@ -21,12 +21,12 @@ run scripts in root directory.
 
 redeploy:
 ```bash
-./scripts/utils/redeploy.sh [dev/test]
+./scripts/redeploy/redeploy.sh [dev/test]
 ```
 
 only show chainspec:
 ```bash
-npx hardhat run scripts/utils/genChainspec.ts --network dev
+npx hardhat run scripts/redeploy/genChainspec.ts --network [dev/test]
 ```
 
 ### After redeploy
