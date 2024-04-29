@@ -35,3 +35,8 @@ npx hardhat run scripts/utils/genChainspec.ts --network dev
 - Push changes in `deployments` and `package.json`
 - Create new release
 - Update chainspec in https://github.com/ambrosus/chainspecs/
+- Update version of airdao-node-contracts in all software that use it:
+  - https://github.com/ambrosus/airdao-nop
+  - https://github.com/ambrosus/multisigApplication
+  - https://github.com/ambrosus/notification-service
+  - and others https://github.com/ambrosus/airdao-node-contracts/network/dependents
