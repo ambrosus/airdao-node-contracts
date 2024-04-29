@@ -29,4 +29,9 @@ only show chainspec:
 npx hardhat run scripts/utils/genChainspec.ts --network dev
 ```
 
+### After redeploy
 
+- Increment minor version in package.json
+- Push changes in `deployments` and `package.json`
+- Create new release
+- Update chainspec in https://github.com/ambrosus/chainspecs/
