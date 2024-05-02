@@ -1,15 +1,14 @@
 NETWORK=${1:-dev}
 
 set -e
-cd ../..
 
 
 if [ "$NETWORK" = "dev" ]; then
   rm -f .openzeppelin/unknown-30746.json
   echo "{}" > deployments/30746.json
 elif [ "$NETWORK" = "test" ]; then
-  rm .openzeppelin/unknown-22040.json
-  echo "{}" > deployments/30746.json
+  rm -f .openzeppelin/unknown-22040.json
+  echo "{}" > deployments/22040.json
 else
   echo "only dev and test support"
   exit 1
