@@ -3,6 +3,10 @@
 Smart contracts used in Airdao.  
 +Javascript SDK, that can be imported for convenient communication with deployed contracts.
 
+## Contracts documentation
+Can be found [here](https://github.com/ambrosus/local-network-test/blob/2a04f429e71a0bde97944755eb3b51cca1202ca3/docs/CONTRACTS.md)
+
+
 ## Development
 
 Run `npm run test` or `npm run coverage` to test contacts;
@@ -15,9 +19,9 @@ Run `make run` in `amb-node-cluster` folder to launch local amb network in your 
 
 Provide your private key as `PRIVATEKEY_OWNER_AMB` env var or put it in `.env` file.
 
-Run `npx hardhat run ./scripts/deploy_multisig.ts --network test/amb` to deploy masterMultisig contract in testnet
+Run `npx hardhat run ./scripts/deploy_multisig.ts --network test` to deploy masterMultisig contract in testnet
 network;  
-Run `npx hardhat run ./scripts/deploy_finance.ts --network main/amb` to deploy finance contracts (with their multisigs)
+Run `npx hardhat run ./scripts/deploy_finance.ts --network main` to deploy finance contracts (with their multisigs)
 in mainnet network;  
 _And so on..._
 
