@@ -23,7 +23,7 @@ async function getChainspec(time_before_transition: number, chainId: number) {
     return devnet(params);
   if (chainId === 22040)
     return testnet(params);
-  return;
+  throw new Error(`Unsupported chainId ${chainId}`);
 
 
 }
