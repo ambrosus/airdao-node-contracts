@@ -29,86 +29,14 @@
 
 ---
 
-6. **Set up Hardhat**: Hardhat is a development environment to compile, deploy, test, and debug your Ethereum software. It's already listed as a devDependency in your package.json, so it should be installed when you ran npm install or yarn install. You can check if it's installed by running
+6. **Run tests**: You can run tests using either npm or Yarn. Run one of the following commands in your terminal:
 
-    ```bash
-    npm install --global hardhat
-    ```
-
----
-
-7.  **Build the project**: You can build the project using either npm or Yarn. Run one of the following commands in your terminal:
-
-    Using npm:
-    ```bash
-    npm run build
-    ```
-    
-    Using Yarn:
-    ```bash
-    yarn build
-    ```
+```bash
+  npm run test
+```
 
 ---
 
-8.  **Run tests**: You can run tests using either npm or Yarn. Run one of the following commands in your terminal:
-
-    Using npm:
-
-    ```bash
-    npm run test
-    ```
-
-    Using Yarn:
-
-    ```bash
-    yarn test
-    ```
-
----
-
-9. **Check tests coverage**: You can check tests coverage using either npm or Yarn. Run one of the following commands in your terminal:
-
-    Using npm:
-    
-    ```bash
-    npm run coverage
-    ```
-    
-    Using Yarn:
-    
-    ```bash
-    yarn coverage
-    ```
-   
----
-
-10. **Deploy contracts**: You can deploy contracts using either npm or Yarn. Run one of the following commands in your terminal:
-
-    Using npm:
-    
-    ```bash
-    npm run deploy:all
-    ```
-    
-    Using Yarn:
-    
-    ```bash
-    yarn deploy:all
-    ```
-
-***You can deploy contracts separately by running deploy scripts from package.json***
-
-***You can change network for deploy. It can be changed in package,json scripts. `--network` parameter can be changed to***:
-   
- ```
-    hardhat
-    local 
-    dev
-    test
-    main 
- ```
-***Settings for this environments you can find at `hardhat.config.ts` file.***
 
 
 
