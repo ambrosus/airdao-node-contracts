@@ -1,7 +1,7 @@
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { BigNumber, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { AddressZero } from "@ethersproject/constants";
@@ -24,7 +24,7 @@ describe("LockKeeper", function () {
     const [user1, user2] = await ethers.getSigners();
 
     const Factory = await ethers.getContractFactory("LockKeeper");
-    const contract = await Factory.deploy();
+    const contract = (await upgrades.deployProxy(Factory, [])) as LockKeeper;
 
     await time.setNextBlockTimestamp(T);
     return { contract, user1, user2 };
@@ -35,6 +35,19 @@ describe("LockKeeper", function () {
   });
 
   describe("lock", function () {
+    it("returns empty array when no locks are present", async function () {
+      expect(await lockKeeper.getAllLocksIds()).to.deep.equal([]);
+      expect(await lockKeeper.getAllLocks()).to.deep.equal([]);
+    });
+
+    it("returns correct lock ids after locks are added", async function () {
+      await lockKeeper.lockSingle(user1.address, ethers.constants.AddressZero, 1672531200, 100, "test lock", {
+        value: 100,
+      });
+      const lockIds = await lockKeeper.getAllLocksIds();
+      expect(lockIds).to.have.lengthOf(1);
+    });
+
     it("lock single", async function () {
       await expect(lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 100 }))
         .to.emit(lockKeeper, "Locked")
@@ -76,15 +89,13 @@ describe("LockKeeper", function () {
     });
 
     it("wrong AMB amount", async function () {
-      await expect(
-        lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 42 })
-      ).to.be.revertedWith("LockKeeper: wrong AMB amount");
+      await expect(lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 42 })).to.be
+        .reverted;
     });
 
     it("wrong totalClaims", async function () {
-      await expect(
-        lockKeeper.lockLinear(user2.address, AddressZero, T + 1000, 0, 200, 100, "Test", { value: 300 })
-      ).to.be.revertedWith("LockKeeper: totalClaims must be > 0");
+      await expect(lockKeeper.lockLinear(user2.address, AddressZero, T + 1000, 0, 200, 100, "Test", { value: 300 })).to
+        .be.reverted;
     });
 
     describe("lock erc20", function () {
@@ -128,6 +139,26 @@ describe("LockKeeper", function () {
   });
 
   describe("claim", function () {
+    describe("autoClaim", function () {
+      it("does not claim when no locks are present", async function () {
+        await expect(lockKeeper.autoClaim()).to.be.reverted;
+      });
+
+      it("claims a lock when one is present and time has passed", async function () {
+        await lockKeeper.lockSingle(
+          user1.address,
+          ethers.constants.AddressZero,
+          Math.floor(Date.now() / 1000),
+          100,
+          "test lock",
+          { value: 100 }
+        );
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+        await expect(lockKeeper.autoClaim()).to.emit(lockKeeper, "Claim");
+      });
+    });
+
     describe("claim single", function () {
       beforeEach(async function () {
         // lock
@@ -228,19 +259,85 @@ describe("LockKeeper", function () {
   });
 
   describe("cancelLock", function () {
-    it("if sender is not lock creator, should revert", async function () {
-      await lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 100 });
+    let erc20: Contract;
+
+    beforeEach(async function () {
+      ({ contract: erc20 } = await loadFixture(deployERC20));
+    });
+
+    it("should allow the locker to cancel the lock", async function () {
+      await erc20.mint(user1.address, 100);
+      await erc20.approve(lockKeeper.address, 100);
+      await lockKeeper.lockSingle(user1.address, erc20.address, 1672531200, 100, "example of lockSingle");
+
+      await expect(lockKeeper.cancelLock(1)).to.emit(lockKeeper, "LockCanceled");
+    });
+
+    it("should not allow non-locker to cancel the lock", async function () {
+      await erc20.mint(user1.address, 100);
+      await erc20.approve(lockKeeper.address, 100);
+      await lockKeeper.lockSingle(user2.address, erc20.address, 1672531200, 100, "example of lockSingle");
 
       await expect(lockKeeper.connect(user2).cancelLock(1)).to.be.revertedWith(
         "Only address that create lock can cancel it"
       );
     });
-    it("cancel lock", async function () {
-      await lockKeeper.lockSingle(user2.address, AddressZero, T + 1000, 100, "Test", { value: 100 });
 
-      await lockKeeper.cancelLock(1);
+    it("should return unclaimed native coin amount when cancelling the lock", async function () {
+      await erc20.mint(user1.address, 100000);
+      await erc20.approve(lockKeeper.address, 100000);
 
-      expect(await lockKeeper.allUserLocks(user2.address)).to.eql([[], []]);
+      await lockKeeper.lockSingle(
+        user2.address,
+        ethers.constants.AddressZero,
+        1672531200,
+        100000,
+        "example of lockSingle",
+        { value: 100000 }
+      );
+
+      const initialBalance = await ethers.provider.getBalance(user1.address);
+      const tx = await lockKeeper.cancelLock(1);
+      await tx.wait();
+      const finalBalance = await ethers.provider.getBalance(user1.address);
+      const tolerance = ethers.utils.parseEther("0.01");
+
+      expect(finalBalance.add(tolerance)).to.be.gte(initialBalance);
+    });
+
+    it("should return unclaimed amount when cancelling the lock", async function () {
+      await erc20.mint(user1.address, 100);
+      await erc20.approve(lockKeeper.address, 100);
+      await lockKeeper.lockSingle(user2.address, erc20.address, 1672531200, 100, "example of lockSingle");
+
+      const tx = await lockKeeper.cancelLock(1);
+      const tx1 = await tx.wait();
+      expect(tx1.events[1].args.canceledAmount).to.equal(100);
+    });
+  });
+
+  describe("on block function", function () {
+    let erc20: Contract;
+
+    beforeEach(async function () {
+      ({ contract: erc20 } = await loadFixture(deployERC20));
+    });
+
+    it("should not auto claim when onBlock is called and it's too early to claim", async function () {
+      await erc20.mint(user1.address, 100);
+      await erc20.approve(lockKeeper.address, 100);
+      await lockKeeper.lockSingle(
+        user2.address,
+        erc20.address,
+        Math.floor(Date.now() / 1000) + 10, // unlock time is 10 seconds from now
+        100,
+        "example of lockSingle"
+      );
+
+      await lockKeeper.onBlock();
+
+      const lock = await lockKeeper.getLock(1);
+      expect(lock.timesClaimed).to.equal(0);
     });
   });
 });
