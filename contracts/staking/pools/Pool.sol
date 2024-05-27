@@ -68,7 +68,7 @@ contract Pool is Ownable {
         }
         if (nodes.length == 0) {
             active = false;
-            payable(msg.sender).transfer(nodeStake);
+            transferViaCall(payable(msg.sender), nodeStake);
         }
     }
 
@@ -103,7 +103,7 @@ contract Pool is Ownable {
             _removeNode();
         }
         totalStake -= deposit;
-        payable(msg.sender).transfer(deposit);
+        transferViaCall(payable(msg.sender), deposit);
         _getManager().poolStakeChanged(msg.sender, - int(deposit), - int(tokens));
     }
 
@@ -134,7 +134,7 @@ contract Pool is Ownable {
             }
         }
 
-        payable(owner()).transfer(msg.value - reward);
+        transferViaCall(payable(owner()), msg.value - reward);
         _onboardNodes();
     }
 

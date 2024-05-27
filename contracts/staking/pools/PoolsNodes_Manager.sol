@@ -4,11 +4,15 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../IStakeManager.sol";
 import "../../consensus/IValidatorSet.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../../utils/TransferViaCall.sol";
+
 
 // Manager that allows to register staking pools;
 // Each pool can onboard a node (via this manager) when reached some stake goal
 
 contract PoolsNodes_Manager is Ownable, IStakeManager {
+    using SafeERC20 for IERC20;
 
     IValidatorSet public validatorSet; // contract that manages validator set
 
@@ -59,7 +63,7 @@ contract PoolsNodes_Manager is Ownable, IStakeManager {
 
         validatorSet.unstake(nodeAddress, amountToTransfer);
         emit NodeRetired(nodeAddress, amountToTransfer);
-        payable(msg.sender).transfer(amountToTransfer);
+        transferViaCall(payable(msg.sender), amountToTransfer);
         return amountToTransfer;
     }
 

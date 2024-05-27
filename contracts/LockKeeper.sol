@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IOnBlockListener} from "./consensus/OnBlockNotifier.sol";
+import "./utils/TransferViaCall.sol";
 
 
 contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
@@ -199,7 +200,7 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         unclaimedAmount = (lock.totalClaims - lock.timesClaimed) * lock.intervalAmount;
 
         if (lock.token == address(0)) {
-            payable(lock.locker).transfer(unclaimedAmount);
+            transferViaCall(payable(lock.locker), unclaimedAmount);
         } else {
             IERC20(lock.token).transfer(lock.locker, unclaimedAmount);
         }
@@ -229,7 +230,7 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         if (amountToClaim == 0) return 0;
 
         if (lock.token == address(0)) {
-            payable(lock.receiver).transfer(amountToClaim);
+            transferViaCall(payable(lock.receiver), amountToClaim);
         } else {
             IERC20(lock.token).transfer(lock.receiver, amountToClaim);
         }
