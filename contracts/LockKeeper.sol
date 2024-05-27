@@ -126,7 +126,7 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
             require(msg.value == totalAmount, "LockKeeper: wrong AMB amount");
         } else {
             require(msg.value == 0, "LockKeeper: why do you send AMB?");
-            IERC20(token).transferFrom(msg.sender, address(this), totalAmount);
+            IERC20(token).safeTransferFrom(msg.sender, address(this), totalAmount);
         }
 
         locks[++latestLockId] = Lock({
@@ -202,7 +202,7 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         if (lock.token == address(0)) {
             transferViaCall(payable(lock.locker), unclaimedAmount);
         } else {
-            IERC20(lock.token).transfer(lock.locker, unclaimedAmount);
+            IERC20(lock.token).safeTransfer(lock.locker, unclaimedAmount);
         }
 
         _deleteLock(lockId);
@@ -232,7 +232,7 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         if (lock.token == address(0)) {
             transferViaCall(payable(lock.receiver), amountToClaim);
         } else {
-            IERC20(lock.token).transfer(lock.receiver, amountToClaim);
+            IERC20(lock.token).safeTransfer(lock.receiver, amountToClaim);
         }
 
         emit Claim(lockId, lock.receiver, amountToClaim);
