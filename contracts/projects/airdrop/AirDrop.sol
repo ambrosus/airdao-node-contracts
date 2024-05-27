@@ -4,8 +4,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../../funds/AirBond.sol";
 import "../../utils/TransferViaCall.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract AirDrop is Ownable {
+    using SafeERC20 for AirBond;
 
     AirBond public airBondToken;
     address public backendAddress;
@@ -51,7 +53,7 @@ contract AirDrop is Ownable {
         }
 
         require(airBondToken.balanceOf(address(this)) >= amountsSum, "Run out of tokens");
-        airBondToken.transfer(msg.sender, amountsSum);
+        airBondToken.safeTransfer(msg.sender, amountsSum);
 
         emit Claim(msg.sender, categories, amounts);
     }
@@ -67,7 +69,7 @@ contract AirDrop is Ownable {
     // onlyOwner
 
     function withdraw(address payable addressTo, uint amount) public onlyOwner {
-        airBondToken.transfer(addressTo, amount);
+        airBondToken.safeTransfer(addressTo, amount);
     }
 
     function changeBackendAddress(address backendAddress_) public onlyOwner {
