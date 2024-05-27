@@ -69,10 +69,11 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
         uint amountToTransfer = apolloDepositStore.releaseDeposit(nodeAddress, address(this));
         require(amountToTransfer != 0, "No such node");
 
+        node2pool[nodeAddress] = address(0);
         validatorSet.unstake(nodeAddress, amountToTransfer);
         rolesEventEmitter.nodeRetired(nodeAddress, amountToTransfer, Consts.NodeType.APOLLO);
-        payable(msg.sender).transfer(amountToTransfer);
-        node2pool[nodeAddress] = address(0);
+
+        transferViaCall(payable(msg.sender), amountToTransfer);
         return amountToTransfer;
     }
 

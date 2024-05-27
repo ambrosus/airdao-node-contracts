@@ -2,6 +2,7 @@ pragma solidity ^0.8.6;
 
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../utils/TransferViaCall.sol";
 
 
 contract Multisig is Ownable {
@@ -135,7 +136,7 @@ contract Multisig is Ownable {
     function withdraw(address payable to, uint amount) public {
         require(msg.sender == owner() || msg.sender == address(this), "Must be called from owner or from multisig");
         require(address(this).balance >= amount, "amount > balance");
-        to.transfer(amount);
+        transferViaCall(to, amount);
     }
 
     // call this function (using callStatic) to check if there any errors before submitting actual transaction
