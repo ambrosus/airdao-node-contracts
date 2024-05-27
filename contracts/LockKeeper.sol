@@ -167,26 +167,24 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         uint[] memory locksIds = locksList; // copy list coz it may change during claim
         bool somethingClaimed;
         for (uint i = 0; i < locksIds.length; i++) {
-            Lock storage lock = locks[locksIds[i]];
-            if (lock.receiver != msg.sender) continue;
+            if (locks[locksIds[i]].receiver != msg.sender) continue;
 
-            if (_claim(locksIds[i], lock) > 0)
+            if (_claim(locksIds[i]) > 0)
                 somethingClaimed = true;
         }
         require(somethingClaimed, "LockKeeper: nothing to claim");
     }
 
     function claim(uint lockId) public {
-        Lock storage lock = locks[lockId];
-        require(lock.receiver == msg.sender, "LockKeeper: not your lock");
-        require(_claim(lockId, lock) != 0, "LockKeeper: too early to claim");
+        require(locks[lockId].receiver == msg.sender, "LockKeeper: not your lock");
+        require(_claim(lockId) != 0, "LockKeeper: too early to claim");
     }
 
     function autoClaim() public {
         uint[] memory locksIds = locksList; // copy list coz it may change during claim
         uint i = uint(block.number) % locksIds.length; // prevent claiming first lock every time
         for (; i < locksIds.length; i++) {
-            bool isClaimed = _claim(locksIds[i], locks[locksIds[i]]) > 0;
+            bool isClaimed = _claim(locksIds[i]) > 0;
             if (isClaimed) break; // currently can claim only one lock per tx
             // todo maybe limit by count or by used gas with ability to change
         }
@@ -199,14 +197,15 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         require(msg.sender == lock.locker, "Only address that create lock can cancel it");
         unclaimedAmount = (lock.totalClaims - lock.timesClaimed) * lock.intervalAmount;
 
+        _deleteLock(lockId);
+        emit LockCanceled(lockId, unclaimedAmount);
+
         if (lock.token == address(0)) {
             transferViaCall(payable(lock.locker), unclaimedAmount);
         } else {
             IERC20(lock.token).safeTransfer(lock.locker, unclaimedAmount);
         }
 
-        _deleteLock(lockId);
-        emit LockCanceled(lockId, unclaimedAmount);
         return unclaimedAmount;
     }
 
@@ -219,7 +218,8 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     // INTERNAL
 
-    function _claim(uint lockId, Lock storage lock) internal returns (uint256) {
+    function _claim(uint lockId) internal returns (uint256) {
+        Lock memory lock = locks[lockId];
         uint64 timeNow = uint64(block.timestamp);
         if (timeNow < lock.firstUnlockTime) return 0;
 
@@ -229,18 +229,22 @@ contract LockKeeper is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         uint amountToClaim = (lastCanClaimIndex - lock.timesClaimed) * lock.intervalAmount;
         if (amountToClaim == 0) return 0;
 
-        if (lock.token == address(0)) {
-            transferViaCall(payable(lock.receiver), amountToClaim);
-        } else {
-            IERC20(lock.token).safeTransfer(lock.receiver, amountToClaim);
-        }
-
-        emit Claim(lockId, lock.receiver, amountToClaim);
+        // save info before (possible) deleting lock
+        address token = lock.token;
+        address receiver = lock.receiver;
 
         if (lastCanClaimIndex == lock.totalClaims) {
             _deleteLock(lockId);
         } else {
-            lock.timesClaimed = uint64(lastCanClaimIndex);
+            locks[lockId].timesClaimed = uint64(lastCanClaimIndex);
+        }
+
+        emit Claim(lockId, lock.receiver, amountToClaim);
+
+        if (lock.token == address(0)) {
+            transferViaCall(payable(receiver), amountToClaim);
+        } else {
+            IERC20(lock.token).safeTransfer(receiver, amountToClaim);
         }
 
         return amountToClaim;
