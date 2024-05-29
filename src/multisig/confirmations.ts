@@ -16,7 +16,9 @@ export async function getTransactionsFromContracts(contracts: Contracts, multisi
     ? multisigAddresses.map((address) => contracts.getNameByAddress(address))
     : multisigsNames;
 
-  const multisigTransactions = await Promise.all(multisigNamesList.map((mn) => getTransactions(contracts, mn)));
+  const multisigTransactions = await Promise.all(
+    multisigNamesList.map((mn) => getTransactions(contracts, mn))
+  );
   return multisigTransactions.flat();
 }
 

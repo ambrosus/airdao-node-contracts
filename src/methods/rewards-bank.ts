@@ -4,7 +4,7 @@ import {ContractNames} from "../contracts/names";
 import {
   RewardsBank,
 } from "../../typechain-types";
-import {submitTransaction2} from "./internal";
+import {submitTransaction2} from "../multisig/submitTransaction";
 
 type rewardsBankContactNames =
   | ContractNames.BaseNodesManagerRewardsBank

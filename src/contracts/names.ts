@@ -80,8 +80,8 @@ export const MULTISIGS = {
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
 
-  [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
 };
+
 
 export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
 

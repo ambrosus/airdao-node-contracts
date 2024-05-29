@@ -1,7 +1,7 @@
 import { Contracts } from "../contracts/contracts";
 import { ContractNames, slavesMultisigsNames } from "../contracts/names";
 import { MasterMultisig } from "../../typechain-types";
-import { submitTransaction } from "./internal";
+import { submitTransaction } from "../multisig/submitTransaction";
 
 export async function changeMultisigOwners(contracts: Contracts, newOwner: string, multisigAddresses?: string[]) {
   if (!multisigAddresses)
