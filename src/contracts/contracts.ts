@@ -1,13 +1,20 @@
 import { Contract, ethers, Signer } from "ethers";
 
-import { ContractNames } from "./names";
+import { ContractNames, MultisigVersions } from "./names";
+
+type Deployment = {
+  address: string;
+  abi: Array<string>;
+  deployTx: string;
+  fullyQualifiedName: string;
+};
 
 export class Contracts {
   private contracts: { [contractName: string]: Contract };
   private nameByAddress: { [address: string]: ContractNames };
 
-  constructor(signer: Signer, chainId: number) {
-    this.contracts = loadAllDeploymentsFromFile(chainId, signer);
+  constructor(signer: Signer, chainId: number, multisigVersion: MultisigVersions = MultisigVersions.v1) {
+    this.contracts = loadAllDeploymentsFromFile(chainId, signer, multisigVersion);
     this.nameByAddress = {};
 
     for (const [name, contract] of Object.entries(this.contracts))
@@ -44,21 +51,28 @@ export class Contracts {
     return this.nameByAddress[address];
   }
 
-  static getContract(chainId: number, contractName: ContractNames) {
+  static getContract(chainId: number, contractName: ContractNames, multisigVersion: MultisigVersions = MultisigVersions.v1) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const deployments = require(`../../deployments/${chainId}.json`);
+    const deployments = require(`../../deployments/${chainId}${multisigVersion != MultisigVersions.v1 ? "_" + multisigVersion : ""}.json`);
     return { address: deployments[contractName].address, abi: deployments[contractName].abi };
   }
 }
 
-export function loadAllDeploymentsFromFile(chainId: number, signer?: Signer) {
+export function loadAllDeploymentsFromFile(
+  chainId: number,
+  signer?: Signer,
+  multisigVersion: MultisigVersions = MultisigVersions.v1
+) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const deployments = require(`../../deployments/${chainId}.json`);
+  const deployments = require(`../../deployments/${chainId}${multisigVersion != MultisigVersions.v1 ? "_" + multisigVersion : ''}.json`);
   const result: any = {};
 
-  for (const name of Object.keys(deployments)) {
-    const deployment = deployments[name] as any;
-    result[name] = new ethers.Contract(deployment.address, deployment.abi, signer);
+  for (const name of Object.keys(deployments).filter((name) =>
+    multisigVersion != MultisigVersions.v1 ? name.includes(`_${multisigVersion}`) : !name.includes("_v")
+  )) {
+    const deployment = deployments[name] as Deployment;
+    const normalizedName = !name.startsWith(ContractNames.MasterMultisig) ? name.replace(`_${multisigVersion}`, '') : name;
+    result[normalizedName] = new ethers.Contract(deployment.address, deployment.abi, signer);
   }
   return result;
 }

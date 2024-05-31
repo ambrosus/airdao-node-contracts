@@ -4,6 +4,10 @@ import { deploy } from "@airdao/deployments/deploying";
 import { AirBond__factory, AirDrop__factory } from "../../typechain-types";
 
 async function main() {
+  let { chainId } = await ethers.provider.getNetwork();
+  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  }
   const [deployer] = await ethers.getSigners();
 
   if (network.name == "main") {
@@ -15,6 +19,7 @@ async function main() {
     // const financeInvestorsMultisig = loadDeployment(ContractNames.FinanceInvestorsMultisig, networkName).address;
     const airBond = await deploy<AirBond__factory>({
       contractName: ContractNames.AirBond,
+      networkId: chainId,
       artifactName: "AirBond",
       deployArgs: [deployer.address],
       signer: deployer,
@@ -22,6 +27,7 @@ async function main() {
     });
     const airDrop = await deploy<AirDrop__factory>({
       contractName: ContractNames.AirDrop,
+      networkId: chainId,
       artifactName: "AirDrop",
       deployArgs: [airBond.address, BACKEND_ADDRESS, ethers.utils.parseEther("999"), []],
       signer: deployer,
@@ -35,6 +41,7 @@ async function main() {
   } else {
     const airBond = await deploy<AirBond__factory>({
       contractName: ContractNames.AirBond,
+      networkId: chainId,
       artifactName: "AirBond",
       deployArgs: [deployer.address],
       signer: deployer,
@@ -42,6 +49,7 @@ async function main() {
     });
     const airDrop = await deploy<AirDrop__factory>({
       contractName: ContractNames.AirDrop,
+      networkId: chainId,
       artifactName: "AirDrop",
       deployArgs: [airBond.address, deployer.address, ethers.utils.parseEther("999"), []],
       signer: deployer,

@@ -4,7 +4,7 @@ import "@openzeppelin/hardhat-upgrades";
 
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
-import { sourcifyAll } from "@airdao/deployments/deploying";
+import { sourcifyOne, loadAllDeployments } from "@airdao/deployments/deploying";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 dotenv.config();
@@ -31,8 +31,8 @@ const config: HardhatUserConfig = {
       gasPrice: 0,
       accounts: [
         process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero,
-        process.env.PRIVATEKEY_TEST_MULTISIG1 || ethers.constants.HashZero,
-        process.env.PRIVATEKEY_TEST_MULTISIG2 || ethers.constants.HashZero,
+        // process.env.PRIVATEKEY_TEST_MULTISIG1 || ethers.constants.HashZero,
+        // process.env.PRIVATEKEY_TEST_MULTISIG2 || ethers.constants.HashZero,
       ],
     },
     test: {
@@ -75,7 +75,20 @@ const config: HardhatUserConfig = {
 
 task("sourcify", "verify contracts using sourcify").setAction(async (args: any, hre: HardhatRuntimeEnvironment) => {
   await hre.run("compile"); // compile contract first
-  await sourcifyAll(hre);
+  // @ts-ignore
+  let { chainId } = await hre.ethers.provider.getNetwork();
+  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  }
+  const deployments = require(`./deployments/${chainId}.json`) as Record<string, any>;
+
+  for (const [contractName, deployment] of Object.entries(deployments))
+    if (deployment.proxy) {
+      await sourcifyOne(hre, deployment.proxy.fullyQualifiedName, deployment.address, chainId, contractName + " Proxy");
+      await sourcifyOne(hre, deployment.fullyQualifiedName, deployment.proxy.implementation, chainId, contractName);
+    } else {
+      await sourcifyOne(hre, deployment.fullyQualifiedName, deployment.address, chainId, contractName);
+    }
 });
 
 export default config;

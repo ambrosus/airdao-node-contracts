@@ -17,7 +17,10 @@ import {
 import {Finance__factory, MasterFinance__factory, Multisig__factory} from "../../typechain-types";
 
 async function main() {
-  const {chainId} = await ethers.provider.getNetwork();
+  let { chainId } = await ethers.provider.getNetwork();
+  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  }
 
   const [deployer] = await ethers.getSigners();
 
@@ -34,6 +37,7 @@ async function main() {
 
     const multisig = await deploy<Multisig__factory>({
       contractName: multisigName,
+      networkId: chainId,
       artifactName: "Multisig",
       signer: deployer,
       deployArgs: [signers, isInitiator, threshold, masterMultisig],
@@ -41,6 +45,7 @@ async function main() {
     });
     await deploy<Finance__factory>({
       contractName: financeName,
+      networkId: chainId,
       artifactName: "Finance",
       signer: deployer,
       deployArgs: [multisig.address],
@@ -59,6 +64,7 @@ async function main() {
   // finance master
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.FinanceMasterMultisig,
+    networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...multisigSettings, masterMultisig],
     signer: deployer,
@@ -66,6 +72,7 @@ async function main() {
   });
   await deploy<MasterFinance__factory>({
     contractName: ContractNames.FinanceMaster,
+    networkId: chainId,
     artifactName: "MasterFinance",
     deployArgs: [multisig.address, bankCount, maxBankBalance],
     signer: deployer,

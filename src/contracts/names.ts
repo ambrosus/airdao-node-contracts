@@ -1,3 +1,8 @@
+export enum MultisigVersions {
+  v1 = "v1",
+  v2 = "v2",
+}
+
 export enum ContractNames {
   MasterMultisig = "MasterMultisig",
 
@@ -61,7 +66,7 @@ export enum ContractNames {
   BondMarketplaceRewardsBank = "BondMarketplace_RewardsBank",
 }
 
-export const MULTISIGS = {
+export const MULTISIGS_v1 = {
   [ContractNames.FinanceMaster]: ContractNames.FinanceMasterMultisig,
   [ContractNames.FinanceRewards]: ContractNames.FinanceRewardsMultisig,
   [ContractNames.FinanceInvestors]: ContractNames.FinanceInvestorsMultisig,
@@ -79,10 +84,33 @@ export const MULTISIGS = {
   [ContractNames.Treasury]: ContractNames.TreasuryMultisig,
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
-
 };
 
+export const MULTISIGS_v2 = {
+  [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
+};
 
-export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
+export const MULTISIGS = process.env.MULTISIGS === "v2" ? MULTISIGS_v2 : MULTISIGS_v1;
+
+export const getSlavesMultisigsNames = (version: MultisigVersions = MultisigVersions.v1) => {
+  const sigs = (() => {
+    switch (version) {
+      case "v2":
+        return MULTISIGS_v2;
+      case "v1":
+        return MULTISIGS_v1;
+      default:
+        return MULTISIGS_v1;
+    }
+  })();
+  return [...new Set(Object.values(sigs))];
+};
+
+export const slavesMultisigsNames = getSlavesMultisigsNames(process.env.MULTISIGS as MultisigVersions | undefined);
 
 export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];
+
+export const getMultisigNames = (version: MultisigVersions = MultisigVersions.v1) => {
+  const slaves = getSlavesMultisigsNames(version);
+  return [ContractNames.MasterMultisig, ...slaves];
+};

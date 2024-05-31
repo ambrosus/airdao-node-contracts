@@ -12,8 +12,12 @@ const TRANSITION_ADDRESS = "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05";
 const TRANSITION_BLOCK = 15;
 
 async function main() {
-  const { chainId } = await ethers.provider.getNetwork();
+  let { chainId } = await ethers.provider.getNetwork();
   if (chainId != 0x1488) throw new Error("This script should be run on local network");
+  const chainIdNumber = chainId;
+  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  }
 
   const [v1, v2, v3] = await ethers.getSigners();
   // v1 = await AmbErrorProviderWrapSigner(v1);
@@ -32,7 +36,7 @@ async function main() {
   const deploymentPath = path.resolve(__dirname, `../../deployments/${chainId}.json`);
   fs.writeFileSync(deploymentPath, JSON.stringify({}, null, 2));
 
-  const ozUpgradeCachePath = path.resolve(__dirname, `../../.openzeppelin/unknown-${chainId}.json`);
+  const ozUpgradeCachePath = path.resolve(__dirname, `../../.openzeppelin/unknown-${chainIdNumber}.json`);
   fs.rmSync(ozUpgradeCachePath, { force: true });
 
   // deploy new contracts

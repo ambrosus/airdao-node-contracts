@@ -5,13 +5,17 @@ import {ContractNames} from "../../src";
 import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
-  const { chainId } = await ethers.provider.getNetwork();
+  let { chainId } = await ethers.provider.getNetwork();
+  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  }
 
   const [deployer] = await ethers.getSigners();
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.FeesMultisig,
+    networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -20,6 +24,7 @@ export async function main() {
 
   const treasure = await deploy<Finance__factory>({
     contractName: ContractNames.FeesTreasure,
+    networkId: chainId,
     artifactName: "Finance",
     deployArgs: [multisig.address],
     signer: deployer,
@@ -31,6 +36,7 @@ export async function main() {
 
   const fees = await deploy<Fees__factory>({
     contractName: ContractNames.Fees,
+    networkId: chainId,
     artifactName: "Fees",
     deployArgs: [gasPrice, payAddress, feePercent],
     signer: deployer,
