@@ -21,10 +21,27 @@ AirDAO network RPC is Ethereum compatible and supports all Ethereum JSON-RPC met
 Or you can use your own node.
 
 
-### Launching your own node
 
-You can setup your own node using our Node Onboarding Package (NOP) - https://github.com/ambrosus/airdao-nop
-#### todo add more info about NOP, launching node as validator or not. maybe info about manual setup from docker image
+
+### Launching Your Own Node
+AirDAO use an [OpenEthereum fork](https://github.com/ambrosus/openethereum) as node software. 
+
+#### Launch Validator Node
+A validator node will produce blocks and earn AMB rewards!
+
+To launch a validator node, you will need:
+- **At least 400,000 AMB** for node stake.
+- **A server** to host the node (a typical DigitalOcean node with 2 GB RAM, 2 CPUs, 60 GB SSD disk, and 3 TB transfer should work good).
+
+You can find the node launching page on our explorer: [Node Setup](https://airdao.io/explorer/node-setup/).
+
+Follow the instruction at launching page, you will be asked to stake some amber and install node software using our [Node Operating Package (NOP)](https://github.com/ambrosus/airdao-nop)
+
+#### Launch Non-Validator Node
+If you need super fast RPC, you can setup your own node for this.
+Follow one of this guides:
+- [Launch node from docker image](https://github.com/ambrosus/openethereum/blob/main/docs/AirDAO_OpenEthereum_Setup_Guide.md)
+- [Compile node from sources](https://github.com/ambrosus/openethereum/blob/main/docs/AirDAO_OpenEthereum_binary_setup_guide.md)
 
 
 
