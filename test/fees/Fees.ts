@@ -2,6 +2,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { Fees } from "../../typechain-types";
+import { AddressZero } from "@ethersproject/constants";
 
 describe("Fees", function () {
 
@@ -55,6 +56,14 @@ describe("Fees", function () {
       expect(feeParams.percent).to.be.eq(percent);
     });
 
+  });
+
+  it("initialize shouldn't decrease my coverage", async () => {
+    const {fees} = await loadFixture(deploy);
+
+    await expect(
+      fees.initialize(10, AddressZero, 10)
+    ).to.be.reverted;
   });
 
 });

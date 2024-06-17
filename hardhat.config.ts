@@ -12,9 +12,9 @@ dotenv.config();
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      forking: {
-        url: "https://network.ambrosus.io",
-      },
+      // forking: {
+      //   url: "https://network.ambrosus.io",
+      // },
     },
     local: {
       url: "http://127.0.0.1:8545",

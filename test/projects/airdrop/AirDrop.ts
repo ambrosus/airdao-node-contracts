@@ -4,6 +4,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { AirDrop, AirBond } from "../../../typechain-types";
 import { arrayify, keccak256, solidityPack } from "ethers/lib/utils";
+import { AddressZero } from "@ethersproject/constants";
 
 describe("AirDrop", function () {
   let airBond: AirBond;
@@ -18,7 +19,8 @@ describe("AirDrop", function () {
     const airBond = await AirBondFactory.deploy(owner.address);
 
     const AirDropFactory = await ethers.getContractFactory("AirDrop");
-    const airDrop = await AirDropFactory.deploy(airBond.address, owner.address, ethers.utils.parseEther("1000"), []);
+    const hotfixClaims = [{user: ethers.constants.AddressZero, category: ethers.constants.HashZero, amount: 10}];
+    const airDrop = await AirDropFactory.deploy(airBond.address, owner.address, ethers.utils.parseEther("1000"), hotfixClaims);
 
     await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
     await airBond.mint(airDrop.address, 50);
