@@ -11,10 +11,7 @@ import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
-  let { chainId } = await ethers.provider.getNetwork();
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
@@ -37,9 +34,7 @@ export async function main() {
   );
 
   const multisig = await deploy<Multisig__factory>({
-    contractName:
-      ContractNames.ServerNodesManagerMultisig,
-    networkId: chainId,
+    contractName: ContractNames.ServerNodesManagerMultisig,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -47,9 +42,7 @@ export async function main() {
   });
 
   const lockKeeper = await deploy<LockKeeper__factory>({
-    contractName:
-      ContractNames.LockKeeper,
-    networkId: chainId,
+    contractName: ContractNames.LockKeeper,
     artifactName: "LockKeeper",
     deployArgs: [],
     signer: deployer,
@@ -58,9 +51,7 @@ export async function main() {
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName:
-      ContractNames.ServerNodesManagerRewardsBank,
-    networkId: chainId,
+    contractName: ContractNames.ServerNodesManagerRewardsBank,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
@@ -71,9 +62,7 @@ export async function main() {
   const minStakeAmount = ethers.utils.parseEther("1000000"); // 1M AMB
 
   const manager = await deploy<ServerNodes_Manager__factory>({
-    contractName:
-      ContractNames.ServerNodesManager,
-    networkId: chainId,
+    contractName: ContractNames.ServerNodesManager,
     artifactName: "ServerNodes_Manager",
     deployArgs: [
       validatorSet.address,

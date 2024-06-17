@@ -15,10 +15,7 @@ import { Roadmap2023MultisigSettings } from "../addresses";
 const HEAD = "0x0000000000000000000000000000000000000F10";
 
 async function main() {
-  let { chainId } = await ethers.provider.getNetwork();
-  //  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-  //    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  //  }
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
@@ -28,7 +25,6 @@ async function main() {
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.LegacyPoolManagerMultisig,
-    networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -37,7 +33,6 @@ async function main() {
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.LegacyPoolManagerRewardsBank,
-    networkId: chainId,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
@@ -49,7 +44,6 @@ async function main() {
 
   const manager = await deploy<LegacyPoolsNodes_Manager__factory>({
     contractName: ContractNames.LegacyPoolManager,
-    networkId: chainId,
     artifactName: "LegacyPoolsNodes_Manager",
     deployArgs: [
       validatorSet.address,

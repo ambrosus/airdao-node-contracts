@@ -10,7 +10,7 @@ import {
 import { Roadmap2023MultisigSettings } from "../addresses";
 
 export async function main() {
-  let { chainId } = await ethers.provider.getNetwork();
+  const { chainId } = await ethers.provider.getNetwork();
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
@@ -19,7 +19,6 @@ export async function main() {
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.BaseNodesManagerMultisig,
-    networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -28,7 +27,6 @@ export async function main() {
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.BaseNodesManagerRewardsBank,
-    networkId: chainId,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,

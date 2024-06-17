@@ -17,10 +17,8 @@ import {
 } from "../addresses";
 
 export async function main() {
-  let { chainId } = await ethers.provider.getNetwork();
-  // if (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common) {
-  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  // }
+  const { chainId } = await ethers.provider.getNetwork();
+  
   const [deployer] = await ethers.getSigners();
 
   const masterMultisig = loadDeployment(ContractNames.Ecosystem_MasterMultisig, chainId).address;
@@ -36,7 +34,6 @@ export async function main() {
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.Ecosystem_BondMarketplaceMultisig,
-    networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...multisigSettings, masterMultisig],
     signer: deployer,
@@ -45,7 +42,6 @@ export async function main() {
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.Ecosystem_BondMarketplaceRewardsBank,
-    networkId: chainId,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,

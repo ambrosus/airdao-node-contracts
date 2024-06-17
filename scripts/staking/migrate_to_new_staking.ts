@@ -34,10 +34,7 @@ const multisigAbi = ["function confirmTransaction(uint256 transactionId)",
 const feesAbi = ["function isAdmin(address) view returns (bool)", "function paused() view returns (bool)"];
 
 async function main() {
-  let { chainId } = await ethers.provider.getNetwork();
-  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  // }
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 

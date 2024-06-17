@@ -2,25 +2,17 @@ import { ethers } from "hardhat";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 import { Multisig__factory, Treasury__factory } from "../../typechain-types";
-import {Roadmap2023MultisigSettings} from "../addresses";
+import { Roadmap2023MultisigSettings } from "../addresses";
 
 export async function main() {
-  let { chainId } = await ethers.provider.getNetwork();
-  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  // }
+  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
-  const masterMultisig = loadDeployment(
-    ContractNames.MasterMultisig,
-    chainId
-  ).address;
+  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   const multisig = await deploy<Multisig__factory>({
-    contractName:
-      ContractNames.TreasuryMultisig,
-    networkId: chainId,
+    contractName: ContractNames.TreasuryMultisig,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -28,9 +20,7 @@ export async function main() {
   });
 
   await deploy<Treasury__factory>({
-    contractName:
-      ContractNames.Treasury,
-    networkId: chainId,
+    contractName: ContractNames.Treasury,
     artifactName: "Treasury",
     signer: deployer,
     deployArgs: [
