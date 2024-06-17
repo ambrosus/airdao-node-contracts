@@ -25,7 +25,7 @@ export async function main() {
     signer: deployer,
     deployArgs: [
       multisig.address,
-      0, // turn off for now
+      0 // turn off for now
       // 0.1 * 10000, // 10% fee
     ],
   });

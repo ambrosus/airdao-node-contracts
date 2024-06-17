@@ -8,9 +8,9 @@ import {
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import { ContractNames } from "../../src";
-import { Roadmap2023MultisigSettings } from "../addresses";
+import {deploy, loadDeployment} from "@airdao/deployments/deploying";
+import {ContractNames} from "../../src";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 
@@ -61,6 +61,7 @@ async function main() {
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address)).wait();
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address)).wait();
+
 }
 
 if (require.main === module) {

@@ -1,6 +1,6 @@
-import { ethers, network } from "hardhat";
-import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import { ContractNames } from "../../src";
+import {ethers, network} from "hardhat";
+import {deploy, loadDeployment} from "@airdao/deployments/deploying";
+import {ContractNames} from "../../src";
 import {
   Alex,
   Alina,
@@ -14,10 +14,10 @@ import {
   SharedDev,
   Sophie,
 } from "../addresses";
-import { Finance__factory, MasterFinance__factory, Multisig__factory } from "../../typechain-types";
+import {Finance__factory, MasterFinance__factory, Multisig__factory} from "../../typechain-types";
 
 async function main() {
-  const { chainId } = await ethers.provider.getNetwork();
+  const {chainId} = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
@@ -48,14 +48,9 @@ async function main() {
     });
   }
 
-  const multisigSettings: [string[], boolean[], number] =
-    network.name == "main"
-      ? [
-          [Michael, Igor, Alina, Alex, Matthieu, Oleksii, Seth, Sophie, OleksiiD],
-          [true, true, true, true, true, true, true, true, true],
-          75,
-        ]
-      : [[SharedDev, DimaTest96], [true, true], 1];
+  const multisigSettings: [string[], boolean[], number] = network.name == "main" ?
+    [[Michael, Igor, Alina, Alex, Matthieu, Oleksii, Seth, Sophie, OleksiiD], [true, true, true, true, true, true, true, true, true], 75] :
+    [[SharedDev, DimaTest96], [true, true], 1];
 
   const maxBankBalance = ethers.utils.parseEther("100000000"); // 100 millions amb per bank
   const bankCount = 50;

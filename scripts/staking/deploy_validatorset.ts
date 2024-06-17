@@ -2,7 +2,7 @@ import { ethers, network } from "hardhat";
 import { ContractNames } from "../../src";
 import { Multisig__factory, ValidatorSet__factory } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import { Roadmap2023MultisigSettings } from "../addresses";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -33,6 +33,7 @@ export async function main() {
     signer: deployer,
     isUpgradeableProxy: true,
   });
+
 
   await (await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.REWARD_ORACLE_ROLE(), multisig.address)).wait();

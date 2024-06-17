@@ -40,26 +40,14 @@ async function main() {
 
   wrapProviderToError(deployer.provider!);
 
-  const validatorSet = loadDeployment(
-    ContractNames.ValidatorSet,
-    chainId,
-    deployer
-  ) as ValidatorSet;
-  const baseNodesManager = loadDeployment(
-    ContractNames.BaseNodesManager,
-    chainId,
-    deployer
-  ) as BaseNodes_Manager;
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
+  const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;
   const poolNodesManager = loadDeployment(
     ContractNames.LegacyPoolManager,
     chainId,
     deployer
   ) as LegacyPoolsNodes_Manager;
-  const serverNodesManager = loadDeployment(
-    ContractNames.ServerNodesManager,
-    chainId,
-    deployer
-  ) as ServerNodes_Manager;
+  const serverNodesManager = loadDeployment(ContractNames.ServerNodesManager, chainId, deployer) as ServerNodes_Manager;
 
   const head = Head__factory.connect(HEAD, deployer);
   const context = Context__factory.connect(await head.context(), deployer);
@@ -159,10 +147,7 @@ async function main() {
   await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for poolNodes");
-  const poolNodesMultisig = loadDeployment(
-    ContractNames.LegacyPoolManagerMultisig,
-    chainId
-  ).address;
+  const poolNodesMultisig = loadDeployment(ContractNames.LegacyPoolManagerMultisig, chainId).address;
   await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();
 
   console.log("setup ownership for validatorset");

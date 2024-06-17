@@ -7,7 +7,7 @@ import {
   RewardsBank__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { Roadmap2023MultisigSettings } from "../addresses";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();

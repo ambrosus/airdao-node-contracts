@@ -11,8 +11,7 @@ export async function main() {
     console.log("--- MAINNET DEPLOYMENT ---");
 
     await deploy<MasterMultisig__factory>({
-      contractName:
-        ContractNames.MasterMultisig,
+      contractName: ContractNames.MasterMultisig,
       artifactName: "MasterMultisig",
       deployArgs: [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
       signer: deployer,
@@ -26,8 +25,7 @@ export async function main() {
     });
   } else {
     await deploy<MasterMultisig__factory>({
-      contractName:
-        ContractNames.MasterMultisig,
+      contractName: ContractNames.MasterMultisig,
       artifactName: "MasterMultisig",
       deployArgs: [[SharedDev, DimaTest, AndriiTest], [true, true, true], 51],
       signer: deployer,
