@@ -4,7 +4,7 @@ import "@openzeppelin/hardhat-upgrades";
 
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
-import { sourcifyOne, loadAllDeployments } from "@airdao/deployments/deploying";
+import { sourcifyAll } from "@airdao/deployments/deploying";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 dotenv.config();
@@ -75,17 +75,7 @@ const config: HardhatUserConfig = {
 
 task("sourcify", "verify contracts using sourcify").setAction(async (args: any, hre: HardhatRuntimeEnvironment) => {
   await hre.run("compile"); // compile contract first
-  // @ts-ignore
-  let { chainId } = await hre.ethers.provider.getNetwork();
-  const deployments = require(`./deployments/${chainId}.json`) as Record<string, any>;
-
-  for (const [contractName, deployment] of Object.entries(deployments))
-    if (deployment.proxy) {
-      await sourcifyOne(hre, deployment.proxy.fullyQualifiedName, deployment.address, chainId, contractName + " Proxy");
-      await sourcifyOne(hre, deployment.fullyQualifiedName, deployment.proxy.implementation, chainId, contractName);
-    } else {
-      await sourcifyOne(hre, deployment.fullyQualifiedName, deployment.address, chainId, contractName);
-    }
+  await sourcifyAll(hre);
 });
 
 export default config;
