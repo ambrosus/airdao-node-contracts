@@ -192,8 +192,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
     function changeTopStakesCount(uint newTopStakesCount) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(newTopStakesCount > 0, "newTopStakesCount must be > 0");
-        if (newTopStakesCount < queuedStakes.length)
-            require(newTopStakesCount + (queuedStakes.length / 8) >= queuedStakes.length, "decrease of more than 12.5% is not allowed");
+        if (newTopStakesCount < topStakes.length)
+            require(newTopStakesCount + (topStakes.length / 8) >= topStakes.length, "decrease of more than 12.5% is not allowed");
 
         topStakesCount = newTopStakesCount;
     }

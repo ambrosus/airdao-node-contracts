@@ -9,6 +9,7 @@ import {
   Treasury__factory,
 } from "../../typechain-types";
 import { expect } from "chai";
+import { AddressZero } from "@ethersproject/constants";
 
 describe("BaseNodes", function () {
   let validatorSet: TEST_ValidatorSet;
@@ -102,4 +103,10 @@ describe("BaseNodes", function () {
     // do nothing, for coverage
     await baseNodes.report(owner.address);
   });
+
+
+  it("initialize shouldn't decrease my coverage", async () => {
+    await expect(      baseNodes.initialize(AddressZero, AddressZero, AddressZero)    ).to.be.reverted;
+  });
+
 });
