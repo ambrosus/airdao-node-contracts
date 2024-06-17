@@ -8,10 +8,7 @@ export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
-  const masterMultisig = loadDeployment(
-    ContractNames.MasterMultisig,
-    chainId
-  ).address;
+  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.FeesMultisig,

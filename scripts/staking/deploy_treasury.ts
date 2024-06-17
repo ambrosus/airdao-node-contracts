@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 import { Multisig__factory, Treasury__factory } from "../../typechain-types";
-import { Roadmap2023MultisigSettings } from "../addresses";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();

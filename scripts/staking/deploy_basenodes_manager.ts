@@ -11,6 +11,7 @@ import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
+
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
