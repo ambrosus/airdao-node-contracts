@@ -1,6 +1,6 @@
 import { Multisig } from "../../typechain-types";
 import { BaseContract, BigNumberish, PopulatedTransaction } from "ethers";
-import { MULTISIGS } from "../contracts/names";
+import { ContractNames, MULTISIGS } from "../contracts/names";
 import { Contracts } from "../contracts/contracts";
 
 export async function submitTransaction(
@@ -22,12 +22,15 @@ export async function submitTransaction(
 
 export async function submitTransaction2<T extends BaseContract>(
   contracts: Contracts,
-  contractName: keyof typeof MULTISIGS,
+  contractName: Omit<ContractNames, ContractNames.MasterMultisig>,
   value: BigNumberish,
   calldataTx: (contract: T["populateTransaction"]) => Promise<PopulatedTransaction>
 ) {
-  const contract = contracts.getContractByName(contractName) as T;
-  const multisig = contracts.getContractByName(MULTISIGS[contractName]) as Multisig;
+  const contractNameTyped: keyof typeof MULTISIGS = (contractName as keyof typeof MULTISIGS);
+  if (MULTISIGS[contractNameTyped] === undefined)
+    throw new Error(`Multisig for ${contractName} not found`);
+  const contract = contracts.getContractByName(contractNameTyped) as T;
+  const multisig = contracts.getContractByName(MULTISIGS[contractNameTyped]) as Multisig;
   const calldata = (await calldataTx(contract.populateTransaction)).data!;
   return await submitTransaction(multisig, contract.address, value, calldata);
 }

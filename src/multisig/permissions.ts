@@ -31,7 +31,7 @@ export async function getPermissions(contracts: Contracts, multisigAddresses?: s
       .map((mn) => contracts.getContractByNameSafe(mn)?.address)
       .filter((el) => el !== undefined) as string[];
 
-  const masterMultisig = contracts.getContractByName(contracts.masterMultisig) as MasterMultisig;
+  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
   const contractResults = await masterMultisig.getAllSigners(multisigAddresses);
 
   const groups = getGroups(multisigAddresses, contractResults);

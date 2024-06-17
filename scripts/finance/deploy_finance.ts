@@ -15,16 +15,21 @@ import {
   Sophie,
 } from "../addresses";
 import {Finance__factory, MasterFinance__factory, Multisig__factory} from "../../typechain-types";
+import { MultisigVersions } from "../../src/contracts/names";
 
 async function main() {
   let { chainId } = await ethers.provider.getNetwork();
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  // }
 
   const [deployer] = await ethers.getSigners();
 
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const masterMultisig = loadDeployment(
+    ContractNames.MasterMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId
+  ).address;
 
   async function deployFinance(
     financeName: ContractNames,
@@ -36,7 +41,9 @@ async function main() {
     console.assert(Object.values(ContractNames).includes(multisigName), `can't find ${multisigName} in ContractNames`);
 
     const multisig = await deploy<Multisig__factory>({
-      contractName: multisigName,
+      contractName:
+        multisigName +
+        (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
       networkId: chainId,
       artifactName: "Multisig",
       signer: deployer,
@@ -44,7 +51,9 @@ async function main() {
       loadIfAlreadyDeployed: true,
     });
     await deploy<Finance__factory>({
-      contractName: financeName,
+      contractName:
+        financeName +
+        (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
       networkId: chainId,
       artifactName: "Finance",
       signer: deployer,
@@ -63,7 +72,9 @@ async function main() {
 
   // finance master
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.FinanceMasterMultisig,
+    contractName:
+      ContractNames.FinanceMasterMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...multisigSettings, masterMultisig],
@@ -71,7 +82,9 @@ async function main() {
     loadIfAlreadyDeployed: true,
   });
   await deploy<MasterFinance__factory>({
-    contractName: ContractNames.FinanceMaster,
+    contractName:
+      ContractNames.FinanceMaster +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "MasterFinance",
     deployArgs: [multisig.address, bankCount, maxBankBalance],

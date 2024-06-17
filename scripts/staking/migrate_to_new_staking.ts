@@ -23,6 +23,7 @@ import {Parallel} from "../parallel";
 import {NodeOnboardedEvent} from "../../typechain-types/contracts/staking/pools/Legacy/RolesEventEmitter";
 import {formatEther} from "ethers/lib/utils";
 import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
+import { MultisigVersions } from "../../src/contracts/names";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
@@ -36,22 +37,38 @@ const feesAbi = ["function isAdmin(address) view returns (bool)", "function paus
 
 async function main() {
   let { chainId } = await ethers.provider.getNetwork();
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  // }
 
   const [deployer] = await ethers.getSigners();
 
   wrapProviderToError(deployer.provider!);
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const baseNodesManager = loadDeployment(ContractNames.BaseNodesManager, chainId, deployer) as BaseNodes_Manager;
+  const validatorSet = loadDeployment(
+    ContractNames.ValidatorSet +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId,
+    deployer
+  ) as ValidatorSet;
+  const baseNodesManager = loadDeployment(
+    ContractNames.BaseNodesManager +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId,
+    deployer
+  ) as BaseNodes_Manager;
   const poolNodesManager = loadDeployment(
-    ContractNames.LegacyPoolManager,
+    ContractNames.LegacyPoolManager +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     chainId,
     deployer
   ) as LegacyPoolsNodes_Manager;
-  const serverNodesManager = loadDeployment(ContractNames.ServerNodesManager, chainId, deployer) as ServerNodes_Manager;
+  const serverNodesManager = loadDeployment(
+    ContractNames.ServerNodesManager +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId,
+    deployer
+  ) as ServerNodes_Manager;
 
   const head = Head__factory.connect(HEAD, deployer);
   const context = Context__factory.connect(await head.context(), deployer);
@@ -151,7 +168,11 @@ async function main() {
   await (await serverNodesManager.revokeRole(defaultAdminRole, deployer.address)).wait();
 
   console.log("setup ownership for poolNodes");
-  const poolNodesMultisig = loadDeployment(ContractNames.LegacyPoolManagerMultisig, chainId).address;
+  const poolNodesMultisig = loadDeployment(
+    ContractNames.LegacyPoolManagerMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId
+  ).address;
   await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();
 
   console.log("setup ownership for validatorset");

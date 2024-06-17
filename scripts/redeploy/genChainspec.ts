@@ -11,10 +11,9 @@ async function main() {
 }
 
 async function getChainspec(time_before_transition: number, chainId: number) {
-  const chainIdNumber = chainId;
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  // }
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId) as ValidatorSet;
 
   const fees = loadDeployment(ContractNames.Fees, chainId);
@@ -23,8 +22,8 @@ async function getChainspec(time_before_transition: number, chainId: number) {
   const transitionBlockRounded = Math.ceil(transitionBlock / 1000) * 1000;
 
   const params = getParams(transitionBlockRounded, validatorSet.address, fees.address);
-  if (chainIdNumber === 30746) return devnet(params);
-  if (chainIdNumber === 22040) return testnet(params);
+  if (chainId === 30746) return devnet(params);
+  if (chainId === 22040) return testnet(params);
   throw new Error(`Unsupported chainId ${chainId}`);
 
 

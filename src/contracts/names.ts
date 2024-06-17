@@ -1,6 +1,6 @@
 export enum MultisigVersions {
-  v1 = "v1",
-  v2 = "v2",
+  common = "common",
+  ecosystem = "ecosystem",
 }
 
 export enum ContractNames {
@@ -66,7 +66,7 @@ export enum ContractNames {
   BondMarketplaceRewardsBank = "BondMarketplace_RewardsBank",
 }
 
-export const MULTISIGS_v1 = {
+export const MULTISIGS_COMMON = {
   [ContractNames.FinanceMaster]: ContractNames.FinanceMasterMultisig,
   [ContractNames.FinanceRewards]: ContractNames.FinanceRewardsMultisig,
   [ContractNames.FinanceInvestors]: ContractNames.FinanceInvestorsMultisig,
@@ -86,21 +86,35 @@ export const MULTISIGS_v1 = {
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
 };
 
-export const MULTISIGS_v2 = {
+export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
 };
 
-export const MULTISIGS = process.env.MULTISIGS === "v2" ? MULTISIGS_v2 : MULTISIGS_v1;
+export const MULTISIGS =
+  process.env.MULTISIGS === "ecosystem"
+    ? (MULTISIGS_ECOSYSTEM as Record<keyof typeof MULTISIGS_ECOSYSTEM, ContractNames>)
+    : (MULTISIGS_COMMON as Record<keyof typeof MULTISIGS_COMMON, ContractNames>);
 
-export const getSlavesMultisigsNames = (version: MultisigVersions = MultisigVersions.v1) => {
+export const getMultisigs = (version: MultisigVersions = MultisigVersions.common) => {
+  switch (version) {
+    case MultisigVersions.ecosystem:
+      return MULTISIGS_ECOSYSTEM
+    case MultisigVersions.common:
+      return MULTISIGS_COMMON;
+    default:
+      return MULTISIGS_COMMON;
+  };
+}
+
+export const getSlavesMultisigsNames = (version: MultisigVersions = MultisigVersions.common) => {
   const sigs = (() => {
     switch (version) {
-      case "v2":
-        return MULTISIGS_v2;
-      case "v1":
-        return MULTISIGS_v1;
+      case MultisigVersions.ecosystem:
+        return MULTISIGS_ECOSYSTEM;
+      case MultisigVersions.common:
+        return MULTISIGS_COMMON;
       default:
-        return MULTISIGS_v1;
+        return MULTISIGS_COMMON;
     }
   })();
   return [...new Set(Object.values(sigs))];
@@ -110,7 +124,7 @@ export const slavesMultisigsNames = getSlavesMultisigsNames(process.env.MULTISIG
 
 export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];
 
-export const getMultisigNames = (version: MultisigVersions = MultisigVersions.v1) => {
+export const getMultisigNames = (version: MultisigVersions = MultisigVersions.common) => {
   const slaves = getSlavesMultisigsNames(version);
   return [ContractNames.MasterMultisig, ...slaves];
 };

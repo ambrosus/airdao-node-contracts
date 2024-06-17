@@ -77,9 +77,6 @@ task("sourcify", "verify contracts using sourcify").setAction(async (args: any, 
   await hre.run("compile"); // compile contract first
   // @ts-ignore
   let { chainId } = await hre.ethers.provider.getNetwork();
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
   const deployments = require(`./deployments/${chainId}.json`) as Record<string, any>;
 
   for (const [contractName, deployment] of Object.entries(deployments))

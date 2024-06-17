@@ -3,19 +3,22 @@ import { ContractNames } from "../../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "../addresses";
 import { deploy } from "@airdao/deployments/deploying";
 import { MasterMultisig__factory } from "../../typechain-types";
+import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  // }
   const [deployer] = await ethers.getSigners();
 
   if (network.name == "main") {
     console.log("--- MAINNET DEPLOYMENT ---");
 
     await deploy<MasterMultisig__factory>({
-      contractName: ContractNames.MasterMultisig,
+      contractName:
+        ContractNames.MasterMultisig +
+        (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
       networkId: chainId,
       artifactName: "MasterMultisig",
       deployArgs: [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
@@ -23,7 +26,9 @@ export async function main() {
     });
   } else {
     await deploy<MasterMultisig__factory>({
-      contractName: ContractNames.MasterMultisig,
+      contractName:
+        ContractNames.MasterMultisig +
+        (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
       networkId: chainId,
       artifactName: "MasterMultisig",
       deployArgs: [[SharedDev, DimaTest, AndriiTest], [true, true, true], 51],

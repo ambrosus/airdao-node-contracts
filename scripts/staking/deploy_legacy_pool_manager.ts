@@ -11,23 +11,39 @@ import {
 import {deploy, loadDeployment} from "@airdao/deployments/deploying";
 import {ContractNames} from "../../src";
 import {Roadmap2023MultisigSettings} from "../addresses";
+import { MultisigVersions } from "../../src/contracts/names";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 
 async function main() {
   let { chainId } = await ethers.provider.getNetwork();
-   if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-     chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-   }
+  //  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  //  }
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
-  const treasury = loadDeployment(ContractNames.Treasury, chainId);
+  const validatorSet = loadDeployment(
+    ContractNames.ValidatorSet +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId,
+    deployer
+  ) as ValidatorSet;
+  const masterMultisig = loadDeployment(
+    ContractNames.MasterMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId
+  ).address;
+  const treasury = loadDeployment(
+    ContractNames.Treasury +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId
+  );
 
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.LegacyPoolManagerMultisig,
+    contractName:
+      ContractNames.LegacyPoolManagerMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
@@ -36,7 +52,9 @@ async function main() {
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName: ContractNames.LegacyPoolManagerRewardsBank,
+    contractName:
+      ContractNames.LegacyPoolManagerRewardsBank +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "RewardsBank",
     deployArgs: [],
@@ -48,7 +66,9 @@ async function main() {
   const oldStorageCatalogue = StorageCatalogue__factory.connect(await oldContext.storageCatalogue(), deployer);
 
   const manager = await deploy<LegacyPoolsNodes_Manager__factory>({
-    contractName: ContractNames.LegacyPoolManager,
+    contractName:
+      ContractNames.LegacyPoolManager +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "LegacyPoolsNodes_Manager",
     deployArgs: [

@@ -3,18 +3,25 @@ import { ContractNames } from "../../src";
 import { Multisig__factory, ValidatorSet__factory } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import {Roadmap2023MultisigSettings} from "../addresses";
+import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  // }
 
   const [deployer] = await ethers.getSigners();
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const masterMultisig = loadDeployment(
+    ContractNames.MasterMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId
+  ).address;
 
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.ValidatorSetMultisig,
+    contractName:
+      ContractNames.ValidatorSetMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
@@ -31,7 +38,9 @@ export async function main() {
       : "0xb0857e3203f9e392c83f746da9a6a2ddeb6b69af"; //384cbfc4a2218ab4a5ba81e6888073ad97f98f7f7a4ff52f3c6c0eb5407fee6b
 
   const validatorSet = await deploy<ValidatorSet__factory>({
-    contractName: ContractNames.ValidatorSet,
+    contractName:
+      ContractNames.ValidatorSet +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "ValidatorSet",
     deployArgs: [rewardsOracleAddress, baseReward, topStakesCount],

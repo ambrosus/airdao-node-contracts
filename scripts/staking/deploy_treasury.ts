@@ -3,19 +3,26 @@ import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 import { Multisig__factory, Treasury__factory } from "../../typechain-types";
 import {Roadmap2023MultisigSettings} from "../addresses";
+import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  // }
 
   const [deployer] = await ethers.getSigners();
 
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const masterMultisig = loadDeployment(
+    ContractNames.MasterMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId
+  ).address;
 
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.TreasuryMultisig,
+    contractName:
+      ContractNames.TreasuryMultisig +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
@@ -24,13 +31,15 @@ export async function main() {
   });
 
   await deploy<Treasury__factory>({
-    contractName: ContractNames.Treasury,
+    contractName:
+      ContractNames.Treasury +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     networkId: chainId,
     artifactName: "Treasury",
     signer: deployer,
     deployArgs: [
       multisig.address,
-      0 // turn off for now
+      0, // turn off for now
       // 0.1 * 10000, // 10% fee
     ],
   });

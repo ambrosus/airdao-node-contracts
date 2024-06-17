@@ -7,6 +7,7 @@ import { main as deployValidatorset } from "./deploy_validatorset";
 import { ContractNames } from "../../src";
 import { BaseNodes_Manager__factory, ValidatorSet } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
+import { MultisigVersions } from "../../src/contracts/names";
 
 const TRANSITION_ADDRESS = "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05";
 const TRANSITION_BLOCK = 15;
@@ -14,10 +15,10 @@ const TRANSITION_BLOCK = 15;
 async function main() {
   let { chainId } = await ethers.provider.getNetwork();
   if (chainId != 0x1488) throw new Error("This script should be run on local network");
-  const chainIdNumber = chainId;
-  if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-    chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  }
+  // const chainIdNumber = chainId;
+  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
+  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
+  // }
 
   const [v1, v2, v3] = await ethers.getSigners();
   // v1 = await AmbErrorProviderWrapSigner(v1);
@@ -36,7 +37,7 @@ async function main() {
   const deploymentPath = path.resolve(__dirname, `../../deployments/${chainId}.json`);
   fs.writeFileSync(deploymentPath, JSON.stringify({}, null, 2));
 
-  const ozUpgradeCachePath = path.resolve(__dirname, `../../.openzeppelin/unknown-${chainIdNumber}.json`);
+  const ozUpgradeCachePath = path.resolve(__dirname, `../../.openzeppelin/unknown-${chainId}.json`);
   fs.rmSync(ozUpgradeCachePath, { force: true });
 
   // deploy new contracts
@@ -46,7 +47,12 @@ async function main() {
 
   //
 
-  const validatorSet = (await loadDeployment(ContractNames.ValidatorSet, chainId, v1)) as ValidatorSet;
+  const validatorSet = (await loadDeployment(
+    ContractNames.ValidatorSet +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    chainId,
+    v1
+  )) as ValidatorSet;
   if (validatorSet.address != TRANSITION_ADDRESS)
     throw new Error(
       "ValidatorSet address is not the same as in the chain.json file. Are deployer addresses the same? Are nonce the same?"
@@ -55,7 +61,9 @@ async function main() {
   // setup manager
 
   const baseNodesManager = await deploy<BaseNodes_Manager__factory>({
-    contractName: ContractNames.BaseNodesManager,
+    contractName:
+      ContractNames.BaseNodesManager +
+      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
     artifactName: "BaseNodes_Manager",
     deployArgs: [v1.address, validatorSet.address],
     signer: v1,

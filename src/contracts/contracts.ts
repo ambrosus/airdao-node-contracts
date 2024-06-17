@@ -12,9 +12,11 @@ type Deployment = {
 export class Contracts {
   private contracts: { [contractName: string]: Contract };
   private nameByAddress: { [address: string]: ContractNames };
+  public multisigVersion: MultisigVersions;
 
-  constructor(signer: Signer, chainId: number, multisigVersion: MultisigVersions = MultisigVersions.v1) {
-    this.contracts = loadAllDeploymentsFromFile(chainId, signer, multisigVersion);
+  constructor(signer: Signer, chainId: number, multisigVersion: MultisigVersions = MultisigVersions.common) {
+    this.multisigVersion = multisigVersion;
+    this.contracts = loadAllDeploymentsFromFile(chainId, signer, this.multisigVersion);
     this.nameByAddress = {};
 
     for (const [name, contract] of Object.entries(this.contracts))
@@ -51,27 +53,35 @@ export class Contracts {
     return this.nameByAddress[address];
   }
 
-  static getContract(chainId: number, contractName: ContractNames, multisigVersion: MultisigVersions = MultisigVersions.v1) {
+  static getContract(chainId: number, contractName: ContractNames, multisigVersion: MultisigVersions = MultisigVersions.common) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const deployments = require(`../../deployments/${chainId}${multisigVersion != MultisigVersions.v1 ? "_" + multisigVersion : ""}.json`);
-    return { address: deployments[contractName].address, abi: deployments[contractName].abi };
+    const deployments = require(`../../deployments/${chainId}.json`);
+    let contractNameVersioned = contractName as string;
+    if (multisigVersion != MultisigVersions.common) contractNameVersioned += `_${multisigVersion}`;
+    return { address: deployments[contractNameVersioned].address, abi: deployments[contractNameVersioned].abi };
   }
 }
 
 export function loadAllDeploymentsFromFile(
   chainId: number,
   signer?: Signer,
-  multisigVersion: MultisigVersions = MultisigVersions.v1
+  multisigVersion: MultisigVersions = MultisigVersions.common
 ) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const deployments = require(`../../deployments/${chainId}${multisigVersion != MultisigVersions.v1 ? "_" + multisigVersion : ''}.json`);
+  const deployments = require(`../../deployments/${chainId}.json`);
   const result: any = {};
-
-  for (const name of Object.keys(deployments).filter((name) =>
-    multisigVersion != MultisigVersions.v1 ? name.includes(`_${multisigVersion}`) : !name.includes("_v")
-  )) {
+  const filteredNames = Object
+    .keys(deployments)
+    .filter((name) =>
+      multisigVersion != MultisigVersions.common
+        ? name.includes(`_${multisigVersion}`)
+        : Object
+          .values(MultisigVersions)
+          .every(version => !name.includes(`_${version}`))
+    );
+  for (const name of filteredNames){
     const deployment = deployments[name] as Deployment;
-    const normalizedName = !name.startsWith(ContractNames.MasterMultisig) ? name.replace(`_${multisigVersion}`, '') : name;
+    const normalizedName = name.replace(`_${multisigVersion}`, '');
     result[normalizedName] = new ethers.Contract(deployment.address, deployment.abi, signer);
   }
   return result;
