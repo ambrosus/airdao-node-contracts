@@ -15,7 +15,6 @@ import {
   SharedDev,
   Sophie,
 } from "../addresses";
-import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
@@ -24,25 +23,19 @@ export async function main() {
   // }
   const [deployer] = await ethers.getSigners();
 
-  const masterMultisig = loadDeployment(
-    ContractNames.MasterMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
-    chainId
-  ).address;
+  const masterMultisig = loadDeployment(ContractNames.Ecosystem_MasterMultisig, chainId).address;
 
   const multisigSettings: [string[], boolean[], number] =
     network.name == "main"
       ? [
-        [Michael, Igor, Alina, Alex, Matthieu, Oleksii, Seth, Sophie, OleksiiD],
-        [true, true, true, true, true, true, true, true, true],
-        75,
-      ]
+          [Michael, Igor, Alina, Alex, Matthieu, Oleksii, Seth, Sophie, OleksiiD],
+          [true, true, true, true, true, true, true, true, true],
+          75,
+        ]
       : [[SharedDev, DimaTest96], [true, true], 1];
 
   const multisig = await deploy<Multisig__factory>({
-    contractName:
-      ContractNames.BondMarketplaceMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.Ecosystem_BondMarketplaceMultisig,
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...multisigSettings, masterMultisig],
@@ -51,9 +44,7 @@ export async function main() {
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName:
-      ContractNames.BondMarketplaceRewardsBank +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.Ecosystem_BondMarketplaceRewardsBank,
     networkId: chainId,
     artifactName: "RewardsBank",
     deployArgs: [],

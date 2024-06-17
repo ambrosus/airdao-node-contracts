@@ -7,7 +7,6 @@ import { main as deployValidatorset } from "./deploy_validatorset";
 import { ContractNames } from "../../src";
 import { BaseNodes_Manager__factory, ValidatorSet } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import { MultisigVersions } from "../../src/contracts/names";
 
 const TRANSITION_ADDRESS = "0x9e4D66bdF08FF38A75C619A345007Ca5eb9A2e05";
 const TRANSITION_BLOCK = 15;
@@ -48,8 +47,7 @@ async function main() {
   //
 
   const validatorSet = (await loadDeployment(
-    ContractNames.ValidatorSet +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.ValidatorSet,
     chainId,
     v1
   )) as ValidatorSet;
@@ -62,8 +60,7 @@ async function main() {
 
   const baseNodesManager = await deploy<BaseNodes_Manager__factory>({
     contractName:
-      ContractNames.BaseNodesManager +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+      ContractNames.BaseNodesManager,
     artifactName: "BaseNodes_Manager",
     deployArgs: [v1.address, validatorSet.address],
     signer: v1,

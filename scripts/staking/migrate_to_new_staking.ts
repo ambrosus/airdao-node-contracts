@@ -21,9 +21,7 @@ import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 import {Parallel} from "../parallel";
 import {NodeOnboardedEvent} from "../../typechain-types/contracts/staking/pools/Legacy/RolesEventEmitter";
-import {formatEther} from "ethers/lib/utils";
 import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
-import { MultisigVersions } from "../../src/contracts/names";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 const VALIDATOR_SET = "0x0000000000000000000000000000000000000F00";
@@ -46,26 +44,22 @@ async function main() {
   wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(
-    ContractNames.ValidatorSet +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.ValidatorSet,
     chainId,
     deployer
   ) as ValidatorSet;
   const baseNodesManager = loadDeployment(
-    ContractNames.BaseNodesManager +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.BaseNodesManager,
     chainId,
     deployer
   ) as BaseNodes_Manager;
   const poolNodesManager = loadDeployment(
-    ContractNames.LegacyPoolManager +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.LegacyPoolManager,
     chainId,
     deployer
   ) as LegacyPoolsNodes_Manager;
   const serverNodesManager = loadDeployment(
-    ContractNames.ServerNodesManager +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.ServerNodesManager,
     chainId,
     deployer
   ) as ServerNodes_Manager;
@@ -169,8 +163,7 @@ async function main() {
 
   console.log("setup ownership for poolNodes");
   const poolNodesMultisig = loadDeployment(
-    ContractNames.LegacyPoolManagerMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.LegacyPoolManagerMultisig,
     chainId
   ).address;
   await (await poolNodesManager.transferOwnership(poolNodesMultisig)).wait();

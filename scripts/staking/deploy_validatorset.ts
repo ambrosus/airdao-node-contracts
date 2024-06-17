@@ -3,7 +3,6 @@ import { ContractNames } from "../../src";
 import { Multisig__factory, ValidatorSet__factory } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import {Roadmap2023MultisigSettings} from "../addresses";
-import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
@@ -13,15 +12,13 @@ export async function main() {
 
   const [deployer] = await ethers.getSigners();
   const masterMultisig = loadDeployment(
-    ContractNames.MasterMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.MasterMultisig,
     chainId
   ).address;
 
   const multisig = await deploy<Multisig__factory>({
     contractName:
-      ContractNames.ValidatorSetMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+      ContractNames.ValidatorSetMultisig,
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
@@ -39,8 +36,7 @@ export async function main() {
 
   const validatorSet = await deploy<ValidatorSet__factory>({
     contractName:
-      ContractNames.ValidatorSet +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+      ContractNames.ValidatorSet,
     networkId: chainId,
     artifactName: "ValidatorSet",
     deployArgs: [rewardsOracleAddress, baseReward, topStakesCount],

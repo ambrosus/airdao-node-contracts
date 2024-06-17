@@ -9,7 +9,6 @@ import {
 } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import {Roadmap2023MultisigSettings} from "../addresses";
-import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
@@ -20,31 +19,26 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(
-    ContractNames.ValidatorSet +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.ValidatorSet,
     chainId,
     deployer
   ) as ValidatorSet;
   const masterMultisig = loadDeployment(
-    ContractNames.MasterMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.MasterMultisig,
     chainId
   ).address;
   const airBond = loadDeployment(
-    ContractNames.AirBond +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.AirBond,
     chainId
   );
   const treasury = loadDeployment(
-    ContractNames.Treasury +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.Treasury,
     chainId
   );
 
   const multisig = await deploy<Multisig__factory>({
     contractName:
-      ContractNames.ServerNodesManagerMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+      ContractNames.ServerNodesManagerMultisig,
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
@@ -54,8 +48,7 @@ export async function main() {
 
   const lockKeeper = await deploy<LockKeeper__factory>({
     contractName:
-      ContractNames.LockKeeper +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+      ContractNames.LockKeeper,
     networkId: chainId,
     artifactName: "LockKeeper",
     deployArgs: [],
@@ -66,8 +59,7 @@ export async function main() {
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName:
-      ContractNames.ServerNodesManagerRewardsBank +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+      ContractNames.ServerNodesManagerRewardsBank,
     networkId: chainId,
     artifactName: "RewardsBank",
     deployArgs: [],
@@ -80,8 +72,7 @@ export async function main() {
 
   const manager = await deploy<ServerNodes_Manager__factory>({
     contractName:
-      ContractNames.ServerNodesManager +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+      ContractNames.ServerNodesManager,
     networkId: chainId,
     artifactName: "ServerNodes_Manager",
     deployArgs: [

@@ -3,7 +3,6 @@ import { ContractNames } from "../../src";
 import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "../addresses";
 import { deploy } from "@airdao/deployments/deploying";
 import { MasterMultisig__factory } from "../../typechain-types";
-import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
@@ -17,8 +16,15 @@ export async function main() {
 
     await deploy<MasterMultisig__factory>({
       contractName:
-        ContractNames.MasterMultisig +
-        (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+        ContractNames.MasterMultisig,
+      networkId: chainId,
+      artifactName: "MasterMultisig",
+      deployArgs: [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
+      signer: deployer,
+    });
+    console.log("Deploing MasterMultisig for ECOSYSTEM...");
+    await deploy<MasterMultisig__factory>({
+      contractName: ContractNames.Ecosystem_MasterMultisig,
       networkId: chainId,
       artifactName: "MasterMultisig",
       deployArgs: [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
@@ -27,8 +33,15 @@ export async function main() {
   } else {
     await deploy<MasterMultisig__factory>({
       contractName:
-        ContractNames.MasterMultisig +
-        (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+        ContractNames.MasterMultisig,
+      networkId: chainId,
+      artifactName: "MasterMultisig",
+      deployArgs: [[SharedDev, DimaTest, AndriiTest], [true, true, true], 51],
+      signer: deployer,
+    });
+    console.log("Deploing MasterMultisig for ECOSYSTEM...");
+    await deploy<MasterMultisig__factory>({
+      contractName: ContractNames.Ecosystem_MasterMultisig,
       networkId: chainId,
       artifactName: "MasterMultisig",
       deployArgs: [[SharedDev, DimaTest, AndriiTest], [true, true, true], 51],

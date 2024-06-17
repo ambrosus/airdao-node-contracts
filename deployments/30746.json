@@ -1054,7 +1054,7 @@
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
-  "MasterMultisig_ecosystem": {
+  "Ecosystem_MasterMultisig": {
     "address": "0x1c65553DFCd298872ed905089677ef7Ad57eEe17",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold)",
@@ -1097,7 +1097,7 @@
     "deployTx": "0x1ac616567b6a5a35f1ad037864ed941ffcde5df4cd7ecc441fb4a6c94ea2a7be",
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   },
-  "BondMarketplace_Multisig_ecosystem": {
+  "Ecosystem_BondMarketplace_Multisig": {
     "address": "0xFE633aB44e17309C073bDaA3004C5DF7eF78Fc0a",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
@@ -1137,7 +1137,7 @@
     "deployTx": "0xfac727200e0836da9e78889e77eaa15671e31d3632429b6ea560c289a06a31a2",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "BondMarketplace_RewardsBank_ecosystem": {
+  "Ecosystem_BondMarketplace_RewardsBank": {
     "address": "0x2a5cffc6f81DbAf50b3e36b9173a4Fd69b8b7dF9",
     "abi": [
       "constructor()",

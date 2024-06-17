@@ -10,7 +10,7 @@ type rewardsBankContactNames =
   | ContractNames.BaseNodesManagerRewardsBank
   | ContractNames.LegacyPoolManagerRewardsBank
   | ContractNames.ServerNodesManagerRewardsBank
-  | ContractNames.BondMarketplaceRewardsBank;
+  | ContractNames.Ecosystem_BondMarketplaceRewardsBank;
 
 export async function rewardsBanksWithdrawAmb(
   contracts: Contracts,

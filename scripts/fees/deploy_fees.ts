@@ -3,23 +3,18 @@ import {ethers} from "hardhat";
 import {Fees__factory, Finance__factory, Multisig__factory} from "../../typechain-types";
 import {ContractNames} from "../../src";
 import {Roadmap2023MultisigSettings} from "../addresses";
-import { MultisigVersions } from "../../src/contracts/names";
 
 export async function main() {
   let { chainId } = await ethers.provider.getNetwork();
-  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  // }
 
   const [deployer] = await ethers.getSigners();
   const masterMultisig = loadDeployment(
-    ContractNames.MasterMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    ContractNames.MasterMultisig,
     chainId
   ).address;
 
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.FeesMultisig+ (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.FeesMultisig,
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
@@ -28,7 +23,7 @@ export async function main() {
   });
 
   const treasure = await deploy<Finance__factory>({
-    contractName: ContractNames.FeesTreasure + (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.FeesTreasure,
     networkId: chainId,
     artifactName: "Finance",
     deployArgs: [multisig.address],
@@ -40,7 +35,7 @@ export async function main() {
   const feePercent = 300000;
 
   const fees = await deploy<Fees__factory>({
-    contractName: ContractNames.Fees + (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.Fees,
     networkId: chainId,
     artifactName: "Fees",
     deployArgs: [gasPrice, payAddress, feePercent],

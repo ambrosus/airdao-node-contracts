@@ -1,4 +1,4 @@
-import {ethers} from "hardhat";
+import { ethers } from "hardhat";
 import {
   Context__factory,
   Head,
@@ -8,10 +8,9 @@ import {
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import {deploy, loadDeployment} from "@airdao/deployments/deploying";
-import {ContractNames} from "../../src";
-import {Roadmap2023MultisigSettings} from "../addresses";
-import { MultisigVersions } from "../../src/contracts/names";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
+import { ContractNames } from "../../src";
+import { Roadmap2023MultisigSettings } from "../addresses";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 
@@ -23,27 +22,12 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  const validatorSet = loadDeployment(
-    ContractNames.ValidatorSet +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
-    chainId,
-    deployer
-  ) as ValidatorSet;
-  const masterMultisig = loadDeployment(
-    ContractNames.MasterMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
-    chainId
-  ).address;
-  const treasury = loadDeployment(
-    ContractNames.Treasury +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
-    chainId
-  );
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
+  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
   const multisig = await deploy<Multisig__factory>({
-    contractName:
-      ContractNames.LegacyPoolManagerMultisig +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.LegacyPoolManagerMultisig,
     networkId: chainId,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
@@ -52,9 +36,7 @@ async function main() {
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName:
-      ContractNames.LegacyPoolManagerRewardsBank +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.LegacyPoolManagerRewardsBank,
     networkId: chainId,
     artifactName: "RewardsBank",
     deployArgs: [],
@@ -66,9 +48,7 @@ async function main() {
   const oldStorageCatalogue = StorageCatalogue__factory.connect(await oldContext.storageCatalogue(), deployer);
 
   const manager = await deploy<LegacyPoolsNodes_Manager__factory>({
-    contractName:
-      ContractNames.LegacyPoolManager +
-      (process.env.MULTISIGS && process.env.MULTISIGS !== MultisigVersions.common ? `_${process.env.MULTISIGS}` : ""),
+    contractName: ContractNames.LegacyPoolManager,
     networkId: chainId,
     artifactName: "LegacyPoolsNodes_Manager",
     deployArgs: [
@@ -87,7 +67,6 @@ async function main() {
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), manager.address)).wait();
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), manager.address)).wait();
-
 }
 
 if (require.main === module) {

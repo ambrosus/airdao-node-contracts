@@ -1,6 +1,6 @@
 import { Contract, ethers, Signer } from "ethers";
 
-import { ContractNames, MultisigVersions } from "./names";
+import { ContractNames, getMultisigNames, MultisigVersions } from "./names";
 
 type Deployment = {
   address: string;
@@ -13,12 +13,23 @@ export class Contracts {
   private contracts: { [contractName: string]: Contract };
   private nameByAddress: { [address: string]: ContractNames };
   public multisigVersion: MultisigVersions;
+  public masterMultisig: Contract;
 
   constructor(signer: Signer, chainId: number, multisigVersion: MultisigVersions = MultisigVersions.common) {
     this.multisigVersion = multisigVersion;
     this.contracts = loadAllDeploymentsFromFile(chainId, signer, this.multisigVersion);
+    switch (this.multisigVersion) {
+      case MultisigVersions.ecosystem:
+        this.masterMultisig = this.contracts[ContractNames.Ecosystem_MasterMultisig];
+        break;
+      case MultisigVersions.common:
+        this.masterMultisig = this.contracts[ContractNames.MasterMultisig];
+        break;
+      default:
+        this.masterMultisig = this.contracts[ContractNames.MasterMultisig];
+        break;
+    }
     this.nameByAddress = {};
-
     for (const [name, contract] of Object.entries(this.contracts))
       this.nameByAddress[contract.address] = name as ContractNames;
   }
@@ -53,12 +64,16 @@ export class Contracts {
     return this.nameByAddress[address];
   }
 
-  static getContract(chainId: number, contractName: ContractNames, multisigVersion: MultisigVersions = MultisigVersions.common) {
+  static getContract(
+    chainId: number,
+    contractName: ContractNames,
+    multisigVersion: MultisigVersions = MultisigVersions.common
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const deployments = require(`../../deployments/${chainId}.json`);
-    let contractNameVersioned = contractName as string;
-    if (multisigVersion != MultisigVersions.common) contractNameVersioned += `_${multisigVersion}`;
-    return { address: deployments[contractNameVersioned].address, abi: deployments[contractNameVersioned].abi };
+    const versionNames = getMultisigNames(multisigVersion);
+    if (!versionNames.includes(contractName)) return undefined;
+    return { address: deployments[contractName].address, abi: deployments[contractName].abi };
   }
 }
 
@@ -70,19 +85,22 @@ export function loadAllDeploymentsFromFile(
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const deployments = require(`../../deployments/${chainId}.json`);
   const result: any = {};
-  const filteredNames = Object
-    .keys(deployments)
-    .filter((name) =>
-      multisigVersion != MultisigVersions.common
-        ? name.includes(`_${multisigVersion}`)
-        : Object
-          .values(MultisigVersions)
-          .every(version => !name.includes(`_${version}`))
-    );
-  for (const name of filteredNames){
+  let allowedNames: ContractNames[] = [];
+  switch (multisigVersion) {
+    case MultisigVersions.ecosystem:
+      allowedNames = Object.values(ContractNames).filter((name) => name.startsWith("Ecosystem_"));
+      break;
+    case MultisigVersions.common:
+      allowedNames = Object.values(ContractNames).filter((name) => !name.startsWith("Ecosystem_"));
+      break;
+    default:
+      allowedNames = Object.values(ContractNames).filter((name) => !name.startsWith("Ecosystem_"));
+      break;
+  };
+  const filteredNames = Object.keys(deployments).filter((name) => allowedNames.includes(name as ContractNames));
+  for (const name of filteredNames) {
     const deployment = deployments[name] as Deployment;
-    const normalizedName = name.replace(`_${multisigVersion}`, '');
-    result[normalizedName] = new ethers.Contract(deployment.address, deployment.abi, signer);
+    result[name] = new ethers.Contract(deployment.address, deployment.abi, signer);
   }
   return result;
 }

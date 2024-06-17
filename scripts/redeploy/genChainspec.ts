@@ -11,9 +11,6 @@ async function main() {
 }
 
 async function getChainspec(time_before_transition: number, chainId: number) {
-  // if (process.env.MULTISIGS && process.env.MULTISIGS !== "v1") {
-  //   chainId = (chainId.toString() + `_${process.env.MULTISIGS}`) as any;
-  // }
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId) as ValidatorSet;
 
   const fees = loadDeployment(ContractNames.Fees, chainId);
