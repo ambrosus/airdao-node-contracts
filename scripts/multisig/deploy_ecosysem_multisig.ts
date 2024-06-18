@@ -7,18 +7,19 @@ import { MasterMultisig__factory } from "../../typechain-types";
 export async function main() {
   const [deployer] = await ethers.getSigners();
 
+  console.log("Deploing MasterMultisig for ECOSYSTEM...");
   if (network.name == "main") {
     console.log("--- MAINNET DEPLOYMENT ---");
-
     await deploy<MasterMultisig__factory>({
-      contractName: ContractNames.MasterMultisig,
+      contractName: ContractNames.Ecosystem_MasterMultisig,
       artifactName: "MasterMultisig",
       deployArgs: [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
       signer: deployer,
     });
   } else {
+    console.log("Deploing MasterMultisig for ECOSYSTEM...");
     await deploy<MasterMultisig__factory>({
-      contractName: ContractNames.MasterMultisig,
+      contractName: ContractNames.Ecosystem_MasterMultisig,
       artifactName: "MasterMultisig",
       deployArgs: [[SharedDev, DimaTest, AndriiTest], [true, true, true], 51],
       signer: deployer,

@@ -1,6 +1,6 @@
 import { Contract, ethers, Signer } from "ethers";
 
-import { ContractNames, getMultisigNames, MultisigVersions } from "./names";
+import { ContractNames, MultisigVersions } from "./names";
 
 type Deployment = {
   address: string;
@@ -8,6 +8,22 @@ type Deployment = {
   deployTx: string;
   fullyQualifiedName: string;
 };
+
+function allowedMultisigNames(multisigVersion: MultisigVersions) {
+  let allowedNames: ContractNames[] = [];
+  switch (multisigVersion) {
+    case MultisigVersions.ecosystem:
+      allowedNames = Object.values(ContractNames).filter((name) => name.startsWith("Ecosystem_"));
+      break;
+    case MultisigVersions.common:
+      allowedNames = Object.values(ContractNames).filter((name) => !name.startsWith("Ecosystem_"));
+      break;
+    default:
+      allowedNames = Object.values(ContractNames).filter((name) => !name.startsWith("Ecosystem_"));
+      break;
+  }
+  return allowedNames;
+}
 
 export class Contracts {
   private contracts: { [contractName: string]: Contract };
@@ -71,7 +87,7 @@ export class Contracts {
   ) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const deployments = require(`../../deployments/${chainId}.json`);
-    const versionNames = getMultisigNames(multisigVersion);
+    const versionNames = allowedMultisigNames(multisigVersion);
     if (!versionNames.includes(contractName)) return undefined;
     return { address: deployments[contractName].address, abi: deployments[contractName].abi };
   }
@@ -85,18 +101,7 @@ export function loadAllDeploymentsFromFile(
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const deployments = require(`../../deployments/${chainId}.json`);
   const result: any = {};
-  let allowedNames: ContractNames[] = [];
-  switch (multisigVersion) {
-    case MultisigVersions.ecosystem:
-      allowedNames = Object.values(ContractNames).filter((name) => name.startsWith("Ecosystem_"));
-      break;
-    case MultisigVersions.common:
-      allowedNames = Object.values(ContractNames).filter((name) => !name.startsWith("Ecosystem_"));
-      break;
-    default:
-      allowedNames = Object.values(ContractNames).filter((name) => !name.startsWith("Ecosystem_"));
-      break;
-  };
+  const allowedNames = allowedMultisigNames(multisigVersion);
   const filteredNames = Object.keys(deployments).filter((name) => allowedNames.includes(name as ContractNames));
   for (const name of filteredNames) {
     const deployment = deployments[name] as Deployment;
