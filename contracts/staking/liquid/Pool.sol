@@ -55,8 +55,6 @@ contract Pool is AccessControl, IStakeManager, IPool {
         _setupRole(VALIDATOR_SET_ROLE, address(validatorSet_));
     }
 
-
-    //EVENTS
     // VALIDATOR SET METHODS
 
     function reward(address nodeAddress, uint256 amount) public onlyRole(VALIDATOR_SET_ROLE) {
@@ -70,21 +68,21 @@ contract Pool is AccessControl, IStakeManager, IPool {
         _requestNodeCreation();
     }
 
+
     // Why we need it?
     function report(address nodeAddress) public {}
 
-    function setInterest(uint interest_) public onlyRole(VALIDATOR_SET_ROLE) {
+    // OWNER METHODS
+    function setInterest(uint interest_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
         interest = interest_;
     }
 
-    function transferRewards(address to, uint amount) public onlyRole(VALIDATOR_SET_ROLE) {
-        rewardsBank.withdrawAmb(payable(to), amount);
+    function transferRewards(address to, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        finance.withdraw(payable(to), amount);
     }
 
-
     // TODO: Why we need this stuff?? 
-    // OWNER METHODS
 
     function activate() public payable onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!active, "Pool is already active");
@@ -232,7 +230,7 @@ contract Pool is AccessControl, IStakeManager, IPool {
         return nodes;
     }
  
-    //TODO: Provide some fallback? Return funds to sender?
+    //TODO: Call stake???
     receive() external payable {
         uint amount = msg.value;
         (bool success, ) = msg.sender.call{value: amount}("");
