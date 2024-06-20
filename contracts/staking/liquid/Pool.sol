@@ -2,17 +2,15 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./StAMB.sol";
-import "./IPool.sol";
-import "./NodesManager.sol";
 import "../../consensus/IValidatorSet.sol";
 import "../../finance/Finance.sol";
 import "../../finance/Treasury.sol";
 import "../../funds/RewardsBank.sol";
+import "../IStakeManager.sol";
+import "./StAMB.sol";
+import "./IPool.sol";
 
-
-//TODO: Choose proper access control base 
-contract Pool is AccessControl, IStakeManager {
+contract Pool is AccessControl, IStakeManager, IPool {
     uint constant private MILLION = 1000000;
     uint constant private FIXEDPOINT = 1 ether;
     bytes32 constant public VALIDATOR_SET_ROLE = keccak256("VALIDATOR_SET_ROLE");
@@ -35,7 +33,6 @@ contract Pool is AccessControl, IStakeManager {
     uint private _requestId;
     uint private _requestStake; 
 
-    //TODO: Fix the order of the parameters
      constructor(
         IValidatorSet validatorSet_, RewardsBank rewardsBank_, Treasury treasury_, 
         StAMB token_, uint interest_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_
@@ -60,14 +57,6 @@ contract Pool is AccessControl, IStakeManager {
 
 
     //EVENTS
-
-    event StakeChanged(address user, int stake, int tokens);
-    event AddNodeRequest(uint indexed requestId, uint indexed nodeId, uint stake); 
-    event NodeOnboarded(address indexed node, uint indexed nodeId, uint stake);
-    event RequestFailed(uint indexed requestId, uint indexed nodeId, uint stake);
-    event NodeRetired(uint indexed nodeId, uint stake);
-    event Reward(address indexed addr, uint amount);
-
     // VALIDATOR SET METHODS
 
     function reward(address nodeAddress, uint256 amount) public onlyRole(VALIDATOR_SET_ROLE) {
@@ -244,6 +233,10 @@ contract Pool is AccessControl, IStakeManager {
     }
  
     //TODO: Provide some fallback? Return funds to sender?
-    receive() external payable {}
+    receive() external payable {
+        uint amount = msg.value;
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Refund failed.");
+    }
 
 }
