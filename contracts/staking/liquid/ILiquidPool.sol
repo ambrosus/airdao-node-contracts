@@ -6,8 +6,6 @@ interface ILiquidPool {
     function activate() external payable;
     function deactivate(uint maxNodes) external;
     function setBackendRole(address backend) external;
-
-    //Validator set methods
     function setInterest(uint interest) external;
     function transferRewards(address to, uint amount) external;
 
