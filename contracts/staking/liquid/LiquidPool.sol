@@ -8,9 +8,9 @@ import "../../finance/Treasury.sol";
 import "../../funds/RewardsBank.sol";
 import "../IStakeManager.sol";
 import "./StAMB.sol";
-import "./IPool.sol";
+import "./ILiquidPool.sol";
 
-contract Pool is AccessControl, IStakeManager, IPool {
+contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     uint constant private MILLION = 1000000;
     uint constant private FIXEDPOINT = 1 ether;
     bytes32 constant public VALIDATOR_SET_ROLE = keccak256("VALIDATOR_SET_ROLE");

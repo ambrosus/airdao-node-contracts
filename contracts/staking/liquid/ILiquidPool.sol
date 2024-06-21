@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-interface IPool {
+interface ILiquidPool {
     // Owner methods
     function activate() external payable;
     function deactivate(uint maxNodes) external;
