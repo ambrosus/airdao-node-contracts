@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../../consensus/IValidatorSet.sol";
 import "../../finance/Treasury.sol";
 import "../../funds/RewardsBank.sol";
@@ -9,7 +10,7 @@ import "../IStakeManager.sol";
 import "./StAMB.sol";
 import "./ILiquidPool.sol";
 
-contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
+contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager, ILiquidPool {
     uint constant private MILLION = 1000000;
     uint constant private FIXEDPOINT = 1 ether;
     bytes32 constant public VALIDATOR_SET_ROLE = keccak256("VALIDATOR_SET_ROLE");
@@ -20,24 +21,30 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     Treasury public treasury;
     StAMB public token;
     uint public minStakeValue;
-    uint public maxTotalStake;
     bool public active;
     uint public totalStake;
     uint public interest;
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
+    address public bondAddress;
     address[] public nodes;
     mapping (address => uint) public tiers;
 
     uint private _requestId;
     uint private _requestStake; 
 
-     constructor(
+    function initialize(
         IValidatorSet validatorSet_, RewardsBank rewardsBank_, Treasury treasury_, 
-        StAMB token_, uint interest_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_
-    ) {
+        StAMB token_, uint interest_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_,
+        address[] memory addresses_, uint[] memory tiers_
+    ) public initializer {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
+        require(addresses_.length == tiers_.length, "Addresses and tiers arrays have different length");
+
+        for (uint i = 0; i < addresses_.length; i++) {
+            tiers[addresses_[i]] = tiers_[i];
+        }
 
         rewardsBank = rewardsBank_;
         treasury = treasury_;
@@ -76,7 +83,6 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     // TODO: Why we need this stuff?? 
     function activate() public payable onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!active, "Pool is already active");
-        require(msg.value == nodeStake, "Send value not equals node stake value");
         active = true;
         _requestNodeCreation();
     }
@@ -125,7 +131,6 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     function stake() public payable {
         require(active, "Pool is not active");
         require(msg.value >= minStakeValue, "Pool: stake value too low");
-        require(maxTotalStake == 0 || msg.value + totalStake <= maxTotalStake, "Pool: stake value too high");
 
         token.mint(msg.sender, msg.value);
         totalStake += msg.value;
@@ -133,12 +138,10 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         _requestNodeCreation();
     }
 
-    //TODO: Update. Should take reward tokens, burn them and send reward in ABM and BOND
-    //Information about proportion should be taken from the mapping
     function unstake(uint amount) public {
         require(amount <= token.balanceOf(msg.sender), "Sender has not enough tokens");
         require(amount <= totalStake, "Total stake is less than deposit");
-        //TODO: Claim reward
+        _claim(msg.sender);
 
         token.burn(msg.sender, amount);
         while (address(this).balance < amount) {
@@ -150,7 +153,7 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     }
 
     function claim() public {
-        //TODO: Implement. Should call some internal claim method
+        _claim(msg.sender);
     }
 
    
@@ -173,9 +176,23 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         nodes.pop();
     }
 
-    function _claim() private {
-        
+    function _claim(address account) private {
+        uint amount = token.rewardOf(account);
+        require(amount > 0, "No rewards to claim");
+        uint tier = tiers[account];
+        if (tier == 0) {
+            tiers[account] = 750000;
+            tier = 750000;
+        }
+        uint bondAmount = amount * tiers[account] / MILLION;
+        uint ambAmount = amount - bondAmount;
+        rewardsBank.withdrawAmb(payable(account), ambAmount);
+        rewardsBank.withdrawErc20(bondAddress, payable(account), bondAmount);
+        token.burnRewards(account, amount);
+        emit Claim(account, ambAmount, bondAmount);
     }
+
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
    // VIEW METHODS
 
