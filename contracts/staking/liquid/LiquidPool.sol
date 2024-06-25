@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "../../consensus/IValidatorSet.sol";
-import "../../finance/Finance.sol";
 import "../../finance/Treasury.sol";
 import "../../funds/RewardsBank.sol";
 import "../IStakeManager.sol";
@@ -19,7 +18,6 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     IValidatorSet public validatorSet;
     RewardsBank public rewardsBank;
     Treasury public treasury;
-    Finance public finance;
     StAMB public token;
     uint public minStakeValue;
     uint public maxTotalStake;
@@ -29,6 +27,7 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
     address[] public nodes;
+    mapping (address => uint) public tiers;
 
     uint private _requestId;
     uint private _requestStake; 
@@ -39,8 +38,6 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
     ) {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
-
-        finance = new Finance(address(this));
 
         rewardsBank = rewardsBank_;
         treasury = treasury_;
@@ -55,7 +52,7 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         _setupRole(VALIDATOR_SET_ROLE, address(validatorSet_));
     }
 
-    // VALIDATOR SET METHODS
+    // IStakeManager impl
 
     function reward(address nodeAddress, uint256 amount) public onlyRole(VALIDATOR_SET_ROLE) {
         uint treasuryAmount = treasury.calcFee(amount);
@@ -63,13 +60,10 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         amount -= treasuryAmount;
 
         rewardsBank.withdrawAmb(payable(nodeAddress), amount);
-        validatorSet.emitReward(address(rewardsBank), nodeAddress, nodeAddress, address(finance), address(0), amount);
+        validatorSet.emitReward(address(rewardsBank), nodeAddress, nodeAddress, address(rewardsBank), address(0), amount);
         emit Reward(nodeAddress, amount);
-        _requestNodeCreation();
     }
 
-
-    // Why we need it?
     function report(address nodeAddress) public {}
 
     // OWNER METHODS
@@ -78,12 +72,8 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         interest = interest_;
     }
 
-    function transferRewards(address to, uint amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        finance.withdraw(payable(to), amount);
-    }
-
+    // If we will have updateable pool, we don't need this methods
     // TODO: Why we need this stuff?? 
-
     function activate() public payable onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!active, "Pool is already active");
         require(msg.value == nodeStake, "Send value not equals node stake value");
@@ -102,18 +92,13 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         }
     }
 
-    function setBackendRole(address backend) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        grantRole(BACKEND_ROLE, backend);
-    }
-
     // BAKEND METHODS
 
-    function increaseStake() public onlyRole(BACKEND_ROLE) {
+    function distributeRewards() public onlyRole(BACKEND_ROLE) {
         require(active, "Pool is not active");
-        uint amount = totalStake * interest / MILLION;
-        finance.withdraw(payable(address(this)), amount);
-        emit StakeChanged(address(this), int(amount), int(_toTokens(amount)));
-        _requestNodeCreation();
+        uint totalReward = totalStake * interest / MILLION;
+        uint rewardPerToken = totalReward / token.totalSupply();
+        token.accrueRewards(rewardPerToken);
     }
 
     function onboardNode(uint requestId, address node, uint nodeId) public onlyRole(BACKEND_ROLE) {
@@ -137,34 +122,35 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
 
     // PUBLIC METHODS
 
-    //TODO: Update
     function stake() public payable {
         require(active, "Pool is not active");
         require(msg.value >= minStakeValue, "Pool: stake value too low");
         require(maxTotalStake == 0 || msg.value + totalStake <= maxTotalStake, "Pool: stake value too high");
 
-        uint tokens = _toTokens(msg.value);
-
-        // todo return (msg.value % tokenPrice) to user ?
-        token.mint(msg.sender, tokens);
+        token.mint(msg.sender, msg.value);
         totalStake += msg.value;
-        emit StakeChanged(msg.sender, int(msg.value), int(tokens)); 
+        emit StakeChanged(msg.sender, int(msg.value)); 
         _requestNodeCreation();
     }
 
-    //TODO: Update
-    function unstake(uint tokens) public {
-        require(tokens <= token.balanceOf(msg.sender), "Sender has not enough tokens");
-        uint deposit = _fromTokens(tokens);
-        require(deposit <= totalStake, "Total stake is less than deposit");
+    //TODO: Update. Should take reward tokens, burn them and send reward in ABM and BOND
+    //Information about proportion should be taken from the mapping
+    function unstake(uint amount) public {
+        require(amount <= token.balanceOf(msg.sender), "Sender has not enough tokens");
+        require(amount <= totalStake, "Total stake is less than deposit");
+        //TODO: Claim reward
 
-        token.burn(msg.sender, tokens);
-        while (address(this).balance < deposit) {
+        token.burn(msg.sender, amount);
+        while (address(this).balance < amount) {
             _retireNode();
         }
-        totalStake -= deposit;
-        payable(msg.sender).transfer(deposit);
-        emit StakeChanged(msg.sender, - int(deposit), - int(tokens));    
+        totalStake -= amount;
+        payable(msg.sender).transfer(amount);
+        emit StakeChanged(msg.sender, - int(amount));    
+    }
+
+    function claim() public {
+        //TODO: Implement. Should call some internal claim method
     }
 
    
@@ -187,14 +173,8 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         nodes.pop();
     }
 
-    function _fromTokens(uint amount) private view returns (uint) {
-        uint tokenPrice = getTokenPrice();
-        return amount * tokenPrice / FIXEDPOINT;
-    }
-
-    function _toTokens(uint amount) private view returns (uint) {
-        uint tokenPrice = getTokenPrice();
-        return amount * FIXEDPOINT / tokenPrice;
+    function _claim() private {
+        
     }
 
    // VIEW METHODS
@@ -203,19 +183,8 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         return token.balanceOf(msg.sender);
     }
 
-    function getTokenPrice() public view returns (uint) {
-        uint totalTokens = token.totalSupply();
-        if (totalTokens == 0) return 1 ether;
-
-        return totalStake * FIXEDPOINT / totalTokens;
-    }
-
     function getInterest() public view returns (uint) {
         return interest;
-    }
-    
-    function getRewards() public view returns (uint) {
-        return address(finance).balance;
     }
 
     function getNodeDeposit(address node) public view returns (uint) {
@@ -230,11 +199,8 @@ contract LiquidPool is AccessControl, IStakeManager, ILiquidPool {
         return nodes;
     }
  
-    //TODO: Call stake???
     receive() external payable {
-        uint amount = msg.value;
-        (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Refund failed.");
+        stake();
     }
 
 }
