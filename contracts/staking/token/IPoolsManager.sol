@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-interface IPoolsMsanager {
+interface IPoolsManager {
     //OWNER METHODS
     function createPool(address token_, uint interest_, uint minStakeValue) external returns (address);
     function deactivatePool(address pool_) external;
