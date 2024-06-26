@@ -2,6 +2,12 @@ name: Publish Package to npmjs
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The tag to publish with'
+        required: true
+        default: 'latest'
 
 jobs:
   build:
