@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./TokenPool.sol";
-import "./IPoolManager.sol";
+import "./IPoolsManager.sol";
 import "../../funds/RewardsBank.sol";
 
-contract PoolsManager is Ownable, IPoolManager {
+contract PoolsManager is Ownable, IPoolsManager {
 
     RewardsBank public bank;
 
