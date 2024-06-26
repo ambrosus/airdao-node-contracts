@@ -1,11 +1,72 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-// This contract should 
-// - Deploy a new TokenPool contract on demand
-// - Keep track of all deployed TokenPool contracts
-// - Allow to query the list of deployed TokenPool contracts
-// - Allow to deactivate the TokenPool contract
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./TokenPool.sol";
+import "./IPoolManager.sol";
+import "../../funds/RewardsBank.sol";
 
-contract PoolsManager {
+contract PoolsManager is Ownable, IPoolManager {
+
+    RewardsBank public bank;
+
+    mapping(address => address) public pools; //maps the address of the token to the address of the pool
+
+    constructor(RewardsBank bank_) Ownable() {
+        bank = bank_;
+    }
+
+    // OWNER METHODS
+
+    function createPool(address token_, uint interest_, uint minStakeValue) public onlyOwner() returns (address) {
+        TokenPool pool = new TokenPool(token_, bank, interest_, minStakeValue);
+        pools[address(pool)] = address(pool);
+        emit PoolCreated(address(pool), token_, interest_, minStakeValue);
+        pool.activate();
+        emit PoolActivated(address(pool));
+        return address(pool);
+    }
+
+    function deactivatePool(address pool_) public onlyOwner() {
+        require(pools[pool_] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pool_);
+        pool.deactivate();
+        emit PoolDeactivated(pool_);
+    }
+
+    function activatePool(address pool_) public onlyOwner() {
+        require(pools[pool_] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pool_);
+        pool.activate();
+        emit PoolActivated(pool_);
+    }
+
+    function setInterest(address pool_, uint interest_) public onlyOwner() {
+        require(pools[pool_] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pool_);
+        pool.setInterest(interest_);
+    }
+
+    function setMinStakeValue(address pool_, uint minStakeValue_) public onlyOwner() {
+        require(pools[pool_] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pool_);
+        pool.setMinStakeValue(minStakeValue_);
+    }
+
+    function grantBackendRole(address pool_, address backend_) public onlyOwner() {
+        require(pools[pool_] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pool_);
+        pool.grantRole(pool.BACKEND_ROLE(), backend_);
+    }
+
+    // VIEW METHODS
+
+    function getPool(address token_) public view returns (address) {
+        return pools[token_];
+    }
+
+    function getPoolInfo(address pool_) public view returns (address token, uint interest, uint minStakeValue, uint totalStake, uint totalShare,bool) {
+        TokenPool pool = TokenPool(pool_);
+        return (address(pool.token()), pool.interest(), pool.minStakeValue(), pool.totalStake(), pool.totalShare(), pool.active());
+    }
 }
