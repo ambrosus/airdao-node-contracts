@@ -23,6 +23,7 @@ contract PoolsManager is Ownable, IPoolsManager {
         TokenPool pool = new TokenPool(token_, bank, interest_, minStakeValue);
         tokenToPool[token_] = address(pool);
         poolToToken[address(pool)] = token_;
+        bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
         emit PoolCreated(address(pool), token_, interest_, minStakeValue);
         return address(pool);
     }
