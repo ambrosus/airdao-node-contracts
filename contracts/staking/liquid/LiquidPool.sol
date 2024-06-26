@@ -26,6 +26,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
     uint public interest;
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
+    uint public lockPeriod;
     address public bondAddress;
     address[] public nodes;
     mapping (address => uint) public tiers;
@@ -36,7 +37,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
     function initialize(
         IValidatorSet validatorSet_, RewardsBank rewardsBank_, Treasury treasury_, 
         StAMB token_, uint interest_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_,
-        address[] memory addresses_, uint[] memory tiers_
+        address[] memory addresses_, uint[] memory tiers_, address bondAddress_, uint lockPeriod_
     ) public initializer {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
@@ -53,6 +54,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         interest = interest_;
         nodeStake = nodeStake_;
         maxNodesCount = maxNodesCount_;
+        lockPeriod = lockPeriod_;
+        bondAddress = bondAddress_;
         nodes = new address[](0);
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -98,6 +101,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         }
     }
 
+    function setLockPeriod(uint lockPeriod_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        lockPeriod = lockPeriod_;
+    }
+
     // BAKEND METHODS
 
     function distributeRewards() public onlyRole(BACKEND_ROLE) {
@@ -141,6 +148,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         require(amount <= token.balanceOf(msg.sender), "Sender has not enough tokens");
         require(amount <= totalStake, "Total stake is less than deposit");
         _claim(msg.sender);
+
+        if (token.obtainedAt(msg.sender) + lockPeriod > block.timestamp) {
+            revert("Lock period is not expired");
+        }
 
         token.burn(msg.sender, amount);
         while (address(this).balance < amount) {
@@ -215,6 +226,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
 
     function getNodes() public view returns (address[] memory) {
         return nodes;
+    }
+
+    function getLockPeriod() public view returns (uint) {
+        return lockPeriod;
     }
  
     receive() external payable {

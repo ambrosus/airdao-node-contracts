@@ -50,6 +50,8 @@ export async function main() {
   const nodeStake = 5000000;
   const minStakeValue = 10000;
   const maxNodesCount = 10;
+  const bondAddress = "";
+  const lockPeriod = 30 * 24 * 60 * 60; // 30 days
 
   const liquidPool = await deploy<LiquidPool__factory>({
     contractName: ContractNames.LiquidPool,
@@ -65,6 +67,8 @@ export async function main() {
       maxNodesCount,
       addresses,
       tiers,
+      bondAddress,
+      lockPeriod,
     ],
     signer: deployer,
   });

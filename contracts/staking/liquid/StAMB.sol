@@ -9,6 +9,7 @@ contract StAMB is IERC20, AccessControl {
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
     mapping (address => uint256) private _rewards;
+    mapping (address => uint256) private _obtainedAt;
     address[] private _holders;
 
     uint256 private _totalSupply;
@@ -47,6 +48,10 @@ contract StAMB is IERC20, AccessControl {
 
     function rewardOf(address account) public view returns (uint256) {
         return _rewards[account];
+    }
+
+    function obtainedAt(address account) public view returns (uint256) {
+        return _obtainedAt[account];
     }
 
     function mint(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -129,6 +134,11 @@ contract StAMB is IERC20, AccessControl {
             // decrementing then incrementing.
             _balances[to] += amount;
         }
+        if (_balances[from] == 0)
+            _obtainedAt[from] = 0;
+
+        if (_obtainedAt[to] == 0)
+            _obtainedAt[to] = block.timestamp;
 
         emit Transfer(from, to, amount);
     }
@@ -142,6 +152,8 @@ contract StAMB is IERC20, AccessControl {
             _balances[account] += amount;
         }
         _holders.push(account);
+        if (_obtainedAt[account] == 0)
+            _obtainedAt[account] = block.timestamp;
 
         emit Transfer(address(0), account, amount);
     }
@@ -155,6 +167,8 @@ contract StAMB is IERC20, AccessControl {
             // Overflow not possible: amount <= accountBalance <= totalSupply.
             _totalSupply -= amount;
         }
+        if (_balances[account] == 0)
+            _obtainedAt[account] = 0;
     }
 
     function _approve(address owner, address spender, uint256 amount) internal {

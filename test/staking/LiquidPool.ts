@@ -6,6 +6,7 @@ import {
   RewardsBank__factory,
   Treasury__factory,
   StAMB__factory,
+  AirBond__factory,
   RewardsBank,
   StAMB,
   TEST_ValidatorSet
@@ -28,6 +29,7 @@ describe("LiquidPool", function () {
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
     const treasury = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
     const stAMB = await new StAMB__factory(owner).deploy("Staked Amber","StAMB");
+    const airBond = await new AirBond__factory(owner).deploy(owner.address);
 
     const interest = 100000; // 10%
     const nodeStake = ethers.utils.parseEther("5000000");
@@ -35,6 +37,8 @@ describe("LiquidPool", function () {
     const maxNodeCount = 10;
     const addresses: string[] = [];
     const tiers: number[] = [];
+    const bondAddress = airBond.address;
+    const lockPeriod = 24 * 30 * 60 * 60; // 30 days
 
     const liquidPoolFactory = await ethers.getContractFactory("LiquidPool");
     const liquidPool = (await upgrades.deployProxy(liquidPoolFactory, [
@@ -47,7 +51,9 @@ describe("LiquidPool", function () {
       minStakeValue,
       maxNodeCount,
       addresses,
-      tiers
+      tiers,
+      bondAddress,
+      lockPeriod
     ])) as LiquidPool;
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
@@ -105,6 +111,7 @@ describe("LiquidPool", function () {
     });
 
     it("should allow unstaking", async function () {
+      await liquidPool.setLockPeriod(0);
       await liquidPool.unstake(25); 
       expect(await liquidPool.totalStake()).to.be.equal(25);
       expect(await liquidPool.getStake()).to.be.equal(25);
@@ -113,6 +120,10 @@ describe("LiquidPool", function () {
 
     it("should reject unstaking more then staked", async function () {
       await expect(liquidPool.unstake(100)).to.be.revertedWith("Sender has not enough tokens");
+    });
+
+    it("should reject unstaking before lock period", async function () {
+      await expect(liquidPool.unstake(50)).to.be.revertedWith("Lock period is not expired");
     });
   });
 
