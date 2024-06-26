@@ -103,8 +103,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
     function distributeRewards() public onlyRole(BACKEND_ROLE) {
         require(active, "Pool is not active");
         uint totalReward = totalStake * interest / MILLION;
-        uint rewardPerToken = totalReward / token.totalSupply();
-        token.accrueRewards(rewardPerToken);
+        token.accrueRewards(totalReward);
     }
 
     function onboardNode(uint requestId, address node, uint nodeId) public onlyRole(BACKEND_ROLE) {
@@ -178,7 +177,9 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
 
     function _claim(address account) private {
         uint amount = token.rewardOf(account);
-        require(amount > 0, "No rewards to claim");
+        if (amount == 0) {
+            return;
+        } 
         uint tier = tiers[account];
         if (tier == 0) {
             tiers[account] = 750000;

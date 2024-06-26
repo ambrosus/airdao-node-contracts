@@ -37,9 +37,14 @@ export async function main() {
   const stAMB = await deploy<StAMB__factory>({
     contractName: ContractNames.StAMB,
     artifactName: "StAMB",
-    deployArgs: [],
+    deployArgs: ["Stacked Amber","stAMB"],
     signer: deployer,
   });
+
+  //TODO: Get the tiers data 
+  const tiers: number[] = []; // list of percentages of the bond reward for each address
+  const addresses: string[] = []; // list of addresses 
+  // the tiers list length must be equal to the address list length
 
   const interest = 100000;
   const nodeStake = 5000000;
@@ -58,6 +63,8 @@ export async function main() {
       nodeStake,
       minStakeValue,
       maxNodesCount,
+      addresses,
+      tiers,
     ],
     signer: deployer,
   });
@@ -66,6 +73,7 @@ export async function main() {
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
+  await (await stAMB.grantRole(await stAMB.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
 }
 
 

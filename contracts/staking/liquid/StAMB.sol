@@ -23,7 +23,7 @@ contract StAMB is IERC20, AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function accrueRewards(uint rewardPerToken) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function accrueRewards(uint totalReward) public onlyRole(DEFAULT_ADMIN_ROLE) {
         for (uint i = 0; i < _holders.length; i++) {
             address holder = _holders[i];
             uint256 balance = _balances[holder];
@@ -32,7 +32,7 @@ contract StAMB is IERC20, AccessControl {
                 _holders.pop();
                 continue;
             }
-            uint256 reward = balance * rewardPerToken;
+            uint256 reward = balance * totalReward / _totalSupply;
             _rewards[holder] = reward;
             _totalRewards += reward;
         }
