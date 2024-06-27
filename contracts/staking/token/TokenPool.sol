@@ -88,6 +88,7 @@ contract TokenPool is AccessControl, ITokenPool {
         require(active, "Pool is not active");
         uint amount = totalStake * interest / MILLION;
         bank.withdrawErc20(address(token), address(this), amount);
+        totalStake += amount;
         emit StakeChanged(address(this), amount);
     }
 
@@ -95,6 +96,10 @@ contract TokenPool is AccessControl, ITokenPool {
 
     function getStake(address user) public view returns (uint) {
         return _calculateToken(share.balanceOf(user));
+    }
+
+    function getShare(address user) public view returns (uint) {
+        return share.balanceOf(user);
     }
 
     function getSharePrice() public view returns (uint) {
