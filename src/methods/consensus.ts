@@ -1,7 +1,7 @@
 import { Contracts } from "../contracts/contracts";
 import { ValidatorSet } from "../../typechain-types";
 import { ContractNames } from "../contracts/names";
-import { submitTransaction2 } from "./internal";
+import { submitTransaction2 } from "../multisig/submitTransaction";
 import { BigNumberish, ethers } from "ethers";
 
 // view methods

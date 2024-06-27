@@ -9,7 +9,7 @@ import {
   Treasury,
   ValidatorSet,
 } from "../../typechain-types";
-import {submitTransaction2} from "./internal";
+import {submitTransaction2} from "../multisig/submitTransaction";
 
 // validator set
 

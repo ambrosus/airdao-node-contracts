@@ -4,13 +4,13 @@ import {ContractNames} from "../contracts/names";
 import {
   RewardsBank,
 } from "../../typechain-types";
-import {submitTransaction2} from "./internal";
+import {submitTransaction2} from "../multisig/submitTransaction";
 
 type rewardsBankContactNames =
   | ContractNames.BaseNodesManagerRewardsBank
   | ContractNames.LegacyPoolManagerRewardsBank
   | ContractNames.ServerNodesManagerRewardsBank
-  | ContractNames.BondMarketplaceRewardsBank;
+  | ContractNames.Ecosystem_BondMarketplaceRewardsBank;
 
 export async function rewardsBanksWithdrawAmb(
   contracts: Contracts,
