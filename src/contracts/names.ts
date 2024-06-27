@@ -41,6 +41,11 @@ export enum ContractNames {
   Treasury = "Treasury",
   TreasuryMultisig = "Treasury_Multisig",
 
+  LiquidPool = "LiquidPool",
+  LiquidPoolMultisig = "LiquidPool_Multisig",
+  LiquidPoolRewardsBank = "LiquidPool_RewardsBank",
+  StAMB = "StAMB",
+
   // funds
 
   AirBond = "AirBond",
@@ -79,6 +84,7 @@ export const MULTISIGS = {
   [ContractNames.Treasury]: ContractNames.TreasuryMultisig,
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
+  [ContractNames.LiquidPool]: ContractNames.LiquidPoolMultisig,
 
   [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
 };
