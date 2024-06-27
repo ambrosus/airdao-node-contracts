@@ -9,7 +9,7 @@ export async function changeMultisigOwners(contracts: Contracts, newOwner: strin
       .map((n) => contracts.getContractByNameSafe(n)?.address)
       .filter((el) => el !== undefined) as string[];
 
-  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
+  const masterMultisig = contracts.masterMultisig as MasterMultisig;
 
   if (multisigAddresses.includes(masterMultisig.address))
     throw Error("You probably don't want to change the owner of the master multisig");
