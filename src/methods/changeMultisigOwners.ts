@@ -1,11 +1,11 @@
 import { Contracts } from "../contracts/contracts";
-import { ContractNames, slavesMultisigsNames } from "../contracts/names";
+import { getSlavesMultisigsNames } from "../contracts/names";
 import { MasterMultisig } from "../../typechain-types";
 import { submitTransaction } from "../multisig/submitTransaction";
 
 export async function changeMultisigOwners(contracts: Contracts, newOwner: string, multisigAddresses?: string[]) {
   if (!multisigAddresses)
-    multisigAddresses = slavesMultisigsNames
+    multisigAddresses = getSlavesMultisigsNames(contracts.multisigVersion)
       .map((n) => contracts.getContractByNameSafe(n)?.address)
       .filter((el) => el !== undefined) as string[];
 
