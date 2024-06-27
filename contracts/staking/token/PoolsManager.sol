@@ -19,12 +19,12 @@ contract PoolsManager is Ownable, IPoolsManager {
 
     // OWNER METHODS
 
-    function createPool(address token_, uint interest_, uint minStakeValue) public onlyOwner() returns (address) {
-        TokenPool pool = new TokenPool(token_, bank, interest_, minStakeValue);
+    function createPool(address token_, uint interest_, uint interestRate_, uint minStakeValue) public onlyOwner() returns (address) {
+        TokenPool pool = new TokenPool(token_, bank, interest_, interestRate_, minStakeValue);
         tokenToPool[token_] = address(pool);
         poolToToken[address(pool)] = token_;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
-        emit PoolCreated(address(pool), token_, interest_, minStakeValue);
+        emit PoolCreated(address(pool), token_, interest_, interestRate_, minStakeValue);
         return address(pool);
     }
 
@@ -54,6 +54,12 @@ contract PoolsManager is Ownable, IPoolsManager {
         pool.setMinStakeValue(minStakeValue_);
     }
 
+    function setInterestRate(address pool_, uint interestRate_) public onlyOwner() {
+        require(poolToToken[pool_] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pool_);
+        pool.setInterestRate(interestRate_);
+    }
+
     function grantBackendRole(address pool_, address backend_) public onlyOwner() {
         require(poolToToken[pool_] != address(0), "Pool does not exist");
         TokenPool pool = TokenPool(pool_);
@@ -66,7 +72,7 @@ contract PoolsManager is Ownable, IPoolsManager {
         return tokenToPool[token_];
     }
 
-    function getPoolInfo(address pool_) public view returns (address token, uint interest, uint minStakeValue, uint totalStake, uint totalShare,bool) {
+    function getPoolInfo(address pool_) public view returns (address token, uint interest, uint minStakeValue, uint totalStake, uint totalShare,bool active) {
         TokenPool pool = TokenPool(pool_);
         return (address(pool.token()), pool.interest(), pool.minStakeValue(), pool.totalStake(), pool.totalShare(), pool.active());
     }

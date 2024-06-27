@@ -23,6 +23,7 @@ interface ITokenPool {
     //EVENTS
     event StakeChanged(address indexed user, uint amount);
     event InterestChanged(uint interest);
+    event InterestRateChanged(uint interestRate);
     event MinStakeValueChanged(uint minStakeValue);
     event Deactivated();
     event Activated();

@@ -17,15 +17,17 @@ contract TokenPool is AccessControl, ITokenPool {
     ShareToken public share;
     RewardsBank public bank;
     uint public interest;
+    uint public interestRate; //Time in seconds to how often the stake is increased
     uint public minStakeValue;
     uint public totalStake;
     bool public active;
 
-    constructor(address _token, RewardsBank _rewardsBank, uint _intereset, uint _minStakeValue ) {
+    constructor(address _token, RewardsBank _rewardsBank, uint _intereset,uint _interestRate, uint _minStakeValue ) {
         token = ERC20(_token);
         share = new ShareToken();
         bank = _rewardsBank;
         interest = _intereset; 
+        interestRate = _interestRate;
         minStakeValue = _minStakeValue;
         active = true;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -53,6 +55,11 @@ contract TokenPool is AccessControl, ITokenPool {
     function setMinStakeValue(uint _minStakeValue) public onlyRole(DEFAULT_ADMIN_ROLE) {
         minStakeValue = _minStakeValue;
         emit MinStakeValueChanged(_minStakeValue);
+    }
+
+    function setInterestRate(uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        interestRate = _interestRate;
+        emit InterestRateChanged(_interestRate);
     }
 
     // PUBLIC METHODS
@@ -108,6 +115,14 @@ contract TokenPool is AccessControl, ITokenPool {
         uint decimals = token.decimals();
 
         return _totalShare * decimals / totalStake;
+    }
+
+    function getInterest() public view returns (uint) {
+        return interest;
+    }
+
+    function getInterestRate() public view returns (uint) {
+        return interestRate;
     }
 
     function totalShare() public view returns (uint) {

@@ -3,11 +3,12 @@ pragma solidity ^0.8.0;
 
 interface IPoolsManager {
     //OWNER METHODS
-    function createPool(address token_, uint interest_, uint minStakeValue) external returns (address);
+    function createPool(address token_, uint interest_, uint interestRate_, uint minStakeValue) external returns (address);
     function deactivatePool(address pool_) external;
     function activatePool(address pool_) external;
     function setInterest(address pool_, uint interest_) external;
     function setMinStakeValue(address pool_, uint minStakeValue_) external;
+    function setInterestRate(address pool_, uint interestRate_) external;
 
     //VIEW METHODS
     function getPool(address token_) external view returns (address);
@@ -15,10 +16,11 @@ interface IPoolsManager {
 
     //EVENTS
 
-    event PoolCreated(address pool, address token, uint interest, uint minStakeValue);
+    event PoolCreated(address pool, address token, uint interest, uint interestRate, uint minStakeValue);
     event PoolDeactivated(address pool);
     event PoolActivated(address pool);
     event InterestChanged(address pool, uint interest);
+    event InterestrateChanged(address pool, uint interestRate);
     event MinStakeValueChanged(address pool, uint minStakeValue);
 
 
