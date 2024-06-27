@@ -12,7 +12,6 @@ import "./ILiquidPool.sol";
 
 contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager, ILiquidPool {
     uint constant private MILLION = 1000000;
-    uint constant private FIXEDPOINT = 1 ether;
     bytes32 constant public VALIDATOR_SET_ROLE = keccak256("VALIDATOR_SET_ROLE");
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
 
@@ -24,6 +23,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
     bool public active;
     uint public totalStake;
     uint public interest;
+    uint public interestRate;
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
     uint public lockPeriod;
@@ -36,22 +36,18 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
 
     function initialize(
         IValidatorSet validatorSet_, RewardsBank rewardsBank_, Treasury treasury_, 
-        StAMB token_, uint interest_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_,
-        address[] memory addresses_, uint[] memory tiers_, address bondAddress_, uint lockPeriod_
+        StAMB token_, uint interest_, uint interestRate_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_,
+         address bondAddress_, uint lockPeriod_
     ) public initializer {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
-        require(addresses_.length == tiers_.length, "Addresses and tiers arrays have different length");
-
-        for (uint i = 0; i < addresses_.length; i++) {
-            tiers[addresses_[i]] = tiers_[i];
-        }
 
         rewardsBank = rewardsBank_;
         treasury = treasury_;
         token = token_;
         minStakeValue = minStakeValue_;
         interest = interest_;
+        interestRate = interestRate_;
         nodeStake = nodeStake_;
         maxNodesCount = maxNodesCount_;
         lockPeriod = lockPeriod_;
@@ -80,6 +76,18 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
     function setInterest(uint interest_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
         interest = interest_;
+    }
+
+    function setInterestRate(uint interestRate_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        interestRate = interestRate_;
+    }
+
+    function setTiers(address[] memory addresses_, uint[] memory tiers_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(addresses_.length == tiers_.length, "Addresses and tiers arrays have different length");
+
+        for (uint i = 0; i < addresses_.length; i++) {
+            tiers[addresses_[i]] = tiers_[i];
+        }
     }
 
     // If we will have updateable pool, we don't need this methods

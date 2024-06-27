@@ -6,6 +6,8 @@ interface ILiquidPool {
     function activate() external payable;
     function deactivate(uint maxNodes) external;
     function setInterest(uint interest) external;
+    function setInterestRate(uint interestRate) external;
+    function setTiers(address[] memory addresses, uint[] memory tiers) external;
 
     // Backend methods
     function distributeRewards() external;
