@@ -41,12 +41,8 @@ export async function main() {
     signer: deployer,
   });
 
-  //TODO: Get the tiers data 
-  const tiers: number[] = []; // list of percentages of the bond reward for each address
-  const addresses: string[] = []; // list of addresses 
-  // the tiers list length must be equal to the address list length
-
   const interest = 100000;
+  const interestRate = 24 * 60 * 60; // 24 hours
   const nodeStake = 5000000;
   const minStakeValue = 10000;
   const maxNodesCount = 10;
@@ -62,16 +58,22 @@ export async function main() {
       treasury.address,
       stAMB.address,
       interest,
+      interestRate,
       nodeStake,
       minStakeValue,
       maxNodesCount,
-      addresses,
-      tiers,
       bondAddress,
       lockPeriod,
     ],
     signer: deployer,
   });
+  
+  // OPTIONAL: Add the tiers data
+  //TODO: Get the tiers data 
+  const tiers: number[] = []; // list of percentages of the bond reward for each address
+  const addresses: string[] = []; // list of addresses 
+  // the tiers list length must be equal to the address list length
+
 
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();

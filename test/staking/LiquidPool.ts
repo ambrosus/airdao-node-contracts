@@ -32,11 +32,10 @@ describe("LiquidPool", function () {
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
 
     const interest = 100000; // 10%
+    const interestRate = 24 * 60 * 60; // 1 day
     const nodeStake = ethers.utils.parseEther("5000000");
     const minStakeValue = 10;
     const maxNodeCount = 10;
-    const addresses: string[] = [];
-    const tiers: number[] = [];
     const bondAddress = airBond.address;
     const lockPeriod = 24 * 30 * 60 * 60; // 30 days
 
@@ -47,11 +46,10 @@ describe("LiquidPool", function () {
       treasury.address,
       stAMB.address,
       interest,
+      interestRate,
       nodeStake,
       minStakeValue,
       maxNodeCount,
-      addresses,
-      tiers,
       bondAddress,
       lockPeriod
     ])) as LiquidPool;
