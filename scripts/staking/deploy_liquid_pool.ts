@@ -6,6 +6,7 @@ import {
   Multisig__factory,
   RewardsBank__factory,
   StakingTiers__factory,
+  NodeManager__factory,
   ValidatorSet,
 } from "../../typechain-types";
 import { Roadmap2023MultisigSettings } from "../addresses";
@@ -47,11 +48,19 @@ export async function main() {
     signer: deployer,
   });
 
+  const nodeStake = 5000000;
+  const maxNodesCount = 10;
+
+  const nodeManager = await deploy<NodeManager__factory>({
+    contractName: ContractNames.NodeManager,
+    artifactName: "NodeManager",
+    deployArgs: [validatorSet.address, rewardsBank.address, treasury.address, nodeStake, maxNodesCount],
+    signer: deployer,
+  });
+
   const interest = 100000;
   const interestRate = 24 * 60 * 60; // 24 hours
-  const nodeStake = 5000000;
   const minStakeValue = 10000;
-  const maxNodesCount = 10;
   const bondAddress = "";
   const lockPeriod = 30 * 24 * 60 * 60; // 30 days
 
@@ -59,15 +68,12 @@ export async function main() {
     contractName: ContractNames.LiquidPool,
     artifactName: "Pool",
     deployArgs: [
-      validatorSet.address,
+      nodeManager.address,
       rewardsBank.address,
-      treasury.address,
       stakingTiers.address,
       interest,
       interestRate,
       nodeStake,
-      minStakeValue,
-      maxNodesCount,
       bondAddress,
       lockPeriod,
     ],
@@ -79,6 +85,8 @@ export async function main() {
   await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
   await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 }
 
 
