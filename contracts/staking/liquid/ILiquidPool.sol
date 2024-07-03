@@ -3,20 +3,16 @@ pragma solidity ^0.8.0;
 
 interface ILiquidPool {
     // Owner methods
-    function activate() external payable;
-    function deactivate(uint maxNodes) external;
     function setInterest(uint interest) external;
     function setInterestRate(uint interestRate) external;
-    function setTiers(address[] memory addresses, uint[] memory tiers) external;
 
     // Backend methods
-    function distributeRewards() external;
     function onboardNode(uint requestId, address node, uint nodeId) external;
 
     // Public methods
     function stake() external payable;
     function unstake(uint tokens) external;
-    function claim() external;
+    function claim(uint desiredCoeff) external;
 
     //View methods
     function getStake() external view returns (uint);

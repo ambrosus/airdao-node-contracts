@@ -44,7 +44,7 @@ export enum ContractNames {
   LiquidPool = "LiquidPool",
   LiquidPoolMultisig = "LiquidPool_Multisig",
   LiquidPoolRewardsBank = "LiquidPool_RewardsBank",
-  StAMB = "StAMB",
+  StakingTiers = "StakingTiers",
 
   // funds
 

@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "../../consensus/IValidatorSet.sol";
 import "../../finance/Treasury.sol";
 import "../../funds/RewardsBank.sol";
 import "../IStakeManager.sol";
 import "./StAMB.sol";
 import "./ILiquidPool.sol";
+import "./StAMB.sol";
+import "./RewardToken.sol";
+import "./StakingTiers.sol";
 
-contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager, ILiquidPool {
+contract LiquidPool is AccessControl, IStakeManager, ILiquidPool, StAMB {
     uint constant private MILLION = 1000000;
     bytes32 constant public VALIDATOR_SET_ROLE = keccak256("VALIDATOR_SET_ROLE");
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
@@ -18,33 +20,37 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
     IValidatorSet public validatorSet;
     RewardsBank public rewardsBank;
     Treasury public treasury;
-    StAMB public token;
-    uint public minStakeValue;
+    RewardToken public rewardToken;
+    StakingTiers public tiers;
     bool public active;
+    uint public minStakeValue;
     uint public totalStake;
     uint public interest;
-    uint public interestRate;
+    uint public interestRate; 
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
     uint public lockPeriod;
     address public bondAddress;
     address[] public nodes;
-    mapping (address => uint) public tiers;
+    // mapping user to user data 
+    mapping (address => uint) private lastChanged;
 
     uint private _requestId;
     uint private _requestStake; 
 
-    function initialize(
-        IValidatorSet validatorSet_, RewardsBank rewardsBank_, Treasury treasury_, 
-        StAMB token_, uint interest_, uint interestRate_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_,
-         address bondAddress_, uint lockPeriod_
-    ) public initializer {
+    constructor(
+        IValidatorSet validatorSet_, RewardsBank rewardsBank_, Treasury treasury_, StakingTiers tiers_,
+        uint interest_, uint interestRate_, uint nodeStake_, uint minStakeValue_, uint maxNodesCount_,
+        address bondAddress_, uint lockPeriod_
+    ) {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
 
+        rewardToken = new RewardToken();
+
         rewardsBank = rewardsBank_;
         treasury = treasury_;
-        token = token_;
+        tiers = tiers_;
         minStakeValue = minStakeValue_;
         interest = interest_;
         interestRate = interestRate_;
@@ -52,6 +58,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         maxNodesCount = maxNodesCount_;
         lockPeriod = lockPeriod_;
         bondAddress = bondAddress_;
+        active = true;
         nodes = new address[](0);
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -82,14 +89,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         interestRate = interestRate_;
     }
 
-    function setTiers(address[] memory addresses_, uint[] memory tiers_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(addresses_.length == tiers_.length, "Addresses and tiers arrays have different length");
-
-        for (uint i = 0; i < addresses_.length; i++) {
-            tiers[addresses_[i]] = tiers_[i];
-        }
-    }
-
     // If we will have updateable pool, we don't need this methods
     // TODO: Why we need this stuff?? 
     function activate() public payable onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -114,12 +113,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
     }
 
     // BAKEND METHODS
-
-    function distributeRewards() public onlyRole(BACKEND_ROLE) {
-        require(active, "Pool is not active");
-        uint totalReward = totalStake * interest / MILLION;
-        token.accrueRewards(totalReward);
-    }
 
     function onboardNode(uint requestId, address node, uint nodeId) public onlyRole(BACKEND_ROLE) {
         require(node != address(0), "Node address can't be zero");
@@ -146,22 +139,25 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         require(active, "Pool is not active");
         require(msg.value >= minStakeValue, "Pool: stake value too low");
 
-        token.mint(msg.sender, msg.value);
+        _mint(msg.sender, msg.value);
         totalStake += msg.value;
         emit StakeChanged(msg.sender, int(msg.value)); 
         _requestNodeCreation();
     }
 
     function unstake(uint amount) public {
-        require(amount <= token.balanceOf(msg.sender), "Sender has not enough tokens");
+        require(amount <= balanceOf(msg.sender), "Sender has not enough tokens");
         require(amount <= totalStake, "Total stake is less than deposit");
-        _claim(msg.sender);
+        uint tier = tiers.getTier(msg.sender);
+        if (rewardToken.balanceOf(msg.sender) > 0) {
+            _claim(msg.sender, tier); 
+        }
 
-        if (token.obtainedAt(msg.sender) + lockPeriod > block.timestamp) {
+        if (obtainedAt(msg.sender) + lockPeriod > block.timestamp) {
             revert("Lock period is not expired");
         }
 
-        token.burn(msg.sender, amount);
+        _burn(msg.sender, amount);
         while (address(this).balance < amount) {
             _retireNode();
         }
@@ -170,12 +166,18 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         emit StakeChanged(msg.sender, - int(amount));    
     }
 
-    function claim() public {
-        _claim(msg.sender);
+    function claim(uint desiredCoeff) public {
+        _claim(msg.sender, desiredCoeff); 
     }
-
    
     // PRIVATE METHODS
+
+    function _onTransfer() internal override {
+        require(_balances[msg.sender] != 0, "Stake is zero");
+        uint userReward = _calculateUserReward(msg.sender);
+        rewardToken.mint(msg.sender, userReward);
+        lastChanged[msg.sender] = block.timestamp;
+    }
 
     function _requestNodeCreation() private {
         if (_requestStake == 0
@@ -194,30 +196,37 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IStakeManager,
         nodes.pop();
     }
 
-    function _claim(address account) private {
-        uint amount = token.rewardOf(account);
-        if (amount == 0) {
-            return;
-        } 
-        uint tier = tiers[account];
+    function _claim(address account, uint desiredCoeff) private {
+        uint amount = rewardToken.balanceOf(account);
+        require(amount > 0, "No rewards to claim");
+         
+        uint tier = tiers.getTier(account);
         if (tier == 0) {
-            tiers[account] = 750000;
+            tiers.setTier(account, 750000);
             tier = 750000;
         }
-        uint bondAmount = amount * tiers[account] / MILLION;
+        require(tier >= desiredCoeff, "User tier is too low");
+        uint bondAmount = amount * tier / MILLION;
         uint ambAmount = amount - bondAmount;
         rewardsBank.withdrawAmb(payable(account), ambAmount);
         rewardsBank.withdrawErc20(bondAddress, payable(account), bondAmount);
-        token.burnRewards(account, amount);
+        rewardToken.burn(account, amount);
         emit Claim(account, ambAmount, bondAmount);
     }
 
-    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
+    function _calculateUserReward(address account) private returns (uint) {
+        uint yield = _balances[account] * interest / MILLION;
+        uint yieldPerSecond = yield / interestRate;
+
+        uint timePassed = block.timestamp - lastChanged[account];
+        uint yieldForPeriod = yieldPerSecond * timePassed;
+        return yieldForPeriod;
+    }
 
    // VIEW METHODS
 
     function getStake() public view returns (uint) {
-        return token.balanceOf(msg.sender);
+        return _balances[msg.sender];
     }
 
     function getInterest() public view returns (uint) {

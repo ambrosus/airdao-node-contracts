@@ -2,10 +2,10 @@ import { ethers } from "hardhat";
 import { ContractNames } from "../../src";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import {
-  StAMB__factory,
   LiquidPool__factory,
   Multisig__factory,
   RewardsBank__factory,
+  StakingTiers__factory,
   ValidatorSet,
 } from "../../typechain-types";
 import { Roadmap2023MultisigSettings } from "../addresses";
@@ -34,10 +34,16 @@ export async function main() {
     signer: deployer,
   });
 
-  const stAMB = await deploy<StAMB__factory>({
-    contractName: ContractNames.StAMB,
-    artifactName: "StAMB",
-    deployArgs: ["Stacked Amber","stAMB"],
+  // OPTIONAL: Add the tiers data
+  //TODO: Get the tiers data 
+  const tiers: number[] = []; // list of percentages of the bond reward for each address
+  const addresses: string[] = []; // list of addresses 
+  // the tiers list length must be equal to the address list length
+
+  const stakingTiers = await deploy<StakingTiers__factory>({
+    contractName: ContractNames.StakingTiers,
+    artifactName: "StakingTiers",
+    deployArgs: [addresses, tiers],
     signer: deployer,
   });
 
@@ -56,7 +62,7 @@ export async function main() {
       validatorSet.address,
       rewardsBank.address,
       treasury.address,
-      stAMB.address,
+      stakingTiers.address,
       interest,
       interestRate,
       nodeStake,
@@ -68,18 +74,11 @@ export async function main() {
     signer: deployer,
   });
   
-  // OPTIONAL: Add the tiers data
-  //TODO: Get the tiers data 
-  const tiers: number[] = []; // list of percentages of the bond reward for each address
-  const addresses: string[] = []; // list of addresses 
-  // the tiers list length must be equal to the address list length
-
-
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
-  await (await stAMB.grantRole(await stAMB.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+  await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
 }
 
 

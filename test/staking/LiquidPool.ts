@@ -5,8 +5,10 @@ import {
   LiquidPool,
   RewardsBank__factory,
   Treasury__factory,
-  StAMB__factory,
   AirBond__factory,
+  LiquidPool__factory,
+  StakingTiers__factory,
+  StakingTiers,
   RewardsBank,
   StAMB,
   TEST_ValidatorSet
@@ -28,8 +30,8 @@ describe("LiquidPool", function () {
 
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
     const treasury = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
-    const stAMB = await new StAMB__factory(owner).deploy("Staked Amber","StAMB");
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
+    const stakingTiers = await new StakingTiers__factory(owner).deploy();
 
     const interest = 100000; // 10%
     const interestRate = 24 * 60 * 60; // 1 day
@@ -39,12 +41,11 @@ describe("LiquidPool", function () {
     const bondAddress = airBond.address;
     const lockPeriod = 24 * 30 * 60 * 60; // 30 days
 
-    const liquidPoolFactory = await ethers.getContractFactory("LiquidPool");
-    const liquidPool = (await upgrades.deployProxy(liquidPoolFactory, [
+    const liquidPool = await new LiquidPool__factory(owner).deploy(
       validatorSet.address,
       rewardsBank.address,
       treasury.address,
-      stAMB.address,
+      stakingTiers.address,
       interest,
       interestRate,
       nodeStake,
@@ -52,11 +53,10 @@ describe("LiquidPool", function () {
       maxNodeCount,
       bondAddress,
       lockPeriod
-    ])) as LiquidPool;
+    );
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
     await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
-    await (await stAMB.grantRole(await stAMB.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
 
     return { liquidPool, stAMB, rewardsBank, owner, addr1 };
 
@@ -72,34 +72,16 @@ describe("LiquidPool", function () {
       await expect(liquidPool.stake({ value: 50 })).to.changeEtherBalance(owner, -50);
       expect(await liquidPool.totalStake()).to.be.equal(50);
       expect(await liquidPool.getStake()).to.be.equal(50);
-      expect(await stAMB.balanceOf(owner.address)).to.be.equal(50);
+      expect(await liquidPool.balanceOf(owner.address)).to.be.equal(50);
 
       await expect(liquidPool.stake({ value: 25 })).to.changeEtherBalance(owner, -25);
       expect(await liquidPool.totalStake()).to.be.equal(75);
       expect(await liquidPool.getStake()).to.be.equal(75);
-      expect(await stAMB.balanceOf(owner.address)).to.be.equal(75);
+      expect(await liquidPool.balanceOf(owner.address)).to.be.equal(75);
     });
 
     it("should reject stakes below minStakeValue", async function () {
       await expect(liquidPool.stake({ value: 0 })).to.be.revertedWith("Pool: stake value too low");
-    });
-  });
-
-  describe("Rewards", function () {
-    beforeEach(async function () {
-      await liquidPool.grantRole(await liquidPool.BACKEND_ROLE(), owner.address);
-      await liquidPool.stake({ value: 5000 });
-      const tx = {
-        value: 5000000,
-        to: rewardsBank.address
-      };
-      await owner.sendTransaction(tx);
-    });
-
-    it("should distribute rewards", async function () {
-      await liquidPool.distributeRewards();
-      expect(await stAMB.rewardOf(owner.address)).to.be.equal(500);
-      expect(await stAMB.totalRewards()).to.be.equal(500);
     });
   });
 
@@ -113,7 +95,7 @@ describe("LiquidPool", function () {
       await liquidPool.unstake(25); 
       expect(await liquidPool.totalStake()).to.be.equal(25);
       expect(await liquidPool.getStake()).to.be.equal(25);
-      expect(await stAMB.balanceOf(owner.address)).to.be.equal(25);
+      expect(await liquidPool.balanceOf(owner.address)).to.be.equal(25);
     });
 
     it("should reject unstaking more then staked", async function () {

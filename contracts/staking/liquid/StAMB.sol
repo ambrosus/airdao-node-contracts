@@ -1,69 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-contract StAMB is IERC20, AccessControl {
-    mapping (address => uint256) private _balances;
+abstract contract  StAMB is IERC20, Ownable {
+    mapping (address => uint256) internal _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
-    mapping (address => uint256) private _rewards;
-    mapping (address => uint256) private _obtainedAt;
-    address[] private _holders;
+    mapping (address => uint256) internal _obtainedAt;
 
-    uint256 private _totalSupply;
-    uint256 private _totalRewards;
+    uint256 internal _totalSupply;
 
     string private _name;
     string private _symbol;
 
-    constructor(string memory name_, string memory symbol_) AccessControl() {
-        _name = name_;
-        _symbol = symbol_;
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    }
-
-    function accrueRewards(uint totalReward) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        for (uint i = 0; i < _holders.length; i++) {
-            address holder = _holders[i];
-            uint256 balance = _balances[holder];
-            if (balance == 0) {
-                _holders[i] = _holders[_holders.length - 1];
-                _holders.pop();
-                continue;
-            }
-            uint256 reward = balance * totalReward / _totalSupply;
-            _rewards[holder] = reward;
-            _totalRewards += reward;
-        }
-    }
-
-    function burnRewards(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        uint256 reward = _rewards[account];
-        require(reward >= amount, "StAMB: burn amount exceeds reward");
-        _rewards[account] = reward - amount;
-        _totalRewards -= amount;
-    }
-
-    function rewardOf(address account) public view returns (uint256) {
-        return _rewards[account];
+    constructor() Ownable() {
+        _name = "Staked Amber";
+        _symbol = "StAMB";
     }
 
     function obtainedAt(address account) public view returns (uint256) {
         return _obtainedAt[account];
     }
 
-    function mint(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function mint(address account, uint256 amount) public onlyOwner {
         _mint(account, amount);
     }
 
-    function burn(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE){
+    function burn(address account, uint256 amount) public onlyOwner {
         _burn(account, amount);
-    }
-
-    function totalRewards() public view returns (uint256) {
-        return _totalRewards;
     }
 
     function name() public view returns (string memory) {
@@ -122,6 +88,8 @@ contract StAMB is IERC20, AccessControl {
         return true;
     }
 
+    function _onTransfer() internal virtual {}
+
     function _transfer(address from, address to, uint256 amount) internal {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
@@ -151,7 +119,6 @@ contract StAMB is IERC20, AccessControl {
             // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
             _balances[account] += amount;
         }
-        _holders.push(account);
         if (_obtainedAt[account] == 0)
             _obtainedAt[account] = block.timestamp;
 
