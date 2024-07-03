@@ -8,9 +8,6 @@ interface ITokenPool {
     function setInterest(uint _interest) external;
     function setMinStakeValue(uint _minStakeValue) external;
 
-    //BACKEND METHODS
-    function increaseStake() external;
-
     //PUBLIC METHODS
     function stake(uint amount) external;
     function unstake(uint amount) external;

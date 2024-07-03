@@ -23,5 +23,4 @@ interface IPoolsManager {
     event InterestrateChanged(address pool, uint interestRate);
     event MinStakeValueChanged(address pool, uint minStakeValue);
 
-
 }

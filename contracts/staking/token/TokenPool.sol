@@ -9,13 +9,12 @@ import "./ITokenPool.sol";
 import "../../funds/RewardsBank.sol";
 
 contract TokenPool is AccessControl, ITokenPool {
-    bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
-
     uint constant public MILLION = 1_000_000;
     
     ERC20 public token;
     ShareToken public share;
     RewardsBank public bank;
+    uint public lastStakeIncrease;
     uint public interest;
     uint public interestRate; //Time in seconds to how often the stake is increased
     uint public minStakeValue;
@@ -29,6 +28,7 @@ contract TokenPool is AccessControl, ITokenPool {
         interest = _intereset; 
         interestRate = _interestRate;
         minStakeValue = _minStakeValue;
+        lastStakeIncrease = block.timestamp;
         active = true;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -89,14 +89,12 @@ contract TokenPool is AccessControl, ITokenPool {
         emit StakeChanged(msg.sender, tokenAmount);
     }
 
-    // BACKEND METHODS
-
-    function increaseStake() public onlyRole(BACKEND_ROLE) {
+    function onBlock() external {
         require(active, "Pool is not active");
-        uint amount = totalStake * interest / MILLION;
-        bank.withdrawErc20(address(token), address(this), amount);
-        totalStake += amount;
-        emit StakeChanged(address(this), amount);
+        if (block.timestamp > lastStakeIncrease + interestRate) {
+            _increaseStake();
+            lastStakeIncrease = block.timestamp;
+        }
     }
 
     // VIEW METHODS
@@ -144,5 +142,15 @@ contract TokenPool is AccessControl, ITokenPool {
 
         return shareAmount * decimals / sharePrice;
     }
+
+    function _increaseStake() internal {
+        require(active, "Pool is not active");
+        uint amount = totalStake * interest / MILLION;
+        bank.withdrawErc20(address(token), address(this), amount);
+        totalStake += amount;
+        emit StakeChanged(address(this), amount);
+    }
+
+
 
 }

@@ -24,8 +24,9 @@ describe("TokenPool", function () {
     const token = await new AirBond__factory(owner).deploy(owner.address);
 
     const interest = 100000; // 10%
+    const interestRate = 24 * 60 * 60; // 1 day
     const minStakeValue = 10;
-    const tokenPool = await new TokenPool__factory(owner).deploy(token.address, rewardsBank.address, interest, minStakeValue);
+    const tokenPool = await new TokenPool__factory(owner).deploy(token.address, rewardsBank.address, interest, interestRate, minStakeValue);
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), tokenPool.address)).wait();
     await (await token.grantRole(await token.MINTER_ROLE(), owner.address)).wait();
@@ -89,27 +90,6 @@ describe("TokenPool", function () {
       await tokenPool.stake(stake);
       const shares = await tokenPool.getShare(owner.address);
       await expect(tokenPool.unstake(shares.mul(2))).to.be.revertedWith("Not enough stake");
-    });
-  });
-
-  describe("Backend Methods", function () {
-    beforeEach(async function () {
-      await tokenPool.grantRole(await tokenPool.BACKEND_ROLE(), owner.address);
-      await tokenPool.setInterest(100000); // 10%
-      await token.transfer(rewardsBank.address, 10000000);
-      await token.approve(tokenPool.address, 100000000);
-      await tokenPool.stake(100000);
-    });
-
-    it("Should allow increasing stake", async function () {
-      await tokenPool.increaseStake();
-      const expectedStake = 110000;
-      expect(await tokenPool.totalStake()).to.equal(expectedStake);
-    });
-
-    it("Should not allow increasing stake if not active", async function () {
-      await tokenPool.deactivate();
-      await expect(tokenPool.connect(owner).increaseStake()).to.be.revertedWith("Pool is not active");
     });
   });
 });

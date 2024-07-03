@@ -60,12 +60,6 @@ contract PoolsManager is Ownable, IPoolsManager {
         pool.setInterestRate(interestRate_);
     }
 
-    function grantBackendRole(address pool_, address backend_) public onlyOwner() {
-        require(poolToToken[pool_] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pool_);
-        pool.grantRole(pool.BACKEND_ROLE(), backend_);
-    }
-
     // VIEW METHODS
 
     function getPool(address token_) public view returns (address) {
