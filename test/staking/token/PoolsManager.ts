@@ -37,23 +37,24 @@ describe("PoolsManager", function () {
   describe("Pool Management", function () {
     it("Should allow the owner to create a pool", async function () {
       const interest = 100000; // 10%
+      const interestRate = 24 * 60 * 60; // 24 hours
       const minStakeValue = 10;
 
-      const tx = await poolsManager.createPool(tokenAddr, interest, minStakeValue);
+      const tx = await poolsManager.createPool(tokenAddr, interest,interestRate, minStakeValue);
       const receipt = await tx.wait();
-      const poolAddress = receipt.events![2].args!.pool;
+      const poolAddress = receipt.events![3].args!.pool;
 
       expect(await poolsManager.getPool(tokenAddr)).to.equal(poolAddress);
     });
 
     it("Should activate and deactivate a pool", async function () {
       const interest = 100000; // 10%
+      const interestRate = 24 * 60 * 60; // 24 hours
       const minStakeValue = 10;
 
-      const tx = await poolsManager.createPool(tokenAddr, interest, minStakeValue);
+      const tx = await poolsManager.createPool(tokenAddr, interest, interestRate, minStakeValue);
       const receipt = await tx.wait();
-      console.log(receipt.events);
-      const poolAddress = receipt.events![2].args!.pool;
+      const poolAddress = receipt.events![3].args!.pool;
 
       await poolsManager.deactivatePool(poolAddress);
       expect(await poolsManager.getPoolInfo(poolAddress)).to.include(false); // Pool should be inactive
@@ -64,11 +65,12 @@ describe("PoolsManager", function () {
 
     it("Should allow the owner to set interest and min stake value", async function () {
       const interest = 100000; // 10%
+      const interestRate = 24 * 60 * 60; // 24 hours
       const minStakeValue = 10;
 
-      const tx = await poolsManager.createPool(tokenAddr, interest, minStakeValue);
+      const tx = await poolsManager.createPool(tokenAddr, interest, interestRate, minStakeValue);
       const receipt = await tx.wait();
-      const poolAddress = receipt.events![2].args![0];
+      const poolAddress = receipt.events![3].args![0];
 
       const newInterest = 300000; // 30%
       await poolsManager.setInterest(poolAddress, newInterest);
