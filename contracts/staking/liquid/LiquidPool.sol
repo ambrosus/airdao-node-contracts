@@ -6,7 +6,6 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "../../funds/RewardsBank.sol";
 import "./StAMB.sol";
-import "./RewardToken.sol";
 import "./StakingTiers.sol";
 import "./NodeManager.sol";
 
