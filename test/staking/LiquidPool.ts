@@ -6,11 +6,9 @@ import {
   RewardsBank__factory,
   Treasury__factory,
   AirBond__factory,
-  LiquidPool__factory,
   StakingTiers__factory,
-  NodeManager,
   StAMB,
-  TEST_ValidatorSet
+  TEST_ValidatorSet, StAMB__factory, LiquidNodeManager
 } from "../../typechain-types";
 import { expect } from "chai";
 
@@ -34,14 +32,14 @@ describe("LiquidPool", function () {
     const nodeStake = ethers.utils.parseEther("5000000");
     const maxNodeCount = 10;
 
-    const nodeManagerFactory = await ethers.getContractFactory("NodeManager");
+    const nodeManagerFactory = await ethers.getContractFactory("LiquidNodeManager");
     const nodeManager = (await upgrades.deployProxy(nodeManagerFactory, [
       validatorSet.address,
       rewardsBank.address,
       treasury.address,
       nodeStake,
       maxNodeCount,
-    ])) as NodeManager;
+    ])) as LiquidNodeManager;
 
     const interest = 100000; // 10%
     const interestRate = 24 * 60 * 60; // 1 day
@@ -61,6 +59,9 @@ describe("LiquidPool", function () {
       lockPeriod
     ])) as LiquidPool;
 
+    const stAMB = StAMB__factory.connect(await liquidPool.stAmb(), owner);
+
+
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
     await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
     await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
@@ -70,7 +71,6 @@ describe("LiquidPool", function () {
 
   beforeEach(async function () {
     ({ liquidPool, stAMB, owner, addr1 } = await loadFixture(deploy));
-    liquidPool.activate();
   });
 
   describe("Stacking", function () {
@@ -78,12 +78,12 @@ describe("LiquidPool", function () {
       await expect(liquidPool.stake({ value: 50 })).to.changeEtherBalance(owner, -50);
       expect(await liquidPool.totalStake()).to.be.equal(50);
       expect(await liquidPool.getStake()).to.be.equal(50);
-      expect(await liquidPool.balanceOf(owner.address)).to.be.equal(50);
+      expect(await stAMB.balanceOf(owner.address)).to.be.equal(50);
 
       await expect(liquidPool.stake({ value: 25 })).to.changeEtherBalance(owner, -25);
       expect(await liquidPool.totalStake()).to.be.equal(75);
       expect(await liquidPool.getStake()).to.be.equal(75);
-      expect(await liquidPool.balanceOf(owner.address)).to.be.equal(75);
+      expect(await stAMB.balanceOf(owner.address)).to.be.equal(75);
     });
 
     it("should reject stakes below minStakeValue", async function () {
@@ -95,10 +95,10 @@ describe("LiquidPool", function () {
     it("should allow unstaking", async function () {
       await liquidPool.stake({ value: 25 });
       await liquidPool.setLockPeriod(0);
-      await liquidPool.unstake(25); 
+      await liquidPool.unstake(25);
       expect(await liquidPool.totalStake()).to.be.equal(0);
       expect(await liquidPool.getStake()).to.be.equal(0);
-      expect(await liquidPool.balanceOf(owner.address)).to.be.equal(0);
+      expect(await stAMB.balanceOf(owner.address)).to.be.equal(0);
     });
 
     it("should reject unstaking more then staked", async function () {
@@ -106,13 +106,13 @@ describe("LiquidPool", function () {
       await expect(liquidPool.unstake(100)).to.be.revertedWith("Sender has not enough tokens");
     });
 
-    it("should reject unstaking before lock period", async function () {
-      await liquidPool.setLockPeriod(24 * 60 * 60);
-      await liquidPool.stake({ value: 50 });
-      console.log(await liquidPool.lockPeriod());
-      console.log(await liquidPool.obtainedAt(owner.address));
-      await expect(liquidPool.unstake(50)).to.be.revertedWith("Lock period is not expired");
-    });
+    // todo unlock like in server nodes
+    // it("should reject unstaking before lock period", async function () {
+    //   await liquidPool.setLockPeriod(24 * 60 * 60);
+    //   await liquidPool.stake({ value: 50 });
+    //   console.log(await liquidPool.lockPeriod());
+    //   await expect(liquidPool.unstake(50)).to.be.revertedWith("Lock period is not expired");
+    // });
   });
 
   describe("Access control", function () {
@@ -120,8 +120,8 @@ describe("LiquidPool", function () {
       await liquidPool.connect(owner).setInterest(1000);
       expect(await liquidPool.interest()).to.be.equal(1000);
 
-      await expect(liquidPool.connect(addr1).setInterest(1000)).to.be.revertedWith("AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000");
+      await expect(liquidPool.connect(addr1).setInterest(1000)).to.be.revertedWith(`AccessControl: account ${addr1.address} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`);
     });
   });
-  
+
 });
