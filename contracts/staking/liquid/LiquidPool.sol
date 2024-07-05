@@ -15,31 +15,42 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
     NodeManager public nodeManager;
     RewardsBank public rewardsBank;
     StakingTiers public tiers;
-    bool public active;
-    uint public totalStake; 
-    uint public minStakeValue;
-    uint public interest;
-    uint public interestRate; 
-    uint public lockPeriod;
     address public bondAddress;
+
+    bool public active;
+    uint public totalStake;
+    uint public minStakeValue;
+    uint public lockPeriod;
+
+    uint public interest;  // user will get interest % of his stake
+    uint public interestPeriod;  // period in seconds for interest calculation
+    // userReward = userShare * (interest/1e6) * (timePassed / interestPeriod)
+
+    mapping (address => uint) public rewards;
     mapping (address => uint) private _lastChanged;
-    mapping (address => uint) public rewards; 
+
+
+    event StakeChanged(address indexed account, int amount);
+    event Claim(address indexed account, uint ambAmount, uint bondAmount);
+
 
    function initialize(
        NodeManager nodeManager_, RewardsBank rewardsBank_, StakingTiers tiers_,
-       uint interest_, uint interestRate_,uint minStakeValue_,
-       address bondAddress_, uint lockPeriod_ 
+       uint interest_, uint interestPeriod_,uint minStakeValue_,
+       address bondAddress_, uint lockPeriod_
    ) public initializer {
        require(minStakeValue_ > 0, "Pool min stake value is zero");
        require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
 
        nodeManager = nodeManager_;
        rewardsBank = rewardsBank_;
-       tiers = tiers_;
-       interest = interest_;
-       interestRate = interestRate_;
-       minStakeValue = minStakeValue_;
        bondAddress = bondAddress_;
+       tiers = tiers_;
+
+       interest = interest_;
+       interestPeriod = interestPeriod_;
+
+       minStakeValue = minStakeValue_;
        lockPeriod = lockPeriod_;
        active = true;
 
@@ -49,17 +60,16 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
    }
 
 
-    event StakeChanged(address indexed account, int amount);
-    event Claim(address indexed account, uint ambAmount, uint bondAmount);
 
-    // OWNER METHODS
+    // ADMIN METHODS
+
     function setInterest(uint interest_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
         interest = interest_;
     }
 
     function setInterestRate(uint interestRate_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        interestRate = interestRate_;
+        interestPeriod = interestRate_;
     }
 
     function activate() public payable onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -74,7 +84,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
     function setLockPeriod(uint lockPeriod_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         lockPeriod = lockPeriod_;
     }
-    
+
     // PUBLIC METHODS
 
     function stake() public payable {
@@ -83,7 +93,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
 
         mint(msg.sender, msg.value);
         totalStake += msg.value;
-        emit StakeChanged(msg.sender, int(msg.value)); 
+        emit StakeChanged(msg.sender, int(msg.value));
         nodeManager.requestNodeCreation();
     }
 
@@ -94,7 +104,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
 
         uint tier = tiers.getTier(msg.sender);
         if (rewards[msg.sender] > 0) {
-            _claim(msg.sender, tier); 
+            _claim(msg.sender, tier);
         }
 
         burn(msg.sender, amount);
@@ -103,13 +113,33 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
         }
         totalStake -= amount;
         payable(msg.sender).transfer(amount);
-        emit StakeChanged(msg.sender, - int(amount));    
+        emit StakeChanged(msg.sender, - int(amount));
     }
 
     function claim(uint desiredCoeff) public {
-        _claim(msg.sender, desiredCoeff); 
+        _claim(msg.sender, desiredCoeff);
     }
-   
+
+   // VIEW METHODS
+
+    function getStake() public view returns (uint) {
+        return balanceOf(msg.sender);
+    }
+
+    function getInterest() public view returns (uint) {
+        return interest;
+    }
+
+    function getLockPeriod() public view returns (uint) {
+        return lockPeriod;
+    }
+
+    receive() external payable {
+        stake();
+    }
+
+
+
     // PRIVATE METHODS
 
     function _onTransfer() internal override {
@@ -119,11 +149,11 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
         _lastChanged[msg.sender] = block.timestamp;
     }
 
-    
+
     function _claim(address account, uint desiredCoeff) private {
         uint amount = rewards[account];
         require(amount > 0, "No rewards to claim");
-         
+
         uint tier = tiers.getTier(account);
         if (tier == 0) {
             tiers.setTier(account, 750000);
@@ -139,32 +169,11 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
     }
 
     function _calculateUserReward(address account) private returns (uint) {
-        uint yield = balanceOf(account) * interest / MILLION;
-        uint yieldPerSecond = yield / interestRate;
-
         uint timePassed = block.timestamp - _lastChanged[account];
-        uint yieldForPeriod = yieldPerSecond * timePassed;
-        return yieldForPeriod;
+        return balanceOf(account) * interest * timePassed / MILLION / interestPeriod;
     }
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
-   // VIEW METHODS
-
-    function getStake() public view returns (uint) {
-        return balanceOf(msg.sender);
-    }
-
-    function getInterest() public view returns (uint) {
-        return interest;
-    }
-
-    function getLockPeriod() public view returns (uint) {
-        return lockPeriod;
-    }
- 
-    receive() external payable {
-        stake();
-    }
 
 }
