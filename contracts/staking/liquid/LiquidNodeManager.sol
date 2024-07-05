@@ -7,21 +7,24 @@ import "../../consensus/IValidatorSet.sol";
 import "../../funds/RewardsBank.sol";
 import "../../finance/Treasury.sol";
 
-contract NodeManager is UUPSUpgradeable, AccessControlUpgradeable {
+contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 constant public VALIDATOR_SET_ROLE = keccak256("VALIDATOR_SET_ROLE");
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
 
     IValidatorSet public validatorSet;
     RewardsBank public rewardsBank;
+
+    Treasury public treasuryFee;
     Treasury public treasury;
+
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
     address[] public nodes;
 
     uint private _requestId;
-    uint private _requestStake; 
+    uint private _requestStake;
 
-    event AddNodeRequest(uint indexed requestId, uint indexed nodeId, uint stake); 
+    event AddNodeRequest(uint indexed requestId, uint indexed nodeId, uint stake);
     event NodeOnboarded(address indexed node, uint indexed nodeId, uint stake);
     event RequestFailed(uint indexed requestId, uint indexed nodeId, uint stake);
     event NodeRetired(uint indexed nodeId, uint stake);
@@ -54,12 +57,8 @@ contract NodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     // IStakeManager impl
 
     function reward(address nodeAddress, uint256 amount) public onlyRole(VALIDATOR_SET_ROLE) {
-        uint treasuryAmount = treasury.calcFee(amount);
-        rewardsBank.withdrawAmb(payable(address(treasury)), treasuryAmount);
-        amount -= treasuryAmount;
-
-        rewardsBank.withdrawAmb(payable(nodeAddress), amount);
-        validatorSet.emitReward(address(rewardsBank), nodeAddress, nodeAddress, address(rewardsBank), address(0), amount);
+        rewardsBank.withdrawAmb(payable(treasury), amount);
+        validatorSet.emitReward(address(rewardsBank), nodeAddress, address(this), address(treasury), address(0), amount);
     }
 
     function report(address nodeAddress) public {}
@@ -71,7 +70,7 @@ contract NodeManager is UUPSUpgradeable, AccessControlUpgradeable {
         require(_requestStake > 0, "No active request");
         require(validatorSet.getNodeStake(node) == 0, "Node already onboarded");
         require(requestId == _requestId, "Invalid request id");
-        
+
         if (nodeId == nodes.length && address(this).balance >= _requestStake) {
             nodes.push(node);
             // false - node must not always be in the top list
