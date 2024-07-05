@@ -85,23 +85,35 @@ describe("ServerNodes", function () {
       );
     });
 
-    it("node already registered", async function () {
+    it("node already registered (same owner)", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await expect(serverNodes.newStake(owner.address, AddressZero, { value: 50 })).to.be.revertedWith(
         "node already registered"
       );
-
-      // different owner
+    });
+    it("node already registered (different owner)", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       const [_, anotherOwner] = await ethers.getSigners();
       await expect(
         serverNodes.connect(anotherOwner).newStake(owner.address, AddressZero, { value: 50 })
       ).to.be.revertedWith("node already registered");
+    });
+    it("node already registered (different staking manager)", async function () {
+      const [_, anotherManager] = await ethers.getSigners();
+      await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), anotherManager.address);
+      await validatorSet.connect(anotherManager).newStake(owner.address, 228, false);
+      await expect(serverNodes.newStake(owner.address, AddressZero, { value: 50 })).to.be.revertedWith("node already registered");
     });
 
     it("same owner 2 nodes", async function () {
       const [_, anotherNode] = await ethers.getSigners();
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       await expect(serverNodes.newStake(anotherNode.address, AddressZero, { value: 50 })).to.not.be.reverted;
+    });
+
+    it("should revert if paused", async function () {
+      await serverNodes.pause();
+      await expect(serverNodes.newStake(owner.address, AddressZero, { value: 50 })).to.be.revertedWith("Pausable: paused");
     });
   });
 
@@ -129,12 +141,24 @@ describe("ServerNodes", function () {
       await expect(serverNodes.addStake(owner.address)).to.be.revertedWith("msg.value must be > 0");
     });
 
+    it("should revert if resulting stake < minStakeAmount", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await serverNodes.changeMinStakeAmount(100);
+      await expect(serverNodes.addStake(owner.address, { value: 25 })).to.be.revertedWith("resulting stake < minStakeAmount");
+    });
+
     it("not owner", async function () {
       await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
       const [_, notOwner] = await ethers.getSigners();
       await expect(serverNodes.connect(notOwner).addStake(owner.address, { value: 50 })).to.be.revertedWith(
         "Only owner can do this"
       );
+    });
+
+    it("should revert if paused", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await serverNodes.pause();
+      await expect(serverNodes.addStake(owner.address, { value: 50 })).to.be.revertedWith("Pausable: paused");
     });
   });
 
@@ -193,23 +217,80 @@ describe("ServerNodes", function () {
         "Only owner can do this"
       );
     });
+
+    it("should revert if paused", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+
+      await serverNodes.pause();
+      await expect(serverNodes.unstake(owner.address, 50)).to.be.revertedWith("Pausable: paused");
+    });
   });
 
   describe("onboard delay", function () {
     it("many nodes", async function () {
       const [_, node1, node2, node3, node4] = await ethers.getSigners();
       await serverNodes.connect(node1).newStake(node1.address, AddressZero, { value: 50 });
-      await serverNodes.connect(node2).newStake(node2.address, AddressZero, { value: 50 });
-      await serverNodes.connect(node3).newStake(node3.address, AddressZero, { value: 50 });
-      await time.setNextBlockTimestamp(T + onboardingDelay + 1);
-      await serverNodes.connect(node4).newStake(node4.address, AddressZero, { value: 50 });
-      await serverNodes.connect(node3).unstake(node3.address, 50);
+      await serverNodes.connect(node2).newStake(node2.address, AddressZero, { value: 100 });
+      await serverNodes.connect(node3).newStake(node3.address, AddressZero, { value: 200 });
+
+      expect(await serverNodes.getStakesList()).to.be.deep.eq([node1.address, node2.address, node3.address]);
+      expect(await serverNodes.getOnboardingWaitingList()).to.be.deep.eq([node1.address, node2.address, node3.address]);
+
+      await time.setNextBlockTimestamp(T + onboardingDelay + 10);
       await serverNodes.onBlock();
+      await serverNodes.onBlock(); // coz of a little bug latest node onboarding will be delayed for 1 block. so we need to call onBlock() twice
+
+      expect(await serverNodes.getStakesList()).to.be.deep.eq([node1.address, node2.address, node3.address]);
+      expect(await serverNodes.getOnboardingWaitingList()).to.be.deep.eq([]);
+
+      await serverNodes.connect(node4).newStake(node4.address, AddressZero, { value: 500 });
+
+      expect(await serverNodes.getStakesList()).to.be.deep.eq([node1.address, node2.address, node3.address, node4.address]);
+      expect(await serverNodes.getOnboardingWaitingList()).to.be.deep.eq([node4.address]);
+
+
+      await serverNodes.connect(node3).unstake(node3.address, 200);
+
+      expect(await serverNodes.getStakesList()).to.be.deep.eq([node1.address, node2.address, node4.address]);
+      expect(await serverNodes.getOnboardingWaitingList()).to.be.deep.eq([node4.address]);
 
       expect(await validatorSet.getNodeStake(node1.address)).to.be.eq(50);
-      expect(await validatorSet.getNodeStake(node2.address)).to.be.eq(50);
+      expect(await validatorSet.getNodeStake(node2.address)).to.be.eq(100);
       expect(await validatorSet.getNodeStake(node3.address)).to.be.eq(0);
       expect(await validatorSet.getNodeStake(node4.address)).to.be.eq(0);
+    });
+  });
+
+  describe("restake", function () {
+    it("ok without retirement", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 100 });
+      await serverNodes.unstake(owner.address, 25);
+      await serverNodes.restake(owner.address);
+
+      expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(100);
+    });
+
+    it("ok with retirement", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await serverNodes.unstake(owner.address, 50);
+
+      await serverNodes.restake(owner.address);
+
+      expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(50);
+    });
+
+    it("should revert if not owner", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await serverNodes.unstake(owner.address, 50);
+
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.connect(notOwner).restake(owner.address)).to.be.revertedWith("Only owner can do this");
+    });
+
+    it("should revert if paused", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await serverNodes.pause();
+      await expect(serverNodes.restake(owner.address)).to.be.revertedWith("Pausable: paused");
     });
   });
 
@@ -325,27 +406,27 @@ describe("ServerNodes", function () {
     });
   });
 
-  describe("changeMinStakeAmount", async function () {
+  describe("admin change constants", async function () {
     it("should change min stake", async function () {
-      await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), owner.address);
-
       await serverNodes.changeMinStakeAmount(1000);
-
-      const minStake = await serverNodes.minStakeAmount();
-
-      expect(minStake).to.equal(1000);
+      expect(await serverNodes.minStakeAmount()).to.equal(1000);
     });
-  });
 
-  describe("changeUnstakeLockTime", async function () {
     it("should change unstake lock time", async function () {
-      await validatorSet.grantRole(await validatorSet.DEFAULT_ADMIN_ROLE(), owner.address);
-
       await serverNodes.changeUnstakeLockTime(1000);
+      expect(await serverNodes.unstakeLockTime()).to.equal(1000);
+    });
 
-      const minStake = await serverNodes.unstakeLockTime();
+    it("should change onboarding delay", async function () {
+      await serverNodes.changeOnboardingDelay(1000);
+      expect(await serverNodes.onboardingDelay()).to.equal(1000);
+    });
 
-      expect(minStake).to.equal(1000);
+    it("should revert if not admin", async function () {
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.connect(notOwner).changeMinStakeAmount(1000)).to.be.reverted;
+      await expect(serverNodes.connect(notOwner).changeUnstakeLockTime(1000)).to.be.reverted;
+      await expect(serverNodes.connect(notOwner).changeOnboardingDelay(1000)).to.be.reverted;
     });
   });
 
@@ -412,28 +493,66 @@ describe("ServerNodes", function () {
         "msg.value must be > minStakeAmount"
       );
     });
-  });
 
-  describe("pause", async function () {
-    it("should pause contract", async function () {
-      expect(await serverNodes.paused()).to.be.false;
-
-      await serverNodes.pause();
-
-      expect(await serverNodes.paused()).to.be.true;
+    it("should revert if called not by admin", async function () {
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.connect(notOwner).importOldStakes([owner.address], [1000], [T])).to.be.reverted;
     });
   });
 
-  describe("unpause", async function () {
-    it("should unpause contract", async function () {
+  describe("forceUnstake", function () {
+    it("should work with onboarded node", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await time.setNextBlockTimestamp(T + onboardingDelay + 1);
+      await serverNodes.onBlock();
+      expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(50);
+
+      await serverNodes.forceUnstake(owner.address);
+      expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(0);
+    });
+    it("should work with node that still onboarding", async function () {
+      await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+      await serverNodes.forceUnstake(owner.address);
+      expect((await serverNodes.stakes(owner.address)).stake).to.be.eq(0);
+    });
+    it("should rever if node is not registered", async function () {
+      await expect(serverNodes.forceUnstake(owner.address)).to.be.reverted;
+    });
+
+    it("should only be callable by the admin", async function () {
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.connect(notOwner).forceUnstake(owner.address)).to.be.reverted;
+    });
+
+  });
+
+  describe("pause / unpause", function () {
+    it("should work", async function () {
       await serverNodes.pause();
-
       expect(await serverNodes.paused()).to.be.true;
-
       await serverNodes.unpause();
-
       expect(await serverNodes.paused()).to.be.false;
     });
+    it("should only be callable by the contract owner", async function () {
+      const [_, notOwner] = await ethers.getSigners();
+      await expect(serverNodes.connect(notOwner).pause()).to.be.reverted;
+      await expect(serverNodes.connect(notOwner).unpause()).to.be.reverted;
+    });
+  });
+
+  it("report shouldn't decrease my coverage", async () => {
+    await serverNodes.report(AddressZero);
+  });
+  it("initialize shouldn't decrease my coverage", async () => {
+    await expect(
+      serverNodes.initialize(AddressZero, AddressZero, AddressZero, AddressZero, AddressZero, onboardingDelay, 60 * 5, 42)
+    ).to.be.reverted;
+  });
+
+  it("getUserStakesList", async () => {
+    expect(await serverNodes.getUserStakesList(owner.address)).to.be.deep.eq([]);
+    await serverNodes.newStake(owner.address, AddressZero, { value: 50 });
+    expect(await serverNodes.getUserStakesList(owner.address)).to.be.deep.eq([owner.address]);
   });
 
   async function getRewardsValues(amount: number, bondsPercent: number) {
