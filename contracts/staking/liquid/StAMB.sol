@@ -1,57 +1,30 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./LiquidPool.sol";
 
 
-abstract contract  StAMB is ERC20Upgradeable, AccessControlUpgradeable {
-    mapping (address => uint256) internal _obtainedAt;
+contract StAMB is ERC20, AccessControl {
+    LiquidPool public liquidPool;
 
-    function __StAMB_init() public initializer {
-        __ERC20_init("Staked AMB", "StAMB");
-        __AccessControl_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    }
-
-    function obtainedAt(address account) public view returns (uint256) {
-        return _obtainedAt[account];
+    constructor(LiquidPool liquidPool_) ERC20("Staked AMB", "StAMB") {
+        liquidPool = liquidPool_;
+        _setupRole(DEFAULT_ADMIN_ROLE, address(liquidPool));
     }
 
     function mint(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (_obtainedAt[account] == 0)
-            _obtainedAt[account] = block.timestamp;
         _mint(account, amount);
     }
 
     function burn(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (balanceOf(account) == amount)
-            _obtainedAt[account] = 0;
         _burn(account, amount);
     }
 
-    function _onTransfer() internal virtual {}
-
-    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        _onTransfer();
-        if (balanceOf(msg.sender) == amount) {
-            _obtainedAt[msg.sender] = 0;
-        }
-        if (_obtainedAt[recipient] == 0) {
-            _obtainedAt[recipient] = block.timestamp;
-        }
-        return super.transfer(recipient, amount);
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        liquidPool.afterTokenTransfer(from, to, amount);
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
-        _onTransfer();
-        if (balanceOf(sender) == amount) {
-            _obtainedAt[msg.sender] = 0;
-        }
-        if (_obtainedAt[recipient] == 0) {
-            _obtainedAt[recipient] = block.timestamp;
-        }
-        return super.transferFrom(sender, recipient, amount);
-    }
 }
 

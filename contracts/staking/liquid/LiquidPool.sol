@@ -7,15 +7,16 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "../../funds/RewardsBank.sol";
 import "./StAMB.sol";
 import "./StakingTiers.sol";
-import "./NodeManager.sol";
+import "./LiquidNodeManager.sol";
 
-contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
+contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     uint constant private MILLION = 1000000;
 
-    NodeManager public nodeManager;
+    LiquidNodeManager public nodeManager;
     RewardsBank public rewardsBank;
     StakingTiers public tiers;
     address public bondAddress;
+    StAMB public stAmb;
 
     bool public active;
     uint public totalStake;
@@ -35,7 +36,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
 
 
    function initialize(
-       NodeManager nodeManager_, RewardsBank rewardsBank_, StakingTiers tiers_,
+       LiquidNodeManager nodeManager_, RewardsBank rewardsBank_, StakingTiers tiers_,
        uint interest_, uint interestPeriod_,uint minStakeValue_,
        address bondAddress_, uint lockPeriod_
    ) public initializer {
@@ -54,7 +55,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
        lockPeriod = lockPeriod_;
        active = true;
 
-       __StAMB_init();
+       stAmb = new StAMB(this);
+
        __AccessControl_init();
        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
    }
@@ -91,28 +93,30 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
         require(active, "Pool is not active");
         require(msg.value >= minStakeValue, "Pool: stake value too low");
 
-        mint(msg.sender, msg.value);
+        stAmb.mint(msg.sender, msg.value);
         totalStake += msg.value;
         emit StakeChanged(msg.sender, int(msg.value));
         nodeManager.requestNodeCreation();
     }
 
     function unstake(uint amount) public {
-        require(amount <= balanceOf(msg.sender), "Sender has not enough tokens");
+        require(amount <= stAmb.balanceOf(msg.sender), "Sender has not enough tokens");
         require(amount <= totalStake, "Total stake is less than deposit");
-        require(obtainedAt(msg.sender) + lockPeriod < block.timestamp, "Lock period is not expired");
 
         uint tier = tiers.getTier(msg.sender);
         if (rewards[msg.sender] > 0) {
             _claim(msg.sender, tier);
         }
 
-        burn(msg.sender, amount);
+        stAmb.burn(msg.sender, amount);
         while (address(this).balance < amount) {
             nodeManager.requestNodeRetirement();
         }
         totalStake -= amount;
+
+        // todo lock like in server nodes manager
         payable(msg.sender).transfer(amount);
+
         emit StakeChanged(msg.sender, - int(amount));
     }
 
@@ -120,10 +124,19 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
         _claim(msg.sender, desiredCoeff);
     }
 
-   // VIEW METHODS
+    // stAMB methods
+
+    function afterTokenTransfer(address from, address to, uint256 amount) external {
+        require(msg.sender == address(stAmb), "Only stAMB can call this method");
+        _onUserAPYChanged(from);
+        _onUserAPYChanged(to);
+    }
+
+
+    // VIEW METHODS
 
     function getStake() public view returns (uint) {
-        return balanceOf(msg.sender);
+        return stAmb.balanceOf(msg.sender);
     }
 
     function getInterest() public view returns (uint) {
@@ -134,19 +147,15 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
         return lockPeriod;
     }
 
-    receive() external payable {
-        stake();
-    }
-
 
 
     // PRIVATE METHODS
 
-    function _onTransfer() internal override {
-        require(balanceOf(msg.sender) != 0, "Stake is zero");
-        uint userReward = _calculateUserReward(msg.sender);
-        rewards[msg.sender] += userReward;
-        _lastChanged[msg.sender] = block.timestamp;
+
+    function _onUserAPYChanged(address account) private {
+        uint userReward = _calculateUserReward(account);
+        rewards[account] += userReward;
+        _lastChanged[account] = block.timestamp;
     }
 
 
@@ -170,7 +179,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, StAMB {
 
     function _calculateUserReward(address account) private returns (uint) {
         uint timePassed = block.timestamp - _lastChanged[account];
-        return balanceOf(account) * interest * timePassed / MILLION / interestPeriod;
+        return stAmb.balanceOf(account) * interest * timePassed / MILLION / interestPeriod;
     }
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
