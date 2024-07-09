@@ -51,11 +51,11 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
 
     // POOL METHODS
 
-    function requestNodeCreation() external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function requestNodeCreation() external onlyPool {
         _requestNodeCreation();
     }
 
-    function requestNodeRetirement() external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function requestNodeRetirement() external onlyPool {
         _retireNode();
     }
 
@@ -140,5 +140,11 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
 
     function getNodes() public view returns (address[] memory) {
         return nodes;
+    }
+
+
+    modifier onlyPool() {
+        require(msg.sender == address(liquidPool), "LiquidNodeManager: caller is not a pool");
+        _;
     }
 }
