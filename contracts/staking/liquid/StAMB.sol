@@ -22,8 +22,8 @@ contract StAMB is ERC20, AccessControl {
         _burn(account, amount);
     }
 
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        liquidPool.afterTokenTransfer(from, to, amount);
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        liquidPool.beforeTokenTransfer(from, to, amount);
     }
 
 }

@@ -19,17 +19,18 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     StAMB public stAmb;
 
     bool public active;
-    uint public totalStake;
     uint public minStakeValue;
     uint public lockPeriod;
 
     uint public interest;  // user will get interest % of his stake
     uint public interestPeriod;  // period in seconds for interest calculation
-    // userReward = userShare * (interest/1e6) * (timePassed / interestPeriod)
+    // reward = balance * (interest/1e6) * (timePassed / interestPeriod)
 
-    mapping (address => uint) public rewards;
-    mapping (address => uint) private _lastChanged;
+    uint internal totalRewards;
+    uint internal totalRewardsLastChanged;
 
+    mapping(address => uint) internal unclaimedUserRewards;
+    
 
     event StakeChanged(address indexed account, int amount);
     event Claim(address indexed account, uint ambAmount, uint bondAmount);
@@ -90,32 +91,30 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     // PUBLIC METHODS
 
     function stake() public payable {
-        require(active, "Pool is not active");
+        require(active, "Pool is not active");  // todo as modifier
         require(msg.value >= minStakeValue, "Pool: stake value too low");
 
+        _beforeUserStakeChanged(msg.sender);
         stAmb.mint(msg.sender, msg.value);
-        totalStake += msg.value;
+
         emit StakeChanged(msg.sender, int(msg.value));
         nodeManager.requestNodeCreation();
     }
 
-    function unstake(uint amount) public {
-        require(amount <= stAmb.balanceOf(msg.sender), "Sender has not enough tokens");
-        require(amount <= totalStake, "Total stake is less than deposit");
+    function unstake(uint amount, uint desiredCoeff) public {
+        require(amount <= getStake(msg.sender), "Sender has not enough tokens");
 
-        uint tier = tiers.getTier(msg.sender);
-        if (rewards[msg.sender] > 0) {
-            _claim(msg.sender, tier);
-        }
-
+        _beforeUserStakeChanged(msg.sender);
         stAmb.burn(msg.sender, amount);
+
         while (address(this).balance < amount) {
             nodeManager.requestNodeRetirement();
         }
-        totalStake -= amount;
-
         // todo lock like in server nodes manager
         payable(msg.sender).transfer(amount);
+
+
+        _claim(msg.sender, desiredCoeff);
 
         emit StakeChanged(msg.sender, - int(amount));
     }
@@ -124,63 +123,107 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
         _claim(msg.sender, desiredCoeff);
     }
 
-    // stAMB methods
+    // external methods
 
-    function afterTokenTransfer(address from, address to, uint256 amount) external {
+    // this method is called by stAMB contract before token transfer
+    // it's used to calculate user rewards before his stake changes
+    // it's also called on mint and burn
+    function beforeTokenTransfer(address from, address to, uint256 amount) external {
         require(msg.sender == address(stAmb), "Only stAMB can call this method");
-        _onUserAPYChanged(from);
-        _onUserAPYChanged(to);
+        if (from != address(0))
+            _beforeUserStakeChanged(from);
+        if (to != address(0))
+            _beforeUserStakeChanged(to);
+
+        // todo remember how long user have stake
+    }
+
+    function tryInterest(address from, address to, uint256 amount) external {
+        if (totalRewardsLastChanged + interestPeriod < block.timestamp)
+            _addInterestToDeposit();
     }
 
 
     // VIEW METHODS
 
-    function getStake() public view returns (uint) {
-        return stAmb.balanceOf(msg.sender);
+    function getTotalRewards() public view returns (uint) {
+        return address(this).balance;
     }
 
-    function getInterest() public view returns (uint) {
-        return interest;
+    function getTotalStAmb() public view returns (uint) {
+        return stAmb.totalSupply();
     }
 
-    function getLockPeriod() public view returns (uint) {
-        return lockPeriod;
+    // return price multiplied by MILLION
+    function getTokenPrice() public view returns (uint) {
+        return getTotalRewards() * MILLION / getTotalStAmb();
     }
+
+    function getStake(address user) public view returns (uint) {
+        return stAmb.balanceOf(user);
+    }
+
+    function getClaimAmount(address user) public view returns (uint) {
+        uint stAmbAmount = getStake(user);
+        uint rewardsFromShare = stAmbAmount * getTotalRewards() / getTotalStAmb();
+        return unclaimedUserRewards[user] + rewardsFromShare - stAmbAmount;
+    }
+
 
 
 
     // PRIVATE METHODS
 
 
-    function _onUserAPYChanged(address account) private {
-        uint userReward = _calculateUserReward(account);
-        rewards[account] += userReward;
-        _lastChanged[account] = block.timestamp;
+    function _addInterestToDeposit() internal {
+        uint timePassed = block.timestamp - totalRewardsLastChanged;
+        uint newRewards = getTotalRewards() * interest * timePassed / MILLION / getTotalStAmb();
+
+        totalRewards += newRewards;
+        totalRewardsLastChanged = block.timestamp;
     }
 
 
+    function _beforeUserStakeChanged(address user) private {
+        uint stAmbAmount = getStake(user);
+        uint rewardsFromShare = stAmbAmount * getTotalRewards() / getTotalStAmb();
+
+        unclaimedUserRewards[user] += rewardsFromShare - stAmbAmount;
+        totalRewards -= rewardsFromShare;
+        // todo do we need to decrease total stake here?
+    }
+
+
+
     function _claim(address account, uint desiredCoeff) private {
-        uint amount = rewards[account];
+        require(_isTierAllowed(account, desiredCoeff), "User tier is too low");
+
+        uint amount = getClaimAmount(account);
         require(amount > 0, "No rewards to claim");
 
+        uint bondAmount = amount * desiredCoeff / MILLION;
+        uint ambAmount = amount - bondAmount;
+
+        unclaimedUserRewards[account] = 0;
+
+        rewardsBank.withdrawAmb(payable(account), ambAmount);
+        rewardsBank.withdrawErc20(bondAddress, payable(account), bondAmount);
+
+        emit Claim(account, ambAmount, bondAmount);
+    }
+
+
+
+    function _isTierAllowed(address account, uint desiredCoeff) private returns (bool){
         uint tier = tiers.getTier(account);
         if (tier == 0) {
             tiers.setTier(account, 750000);
             tier = 750000;
         }
-        require(tier >= desiredCoeff, "User tier is too low");
-        uint bondAmount = amount * tier / MILLION;
-        uint ambAmount = amount - bondAmount;
-        rewardsBank.withdrawAmb(payable(account), ambAmount);
-        rewardsBank.withdrawErc20(bondAddress, payable(account), bondAmount);
-        rewards[account] -= amount;
-        emit Claim(account, ambAmount, bondAmount);
+
+        return tier >= desiredCoeff;
     }
 
-    function _calculateUserReward(address account) private returns (uint) {
-        uint timePassed = block.timestamp - _lastChanged[account];
-        return stAmb.balanceOf(account) * interest * timePassed / MILLION / interestPeriod;
-    }
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
