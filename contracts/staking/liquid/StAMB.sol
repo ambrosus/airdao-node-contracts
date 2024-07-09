@@ -7,18 +7,21 @@ import "./LiquidPool.sol";
 
 
 contract StAMB is ERC20, AccessControl {
-    LiquidPool public liquidPool;
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");  // can use mint / burn methods
 
-    constructor(LiquidPool liquidPool_) ERC20("Staked AMB", "StAMB") {
-        liquidPool = liquidPool_;
-        _setupRole(DEFAULT_ADMIN_ROLE, address(liquidPool));
+
+    LiquidPool public liquidPool;
+    mapping(address => uint) public obtainedAt;
+
+    constructor() ERC20("Staked AMB", "StAMB") {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function mint(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function mint(address account, uint256 amount) public onlyRole(MINTER_ROLE) {
         _mint(account, amount);
     }
 
-    function burn(address account, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function burn(address account, uint256 amount) public onlyRole(MINTER_ROLE) {
         _burn(account, amount);
     }
 
@@ -26,5 +29,18 @@ contract StAMB is ERC20, AccessControl {
         liquidPool.beforeTokenTransfer(from, to, amount);
     }
 
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        if (balanceOf(from) == 0)
+            obtainedAt[from] = 0;
+
+        if (obtainedAt[to] == 0 && balanceOf(to) > 0)
+            obtainedAt[to] = block.timestamp;
+    }
+
+    function setLiquidPool(LiquidPool liquidPool_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _revokeRole(MINTER_ROLE, address(liquidPool));
+        liquidPool = liquidPool_;
+        _setupRole(MINTER_ROLE, address(liquidPool_));
+    }
 }
 

@@ -6,7 +6,7 @@ import {
   AirBond__factory,
   LiquidNodeManager,
   LiquidPool,
-  RewardsBank__factory,
+  RewardsBank__factory, StakingTiers,
   StAMB,
   StAMB__factory,
   TEST_ValidatorSet,
@@ -17,6 +17,7 @@ import {expect} from "chai";
 describe("LiquidPool", function () {
   let liquidPool: LiquidPool;
   let stAMB: StAMB;
+  let stakingTiers: StakingTiers;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
 
@@ -30,8 +31,14 @@ describe("LiquidPool", function () {
     const treasury = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
 
+
+    const stAMB = await new StAMB__factory(owner).deploy();
+
+
     const stakingTiersFactory = await ethers.getContractFactory("StakingTiers");
-    const stakingTiers = await upgrades.deployProxy(stakingTiersFactory, [[], []]);
+    const stakingTiers = await upgrades.deployProxy(stakingTiersFactory, [
+      stAMB.address
+    ]);
 
     const nodeStake = ethers.utils.parseEther("5000000");
     const maxNodeCount = 10;
@@ -51,35 +58,36 @@ describe("LiquidPool", function () {
     const bondAddress = airBond.address;
     const lockPeriod = 24 * 30 * 60 * 60; // 30 days
 
+
     const liquidPoolFactory = await ethers.getContractFactory("LiquidPool");
     const liquidPool = (await upgrades.deployProxy(liquidPoolFactory, [
       nodeManager.address,
       rewardsBank.address,
       stakingTiers.address,
+      bondAddress,
+      stAMB.address,
       interest,
       interestRate,
       minStakeValue,
-      bondAddress,
       lockPeriod
     ])) as LiquidPool;
 
-    const stAMB = StAMB__factory.connect(await liquidPool.stAmb(), owner);
+    await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address);
+    await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address);
+    await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address);
+    await stAMB.setLiquidPool(liquidPool.address);
+
 
     await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
-    await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address);
-    await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address);
-    await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address);
-    await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), liquidPool.address);
-
     await setBalance(rewardsBank.address, ethers.utils.parseEther("1000"));
     await airBond.mint(rewardsBank.address, ethers.utils.parseEther("1000"));
 
 
-    return {liquidPool, stAMB, owner, addr1};
+    return {liquidPool, stAMB, stakingTiers, owner, addr1};
   }
 
   beforeEach(async function () {
-    ({liquidPool, stAMB, owner, addr1} = await loadFixture(deploy));
+    ({liquidPool, stAMB, stakingTiers, owner, addr1} = await loadFixture(deploy));
   });
 
   describe("Stacking", function () {
@@ -106,7 +114,8 @@ describe("LiquidPool", function () {
       expect(await stAMB.balanceOf(owner.address)).to.be.equal(25);
       await liquidPool.setLockPeriod(0);
 
-      await liquidPool.unstake(25, 75000);
+      await stakingTiers.setBonus(owner.address, 75);
+      await liquidPool.unstake(25, 75);
       expect(await liquidPool.getTotalStAmb()).to.be.equal(0);
       expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
       expect(await stAMB.balanceOf(owner.address)).to.be.equal(0);
@@ -114,7 +123,7 @@ describe("LiquidPool", function () {
 
     it("should reject unstaking more then staked", async function () {
       await liquidPool.stake({value: 50});
-      await expect(liquidPool.unstake(100, 75000)).to.be.revertedWith("Sender has not enough tokens");
+      await expect(liquidPool.unstake(100, 75)).to.be.revertedWith("Sender has not enough tokens");
     });
 
     // todo unlock like in server nodes
