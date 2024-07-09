@@ -6,16 +6,19 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "../../consensus/IValidatorSet.sol";
 import "../../funds/RewardsBank.sol";
 import "../../finance/Treasury.sol";
+import "./LiquidPool.sol";
 
 contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
-    bytes32 constant public VALIDATOR_SET_ROLE = keccak256("VALIDATOR_SET_ROLE");
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
+    bytes32 constant public POOL_ROLE = keccak256("POOL_ROLE");
 
     IValidatorSet public validatorSet;
     RewardsBank public rewardsBank;
 
     address public treasury;
     Treasury public treasuryFee;
+
+    LiquidPool public liquidPool;
 
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
@@ -46,25 +49,31 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    // OWNER METHODS
+    // POOL METHODS
 
-    function requestNodeCreation() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function requestNodeCreation() external onlyRole(DEFAULT_ADMIN_ROLE) {
         _requestNodeCreation();
     }
 
-    function requestNodeRetirement() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function requestNodeRetirement() external onlyRole(DEFAULT_ADMIN_ROLE) {
         _retireNode();
     }
 
     // IStakeManager impl
 
-    function reward(address nodeAddress, uint256 amount) public onlyRole(VALIDATOR_SET_ROLE) {
+    function reward(address nodeAddress, uint256 amount) public {
+        require(msg.sender == address(validatorSet), "Only validatorSet can call reward()");
+
         uint feeAmount = treasuryFee.calcFee(amount);
         rewardsBank.withdrawAmb(payable(address(treasuryFee)), feeAmount);
         amount -= feeAmount;
 
         rewardsBank.withdrawAmb(payable(treasury), amount);
         validatorSet.emitReward(address(rewardsBank), nodeAddress, address(this), address(treasury), address(0), amount);
+
+        if (address(liquidPool) != address(0)) {
+            liquidPool.tryInterest();
+        }
     }
 
     function report(address nodeAddress) public {}
@@ -72,6 +81,20 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     // BAKEND METHODS
 
     function onboardNode(uint requestId, address node, uint nodeId) public onlyRole(BACKEND_ROLE) {
+        _onboardNode(requestId, node, nodeId);
+    }
+
+    // ADMIN METHODS
+
+    function setLiquidPool(LiquidPool liquidPool_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        liquidPool = liquidPool_;
+    }
+
+    // INTERNAL METHODS
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
+
+    function _onboardNode(uint requestId, address node, uint nodeId) private {
         require(node != address(0), "Node address can't be zero");
         require(_requestStake > 0, "No active request");
         require(validatorSet.getNodeStake(node) == 0, "Node already onboarded");
@@ -79,8 +102,7 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
 
         if (nodeId == nodes.length && address(this).balance >= _requestStake) {
             nodes.push(node);
-            // false - node must not always be in the top list
-            validatorSet.newStake(node, _requestStake, false);
+            validatorSet.newStake(node, _requestStake, true);
             emit NodeOnboarded(node, nodeId, _requestStake);
         } else {
             emit RequestFailed(requestId, nodeId, _requestStake);
@@ -90,21 +112,17 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
         _requestNodeCreation();
     }
 
-    // INTERNAL METHODS
-
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE){}
-
     function _retireNode() private {
-        uint deposit = getNodeDeposit(nodes[nodes.length - 1]);
-        validatorSet.unstake(nodes[nodes.length - 1], deposit);
-        emit NodeRetired(nodes.length - 1, deposit);
+        address node = nodes[nodes.length - 1];
+        uint deposit = getNodeDeposit(node);
+        validatorSet.unstake(node, deposit);
         nodes.pop();
+        emit NodeRetired(nodes.length, deposit);
     }
 
     function _requestNodeCreation() private {
-        if (_requestStake == 0
-            && address(this).balance >= nodeStake
-            && nodes.length < maxNodesCount) {
+        // TODO: contract balance is never changing
+        if (_requestStake == 0 && address(this).balance >= nodeStake && nodes.length < maxNodesCount) {
             _requestId++;
             _requestStake = nodeStake;
             emit AddNodeRequest(_requestId, nodes.length, _requestStake);

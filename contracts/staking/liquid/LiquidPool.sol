@@ -133,11 +133,9 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
             _beforeUserStakeChanged(from);
         if (to != address(0))
             _beforeUserStakeChanged(to);
-
-        // todo remember how long user have stake
     }
 
-    function tryInterest(address from, address to, uint256 amount) external {
+    function tryInterest() external {
         if (totalRewardsLastChanged + interestPeriod < block.timestamp)
             _addInterestToDeposit();
     }
