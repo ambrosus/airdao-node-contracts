@@ -156,7 +156,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     // return price multiplied by MILLION
     function getTokenPrice() public view returns (uint) {
-        return getTotalRewards() * MILLION / getTotalStAmb();
+        return getTotalRewards() * MILLION / _getTotalStAmb();
     }
 
     function getStake(address user) public view returns (uint) {
@@ -165,7 +165,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     function getClaimAmount(address user) public view returns (uint) {
         uint stAmbAmount = getStake(user);
-        uint rewardsFromShare = stAmbAmount * getTotalRewards() / getTotalStAmb();
+        uint rewardsFromShare = stAmbAmount * getTotalRewards() / _getTotalStAmb();
         return unclaimedUserRewards[user] + rewardsFromShare - stAmbAmount;
     }
 
@@ -174,10 +174,14 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     // PRIVATE METHODS
 
+    function _getTotalStAmb() internal view returns (uint) {
+        return stAmb.totalSupply() + 1;  // +1 to avoid division by zero
+    }
+
 
     function _addInterestToDeposit() internal {
         uint timePassed = block.timestamp - totalRewardsLastChanged;
-        uint newRewards = getTotalRewards() * interest * timePassed / MILLION / getTotalStAmb();
+        uint newRewards = getTotalRewards() * interest * timePassed / MILLION / _getTotalStAmb();
 
         totalRewards += newRewards;
         totalRewardsLastChanged = block.timestamp;
@@ -186,7 +190,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     function _beforeUserStakeChanged(address user) private {
         uint stAmbAmount = getStake(user);
-        uint rewardsFromShare = stAmbAmount * getTotalRewards() / getTotalStAmb();
+        uint rewardsFromShare = stAmbAmount * getTotalRewards() / _getTotalStAmb();
 
         unclaimedUserRewards[user] += rewardsFromShare - stAmbAmount;
         totalRewards -= rewardsFromShare;
