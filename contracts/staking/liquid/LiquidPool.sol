@@ -95,6 +95,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
         require(msg.value >= minStakeValue, "Pool: stake value too low");
 
         _beforeUserStakeChanged(msg.sender);
+        totalRewards += msg.value;
         stAmb.mint(msg.sender, msg.value);
 
         emit StakeChanged(msg.sender, int(msg.value));
@@ -164,9 +165,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     }
 
     function getClaimAmount(address user) public view returns (uint) {
-        uint stAmbAmount = getStake(user);
-        uint rewardsFromShare = stAmbAmount * getTotalRewards() / _getTotalStAmb();
-        return unclaimedUserRewards[user] + rewardsFromShare - stAmbAmount;
+        (, uint rewards) = _getUserRewards(user);
+        return rewards;
     }
 
 
@@ -175,7 +175,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     // PRIVATE METHODS
 
     function _getTotalStAmb() internal view returns (uint) {
-        return stAmb.totalSupply() + 1;  // +1 to avoid division by zero
+        if (stAmb.totalSupply() == 0) return 1;
+        return stAmb.totalSupply();
     }
 
 
@@ -189,33 +190,41 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
 
     function _beforeUserStakeChanged(address user) private {
-        uint stAmbAmount = getStake(user);
-        uint rewardsFromShare = stAmbAmount * getTotalRewards() / _getTotalStAmb();
+        (uint newRewards, ) = _getUserRewards(user);
 
-        unclaimedUserRewards[user] += rewardsFromShare - stAmbAmount;
-        totalRewards -= rewardsFromShare;
-        // todo do we need to decrease total stake here?
+        unclaimedUserRewards[user] += newRewards;
+        totalRewards -= newRewards;
     }
 
 
 
-    function _claim(address account, uint desiredCoeff) private {
-        require(_isTierAllowed(account, desiredCoeff), "User tier is too low");
+    function _claim(address user, uint desiredCoeff) private {
+        require(_isTierAllowed(user, desiredCoeff), "User tier is too low");
 
-        uint amount = getClaimAmount(account);
-        require(amount > 0, "No rewards to claim");
+        (, uint amount) = _getUserRewards(user);
+//        require(amount > 0, "No rewards to claim");
+        if (amount == 0) return;
+
+        totalRewards -= amount;
+        unclaimedUserRewards[user] = 0;
 
         uint bondAmount = amount * desiredCoeff / MILLION;
         uint ambAmount = amount - bondAmount;
 
-        unclaimedUserRewards[account] = 0;
+        rewardsBank.withdrawAmb(payable(user), ambAmount);
+        rewardsBank.withdrawErc20(bondAddress, payable(user), bondAmount);
 
-        rewardsBank.withdrawAmb(payable(account), ambAmount);
-        rewardsBank.withdrawErc20(bondAddress, payable(account), bondAmount);
-
-        emit Claim(account, ambAmount, bondAmount);
+        emit Claim(user, ambAmount, bondAmount);
     }
 
+
+    function _getUserRewards(address user) internal view returns (uint rewardsNew, uint rewardsTotal) {
+        uint stAmbAmount = getStake(user);
+        if (stAmbAmount < 1) return (0, 0);
+
+        rewardsNew = (stAmbAmount * getTotalRewards() / _getTotalStAmb()) - stAmbAmount;
+        rewardsTotal = unclaimedUserRewards[user] + rewardsNew;
+    }
 
 
     function _isTierAllowed(address account, uint desiredCoeff) private returns (bool){

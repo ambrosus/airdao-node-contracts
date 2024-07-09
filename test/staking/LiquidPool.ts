@@ -85,13 +85,13 @@ describe("LiquidPool", function () {
   describe("Stacking", function () {
     it("should allow stacking", async function () {
       await expect(liquidPool.stake({value: 50})).to.changeEtherBalance(owner, -50);
-      expect(await liquidPool.totalStake()).to.be.equal(50);
-      expect(await liquidPool.getStake()).to.be.equal(50);
+      expect(await liquidPool.getTotalStAmb()).to.be.equal(50);
+      expect(await liquidPool.getStake(owner.address)).to.be.equal(50);
       expect(await stAMB.balanceOf(owner.address)).to.be.equal(50);
 
       await expect(liquidPool.stake({value: 25})).to.changeEtherBalance(owner, -25);
-      expect(await liquidPool.totalStake()).to.be.equal(75);
-      expect(await liquidPool.getStake()).to.be.equal(75);
+      expect(await liquidPool.getTotalStAmb()).to.be.equal(75);
+      expect(await liquidPool.getStake(owner.address)).to.be.equal(75);
       expect(await stAMB.balanceOf(owner.address)).to.be.equal(75);
     });
 
@@ -106,15 +106,15 @@ describe("LiquidPool", function () {
       expect(await stAMB.balanceOf(owner.address)).to.be.equal(25);
       await liquidPool.setLockPeriod(0);
 
-      await liquidPool.unstake(25);
-      expect(await liquidPool.totalStake()).to.be.equal(0);
-      expect(await liquidPool.getStake()).to.be.equal(0);
+      await liquidPool.unstake(25, 75000);
+      expect(await liquidPool.getTotalStAmb()).to.be.equal(0);
+      expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
       expect(await stAMB.balanceOf(owner.address)).to.be.equal(0);
     });
 
     it("should reject unstaking more then staked", async function () {
       await liquidPool.stake({value: 50});
-      await expect(liquidPool.unstake(100)).to.be.revertedWith("Sender has not enough tokens");
+      await expect(liquidPool.unstake(100, 75000)).to.be.revertedWith("Sender has not enough tokens");
     });
 
     // todo unlock like in server nodes
