@@ -27,7 +27,8 @@ describe("LiquidPool", function () {
     const validatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = (await upgrades.deployProxy(validatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
-    const rewardsBank = await new RewardsBank__factory(owner).deploy();
+    const rewardsBankNode = await new RewardsBank__factory(owner).deploy();
+    const rewardsBankPool = await new RewardsBank__factory(owner).deploy();
     const treasury = await new Treasury__factory(owner).deploy(owner.address, 0);
     const treasuryFee = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
@@ -47,7 +48,7 @@ describe("LiquidPool", function () {
     const nodeManagerFactory = await ethers.getContractFactory("LiquidNodeManager");
     const nodeManager = (await upgrades.deployProxy(nodeManagerFactory, [
       validatorSet.address,
-      rewardsBank.address,
+      rewardsBankNode.address,
       treasury.address,
       treasuryFee.address,
       nodeStake,
@@ -64,7 +65,7 @@ describe("LiquidPool", function () {
     const liquidPoolFactory = await ethers.getContractFactory("LiquidPool");
     const liquidPool = (await upgrades.deployProxy(liquidPoolFactory, [
       nodeManager.address,
-      rewardsBank.address,
+      rewardsBankPool.address,
       stakingTiers.address,
       bondAddress,
       stAMB.address,
@@ -74,16 +75,20 @@ describe("LiquidPool", function () {
       lockPeriod
     ])) as LiquidPool;
 
-    await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address);
-    await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address);
-    await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address);
+
     await stAMB.setLiquidPool(liquidPool.address);
+    await nodeManager.setLiquidPool(liquidPool.address);
+
+    await rewardsBankNode.grantRole(await rewardsBankNode.DEFAULT_ADMIN_ROLE(), nodeManager.address);
+    await rewardsBankPool.grantRole(await rewardsBankPool.DEFAULT_ADMIN_ROLE(), liquidPool.address);
+    await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address);
 
 
     await airBond.grantRole(await airBond.MINTER_ROLE(), owner.address);
-    await setBalance(rewardsBank.address, ethers.utils.parseEther("1000"));
-    await airBond.mint(rewardsBank.address, ethers.utils.parseEther("1000"));
-
+    await setBalance(rewardsBankNode.address, ethers.utils.parseEther("1000"));
+    await airBond.mint(rewardsBankNode.address, ethers.utils.parseEther("1000"));
+    await setBalance(rewardsBankPool.address, ethers.utils.parseEther("1000"));
+    await airBond.mint(rewardsBankPool.address, ethers.utils.parseEther("1000"));
 
     return {liquidPool, stAMB, stakingTiers, owner, addr1};
   }

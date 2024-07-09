@@ -129,22 +129,21 @@ export async function main() {
   await (await stAmb.setLiquidPool(liquidPool.address)).wait();
   await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
+  await (await nodeManager.setLiquidPool(liquidPool.address)).wait();
+  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
   await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+  await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), nodeManager.address)).wait();
 
   await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
-
-  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
 
   await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
 
   // on prod - multisig only
-  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
+  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
 
 
 
