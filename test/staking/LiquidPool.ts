@@ -28,7 +28,8 @@ describe("LiquidPool", function () {
     const validatorSet = (await upgrades.deployProxy(validatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
 
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
-    const treasury = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
+    const treasury = await new Treasury__factory(owner).deploy(owner.address, 0);
+    const treasuryFee = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
 
 
@@ -38,7 +39,7 @@ describe("LiquidPool", function () {
     const stakingTiersFactory = await ethers.getContractFactory("StakingTiers");
     const stakingTiers = await upgrades.deployProxy(stakingTiersFactory, [
       stAMB.address
-    ]);
+    ]) as StakingTiers;
 
     const nodeStake = ethers.utils.parseEther("5000000");
     const maxNodeCount = 10;
@@ -48,6 +49,7 @@ describe("LiquidPool", function () {
       validatorSet.address,
       rewardsBank.address,
       treasury.address,
+      treasuryFee.address,
       nodeStake,
       maxNodeCount,
     ])) as LiquidNodeManager;

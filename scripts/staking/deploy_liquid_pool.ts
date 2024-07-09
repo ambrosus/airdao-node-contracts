@@ -1,24 +1,26 @@
-import { ethers } from "hardhat";
-import { ContractNames } from "../../src";
-import { deploy, loadDeployment } from "@airdao/deployments/deploying";
+import {ethers} from "hardhat";
+import {ContractNames} from "../../src";
+import {deploy, loadDeployment} from "@airdao/deployments/deploying";
 import {
+  LiquidNodeManager__factory,
   LiquidPool__factory,
   Multisig__factory,
   RewardsBank__factory,
   StakingTiers__factory,
-  NodeManager__factory,
+  StAMB__factory,
+  Treasury__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import { Roadmap2023MultisigSettings } from "../addresses";
+import {Roadmap2023MultisigSettings} from "../addresses";
 
 export async function main() {
-  const { chainId } = await ethers.provider.getNetwork();
+  const {chainId} = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
-  const treasury = loadDeployment(ContractNames.Treasury, chainId);
+
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.LiquidPoolMultisig,
@@ -28,35 +30,77 @@ export async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-  const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName: ContractNames.LiquidPoolRewardsBank,
+
+  // block rewards will be withdrawn from this contract
+  const nodesRewardsBank = await deploy<RewardsBank__factory>({
+    contractName: ContractNames.LiquidNodesManagerRewardsBank,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
   });
 
-  // OPTIONAL: Add the tiers data
-  //TODO: Get the tiers data 
-  const tiers: number[] = []; // list of percentages of the bond reward for each address
-  const addresses: string[] = []; // list of addresses 
-  // the tiers list length must be equal to the address list length
+  // block rewards will be transferred to this contract (except fees)
+  const nodesRewardsTreasury = await deploy<Treasury__factory>({
+    contractName: ContractNames.LiquidNodesManagerTreasury,
+    artifactName: "Treasury",
+    signer: deployer,
+    deployArgs: [deployer.address, 0],
+  });
+
+  // fees from block rewards will be transferred to this contract
+  const nodesRewardsTreasuryFees = await deploy<Treasury__factory>({
+    contractName: ContractNames.LiquidNodesManagerTreasuryFees,
+    artifactName: "Treasury",
+    signer: deployer,
+    deployArgs: [
+      deployer.address,
+      0.10 * 10000, // 10% fee
+    ],
+  });
+
+
+  // staking rewards and interest will be withdrawn from this contract
+  const poolRewardsBank = await deploy<RewardsBank__factory>({
+    contractName: ContractNames.LiquidPoolRewardsBank,
+    artifactName: "RewardsBank",
+    signer: deployer,
+    deployArgs: [],
+  });
+
+
+  const stAmb = await deploy<StAMB__factory>({
+    contractName: ContractNames.LiquidPoolStAMB,
+    artifactName: "StAMB",
+    signer: deployer,
+    deployArgs: [],
+  });
+
 
   const stakingTiers = await deploy<StakingTiers__factory>({
-    contractName: ContractNames.StakingTiers,
+    contractName: ContractNames.LiquidPoolStakingTiers,
     artifactName: "StakingTiers",
-    deployArgs: [addresses, tiers],
+    deployArgs: [stAmb.address],
     signer: deployer,
   });
+
 
   const nodeStake = 5000000;
   const maxNodesCount = 10;
 
-  const nodeManager = await deploy<NodeManager__factory>({
-    contractName: ContractNames.NodeManager,
+  const nodeManager = await deploy<LiquidNodeManager__factory>({
+    contractName: ContractNames.LiquidNodesManager,
     artifactName: "NodeManager",
-    deployArgs: [validatorSet.address, rewardsBank.address, treasury.address, nodeStake, maxNodesCount],
+    deployArgs: [
+      validatorSet.address,
+      nodesRewardsBank.address,
+      nodesRewardsTreasury.address,
+      nodesRewardsTreasuryFees.address,
+      nodeStake,
+      maxNodesCount
+    ],
     signer: deployer,
   });
+
 
   const interest = 100000;
   const interestRate = 24 * 60 * 60; // 24 hours
@@ -69,24 +113,48 @@ export async function main() {
     artifactName: "Pool",
     deployArgs: [
       nodeManager.address,
-      rewardsBank.address,
+      poolRewardsBank.address,
       stakingTiers.address,
+      bondAddress,
+      stAmb.address,
       interest,
       interestRate,
-      nodeStake,
-      bondAddress,
+      minStakeValue,
       lockPeriod,
     ],
     signer: deployer,
   });
-  
-  await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
-  await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
-  await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
-  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+
+
+  await (await stAmb.setLiquidPool(liquidPool.address)).wait();
+  await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+
+
+  await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+
+  await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+
   await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+
+  await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+
+
+  // on prod - multisig only
+  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), liquidPool.address)).wait();
+
+
+
+  await (await nodesRewardsBank.revokeRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await poolRewardsBank.revokeRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await nodeManager.revokeRole(await nodeManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await liquidPool.revokeRole(await liquidPool.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await stakingTiers.revokeRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+
+
 }
 
 

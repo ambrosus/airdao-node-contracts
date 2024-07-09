@@ -14,8 +14,8 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     IValidatorSet public validatorSet;
     RewardsBank public rewardsBank;
 
+    address public treasury;
     Treasury public treasuryFee;
-    Treasury public treasury;
 
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
@@ -31,12 +31,14 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     event Reward(address indexed addr, uint amount);
 
     function initialize(
-        IValidatorSet validatorset_, RewardsBank rewardsBank_, Treasury treasury_,
+        IValidatorSet validatorset_, RewardsBank rewardsBank_,
+        address treasury_, Treasury treasuryFee_,
         uint nodeStake_, uint maxNodesCount_
     ) public initializer {
         validatorSet = validatorset_;
         rewardsBank = rewardsBank_;
         treasury = treasury_;
+        treasuryFee = treasuryFee_;
         nodeStake = nodeStake_;
         maxNodesCount = maxNodesCount_;
         nodes = new address[](maxNodesCount_);
@@ -57,6 +59,10 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     // IStakeManager impl
 
     function reward(address nodeAddress, uint256 amount) public onlyRole(VALIDATOR_SET_ROLE) {
+        uint feeAmount = treasuryFee.calcFee(amount);
+        rewardsBank.withdrawAmb(payable(address(treasuryFee)), feeAmount);
+        amount -= feeAmount;
+
         rewardsBank.withdrawAmb(payable(treasury), amount);
         validatorSet.emitReward(address(rewardsBank), nodeAddress, address(this), address(treasury), address(0), amount);
     }

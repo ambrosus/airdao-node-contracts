@@ -42,10 +42,14 @@ export enum ContractNames {
   TreasuryMultisig = "Treasury_Multisig",
 
   LiquidPool = "LiquidPool",
+  LiquidPoolStAMB = "LiquidPool_StAMB",
   LiquidPoolMultisig = "LiquidPool_Multisig",
   LiquidPoolRewardsBank = "LiquidPool_RewardsBank",
-  StakingTiers = "StakingTiers",
-  NodeManager = "NodeManager",
+  LiquidNodesManager = "LiquidNodesManager",
+  LiquidNodesManagerRewardsBank = "LiquidNodesManager_RewardsBank",
+  LiquidNodesManagerTreasury = "LiquidNodesManager_Treasury",
+  LiquidNodesManagerTreasuryFees = "LiquidNodesManager_TreasuryFees",
+  LiquidPoolStakingTiers = "LiquidPool_StakingTiers",
 
   // funds
 
@@ -85,7 +89,16 @@ export const MULTISIGS = {
   [ContractNames.Treasury]: ContractNames.TreasuryMultisig,
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
+
   [ContractNames.LiquidPool]: ContractNames.LiquidPoolMultisig,
+  [ContractNames.LiquidNodesManager]: ContractNames.LiquidPoolMultisig,
+  [ContractNames.LiquidPoolRewardsBank]: ContractNames.LiquidPoolMultisig,
+  [ContractNames.LiquidNodesManagerRewardsBank]: ContractNames.LiquidPoolMultisig,
+  [ContractNames.LiquidNodesManagerTreasury]: ContractNames.LiquidPoolMultisig,
+  [ContractNames.LiquidNodesManagerTreasuryFees]: ContractNames.LiquidPoolMultisig,
+  [ContractNames.LiquidPoolStAMB]: ContractNames.LiquidPoolMultisig,
+  [ContractNames.LiquidPoolStakingTiers]: ContractNames.LiquidPoolMultisig,
+
 
   [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
 };
