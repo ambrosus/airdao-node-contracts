@@ -81,6 +81,7 @@ export async function main() {
     artifactName: "StakingTiers",
     deployArgs: [stAmb.address],
     signer: deployer,
+    isUpgradeableProxy: true,
   });
 
 
@@ -99,6 +100,7 @@ export async function main() {
       maxNodesCount
     ],
     signer: deployer,
+    isUpgradeableProxy: true,
   });
 
 
@@ -123,6 +125,7 @@ export async function main() {
       lockPeriod,
     ],
     signer: deployer,
+    isUpgradeableProxy: true,
   });
 
 
