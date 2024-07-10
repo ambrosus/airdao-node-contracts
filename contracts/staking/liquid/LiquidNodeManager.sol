@@ -7,7 +7,7 @@ import "../../consensus/IValidatorSet.sol";
 import "../../funds/RewardsBank.sol";
 import "../../finance/Treasury.sol";
 import "./LiquidPool.sol";
-import "./utils/TransferViaCall.sol";
+import "../../utils/TransferViaCall.sol";
 
 contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
@@ -64,7 +64,7 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
         while (getFreeBalance() < amount) {
             _retireNode();
         }
-        transferViaCall(msg.sender, amount);
+        transferViaCall(payable(msg.sender), amount);
     }
 
     // IStakeManager impl
