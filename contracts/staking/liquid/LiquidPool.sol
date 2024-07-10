@@ -9,6 +9,7 @@ import "./StAMB.sol";
 import "./StakingTiers.sol";
 import "./LiquidNodesManager.sol";
 
+
 contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     uint constant private MILLION = 1000000;
 
@@ -18,7 +19,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     address public bondAddress;
     StAMB public stAmb;
 
-    bool public active;
     uint public minStakeValue;
     uint public lockPeriod;
 
@@ -56,7 +56,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
         minStakeValue = minStakeValue_;
         lockPeriod = lockPeriod_;
 
-        active = true;
+        totalRewardsLastChanged = block.timestamp;
 
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -64,22 +64,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     // ADMIN METHODS
 
-    function setInterest(uint interest_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setInterest(uint interest_, uint interestPeriod_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
         interest = interest_;
-    }
-
-    function setInterestRate(uint interestRate_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        interestPeriod = interestRate_;
-    }
-
-    function activate() public payable onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(!active, "Pool is already active");
-        active = true;
-    }
-
-    function deactivate(uint maxNodes) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(active, "Pool is not active");
+        interestPeriod = interestPeriod_;
     }
 
     function setLockPeriod(uint lockPeriod_) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -89,7 +77,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     // PUBLIC METHODS
 
     function stake() public payable {
-        require(active, "Pool is not active");  // todo as modifier
         require(msg.value >= minStakeValue, "Pool: stake value too low");
 
         _beforeUserStakeChanged(msg.sender);
@@ -104,23 +91,18 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     function unstake(uint amount, uint desiredCoeff) public {
         require(amount <= getStake(msg.sender), "Sender has not enough tokens");
-
-        _beforeUserStakeChanged(msg.sender);
         stAmb.burn(msg.sender, amount);
-
         nodeManager.unstake(amount);
-
+        
         // todo lock like in server nodes manager
         payable(msg.sender).transfer(amount);
-
-
-        _claim(msg.sender, desiredCoeff);
-
+        
+        _claimRewards(msg.sender, desiredCoeff);
         emit StakeChanged(msg.sender, - int(amount));
     }
 
-    function claim(uint desiredCoeff) public {
-        _claim(msg.sender, desiredCoeff);
+    function claimRewards(uint desiredCoeff) public {
+        _claimRewards(msg.sender, desiredCoeff);
     }
 
     // external methods
@@ -151,11 +133,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
         return stAmb.totalSupply();
     }
 
-    // return price multiplied by MILLION
-    function getTokenPrice() public view returns (uint) {
-        return getTotalRewards() * MILLION / _getTotalStAmb();
-    }
-
     function getStake(address user) public view returns (uint) {
         return stAmb.balanceOf(user);
     }
@@ -175,10 +152,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     function _addInterestToDeposit() internal {
         uint timePassed = block.timestamp - totalRewardsLastChanged;
-        uint newRewards = getTotalRewards() * interest * timePassed / MILLION / _getTotalStAmb();
+        uint newRewards = getTotalRewards() * interest * timePassed / MILLION / interestPeriod;
 
         totalRewards += newRewards;
         totalRewardsLastChanged = block.timestamp;
+
+        //  todo       emit Interest(newRewards);
     }
 
 
@@ -190,18 +169,18 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     }
 
 
-    function _claim(address user, uint desiredCoeff) private {
+    function _claimRewards(address user, uint desiredCoeff) private {
+        require(desiredCoeff <= 100, "Invalid desired coeff");
         require(tiers.isTierAllowed(user, desiredCoeff), "User tier is too low");
 
         (, uint amount) = _getUserRewards(user);
-//        require(amount > 0, "No rewards to claim");
         if (amount == 0) return;
 
         totalRewards -= amount;
         unclaimedUserRewards[user] = 0;
 
-        uint bondAmount = amount * desiredCoeff / MILLION;
-        uint ambAmount = amount - bondAmount;
+        uint ambAmount = amount * desiredCoeff / 100;
+        uint bondAmount = amount - ambAmount;
 
         rewardsBank.withdrawAmb(payable(user), ambAmount);
         rewardsBank.withdrawErc20(bondAddress, payable(user), bondAmount);
@@ -212,9 +191,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     function _getUserRewards(address user) internal view returns (uint rewardsNew, uint rewardsTotal) {
         uint stAmbAmount = getStake(user);
-        if (stAmbAmount < 1) return (0, 0);
-
-        rewardsNew = (stAmbAmount * getTotalRewards() / _getTotalStAmb()) - stAmbAmount;
+        if (stAmbAmount > 0)
+            rewardsNew = (stAmbAmount * getTotalRewards() / _getTotalStAmb()) - stAmbAmount;
         rewardsTotal = unclaimedUserRewards[user] + rewardsNew;
     }
 
