@@ -7,6 +7,7 @@ import "../../consensus/IValidatorSet.sol";
 import "../../funds/RewardsBank.sol";
 import "../../finance/Treasury.sol";
 import "./LiquidPool.sol";
+import "./utils/TransferViaCall.sol";
 
 contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
@@ -23,9 +24,11 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
     address[] public nodes;
+    uint private _totalNodesStake;
 
     uint private _requestId;
     uint private _requestStake;
+
 
     event AddNodeRequest(uint indexed requestId, uint indexed nodeId, uint stake);
     event NodeOnboarded(address indexed node, uint indexed nodeId, uint stake);
@@ -51,12 +54,17 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
 
     // POOL METHODS
 
-    function requestNodeCreation() external onlyPool {
+    function stake() external payable onlyPool {
+        // try to onboard new node
         _requestNodeCreation();
     }
 
-    function requestNodeRetirement() external onlyPool {
-        _retireNode();
+    function unstake(uint amount) external onlyPool {
+        // retire node if not enough free balance
+        while (getFreeBalance() < amount) {
+            _retireNode();
+        }
+        transferViaCall(msg.sender, amount);
     }
 
     // IStakeManager impl
@@ -100,8 +108,9 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
         require(validatorSet.getNodeStake(node) == 0, "Node already onboarded");
         require(requestId == _requestId, "Invalid request id");
 
-        if (nodeId == nodes.length && address(this).balance >= _requestStake) {
+        if (nodeId == nodes.length && getFreeBalance() >= _requestStake) {
             nodes.push(node);
+            _totalNodesStake += _requestStake;
             validatorSet.newStake(node, _requestStake, true);
             emit NodeOnboarded(node, nodeId, _requestStake);
         } else {
@@ -112,17 +121,18 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
         _requestNodeCreation();
     }
 
-    function _retireNode() private {
+    function _retireNode() private returns (uint){
         address node = nodes[nodes.length - 1];
         uint deposit = getNodeDeposit(node);
+        _totalNodesStake -= deposit;
         validatorSet.unstake(node, deposit);
         nodes.pop();
         emit NodeRetired(nodes.length, deposit);
+        return deposit;
     }
 
     function _requestNodeCreation() private {
-        // TODO: contract balance is never changing
-        if (_requestStake == 0 && address(this).balance >= nodeStake && nodes.length < maxNodesCount) {
+        if (_requestStake == 0 && getFreeBalance() >= nodeStake && nodes.length < maxNodesCount) {
             _requestId++;
             _requestStake = nodeStake;
             emit AddNodeRequest(_requestId, nodes.length, _requestStake);
@@ -142,6 +152,10 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
         return nodes;
     }
 
+    // balance that not used for nodes stakes
+    function getFreeBalance() public view returns (uint) {
+        return address(this).balance - _totalNodesStake;
+    }
 
     modifier onlyPool() {
         require(msg.sender == address(liquidPool), "LiquidNodeManager: caller is not a pool");

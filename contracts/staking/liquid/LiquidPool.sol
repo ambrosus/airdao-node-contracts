@@ -94,10 +94,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
         _beforeUserStakeChanged(msg.sender);
         totalRewards += msg.value;
+
         stAmb.mint(msg.sender, msg.value);
+        nodeManager.stake{value: msg.value}();
+
 
         emit StakeChanged(msg.sender, int(msg.value));
-        nodeManager.requestNodeCreation();
     }
 
     function unstake(uint amount, uint desiredCoeff) public {
@@ -106,9 +108,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
         _beforeUserStakeChanged(msg.sender);
         stAmb.burn(msg.sender, amount);
 
-        while (address(this).balance < amount) {
-            nodeManager.requestNodeRetirement();
-        }
+        nodeManager.unstake(amount);
+
         // todo lock like in server nodes manager
         payable(msg.sender).transfer(amount);
 
