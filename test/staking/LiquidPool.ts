@@ -4,7 +4,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 
 import {
   AirBond__factory,
-  LiquidNodeManager,
+  LiquidNodesManager,
   LiquidPool,
   RewardsBank__factory, StakingTiers,
   StAMB,
@@ -45,7 +45,7 @@ describe("LiquidPool", function () {
     const nodeStake = ethers.utils.parseEther("5000000");
     const maxNodeCount = 10;
 
-    const nodeManagerFactory = await ethers.getContractFactory("LiquidNodeManager");
+    const nodeManagerFactory = await ethers.getContractFactory("LiquidNodesManager");
     const nodeManager = (await upgrades.deployProxy(nodeManagerFactory, [
       validatorSet.address,
       rewardsBankNode.address,
@@ -53,7 +53,7 @@ describe("LiquidPool", function () {
       treasuryFee.address,
       nodeStake,
       maxNodeCount,
-    ])) as LiquidNodeManager;
+    ])) as LiquidNodesManager;
 
     const interest = 100000; // 10%
     const interestRate = 24 * 60 * 60; // 1 day

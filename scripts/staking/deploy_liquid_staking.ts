@@ -2,7 +2,7 @@ import {ethers} from "hardhat";
 import {ContractNames} from "../../src";
 import {deploy, loadDeployment} from "@airdao/deployments/deploying";
 import {
-  LiquidNodeManager__factory,
+  LiquidNodesManager__factory,
   LiquidPool__factory,
   Multisig__factory,
   RewardsBank__factory,
@@ -88,7 +88,7 @@ export async function main() {
   const nodeStake = 5000000;
   const maxNodesCount = 10;
 
-  const nodeManager = await deploy<LiquidNodeManager__factory>({
+  const nodeManager = await deploy<LiquidNodesManager__factory>({
     contractName: ContractNames.LiquidNodesManager,
     artifactName: "NodeManager",
     deployArgs: [

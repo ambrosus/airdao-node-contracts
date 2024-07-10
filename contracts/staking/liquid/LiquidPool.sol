@@ -7,12 +7,12 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "../../funds/RewardsBank.sol";
 import "./StAMB.sol";
 import "./StakingTiers.sol";
-import "./LiquidNodeManager.sol";
+import "./LiquidNodesManager.sol";
 
 contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     uint constant private MILLION = 1000000;
 
-    LiquidNodeManager public nodeManager;
+    LiquidNodesManager public nodeManager;
     RewardsBank public rewardsBank;
     StakingTiers public tiers;
     address public bondAddress;
@@ -37,7 +37,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
 
     function initialize(
-        LiquidNodeManager nodeManager_, RewardsBank rewardsBank_, StakingTiers tiers_,
+        LiquidNodesManager nodeManager_, RewardsBank rewardsBank_, StakingTiers tiers_,
         address bondAddress_, StAMB stAmb_,
         uint interest_, uint interestPeriod_, uint minStakeValue_, uint lockPeriod_
     ) public initializer {

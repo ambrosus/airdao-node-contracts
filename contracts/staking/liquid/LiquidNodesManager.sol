@@ -9,7 +9,7 @@ import "../../finance/Treasury.sol";
 import "./LiquidPool.sol";
 import "../../utils/TransferViaCall.sol";
 
-contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
+contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
     bytes32 constant public POOL_ROLE = keccak256("POOL_ROLE");
 
@@ -158,7 +158,7 @@ contract LiquidNodeManager is UUPSUpgradeable, AccessControlUpgradeable {
     }
 
     modifier onlyPool() {
-        require(msg.sender == address(liquidPool), "LiquidNodeManager: caller is not a pool");
+        require(msg.sender == address(liquidPool), "LiquidNodesManager: caller is not a pool");
         _;
     }
 }
