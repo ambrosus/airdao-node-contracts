@@ -2,25 +2,28 @@
 pragma solidity ^0.8.0;
 
 interface IPoolsManager {
+
     //OWNER METHODS
-    function createPool(address token_, uint interest_, uint interestRate_, uint minStakeValue) external returns (address);
-    function deactivatePool(address pool_) external;
-    function activatePool(address pool_) external;
-    function setInterest(address pool_, uint interest_) external;
-    function setMinStakeValue(address pool_, uint minStakeValue_) external;
-    function setInterestRate(address pool_, uint interestRate_) external;
+    function createPool(
+        string memory name, address _token, uint _interest,
+        uint _interestRate, uint _minStakeValue, address _rewardToken, uint _rewardTokenPrice
+    ) external returns (address);
+    function deactivatePool(string memory _pool) external;
+    function activatePool(string memory _pool) external;
+    function setInterest(string memory _pool, uint _interest) external;
+    function setMinStakeValue(string memory _pool, uint _minStakeValue) external;
+    function setInterestRate(string memory _pool, uint _interestRate) external;
 
     //VIEW METHODS
-    function getPool(address token_) external view returns (address);
-    function getPoolInfo(address pool_) external view returns (address token, uint interest, uint minStakeValue, uint totalStake, uint totalShare, bool active);
+    function getPoolAddress(string memory _pool) external view returns (address);
 
     //EVENTS
 
-    event PoolCreated(address pool, address token, uint interest, uint interestRate, uint minStakeValue);
-    event PoolDeactivated(address pool);
-    event PoolActivated(address pool);
-    event InterestChanged(address pool, uint interest);
-    event InterestrateChanged(address pool, uint interestRate);
-    event MinStakeValueChanged(address pool, uint minStakeValue);
+    event PoolCreated(string indexed name, address indexed token);
+    event PoolDeactivated(string indexed name);
+    event PoolActivated(string indexed name);
+    event InterestChanged(string indexed name, uint interest);
+    event InterestRateChanged(string indexed name, uint interestRate);
+    event MinStakeValueChanged(string indexed name, uint minStakeValue);
 
 }

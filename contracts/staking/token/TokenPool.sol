@@ -1,35 +1,49 @@
 //SPDX-License-Identifier: UNCLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-import "./ShareToken.sol";
 import "./ITokenPool.sol";
 import "../../funds/RewardsBank.sol";
 
-contract TokenPool is AccessControl, ITokenPool {
+contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
     uint constant public MILLION = 1_000_000;
     
     ERC20 public token;
-    ShareToken public share;
     RewardsBank public bank;
-    uint public lastStakeIncrease;
-    uint public interest;
-    uint public interestRate; //Time in seconds to how often the stake is increased
+
+    string public name;
     uint public minStakeValue;
     uint public totalStake;
+    uint public totalShare;
     bool public active;
+    address public rewardToken;
+    uint public rewardTokenPrice; // The coefficient to calculate the reward token amount
 
-    constructor(address _token, RewardsBank _rewardsBank, uint _intereset,uint _interestRate, uint _minStakeValue ) {
-        token = ERC20(_token);
-        share = new ShareToken();
-        bank = _rewardsBank;
-        interest = _intereset; 
-        interestRate = _interestRate;
-        minStakeValue = _minStakeValue;
-        lastStakeIncrease = block.timestamp;
+    uint public interest;
+    uint public interestRate; //Time in seconds to how often the stake is increased
+    uint public lastStakeIncrease;
+
+    mapping(address => uint) public stakes;
+    mapping(address => uint) public shares;
+ 
+    function initialize(
+        string memory name_, address token_, RewardsBank rewardsBank_, uint intereset_, 
+        uint interestRate_, uint minStakeValue_, address rewardToken_, uint rewardTokenPrice_
+    ) public  initializer {
+        token = ERC20(token_);
+        bank = rewardsBank_;
+
+        name = name_;
+        minStakeValue = minStakeValue_;
         active = true;
+        rewardToken = rewardToken_;
+        rewardTokenPrice = rewardTokenPrice_;
+
+        interest = intereset_; 
+        interestRate = interestRate_;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
@@ -71,21 +85,25 @@ contract TokenPool is AccessControl, ITokenPool {
 
         uint shareAmount = _calculateShare(amount);
 
-        share.mint(msg.sender, shareAmount);
+        shares[msg.sender] += shareAmount;
         totalStake += amount;
         emit StakeChanged(msg.sender, amount);
     }
 
     function unstake(uint amount) public {
-        require(active, "Pool is not active");
-        require(share.balanceOf(msg.sender) >= amount, "Not enough stake");
+        require(shares[msg.sender] >= amount, "Not enough stake");
 
         uint tokenAmount = _calculateToken(amount);
-        require(tokenAmount <= totalStake, "Amount is more than total stake");
+        uint rewardAmount = tokenAmount - stakes[msg.sender];
 
-        share.burn(msg.sender, amount);
+        shares[msg.sender] -= amount;
         totalStake -= tokenAmount;
-        require(token.transfer(msg.sender, tokenAmount), "Transfer failed");
+
+        uint rewardToPay = rewardAmount * rewardTokenPrice;
+
+        bank.withdrawErc20(rewardToken, msg.sender, rewardToPay);
+
+        require(token.transfer(msg.sender, stakes[msg.sender]), "Transfer failed");
         emit StakeChanged(msg.sender, tokenAmount);
     }
 
@@ -100,19 +118,18 @@ contract TokenPool is AccessControl, ITokenPool {
     // VIEW METHODS
 
     function getStake(address user) public view returns (uint) {
-        return _calculateToken(share.balanceOf(user));
+        return _calculateToken(shares[user]);
     }
 
     function getShare(address user) public view returns (uint) {
-        return share.balanceOf(user);
+        return shares[user];
     }
 
     function getSharePrice() public view returns (uint) {
-        uint _totalShare = share.totalSupply();
-        if (_totalShare == 0) return 1 ether;
+        if (totalShare == 0) return 1 ether;
         uint decimals = token.decimals();
 
-        return _totalShare * decimals / totalStake;
+        return totalShare * decimals / totalStake;
     }
 
     function getInterest() public view returns (uint) {
@@ -121,10 +138,6 @@ contract TokenPool is AccessControl, ITokenPool {
 
     function getInterestRate() public view returns (uint) {
         return interestRate;
-    }
-
-    function totalShare() public view returns (uint) {
-        return share.totalSupply();
     }
 
     // INTERNAL METHODS
@@ -144,13 +157,13 @@ contract TokenPool is AccessControl, ITokenPool {
     }
 
     function _increaseStake() internal {
-        require(active, "Pool is not active");
+        // Function call onBlock() must not be reverted
+        if (!active) return;
         uint amount = totalStake * interest / MILLION;
         bank.withdrawErc20(address(token), address(this), amount);
         totalStake += amount;
         emit StakeChanged(address(this), amount);
     }
 
-
-
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 }

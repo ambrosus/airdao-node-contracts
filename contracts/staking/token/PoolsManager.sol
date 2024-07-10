@@ -1,73 +1,83 @@
-// SPDX-License-Identifier: UNLICENSED
+//_ SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "./TokenPool.sol";
 import "./IPoolsManager.sol";
 import "../../funds/RewardsBank.sol";
 
-contract PoolsManager is Ownable, IPoolsManager {
+contract PoolsManager is UUPSUpgradeable, AccessControlUpgradeable, IPoolsManager {
 
     RewardsBank public bank;
+    UpgradeableBeacon public beacon;
 
-    mapping(address => address) public tokenToPool; //maps the address of the token to the address of the pool
-    mapping(address => address) public poolToToken; //maps the address of the pool to the address of the token
+    mapping(string => address) public pools;
 
-    constructor(RewardsBank bank_) Ownable() {
+    function initialize(RewardsBank bank_, UpgradeableBeacon beacon_) public initializer {
         bank = bank_;
+        beacon = beacon_;
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     // OWNER METHODS
 
-    function createPool(address token_, uint interest_, uint interestRate_, uint minStakeValue) public onlyOwner() returns (address) {
-        TokenPool pool = new TokenPool(token_, bank, interest_, interestRate_, minStakeValue);
-        tokenToPool[token_] = address(pool);
-        poolToToken[address(pool)] = token_;
+    function createPool(
+        string memory name, address token_, uint interest_, uint interestRate_,
+        uint minStakeValue_, address rewardToken_, uint rewardTokenPrice_
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+        bytes memory data = abi.encodeWithSignature(
+            "initialize(string,address,address,uint,uint,uint,address,uint",
+                        token_, interest_, interestRate_, minStakeValue_, rewardToken_, rewardTokenPrice_);
+        address pool = address(new BeaconProxy(address(beacon), data));
+        pools[name] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
-        emit PoolCreated(address(pool), token_, interest_, interestRate_, minStakeValue);
+        emit PoolCreated(name, token_);
         return address(pool);
     }
 
-    function deactivatePool(address pool_) public onlyOwner() {
-        require(poolToToken[pool_] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pool_);
+    function deactivatePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
         pool.deactivate();
-        emit PoolDeactivated(pool_);
+        emit PoolDeactivated(_pool);
     }
 
-    function activatePool(address pool_) public onlyOwner() {
-        require(poolToToken[pool_] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pool_);
+    function activatePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
         pool.activate();
-        emit PoolActivated(pool_);
+        emit PoolActivated(_pool);
     }
 
-    function setInterest(address pool_, uint interest_) public onlyOwner() {
-        require(poolToToken[pool_] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pool_);
+    function setInterest(string memory pool_, uint interest_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[pool_] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[pool_]);
         pool.setInterest(interest_);
     }
 
-    function setMinStakeValue(address pool_, uint minStakeValue_) public onlyOwner() {
-        require(poolToToken[pool_] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pool_);
-        pool.setMinStakeValue(minStakeValue_);
+    function setMinStakeValue(string memory _pool, uint _minStakeValue) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
+        pool.setMinStakeValue(_minStakeValue);
     }
 
-    function setInterestRate(address pool_, uint interestRate_) public onlyOwner() {
-        require(poolToToken[pool_] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pool_);
+    function setInterestRate(string memory _pool, uint interestRate_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
         pool.setInterestRate(interestRate_);
     }
 
+    // INTERNAL METHODS
+
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
+
     // VIEW METHODS
 
-    function getPool(address token_) public view returns (address) {
-        return tokenToPool[token_];
+    function getPoolAddress(string memory name) public view returns (address) {
+        return pools[name];
     }
 
-    function getPoolInfo(address pool_) public view returns (address token, uint interest, uint minStakeValue, uint totalStake, uint totalShare,bool active) {
-        TokenPool pool = TokenPool(pool_);
-        return (address(pool.token()), pool.interest(), pool.minStakeValue(), pool.totalStake(), pool.totalShare(), pool.active());
-    }
 }
