@@ -144,7 +144,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
     // VIEW METHODS
 
     function getTotalRewards() public view returns (uint) {
-        return address(this).balance;
+        return totalRewards;
     }
 
     function getTotalStAmb() public view returns (uint) {
@@ -221,5 +221,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
+    receive() external payable {
+        require(msg.sender == address(nodeManager), "Not allowed");
+    }
 
 }

@@ -121,14 +121,15 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         _requestNodeCreation();
     }
 
-    function _retireNode() private returns (uint){
+    function _retireNode() private {
+        require(nodes.length > 0, "No nodes onboarded");
+
         address node = nodes[nodes.length - 1];
         uint deposit = getNodeDeposit(node);
         _totalNodesStake -= deposit;
         validatorSet.unstake(node, deposit);
         nodes.pop();
         emit NodeRetired(nodes.length, deposit);
-        return deposit;
     }
 
     function _requestNodeCreation() private {
