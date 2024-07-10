@@ -20,7 +20,7 @@ export async function main() {
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
-
+  const airBond = loadDeployment(ContractNames.AirBond, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.LiquidPoolMultisig,
@@ -37,6 +37,7 @@ export async function main() {
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
+    loadIfAlreadyDeployed: true,
   });
 
   // block rewards will be transferred to this contract (except fees)
@@ -45,6 +46,7 @@ export async function main() {
     artifactName: "Treasury",
     signer: deployer,
     deployArgs: [deployer.address, 0],
+    loadIfAlreadyDeployed: true,
   });
 
   // fees from block rewards will be transferred to this contract
@@ -56,6 +58,7 @@ export async function main() {
       deployer.address,
       0.10 * 10000, // 10% fee
     ],
+    loadIfAlreadyDeployed: true,
   });
 
 
@@ -65,6 +68,7 @@ export async function main() {
     artifactName: "RewardsBank",
     signer: deployer,
     deployArgs: [],
+    loadIfAlreadyDeployed: true,
   });
 
 
@@ -73,6 +77,7 @@ export async function main() {
     artifactName: "StAMB",
     signer: deployer,
     deployArgs: [],
+    loadIfAlreadyDeployed: true,
   });
 
 
@@ -82,6 +87,7 @@ export async function main() {
     deployArgs: [stAmb.address],
     signer: deployer,
     isUpgradeableProxy: true,
+    loadIfAlreadyDeployed: true,
   });
 
 
@@ -90,7 +96,7 @@ export async function main() {
 
   const nodeManager = await deploy<LiquidNodesManager__factory>({
     contractName: ContractNames.LiquidNodesManager,
-    artifactName: "NodeManager",
+    artifactName: "LiquidNodesManager",
     deployArgs: [
       validatorSet.address,
       nodesRewardsBank.address,
@@ -101,23 +107,23 @@ export async function main() {
     ],
     signer: deployer,
     isUpgradeableProxy: true,
+    loadIfAlreadyDeployed: true,
   });
 
 
   const interest = 100000;
   const interestRate = 24 * 60 * 60; // 24 hours
   const minStakeValue = 10000;
-  const bondAddress = "";
   const lockPeriod = 30 * 24 * 60 * 60; // 30 days
 
   const liquidPool = await deploy<LiquidPool__factory>({
     contractName: ContractNames.LiquidPool,
-    artifactName: "Pool",
+    artifactName: "LiquidPool",
     deployArgs: [
       nodeManager.address,
       poolRewardsBank.address,
       stakingTiers.address,
-      bondAddress,
+      airBond.address,
       stAmb.address,
       interest,
       interestRate,
@@ -126,30 +132,38 @@ export async function main() {
     ],
     signer: deployer,
     isUpgradeableProxy: true,
+    loadIfAlreadyDeployed: true,
   });
 
 
+  console.log("Setup stAmb");
   await (await stAmb.setLiquidPool(liquidPool.address)).wait();
   await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
+  console.log("Setup nodeManager");
   await (await nodeManager.setLiquidPool(liquidPool.address)).wait();
   await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
+  console.log("Setup nodesRewardsBank");
   await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), nodeManager.address)).wait();
 
+  console.log("Setup poolRewardsBank");
   await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
 
+  console.log("Setup liquidPool");
   await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  console.log("Setup stakingTiers");
   await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
 
   // on prod - multisig only
+  console.log("Register nodeManager as staking manager");
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
 
 
-
+  return;
   await (await nodesRewardsBank.revokeRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await poolRewardsBank.revokeRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await nodeManager.revokeRole(await nodeManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();

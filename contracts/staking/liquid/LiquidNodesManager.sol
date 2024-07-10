@@ -79,9 +79,7 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         rewardsBank.withdrawAmb(payable(treasury), amount);
         validatorSet.emitReward(address(rewardsBank), nodeAddress, address(this), address(treasury), address(0), amount);
 
-        if (address(liquidPool) != address(0)) {
-            liquidPool.tryInterest();
-        }
+        liquidPool.tryInterest();
     }
 
     function report(address nodeAddress) public {}
@@ -118,6 +116,8 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         }
 
         _requestStake = 0;
+
+        // try to onboard another node
         _requestNodeCreation();
     }
 
@@ -127,8 +127,8 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         address node = nodes[nodes.length - 1];
         uint deposit = getNodeDeposit(node);
         _totalNodesStake -= deposit;
-        validatorSet.unstake(node, deposit);
         nodes.pop();
+        validatorSet.unstake(node, deposit);
         emit NodeRetired(nodes.length, deposit);
     }
 
