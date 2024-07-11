@@ -10,6 +10,7 @@ import "../../funds/RewardsBank.sol";
 
 contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
     uint constant public MILLION = 1_000_000;
+    uint constant public FIXED_POINT = 1 ether;
     
     ERC20 public token;
     RewardsBank public bank;
@@ -95,18 +96,16 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
         require(shares[msg.sender] >= amount, "Not enough share");
 
         uint tokenAmount = _calculateToken(amount);
-        require(stakes[msg.sender] >= tokenAmount, "Not enough stake");
-
         uint rewardAmount = tokenAmount - stakes[msg.sender];
+        if (rewardAmount < 0) rewardAmount = 0;
 
         shares[msg.sender] -= amount;
-        stakes[msg.sender] -= tokenAmount;
-        totalStake -= tokenAmount;
+        totalStake -= stakes[msg.sender];
+        stakes[msg.sender] = 0;
 
         uint rewardToPay = rewardAmount * rewardTokenPrice;
 
         bank.withdrawErc20(rewardToken, msg.sender, rewardToPay);
-
         require(token.transfer(msg.sender, stakes[msg.sender]), "Transfer failed");
         emit StakeChanged(msg.sender, tokenAmount);
     }
@@ -131,9 +130,8 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
 
     function getSharePrice() public view returns (uint) {
         if (totalShare == 0) return 1 ether;
-        uint decimals = token.decimals();
 
-        return totalShare * decimals / totalStake;
+        return totalStake * FIXED_POINT / totalShare;
     }
 
     function getInterest() public view returns (uint) {
@@ -148,15 +146,14 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
 
     function _calculateShare(uint tokenAmount) private view returns (uint) {
         uint sharePrice = getSharePrice();
-        uint decimals = token.decimals();
 
-        return tokenAmount * sharePrice / decimals;
+        return tokenAmount * FIXED_POINT / sharePrice ;
     }
 
     function _calculateToken(uint shareAmount) private view returns (uint) {
         uint sharePrice = getSharePrice();
 
-        return shareAmount * 1 ether / sharePrice;
+        return shareAmount * sharePrice / FIXED_POINT;
     }
 
     function _increaseStake() internal {

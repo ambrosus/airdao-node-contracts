@@ -76,6 +76,7 @@ describe("TokenPool", function () {
       await tokenPool.stake(stake);
       expect(await tokenPool.totalStake()).to.equal(stake);
       expect(await tokenPool.getStake(owner.address)).to.equal(stake);
+      expect(await tokenPool.getShare(owner.address)).to.equal(1000);
     });
 
     it("Should not allow staking below minimum stake value", async function () {
@@ -85,7 +86,7 @@ describe("TokenPool", function () {
     it("Should allow unstaking", async function () {
       const stake = 1000;
       await tokenPool.stake(stake);
-      const shares = tokenPool.getShare(owner.address);
+      const shares = await tokenPool.getShare(owner.address);
       await tokenPool.unstake(shares);
       expect(await tokenPool.totalStake()).to.equal(0);
       expect(await tokenPool.getStake(owner.address)).to.equal(0);
