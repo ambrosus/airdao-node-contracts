@@ -86,17 +86,21 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
         uint shareAmount = _calculateShare(amount);
 
         shares[msg.sender] += shareAmount;
+        stakes[msg.sender] += amount;
         totalStake += amount;
         emit StakeChanged(msg.sender, amount);
     }
 
     function unstake(uint amount) public {
-        require(shares[msg.sender] >= amount, "Not enough stake");
+        require(shares[msg.sender] >= amount, "Not enough share");
 
         uint tokenAmount = _calculateToken(amount);
+        require(stakes[msg.sender] >= tokenAmount, "Not enough stake");
+
         uint rewardAmount = tokenAmount - stakes[msg.sender];
 
         shares[msg.sender] -= amount;
+        stakes[msg.sender] -= tokenAmount;
         totalStake -= tokenAmount;
 
         uint rewardToPay = rewardAmount * rewardTokenPrice;
@@ -118,7 +122,7 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
     // VIEW METHODS
 
     function getStake(address user) public view returns (uint) {
-        return _calculateToken(shares[user]);
+        return stakes[user];
     }
 
     function getShare(address user) public view returns (uint) {
@@ -151,9 +155,8 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
 
     function _calculateToken(uint shareAmount) private view returns (uint) {
         uint sharePrice = getSharePrice();
-        uint decimals = token.decimals();
 
-        return shareAmount * decimals / sharePrice;
+        return shareAmount * 1 ether / sharePrice;
     }
 
     function _increaseStake() internal {
