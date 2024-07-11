@@ -19,7 +19,7 @@ import {expect} from "chai";
 const D1 = 60 * 60 * 24;
 const MILLION = 1_000_000;
 
-const T = 40000000000;
+const T = 20000000000;
 
 
 const nodeStake = ethers.utils.parseEther("5000000");
