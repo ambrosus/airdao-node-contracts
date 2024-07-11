@@ -1115,7 +1115,7 @@
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LiquidPool_Multisig": {
-    "address": "0xAf1681D4F4c672e8043303B037585557b18754f5",
+    "address": "0xA6971aB610d45E0F9D519C06D747a8670E4921Fb",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1151,11 +1151,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x21ba8445946cbc060cf5e82078dc86eb1ec32d26cf10ea7309e4bee0ea939890",
+    "deployTx": "0x28a2c40ef01f0d7d6eba8705fffb517aec0a7687c3a6d6bf5dbb2f946a4d2165",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LiquidNodesManager_RewardsBank": {
-    "address": "0x90D74C8c3Eb8E81710B21ecFb619167D37B1604f",
+    "address": "0x4AD966ba692ecfB74b0dF3cfc9dfcC05Ef2E837D",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1171,11 +1171,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x9ab67183e18e0b3761c6a6a238ddd60f0784ee23b39a558f643fc482b5c685e6",
+    "deployTx": "0xe1fcebf0e887bec50d09232559857d90399424c01c313b82894a2001c4830af5",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LiquidNodesManager_Treasury": {
-    "address": "0x334C650F2f3eb268123F8C27Fa9A9364B4dBe49c",
+    "address": "0x5b339F9CC294e0386b3A316860D53c1E152663b2",
     "abi": [
       "constructor(address owner, uint256 _fee)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -1188,11 +1188,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x7781aeb7dd5e4c0ede852e91bae412974a6e77fc2834e5340da34cd576653fbf",
+    "deployTx": "0x425ee565b91cefbd280719b95de9313489169a4b4a9f0725c9135c8725d48ba5",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
   "LiquidNodesManager_TreasuryFees": {
-    "address": "0xc40756ccEaEE7f2DB7847B63793c23bF45611b55",
+    "address": "0x6EFF9Ca149aa64085f18878CDa9BA82a0EEf732e",
     "abi": [
       "constructor(address owner, uint256 _fee)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -1205,11 +1205,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x01ff300c71f0c32f0e92ed36c6ba27af1a31c54a31a154be4901623d62fdbc3a",
+    "deployTx": "0xa9b629544dbea8862b785b1af1a5eeaed32002c61afd1691862899a43944ebc6",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
   "LiquidPool_RewardsBank": {
-    "address": "0xc42728e44836e9B4E620DE33d9833916c6CF45da",
+    "address": "0xeB0ceBD759A782030841aac7f286928c6ef81a09",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1225,11 +1225,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x709534191ccdeb3b84e2968f9752a9f03bd83442b2aabcc1ee4689e333cbef0b",
+    "deployTx": "0xe4562fe1ebe1a62e4a0a01b65fb829c95b7d2a6652a77baf6cf2465f20d3c863",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LiquidPool_StAMB": {
-    "address": "0xD593032323911B3246404E82d4F42432a9411399",
+    "address": "0x83C95E66E312334Eab6659221499D702dDd2fa44",
     "abi": [
       "constructor()",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -1262,11 +1262,11 @@
       "function transfer(address to, uint256 amount) returns (bool)",
       "function transferFrom(address from, address to, uint256 amount) returns (bool)"
     ],
-    "deployTx": "0xc364752b1001c65175986c4ed3fdaf8c5a0893f4af57f83b28fab89e2c326566",
+    "deployTx": "0xc4b5f8baa466ec0d1b0934debeca5765abfcb6d764c5cb591d9e8834d32db507",
     "fullyQualifiedName": "contracts/staking/liquid/StAMB.sol:StAMB"
   },
   "LiquidPool_StakingTiers": {
-    "address": "0x3a5633bAE0243bB360e25624DC6dFd241333B575",
+    "address": "0x6F3ED2dBaB50a3f00Ace653d11d8a30Eb351f900",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1294,15 +1294,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0xedc56d1f109fdee9c3bb39d078bb7d14aa42f5aacaee5d33c72ec9a2c7f04138",
+    "deployTx": "0x70ffb240cc6ef0aa8dbcf61cb532290f3dcafabc762029944f952e5e03e4decc",
     "fullyQualifiedName": "contracts/staking/liquid/StakingTiers.sol:StakingTiers",
     "proxy": {
-      "implementation": "0xE03a6068Da1B05769730151D3A7127A244B66992",
+      "implementation": "0x73e9f142de705FB69cd257B2deB6bb5ED282eB6C",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "LiquidNodesManager": {
-    "address": "0xDAA9Ee2aB371E31a75Faf93D0b859561a5D8a58f",
+    "address": "0x7E0F09c8c2aAf4743B57355edb051F5E5ED6F73d",
     "abi": [
       "event AddNodeRequest(uint256 indexed requestId, uint256 indexed nodeId, uint256 stake)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
@@ -1348,15 +1348,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0xc25a2397a96a4e7611543a998d06c738de9fb62e95c74bc4116457db0204ec52",
+    "deployTx": "0x5f659d8362c07777bc623574a7a1325d1c07b058b6d24f75d055e95daa2197b4",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidNodesManager.sol:LiquidNodesManager",
     "proxy": {
-      "implementation": "0x8601876F8A6DCcAE5Ce8Cf154f710E09c3f0f2c8",
+      "implementation": "0x6c685B3aB2f68C4b70c6313Da30b39c70CbEe63a",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "LiquidPool": {
-    "address": "0x4F30e523254d5d609D17BFa610Be5A39bDA40166",
+    "address": "0x3B642C78487f61c859dC249DAaD0c66B4D31eE70",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1368,16 +1368,12 @@
       "event StakeChanged(address indexed account, int256 amount)",
       "event Upgraded(address indexed implementation)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function activate() payable",
-      "function active() view returns (bool)",
       "function beforeTokenTransfer(address from, address to, uint256 amount)",
       "function bondAddress() view returns (address)",
-      "function claim(uint256 desiredCoeff)",
-      "function deactivate(uint256 maxNodes)",
+      "function claimRewards(uint256 desiredCoeff)",
       "function getClaimAmount(address user) view returns (uint256)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStake(address user) view returns (uint256)",
-      "function getTokenPrice() view returns (uint256)",
       "function getTotalRewards() view returns (uint256)",
       "function getTotalStAmb() view returns (uint256)",
       "function grantRole(bytes32 role, address account)",
@@ -1392,8 +1388,7 @@
       "function renounceRole(bytes32 role, address account)",
       "function revokeRole(bytes32 role, address account)",
       "function rewardsBank() view returns (address)",
-      "function setInterest(uint256 interest_)",
-      "function setInterestRate(uint256 interestRate_)",
+      "function setInterest(uint256 interest_, uint256 interestPeriod_)",
       "function setLockPeriod(uint256 lockPeriod_)",
       "function stAmb() view returns (address)",
       "function stake() payable",
@@ -1404,10 +1399,10 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x7ea8eb931cabb6a44a2ac091d57a0ade60991a378a9fd3705d4605dd810ab626",
+    "deployTx": "0x61b0e968c867e3709e2fe3d2d94986fc38d758d7f9aadbc5b8f773cee3e95356",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0x2427F8f72E8CAb019435a301F1A46F3bB426a35e",
+      "implementation": "0xb44B511D1b39cE2F3f24a8cFfc7298eEe3A4cFd6",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }
