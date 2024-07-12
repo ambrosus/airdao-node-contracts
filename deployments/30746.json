@@ -1308,7 +1308,7 @@
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
       "event Initialized(uint8 version)",
-      "event NodeOnboarded(address indexed node, uint256 indexed nodeId, uint256 stake)",
+      "event NodeOnboarded(uint256 indexed requestId, address indexed node, uint256 indexed nodeId, uint256 stake)",
       "event NodeRetired(uint256 indexed nodeId, uint256 stake)",
       "event RequestFailed(uint256 indexed requestId, uint256 indexed nodeId, uint256 stake)",
       "event Reward(address indexed addr, uint256 amount)",
@@ -1351,7 +1351,7 @@
     "deployTx": "0x5f659d8362c07777bc623574a7a1325d1c07b058b6d24f75d055e95daa2197b4",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidNodesManager.sol:LiquidNodesManager",
     "proxy": {
-      "implementation": "0x6c685B3aB2f68C4b70c6313Da30b39c70CbEe63a",
+      "implementation": "0xa0971667356C28CFb9E0630FF7a58621fA8Df52A",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
