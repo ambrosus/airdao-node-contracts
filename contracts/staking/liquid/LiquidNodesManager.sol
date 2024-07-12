@@ -47,7 +47,7 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         treasuryFee = treasuryFee_;
         nodeStake = nodeStake_;
         maxNodesCount = maxNodesCount_;
-        nodes = new address[](maxNodesCount_);
+        nodes = new address[](0);
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
