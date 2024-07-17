@@ -105,6 +105,7 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         require(_requestStake > 0, "No active request");
         require(validatorSet.getNodeStake(node) == 0, "Node already onboarded");
         require(requestId == _requestId, "Invalid request id");
+        require(address(this).balance >= _totalNodesStake + _requestStake, "Not enough balance");
 
         if (nodeId == nodes.length && getFreeBalance() >= _requestStake) {
             nodes.push(node);
