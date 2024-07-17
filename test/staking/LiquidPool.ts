@@ -114,7 +114,7 @@ describe("LiquidPool", function () {
         .to.changeEtherBalance(owner, -50);
 
       expect(await liquidPool.getTotalStAmb()).to.be.equal(50);
-      expect(await liquidPool.getTotalRewards()).to.be.equal(50);
+      expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       expect(await liquidPool.getStake(owner.address)).to.be.equal(50);
 
       await expect(liquidPool.stake({value: 25}))
@@ -152,7 +152,7 @@ describe("LiquidPool", function () {
       // increase time by 1 day and call interest => rewards should increase by 10%
       await time.increase(D1);
       await liquidPool.tryInterest();
-      expect(await liquidPool.getTotalRewards()).to.eq(110);
+      expect(await liquidPool.getTotalRewards()).to.eq(10);
 
       expect(await liquidPool.getClaimAmount(owner.address)).to.eq(10);
 
@@ -179,7 +179,7 @@ describe("LiquidPool", function () {
       // increase time by 1 day and call interest => rewards should increase by 10%
       await time.increase(D1);
       await liquidPool.tryInterest();
-      expect(await liquidPool.getTotalRewards()).to.eq(110);
+      expect(await liquidPool.getTotalRewards()).to.eq(10);
       expect(await liquidPool.getClaimAmount(owner.address)).to.eq(10);
     });
 
@@ -260,19 +260,19 @@ describe("LiquidPool", function () {
       await liquidPool.stake({value: 100});
       await liquidPool.connect(addr1).stake({value: 900});
 
-      expect(await liquidPool.getTotalRewards()).to.be.equal(1000);
+      expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       await time.increase(D1);
       await liquidPool.tryInterest();
-      expect(await liquidPool.getTotalRewards()).to.be.equal(1100);
+      expect(await liquidPool.getTotalRewards()).to.be.equal(100);
     });
 
     it("should do nothing if called too early", async function () {
       await liquidPool.stake({value: 100});
       await liquidPool.connect(addr1).stake({value: 900});
 
-      expect(await liquidPool.getTotalRewards()).to.be.equal(1000);
+      expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       await liquidPool.tryInterest();
-      expect(await liquidPool.getTotalRewards()).to.be.equal(1000);
+      expect(await liquidPool.getTotalRewards()).to.be.equal(0);
     });
 
     it("should do nothing if there is no stakes", async function () {

@@ -39,7 +39,7 @@ describe("LiquidNodesManager", function () {
 
 
     await nodeManager.setLiquidPool(owner.address);
-
+    await nodeManager.grantRole(await nodeManager.BACKEND_ROLE(), owner.address);
     await rewardsBankPool.grantRole(await rewardsBankNode.DEFAULT_ADMIN_ROLE(), nodeManager.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address);
 
@@ -61,7 +61,10 @@ describe("LiquidNodesManager", function () {
       expect(await nodeManager.getFreeBalance()).to.be.equal(100);
 
       await expect(nodeManager.stake({value: 900}))
-        .to.emit(nodeManager, "AddNodeRequest").withArgs(1, 1, 1000);
+        .to.emit(nodeManager, "AddNodeRequest").withArgs(1, 0, 1000);
+      expect(await nodeManager.getFreeBalance()).to.be.equal(1000);
+
+      await nodeManager.onboardNode(1, addr1.address, 0);
 
       expect(await nodeManager.getFreeBalance()).to.be.equal(0);
     });
