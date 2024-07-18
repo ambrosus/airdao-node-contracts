@@ -40,7 +40,7 @@ contract BaseNodes_Manager is UUPSUpgradeable, IStakeManager, AccessControlUpgra
         require(validatorSet.getNodeStake(nodeAddress) >= amount, "Stake < amount");
 
         validatorSet.unstake(nodeAddress, amount);
-        payable(sendTo).transfer(amount);
+        transferViaCall(payable(sendTo), amount);
     }
 
     // VALIDATOR SET METHODS

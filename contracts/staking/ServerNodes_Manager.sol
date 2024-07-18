@@ -211,7 +211,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         if (validatorSet.getNodeStake(nodeAddress) > 0) // only if node already validator
             validatorSet.unstake(nodeAddress, amount);
 
-        payable(stakes[nodeAddress].ownerAddress).transfer(amount);
+        transferViaCall(payable(stakes[nodeAddress].ownerAddress), amount);
 
         emit StakeChanged(nodeAddress, stakes[nodeAddress].ownerAddress, - int(amount));
     }
@@ -263,10 +263,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
-
-    function _upgrade(address newLockKeeper) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        lockKeeper = LockKeeper(newLockKeeper);
-    }
 
     // PRIVATE METHODS
 

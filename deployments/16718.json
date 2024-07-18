@@ -959,7 +959,7 @@
     "deployTx": "0x083245833770f11fdf68a099f3446df04a1dcc3f48e17d9c4881077733caf467",
     "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper",
     "proxy": {
-      "implementation": "0x74E90BB3C48241bD072b6F7139070577e5e8c53e",
+      "implementation": "0x689f845D782606cEA658feF98746c881c840D5e1",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
