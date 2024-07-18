@@ -8,6 +8,7 @@ import "./StAMB.sol";
 contract StakingTiers is AccessControlUpgradeable, UUPSUpgradeable {
 
     StAMB public stAmb;
+    uint256[50] __gap;
     mapping (address => uint) public bonuses;
 
     event BonusSet(address indexed user, uint bonus);

@@ -28,6 +28,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
 
     uint internal totalRewards;  // rewards from interest, includes totalRewardsDebt, can be much greater than real rewards
     uint internal totalRewardsDebt; // real rewards = totalRewards - totalRewardsDebt
+    uint256[50] __gap;
 
     // rewards that has been "claimed" before stake changes.
     mapping(address => uint) internal rewardsCanClaim;
