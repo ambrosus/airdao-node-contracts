@@ -1,6 +1,6 @@
 import { MasterMultisig, Multisig } from "../../typechain-types";
 import { Contracts } from "../contracts/contracts";
-import { ContractNames, getMultisigNames } from "../contracts/names";
+import { ContractNames } from "../contracts/names";
 import { submitTransaction } from "./submitTransaction";
 
 export interface Perm {
@@ -26,10 +26,11 @@ export interface User {
 // VIEW
 
 export async function getPermissions(contracts: Contracts, multisigAddresses?: string[]) {
-  if (!multisigAddresses)
-    multisigAddresses = getMultisigNames(contracts.multisigVersion)
+  if (!multisigAddresses) {
+    multisigAddresses = contracts.getAllMultisigNames()
       .map((mn) => contracts.getContractByNameSafe(mn)?.address)
       .filter((el) => el !== undefined) as string[];
+  }
 
   const masterMultisig = contracts.masterMultisig as MasterMultisig;
   const contractResults = await masterMultisig.getAllSigners(multisigAddresses);

@@ -3,8 +3,7 @@ import {BigNumberish, ethers} from "ethers";
 import {ContractNames} from "../contracts/names";
 import {
   AirBond,
-  BaseNodes_Manager,
-  PoolsNodes_Manager,
+  BaseNodes_Manager, LegacyPoolsNodes_Manager,
   ServerNodes_Manager,
   Treasury,
   ValidatorSet,
@@ -37,19 +36,19 @@ export async function poolManagerGetPoolsAddresses(
   contracts: Contracts,
   contractName: PoolManagersCN
 ): Promise<string[]> {
-  const poolManager = contracts.getContractByName(contractName) as PoolsNodes_Manager;
+  const poolManager = contracts.getContractByName(contractName) as LegacyPoolsNodes_Manager;
   return await poolManager.getPools();
 }
 
 export async function poolManagerAddPool(contracts: Contracts, contractName: PoolManagersCN, poolAddress: string) {
-  return await submitTransaction2<PoolsNodes_Manager>(contracts, contractName, 0, async (poolManager) => {
+  return await submitTransaction2<LegacyPoolsNodes_Manager>(contracts, contractName, 0, async (poolManager) => {
     if ((await getPoolName(contracts, poolAddress)) == null) throw new Error("Provided address probably is not a pool");
     return poolManager.addPool(poolAddress);
   });
 }
 
 export async function poolManagerRemovePool(contracts: Contracts, contractName: PoolManagersCN, poolAddress: string) {
-  return await submitTransaction2<PoolsNodes_Manager>(contracts, contractName, 0, (poolManager) =>
+  return await submitTransaction2<LegacyPoolsNodes_Manager>(contracts, contractName, 0, (poolManager) =>
     poolManager.removePool(poolAddress)
   );
 }

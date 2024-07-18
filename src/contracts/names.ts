@@ -63,8 +63,12 @@ export enum ContractNames {
   // bond marketplace
 
   Ecosystem_MasterMultisig = "Ecosystem_MasterMultisig",
+
   Ecosystem_BondMarketplaceMultisig = "Ecosystem_BondMarketplace_Multisig",
   Ecosystem_BondMarketplaceRewardsBank = "Ecosystem_BondMarketplace_RewardsBank",
+
+  Ecosystem_StarfleetMultisig = "Ecosystem_Starfleet_Multisig",
+  Ecosystem_StarfleetRewardsBank = "Ecosystem_Starfleet_RewardsBank",
 }
 
 export const MULTISIGS_COMMON = {
@@ -89,50 +93,24 @@ export const MULTISIGS_COMMON = {
 
 export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
+  [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
 };
 
-export const MULTISIGS =
-  process.env.MULTISIGS === "ecosystem"
-    ? (MULTISIGS_ECOSYSTEM as Record<keyof typeof MULTISIGS_ECOSYSTEM, ContractNames>)
-    : (MULTISIGS_COMMON as Record<keyof typeof MULTISIGS_COMMON, ContractNames>);
+export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
 
-export const getMultisigs = (version: MultisigVersions = MultisigVersions.common) => {
-  switch (version) {
-    case MultisigVersions.ecosystem:
-      return MULTISIGS_ECOSYSTEM;
-    case MultisigVersions.common:
-      return MULTISIGS_COMMON;
-    default:
-      return MULTISIGS_COMMON;
+
+export function getEnvironment(version: MultisigVersions = MultisigVersions.common) {
+  if (version == MultisigVersions.ecosystem) {
+    return {
+      master: ContractNames.MasterMultisig,
+      slaves: Object.values(MULTISIGS_ECOSYSTEM)
+    };
   }
-};
-
-export const getSlavesMultisigsNames = (version: MultisigVersions = MultisigVersions.common) => {
-  const sigs = getMultisigs(version);
-  return [...new Set(Object.values(sigs))];
-};
-
-export const slavesMultisigsNames = getSlavesMultisigsNames(process.env.MULTISIGS as MultisigVersions | undefined);
-
-export const multisigsNames =
-  process.env.MULTISIGS === "ecosystem"
-    ? [ContractNames.Ecosystem_MasterMultisig, ...slavesMultisigsNames]
-    : [ContractNames.MasterMultisig, ...slavesMultisigsNames];
-
-export const getMultisigNames = (version: MultisigVersions = MultisigVersions.common) => {
-  const multisigsNames: ContractNames[] = [];
-  switch (version) {
-    case MultisigVersions.ecosystem:
-      multisigsNames.push(ContractNames.Ecosystem_MasterMultisig);
-      break;
-    case MultisigVersions.common:
-      multisigsNames.push(ContractNames.MasterMultisig);
-      break;
-    default:
-      multisigsNames.push(ContractNames.MasterMultisig);
-      break;
+  if (version == MultisigVersions.common) {
+    return {
+      master: ContractNames.MasterMultisig,
+      slaves: Object.values(MULTISIGS_COMMON)
+    };
   }
-  const slaves = getSlavesMultisigsNames(version);
-  multisigsNames.push(...slaves);
-  return multisigsNames;
-};
+  throw new Error("Unknown environment");
+}

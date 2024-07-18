@@ -1,8 +1,8 @@
 import {deploy, loadDeployment} from "@airdao/deployments/deploying";
 import {ethers} from "hardhat";
-import {RewardsBank__factory, StarfleetStaking, Multisig__factory} from "../typechain-types";
-import {ContractNames} from "./names";
-import {Roadmap2023MultisigSettings} from "./addresses";
+import {Roadmap2023MultisigSettings} from "../../addresses";
+import { ContractNames } from "../../../src";
+import { Multisig__factory, RewardsBank__factory } from "../../../typechain-types";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -11,7 +11,7 @@ export async function main() {
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   const multisig = await deploy<Multisig__factory>({
-    contractName: "StarfleetStaking_Multisig",
+    contractName: ContractNames.Ecosystem_StarfleetMultisig,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -19,7 +19,7 @@ export async function main() {
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName: "StarfleetStaking_RewardsBank",
+    contractName: ContractNames.Ecosystem_StarfleetRewardsBank,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
@@ -29,15 +29,8 @@ export async function main() {
 
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
-  const starfleetStaking = await deploy<StarfleetStaking__factory>({
-    contractName: "StarfleetStaking",
-    artifactName: "StarfleetStaking",
-    deployArgs: ["Starfleet staking", multisig.address, rewardsBank.address, 0, 0, 0],
-    signer: deployer,
-    isUpgradeableProxy: false,
-  });
 
-  await (await rewardsBank.grantRole(await starfleetStaking.DEFAULT_ADMIN_ROLE(), starfleetStaking.address)).wait();
+
 }
 
 if (require.main === module) {
