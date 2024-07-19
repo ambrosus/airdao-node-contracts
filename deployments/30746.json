@@ -1157,7 +1157,7 @@
     "deployTx": "0x57d94327d1204525b81ad83fd4079e224ea135d3972f81e0290692de1824f0b6",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "StarfleetStaking_Multisig": {
+  "Ecosystem_Starfleet_Multisig": {
     "address": "0x39a499cd81C494E8EBC226D416B245978820414e",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
