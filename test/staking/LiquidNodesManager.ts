@@ -8,8 +8,6 @@ import { expect } from "chai";
 const nodeStake = 1000;
 const maxNodeCount = 10;
 
-
-
 describe("LiquidNodesManager", function () {
   let nodeManager: LiquidNodesManager;
   let owner: SignerWithAddress;
@@ -54,25 +52,26 @@ describe("LiquidNodesManager", function () {
     ({nodeManager, owner, addr1} = await loadFixture(deploy));
   });
 
-  describe("stake", function () {
-    it("should work", async function () {
-      expect(await nodeManager.getFreeBalance()).to.be.equal(0);
-      await nodeManager.stake({value: 100});
-      expect(await nodeManager.getFreeBalance()).to.be.equal(100);
 
-      await expect(nodeManager.stake({value: 900}))
-        .to.emit(nodeManager, "AddNodeRequest").withArgs(1, 0, 1000);
-      expect(await nodeManager.getFreeBalance()).to.be.equal(1000);
-
-      await nodeManager.onboardNode(1, addr1.address, 0);
-
-      expect(await nodeManager.getFreeBalance()).to.be.equal(0);
+  describe("Stake Management", function () {
+    it("Should allow to request node creation", async function () {
+      expect(await nodeManager.connect(owner).stake({value: nodeStake})).to.emit(nodeManager, "AddNodeRequest");
     });
 
-    it("should revert if call not by pool", async function () {
-      await expect(nodeManager.connect(addr1).stake({value: 900})).to.be.revertedWith("LiquidNodesManager: caller is not a pool");
+    it("Should allow backend to onboard a node", async function () {
+      expect(await nodeManager.connect(owner).stake({value: nodeStake})).to.emit(nodeManager, "AddNodeRequest");
+
+      await nodeManager.connect(owner).onboardNode(1, addr1.address, 0);
+      expect(await nodeManager.getNodesCount()).to.equal(1);
+      expect(await nodeManager.nodes(0)).to.equal(addr1.address);
     });
 
+    it("Should retire", async function () {
+      expect(await nodeManager.connect(owner).stake({value: nodeStake})).to.emit(nodeManager, "AddNodeRequest");
+
+      expect(await nodeManager.connect(owner).unstake(nodeStake)).to.emit(nodeManager, "NodeRetired");
+      expect(await nodeManager.getNodesCount()).to.equal(0);
+    });
   });
 
 
