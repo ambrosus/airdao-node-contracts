@@ -10,11 +10,13 @@ const maxNodeCount = 10;
 
 describe("LiquidNodesManager", function () {
   let nodeManager: LiquidNodesManager;
+  let validatorSet: TEST_ValidatorSet;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
+  let addr2: SignerWithAddress;
 
   async function deploy() {
-    const [owner, addr1] = await ethers.getSigners();
+    const [owner, addr1, addr2] = await ethers.getSigners();
 
     const validatorSetFactory = await ethers.getContractFactory("TEST_ValidatorSet");
     const validatorSet = (await upgrades.deployProxy(validatorSetFactory, [owner.address, 10, 2])) as TEST_ValidatorSet;
@@ -35,7 +37,6 @@ describe("LiquidNodesManager", function () {
       maxNodeCount,
     ])) as LiquidNodesManager;
 
-
     await nodeManager.setLiquidPool(owner.address);
     await nodeManager.grantRole(await nodeManager.BACKEND_ROLE(), owner.address);
     await rewardsBankPool.grantRole(await rewardsBankNode.DEFAULT_ADMIN_ROLE(), nodeManager.address);
@@ -45,33 +46,81 @@ describe("LiquidNodesManager", function () {
     await setBalance(rewardsBankNode.address, ethers.utils.parseEther("1000"));
     await setBalance(rewardsBankPool.address, ethers.utils.parseEther("1000"));
 
-    return {nodeManager, owner, addr1};
+    return {nodeManager, validatorSet, owner, addr1, addr2};
   }
 
   beforeEach(async function () {
-    ({nodeManager, owner, addr1} = await loadFixture(deploy));
+    ({nodeManager, validatorSet, owner, addr1, addr2} = await loadFixture(deploy));
   });
 
-
-  describe("Stake Management", function () {
-    it("Should allow to request node creation", async function () {
+  describe("Node management", function () {
+    it("Should create one request", async function () {
       expect(await nodeManager.connect(owner).stake({value: nodeStake})).to.emit(nodeManager, "AddNodeRequest");
     });
 
-    it("Should allow backend to onboard a node", async function () {
+    it("Should onboard one Node", async function () {
       expect(await nodeManager.connect(owner).stake({value: nodeStake})).to.emit(nodeManager, "AddNodeRequest");
 
-      await nodeManager.connect(owner).onboardNode(1, addr1.address, 0);
+      const tx = await nodeManager.connect(owner).onboardNode(1, addr1.address, 0);
+      expect(tx).to.emit(nodeManager, "NodeOnboarded");
+      expect(tx).to.not.emit(nodeManager, "AddNodeRequest");
       expect(await nodeManager.getNodesCount()).to.equal(1);
       expect(await nodeManager.nodes(0)).to.equal(addr1.address);
+      expect(await validatorSet.getNodeStake(addr1.address)).to.equal(nodeStake);
     });
 
-    it("Should retire", async function () {
+    it("Should onboard two Nodes", async function () {
+      expect(await nodeManager.connect(owner).stake({value: nodeStake * 2})).to.emit(nodeManager, "AddNodeRequest");
+
+      const tx1 = await nodeManager.connect(owner).onboardNode(1, addr1.address, 0);
+      expect(tx1).to.emit(nodeManager, "NodeOnboarded");
+      expect(tx1).to.emit(nodeManager, "AddNodeRequest");
+      expect(await nodeManager.getNodesCount()).to.equal(1);
+      expect(await nodeManager.nodes(0)).to.equal(addr1.address);
+      expect(await nodeManager.getNodeDeposit(addr1.address)).to.equal(nodeStake);
+      expect(await validatorSet.getNodeStake(addr1.address)).to.equal(nodeStake);
+
+      const tx2 = await nodeManager.connect(owner).onboardNode(2, addr2.address, 1);
+      expect(tx2).to.emit(nodeManager, "NodeOnboarded");
+      expect(tx2).to.not.emit(nodeManager, "AddNodeRequest");
+      expect(await nodeManager.getNodesCount()).to.equal(2);
+      expect(await nodeManager.nodes(1)).to.equal(addr2.address);
+      expect(await nodeManager.getNodeDeposit(addr2.address)).to.equal(nodeStake);
+      expect(await validatorSet.getNodeStake(addr2.address)).to.equal(nodeStake);
+    });
+
+    it("Should fail to onboard node with invalid request", async function () {
+      expect(await nodeManager.connect(owner).stake({value: nodeStake})).to.emit(nodeManager, "AddNodeRequest");
+
+      await expect(nodeManager.connect(owner).onboardNode(3, addr1.address, 0)).to.be.revertedWith("Invalid request id");
+    });
+
+    it("Should retire node on unstake", async function () {
       expect(await nodeManager.connect(owner).stake({value: nodeStake})).to.emit(nodeManager, "AddNodeRequest");
 
       expect(await nodeManager.connect(owner).unstake(nodeStake)).to.emit(nodeManager, "NodeRetired");
       expect(await nodeManager.getNodesCount()).to.equal(0);
     });
+  });
+
+  describe("Node rewards", function () {
+    beforeEach(async function () {
+      await nodeManager.stake({value: nodeStake});
+    });
+
+    it("ok", async function () {
+      await ethers.provider.send("hardhat_setCoinbase", [owner.address]); // call as current block miner
+      await validatorSet.process();
+    });
+
+    it("not from validatorSet", async function () {
+      await expect(nodeManager.reward(owner.address, 50)).to.be.revertedWith("Only validatorSet can call reward()");
+    });
+  });
+
+  it("report", async function () {
+    // do nothing, for coverage
+    await nodeManager.report(owner.address);
   });
 
 
