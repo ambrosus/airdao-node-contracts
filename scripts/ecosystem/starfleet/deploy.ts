@@ -1,53 +1,37 @@
-import { ethers, network } from "hardhat";
-import { ContractNames } from "../../src";
-import { Multisig__factory, RewardsBank__factory } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import {
-  Alex,
-  Alina,
-  DimaTest96,
-  Igor,
-  Matthieu,
-  Michael,
-  Oleksii,
-  OleksiiD,
-  Seth,
-  SharedDev,
-  Sophie,
-} from "../addresses";
+import { ethers } from "hardhat";
+import { EcosystemMultisigSettings } from "../../addresses";
+import { ContractNames } from "../../../src";
+import { Multisig__factory, RewardsBank__factory } from "../../../typechain-types";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
-
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
-  const multisigSettings: [string[], boolean[], number] =
-    network.name == "main"
-      ? [
-        [Michael, Igor, Alina, Alex, Matthieu, Oleksii, Seth, Sophie, OleksiiD],
-        [true, true, true, true, true, true, true, true, true],
-        75,
-      ]
-      : [[SharedDev, DimaTest96], [true, true], 1];
-
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.BondMarketplaceMultisig,
+    contractName: ContractNames.Ecosystem_StarfleetMultisig,
     artifactName: "Multisig",
-    deployArgs: [...multisigSettings, masterMultisig],
+    deployArgs: [...EcosystemMultisigSettings, masterMultisig],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName: ContractNames.BondMarketplaceRewardsBank,
+    contractName: ContractNames.Ecosystem_StarfleetRewardsBank,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
+    isUpgradeableProxy: false,
+    loadIfAlreadyDeployed: true,
   });
 
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await rewardsBank.revokeRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+
+
+
 }
 
 if (require.main === module) {

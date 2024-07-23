@@ -1,7 +1,7 @@
 import {  BigNumberish } from "ethers";
 import { Contracts } from "../contracts/contracts";
 import { ContractNames } from "../contracts/names";
-import { submitTransaction2 } from "./internal";
+import { submitTransaction2 } from "../multisig/submitTransaction";
 import { Fees } from "../../typechain-types";
 
 export async function feesSetGasPrice(contracts: Contracts, price: BigNumberish) {

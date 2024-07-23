@@ -21,7 +21,6 @@ import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
 import {Parallel} from "../parallel";
 import {NodeOnboardedEvent} from "../../typechain-types/contracts/staking/pools/Legacy/RolesEventEmitter";
-import {formatEther} from "ethers/lib/utils";
 import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
