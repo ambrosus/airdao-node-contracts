@@ -34,7 +34,7 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
     event AddNodeRequest(uint indexed requestId, uint indexed nodeId, uint stake);
     event NodeOnboarded(uint indexed requestId, address indexed node, uint indexed nodeId, uint stake);
     event RequestFailed(uint indexed requestId, uint indexed nodeId, uint stake);
-    event NodeRetired(uint indexed nodeId, uint stake);
+    event NodeRetired(uint indexed nodeId, address indexed node, uint stake);
     event Reward(address indexed addr, uint amount);
 
     function initialize(
@@ -131,7 +131,7 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         _totalNodesStake -= deposit;
         nodes.pop();
         validatorSet.unstake(node, deposit);
-        emit NodeRetired(nodes.length, deposit);
+        emit NodeRetired(nodes.length, node, deposit);
     }
 
     function _requestNodeCreation() private {
