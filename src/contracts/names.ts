@@ -102,7 +102,7 @@ export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
 export function getEnvironment(version: MultisigVersions = MultisigVersions.common) {
   if (version == MultisigVersions.ecosystem) {
     return {
-      master: ContractNames.MasterMultisig,
+      master: ContractNames.Ecosystem_MasterMultisig,
       slaves: Object.values(MULTISIGS_ECOSYSTEM)
     };
   }
