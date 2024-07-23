@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
 import { ContractNames } from "../../src";
-import { Andrii, AndriiTest, DimaTest, Igor, Kevin, Lang, Rory, SharedDev } from "../addresses";
+import { AndriiTest, DimaTest, EcosystemMultisigSettings, SharedDev } from "../addresses";
 import { deploy } from "@airdao/deployments/deploying";
 import { MasterMultisig__factory } from "../../typechain-types";
 
@@ -13,7 +13,7 @@ export async function main() {
     await deploy<MasterMultisig__factory>({
       contractName: ContractNames.Ecosystem_MasterMultisig,
       artifactName: "MasterMultisig",
-      deployArgs: [[Lang, Igor, Rory, Kevin, Andrii], [true, true, true, false, false], 51],
+      deployArgs: [...EcosystemMultisigSettings],
       signer: deployer,
     });
   } else {

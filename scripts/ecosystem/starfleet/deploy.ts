@@ -1,6 +1,6 @@
-import {deploy, loadDeployment} from "@airdao/deployments/deploying";
-import {ethers} from "hardhat";
-import {Roadmap2023MultisigSettings} from "../../addresses";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
+import { ethers } from "hardhat";
+import { EcosystemMultisigSettings } from "../../addresses";
 import { ContractNames } from "../../../src";
 import { Multisig__factory, RewardsBank__factory } from "../../../typechain-types";
 
@@ -13,7 +13,7 @@ export async function main() {
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.Ecosystem_StarfleetMultisig,
     artifactName: "Multisig",
-    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
+    deployArgs: [...EcosystemMultisigSettings, masterMultisig],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
@@ -28,6 +28,7 @@ export async function main() {
   });
 
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await rewardsBank.revokeRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
 
 
 
