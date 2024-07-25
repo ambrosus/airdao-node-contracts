@@ -1,14 +1,14 @@
 //SPDX-License-Identifier: UNCLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "./ITokenPool.sol";
 import "../../funds/RewardsBank.sol";
 
-contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
+contract TokenPool is Initializable, AccessControl, ITokenPool {
     uint constant public MILLION = 1_000_000;
     
     ERC20 public token;
@@ -27,6 +27,10 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
     mapping(address => uint) public stakes;
     mapping(address => uint) public rewards;
     mapping(address => uint) private _lastChanged;
+
+    constructor() {
+        _disableInitializers();
+    }
  
     function initialize(
         string memory name_, address token_, RewardsBank rewardsBank_, uint intereset_, 
@@ -137,6 +141,4 @@ contract TokenPool is UUPSUpgradeable, AccessControlUpgradeable, ITokenPool {
         uint reward =  stakes[user] * interest / MILLION * timePassed / interestRate;
         return reward * rewardTokenPrice;
     }
-
-    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 }

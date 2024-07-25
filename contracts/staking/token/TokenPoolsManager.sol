@@ -1,21 +1,20 @@
 //_ SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "./TokenPool.sol";
-import "./IPoolsManager.sol";
+import "./ITokenPoolsManager.sol";
 import "../../funds/RewardsBank.sol";
 
-contract PoolsManager is UUPSUpgradeable, AccessControlUpgradeable, IPoolsManager {
+contract TokenPoolsManager is AccessControl, ITokenPoolsManager {
     RewardsBank public bank;
     UpgradeableBeacon public beacon;
 
     mapping(string => address) public pools;
 
-    function initialize(RewardsBank bank_, UpgradeableBeacon beacon_) public initializer {
+    constructor(RewardsBank bank_, UpgradeableBeacon beacon_) {
         bank = bank_;
         beacon = beacon_;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -50,10 +49,6 @@ contract PoolsManager is UUPSUpgradeable, AccessControlUpgradeable, IPoolsManage
         pool.activate();
         emit PoolActivated(_pool);
     }
-
-    // INTERNAL METHODS
-
-    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     // VIEW METHODS
 
