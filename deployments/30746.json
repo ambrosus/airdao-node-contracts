@@ -1157,7 +1157,7 @@
     "deployTx": "0x0a9cf5c7b2bf4b772508d528839b7dcd86655ffe2149eb19240d18748b910651",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "Ecosystem_StarfleetStaking_Multisig": {
+  "Ecosystem_Starfleet_Multisig": {
     "address": "0x39a499cd81C494E8EBC226D416B245978820414e",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
@@ -1197,7 +1197,7 @@
     "deployTx": "0x50c7a1553dda424de0ed72012f4e7f8ccbb806a083c39043d1cac218e8693b38",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "Ecosystem_StarfleetStaking_RewardsBank": {
+  "Ecosystem_Starfleet_RewardsBank": {
     "address": "0x6bd45c40b8843fb2f66269Cfbb06e554f2a3FA11",
     "abi": [
       "constructor()",
@@ -1216,59 +1216,5 @@
     ],
     "deployTx": "0x2716daa18908b5a695534955229138712b19b803722a1b9963819636b5b403a1",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
-  },
-  "Ecosystem_StarfleetStaking": {
-    "address": "0xb8FfA26Ad7201bbd49C475F12856F789F61bEA75",
-    "abi": [
-      "constructor(string name_, address owner, address rewardsBank, uint256 timestampDayA, uint256 profitability, uint256 unstakePeriod, uint256 minStake)",
-      "error AlreadyClaimed()",
-      "error AlreadyUnstaked()",
-      "error NotStaked()",
-      "error NotUnstaked()",
-      "error StakeNotAllowed()",
-      "error StakeTooLow()",
-      "error UnstakeNotAllowed()",
-      "error UnstakingInProgress()",
-      "event InsufficientBalance(address account, uint256 amount)",
-      "event Profitability(uint256 profitability)",
-      "event Release(address indexed account, uint256 stake)",
-      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event Stake(address indexed account, uint256 stake)",
-      "event Unstake(address indexed account, uint256 stake, uint256 until)",
-      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function VERSION() view returns (uint256)",
-      "function available() view returns (uint256)",
-      "function distributeRewards()",
-      "function getBank() view returns (address)",
-      "function getDayA() view returns (uint256)",
-      "function getMinStake() view returns (uint256)",
-      "function getMultiplicator(address account) view returns (uint256)",
-      "function getProfitability() view returns (uint256)",
-      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-      "function getStakerInfo(address staker) view returns (uint256, uint256, uint256, uint256, uint256)",
-      "function getStakersCount() view returns (uint256)",
-      "function getTotalStake() view returns (uint256)",
-      "function getUnstakePeriod() view returns (uint256)",
-      "function grantRole(bytes32 role, address account)",
-      "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function name() view returns (string)",
-      "function release()",
-      "function renounceRole(bytes32 role, address account)",
-      "function revokeRole(bytes32 role, address account)",
-      "function rewardOf(address account) view returns (uint256)",
-      "function setDayA(uint256 timestamp)",
-      "function setMinStake(uint256 value)",
-      "function setProfitability(uint256 profitability)",
-      "function setUnstakePeriod(uint256 period)",
-      "function stake() payable",
-      "function stakeOf(address account) view returns (uint256)",
-      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-      "function unstake()",
-      "function withdraw(address to)"
-    ],
-    "deployTx": "0xf759aee4246b622c72e0cd80c377c2ca7ef829b8376f412b4889fef51a89a25b",
-    "fullyQualifiedName": "contracts/StarfleetStaking.sol:StarfleetStaking"
   }
 }
