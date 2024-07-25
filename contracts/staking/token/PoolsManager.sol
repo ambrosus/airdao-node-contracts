@@ -10,7 +10,6 @@ import "./IPoolsManager.sol";
 import "../../funds/RewardsBank.sol";
 
 contract PoolsManager is UUPSUpgradeable, AccessControlUpgradeable, IPoolsManager {
-
     RewardsBank public bank;
     UpgradeableBeacon public beacon;
 
@@ -50,24 +49,6 @@ contract PoolsManager is UUPSUpgradeable, AccessControlUpgradeable, IPoolsManage
         TokenPool pool = TokenPool(pools[_pool]);
         pool.activate();
         emit PoolActivated(_pool);
-    }
-
-    function setInterest(string memory pool_, uint interest_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(pools[pool_] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pools[pool_]);
-        pool.setInterest(interest_);
-    }
-
-    function setMinStakeValue(string memory _pool, uint _minStakeValue) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(pools[_pool] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pools[_pool]);
-        pool.setMinStakeValue(_minStakeValue);
-    }
-
-    function setInterestRate(string memory _pool, uint interestRate_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(pools[_pool] != address(0), "Pool does not exist");
-        TokenPool pool = TokenPool(pools[_pool]);
-        pool.setInterestRate(interestRate_);
     }
 
     // INTERNAL METHODS

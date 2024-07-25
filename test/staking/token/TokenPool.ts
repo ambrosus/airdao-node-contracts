@@ -1,4 +1,4 @@
-import { ethers, upgrades } from "hardhat";
+import { ethers, upgrades, network } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -28,7 +28,7 @@ describe("TokenPool", function () {
     const interest = 100000; // 10%
     const interestRate = 24 * 60 * 60; // 1 day
     const minStakeValue = 10;
-    const rewardTokenPrice = 2;
+    const rewardTokenPrice = 1;
     const tokenPool = (await upgrades.deployProxy(tokenPoolFactory, [
       name, token.address, rewardsBank.address, interest,
       interestRate, minStakeValue, token.address, rewardTokenPrice
@@ -54,19 +54,9 @@ describe("TokenPool", function () {
       await tokenPool.activate();
       expect(await tokenPool.active()).to.equal(true);
     });
-
-    it("Should set interest and min stake value", async function () {
-      const newInterest = 300000; // 30%
-      await tokenPool.setInterest(newInterest);
-      expect(await tokenPool.interest()).to.equal(newInterest);
-
-      const newMinStakeValue = 20;
-      await tokenPool.setMinStakeValue(newMinStakeValue);
-      expect(await tokenPool.minStakeValue()).to.equal(newMinStakeValue);
-    });
   });
 
-  describe("Staking and Unstaking", function () {
+  describe("Staking", function () {
     beforeEach(async function () {
       await token.approve(tokenPool.address, 1000000);
     });
@@ -76,7 +66,6 @@ describe("TokenPool", function () {
       await tokenPool.stake(stake);
       expect(await tokenPool.totalStake()).to.equal(stake);
       expect(await tokenPool.getStake(owner.address)).to.equal(stake);
-      expect(await tokenPool.getShare(owner.address)).to.equal(1000);
     });
 
     it("Should not allow staking below minimum stake value", async function () {
@@ -86,8 +75,7 @@ describe("TokenPool", function () {
     it("Should allow unstaking", async function () {
       const stake = 1000;
       await tokenPool.stake(stake);
-      const shares = await tokenPool.getShare(owner.address);
-      await tokenPool.unstake(shares);
+      await tokenPool.unstake(stake);
       expect(await tokenPool.totalStake()).to.equal(0);
       expect(await tokenPool.getStake(owner.address)).to.equal(0);
     });
@@ -95,8 +83,38 @@ describe("TokenPool", function () {
     it("Should not allow unstaking more than staked", async function () {
       const stake = 1000;
       await tokenPool.stake(stake);
-      const shares = await tokenPool.getShare(owner.address);
-      await expect(tokenPool.unstake(shares.mul(2))).to.be.revertedWith("Not enough share");
+      await expect(tokenPool.unstake(stake * 2)).to.be.revertedWith("Not enough stake");
+    });
+  });
+
+  describe("Rewards", function () {
+    beforeEach(async function () {
+      await token.mint(owner.address, 100000000000);
+      await token.approve(tokenPool.address, 1000000);
+      await token.transfer(rewardsBank.address, 10000);
+    });
+
+    it("Should allow claiming rewards", async function () {
+      const stake = 1000;
+      await tokenPool.stake(stake);
+
+      const rewardBefore = await tokenPool.getReward(owner.address);
+      console.log("rewardBefore", rewardBefore.toString());
+
+      // Wait for 1 day
+      const futureTime = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+      await network.provider.send("evm_setNextBlockTimestamp", [futureTime]);
+      await network.provider.send("evm_mine"); // Mine a block to apply the new timestamp
+
+      const expectedReward = 100;
+      const rewards = await tokenPool.getReward(owner.address);
+      console.log("reward", rewards.toString());
+      expect (rewards).to.equal(expectedReward);
+
+      const balanceBefore = await token.balanceOf(owner.address);
+      await tokenPool.claim();
+      const balanceAfter = await token.balanceOf(owner.address);
+      expect(balanceAfter.sub(balanceBefore)).to.equal(100);
     });
   });
 });
