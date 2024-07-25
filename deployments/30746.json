@@ -1054,7 +1054,7 @@
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
-  "BondMarketplace_Multisig": {
+  "Ecosystem_BondMarketplace_Multisig": {
     "address": "0x761314376Ac00758DB402b47F44104529768605b",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
@@ -1094,7 +1094,7 @@
     "deployTx": "0xf1d39b72af293772617b7c5515d548f18a6abc55dc30c4173b72382cc313c32b",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "BondMarketplace_RewardsBank": {
+  "Ecosystem_BondMarketplace_RewardsBank": {
     "address": "0xFFafaD16D4C174cA8E403E764704eb2784037b26",
     "abi": [
       "constructor()",
@@ -1114,7 +1114,7 @@
     "deployTx": "0x0a9cf5c7b2bf4b772508d528839b7dcd86655ffe2149eb19240d18748b910651",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "StarfleetStaking_Multisig": {
+  "Ecosystem_StarfleetStaking_Multisig": {
     "address": "0x39a499cd81C494E8EBC226D416B245978820414e",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
@@ -1154,7 +1154,7 @@
     "deployTx": "0x50c7a1553dda424de0ed72012f4e7f8ccbb806a083c39043d1cac218e8693b38",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "StarfleetStaking_RewardsBank": {
+  "Ecosystem_StarfleetStaking_RewardsBank": {
     "address": "0x6bd45c40b8843fb2f66269Cfbb06e554f2a3FA11",
     "abi": [
       "constructor()",
@@ -1174,7 +1174,7 @@
     "deployTx": "0x2716daa18908b5a695534955229138712b19b803722a1b9963819636b5b403a1",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "StarfleetStaking": {
+  "Ecosystem_StarfleetStaking": {
     "address": "0xb8FfA26Ad7201bbd49C475F12856F789F61bEA75",
     "abi": [
       "constructor(string name_, address owner, address rewardsBank, uint256 timestampDayA, uint256 profitability, uint256 unstakePeriod, uint256 minStake)",
