@@ -1,13 +1,14 @@
 import { ethers } from "hardhat";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import {
 
 import { ContractNames } from "../../src";
 
 import {
-  PoolsManager__factory,
+  TokenPoolsManager__factory,
   Multisig__factory,
   RewardsBank__factory,
+  TokenPoolBeacon__factory,
+  TokenPool__factory,
 } from "../../typechain-types";
 import {Roadmap2023MultisigSettings} from "../addresses";
 export async function main() {
@@ -19,7 +20,7 @@ export async function main() {
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.PoolManagerMultisig,
+    contractName: ContractNames.TokenPoolsManagerMultisig,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -27,16 +28,32 @@ export async function main() {
   });
 
   const rewardsBank = await deploy<RewardsBank__factory>({
-    contractName: ContractNames.PoolManagerRewardsBank,
+    contractName: ContractNames.TokenPoolsManagerRewardsBank,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
   });
+    
+  const zeroAddr = "0x0000000000000000000000000000000000000000";
 
-  const poolsManager = await deploy<PoolsManager__factory>({
-    contractName: ContractNames.PoolManager,
+  const tokenPool = await deploy<TokenPool__factory>({
+    contractName: ContractNames.TokenPool,
+    artifactName: "TokenPool",
+    deployArgs: ["reference", zeroAddr, zeroAddr, 1, 1, 1, zeroAddr, 1],
+    signer: deployer, 
+  });
+
+  const tokenPoolBeacon = await deploy<TokenPoolBeacon__factory>({
+    contractName: ContractNames.TokenPoolBeacon,
+    artifactName: "TokenPoolBeacon",
+    deployArgs: [tokenPool.address],
+    signer: deployer,
+  });
+
+  const poolsManager = await deploy<TokenPoolsManager__factory>({
+    contractName: ContractNames.TokenPoolsManager,
     artifactName: "PoolsManager",
-    deployArgs: [rewardsBank.address],
+    deployArgs: [rewardsBank.address, tokenPoolBeacon.address],
     signer: deployer,
   });
 

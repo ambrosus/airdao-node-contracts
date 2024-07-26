@@ -41,6 +41,12 @@ export enum ContractNames {
   Treasury = "Treasury",
   TreasuryMultisig = "Treasury_Multisig",
 
+  TokenPool = "TokenPool",
+  TokenPoolBeacon = "TokenPoolBeacon",
+  TokenPoolsManager = "TokenPoolsManager",
+  TokenPoolsManagerMultisig = "TokenPoolsManager_Multisig",
+  TokenPoolsManagerRewardsBank = "TokenPoolsManager_RewardsBank",
+
   // funds
 
   AirBond = "AirBond",
@@ -54,11 +60,6 @@ export enum ContractNames {
   Fees = "Fees",
   FeesMultisig = "Fees_Multisig",
   FeesTreasure = "Fees_Treasure",
-
-  TokenPool = "TokenPool",
-  PoolManager = "PoolManager",
-  PoolManagerMultisig = "PoolManager_Multisig",
-  PoolManagerRewardsBank = "PoolManager_RewardsBank",
 
   // bond marketplace
 
@@ -86,7 +87,7 @@ export const MULTISIGS = {
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
 
   [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
-  [ContractNames.PoolManager]: ContractNames.PoolManagerMultisig,
+  [ContractNames.TokenPoolsManager]: ContractNames.TokenPoolsManagerMultisig,
 };
 
 export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
