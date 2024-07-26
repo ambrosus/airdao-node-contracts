@@ -28,10 +28,6 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
     mapping(address => uint) public rewards;
     mapping(address => uint) private _lastChanged;
 
-    constructor() {
-        _disableInitializers();
-    }
- 
     function initialize(
         string memory name_, address token_, RewardsBank rewardsBank_, uint intereset_, 
         uint interestRate_, uint minStakeValue_, address rewardToken_, uint rewardTokenPrice_

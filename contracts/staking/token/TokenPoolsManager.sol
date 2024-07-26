@@ -27,13 +27,13 @@ contract TokenPoolsManager is AccessControl, ITokenPoolsManager {
         uint minStakeValue_, address rewardToken_, uint rewardTokenPrice_
     ) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         bytes memory data = abi.encodeWithSignature(
-            "initialize(string,address,address,uint,uint,uint,address,uint",
-                        token_, interest_, interestRate_, minStakeValue_, rewardToken_, rewardTokenPrice_);
+            "initialize(string,address,address,uint256,uint256,uint256,address,uint256)",
+                        name, token_, bank, interest_, interestRate_, minStakeValue_, rewardToken_, rewardTokenPrice_);
         address pool = address(new BeaconProxy(address(beacon), data));
         pools[name] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
-        emit PoolCreated(name, token_);
-        return address(pool);
+        emit PoolCreated(name, pool);
+        return pool;
     }
 
     function deactivatePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {

@@ -8,10 +8,12 @@ import {
   TokenPool,
   RewardsBank__factory,
   AirBond__factory,
-  TokenPool__factory,
 } from "../../../typechain-types";
 
+import TokenPoolJson from "../../../artifacts/contracts/staking/token/TokenPool.sol/TokenPool.json";
+
 import { expect } from "chai";
+
 describe("TokenPool", function () {
   let owner: SignerWithAddress;
   let tokenPool: TokenPool;

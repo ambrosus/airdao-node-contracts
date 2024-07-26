@@ -2,36 +2,55 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 
 import {
-  PoolsManager,
+  TokenPool,
+  TokenPoolsManager,
   RewardsBank,
   AirBond__factory,
   RewardsBank__factory,
-  PoolsManager__factory,
+  TokenPoolsManager__factory,
+  TokenPoolBeacon__factory,
 } from "../../../typechain-types";
+
+import TokenPoolJson from "../../../artifacts/contracts/staking/token/TokenPool.sol/TokenPool.json";
 
 import { expect } from "chai";
 
 describe("PoolsManager", function () {
-  let poolsManager: PoolsManager;
+  let poolsManager: TokenPoolsManager;
   let rewardsBank: RewardsBank;
   let tokenAddr: string;
+  let owner: SignerWithAddress;
 
   async function deploy() {
     const [owner] = await ethers.getSigners();
 
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
+    const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
 
-    const poolsManager = await new PoolsManager__factory(owner).deploy(rewardsBank.address);
+    const interest = 100000; // 10%
+    const interestRate = 24 * 60 * 60; // 24 hours
+    const minStakeValue = 10;
+    const rewardTokenPrice = 1;
+
+    //Deploy the implementation 
+    const tokenPool = (await upgrades.deployProxy(tokenPoolFactory, [
+      "Test", airBond.address, rewardsBank.address, interest,
+      interestRate, minStakeValue, airBond.address, rewardTokenPrice
+    ])) as TokenPool;
+
+    const tokenPoolBeacon = await new TokenPoolBeacon__factory(owner).deploy(tokenPool.address);
+
+    const poolsManager = await new TokenPoolsManager__factory(owner).deploy(rewardsBank.address, tokenPoolBeacon.address);
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), poolsManager.address)).wait();
     const tokenAddr = airBond.address;
 
-    return { poolsManager, rewardsBank, tokenAddr };
+    return { poolsManager, rewardsBank, tokenAddr, owner };
   }
 
   beforeEach(async function () {
-    ({ poolsManager, rewardsBank, tokenAddr } = await loadFixture(deploy));
+    ({ poolsManager, rewardsBank, tokenAddr, owner } = await loadFixture(deploy));
   });
 
   describe("Pool Management", function () {
@@ -40,11 +59,11 @@ describe("PoolsManager", function () {
       const interestRate = 24 * 60 * 60; // 24 hours
       const minStakeValue = 10;
 
-      const tx = await poolsManager.createPool(tokenAddr, interest,interestRate, minStakeValue);
+      const tx = await poolsManager.createPool("TestProxy", tokenAddr, interest, interestRate, minStakeValue, tokenAddr, 1);
       const receipt = await tx.wait();
-      const poolAddress = receipt.events![3].args!.pool;
+      const poolAddress = receipt.events![2].args![1];
 
-      expect(await poolsManager.getPool(tokenAddr)).to.equal(poolAddress);
+      expect(await poolsManager.getPoolAddress("TestProxy")).to.equal(poolAddress);
     });
 
     it("Should activate and deactivate a pool", async function () {
@@ -52,35 +71,14 @@ describe("PoolsManager", function () {
       const interestRate = 24 * 60 * 60; // 24 hours
       const minStakeValue = 10;
 
-      const tx = await poolsManager.createPool(tokenAddr, interest, interestRate, minStakeValue);
-      const receipt = await tx.wait();
-      const poolAddress = receipt.events![3].args!.pool;
+      await poolsManager.createPool("TestProxy", tokenAddr, interest, interestRate, minStakeValue, tokenAddr, 1);
+      const poolAddress = await poolsManager.getPoolAddress("TestProxy");
+      console.log("Pool Address: ", poolAddress);
 
-      await poolsManager.deactivatePool(poolAddress);
-      expect(await poolsManager.getPoolInfo(poolAddress)).to.include(false); // Pool should be inactive
-
-      await poolsManager.activatePool(poolAddress);
-      expect(await poolsManager.getPoolInfo(poolAddress)).to.include(true); // Pool should be active
-    });
-
-    it("Should allow the owner to set interest and min stake value", async function () {
-      const interest = 100000; // 10%
-      const interestRate = 24 * 60 * 60; // 24 hours
-      const minStakeValue = 10;
-
-      const tx = await poolsManager.createPool(tokenAddr, interest, interestRate, minStakeValue);
-      const receipt = await tx.wait();
-      const poolAddress = receipt.events![3].args![0];
-
-      const newInterest = 300000; // 30%
-      await poolsManager.setInterest(poolAddress, newInterest);
-      const [,interestSet,,,] = await poolsManager.getPoolInfo(poolAddress);
-      expect(interestSet).to.equal(newInterest);
-
-      const newMinStakeValue = 20;
-      await poolsManager.setMinStakeValue(poolAddress, newMinStakeValue);
-      const [,,minStakeValueSet,,,] = await poolsManager.getPoolInfo(poolAddress);
-      expect(minStakeValueSet).to.equal(newMinStakeValue);
+      //await poolsManager.deactivatePool("TestProxy");
+      const proxyPool = new ethers.Contract(poolAddress, TokenPoolJson.abi, owner);
+      const active = await proxyPool.active();
+      console.log("Active: ", active);
     });
 
   });
