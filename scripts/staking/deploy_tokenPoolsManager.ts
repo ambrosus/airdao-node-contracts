@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 
 import { ContractNames } from "../../src";
@@ -32,29 +32,18 @@ export async function main() {
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
+    loadIfAlreadyDeployed: true,
   });
     
-  const zeroAddr = "0x0000000000000000000000000000000000000000";
-
-  const tokenPool = await deploy<TokenPool__factory>({
-    contractName: ContractNames.TokenPool,
-    artifactName: "TokenPool",
-    deployArgs: ["reference", zeroAddr, zeroAddr, 1, 1, 1, zeroAddr, 1],
-    signer: deployer, 
-  });
-
-  const tokenPoolBeacon = await deploy<TokenPoolBeacon__factory>({
-    contractName: ContractNames.TokenPoolBeacon,
-    artifactName: "TokenPoolBeacon",
-    deployArgs: [tokenPool.address],
-    signer: deployer,
-  });
+  const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
+  const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
 
   const poolsManager = await deploy<TokenPoolsManager__factory>({
     contractName: ContractNames.TokenPoolsManager,
-    artifactName: "PoolsManager",
+    artifactName: "TokenPoolsManager",
     deployArgs: [rewardsBank.address, tokenPoolBeacon.address],
     signer: deployer,
+    loadIfAlreadyDeployed: true,
   });
 
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), poolsManager.address)).wait();
