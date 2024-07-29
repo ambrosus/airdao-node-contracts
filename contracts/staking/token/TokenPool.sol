@@ -123,6 +123,7 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
         require(rewardAmount > 0, "No rewards to claim");
 
         bank.withdrawErc20(rewardToken, user, rewardAmount);
+        rewards[user] = 0;
         emit RewardClaimed(user, rewardAmount);
     }
 
