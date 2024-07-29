@@ -27,19 +27,7 @@ describe("PoolsManager", function () {
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
     const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
-
-    const interest = 100000; // 10%
-    const interestRate = 24 * 60 * 60; // 24 hours
-    const minStakeValue = 10;
-    const rewardTokenPrice = 1;
-
-    //Deploy the implementation 
-    const tokenPool = (await upgrades.deployProxy(tokenPoolFactory, [
-      "Test", airBond.address, rewardsBank.address, interest,
-      interestRate, minStakeValue, airBond.address, rewardTokenPrice
-    ])) as TokenPool;
-
-    const tokenPoolBeacon = await new TokenPoolBeacon__factory(owner).deploy(tokenPool.address);
+    const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
 
     const poolsManager = await new TokenPoolsManager__factory(owner).deploy(rewardsBank.address, tokenPoolBeacon.address);
 
@@ -61,7 +49,7 @@ describe("PoolsManager", function () {
 
       const tx = await poolsManager.createPool("TestProxy", tokenAddr, interest, interestRate, minStakeValue, tokenAddr, 1);
       const receipt = await tx.wait();
-      const poolAddress = receipt.events![2].args![1];
+      const poolAddress = receipt.events![4].args![1];
 
       expect(await poolsManager.getPoolAddress("TestProxy")).to.equal(poolAddress);
     });
