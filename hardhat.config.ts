@@ -12,9 +12,9 @@ dotenv.config();
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      forking: {
-        url: "https://network.ambrosus.io",
-      },
+      // forking: {
+      //   url: "https://network.ambrosus.io",
+      // },
     },
     local: {
       url: "http://127.0.0.1:8545",
@@ -31,8 +31,8 @@ const config: HardhatUserConfig = {
       gasPrice: 0,
       accounts: [
         process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero,
-        process.env.PRIVATEKEY_TEST_MULTISIG1 || ethers.constants.HashZero,
-        process.env.PRIVATEKEY_TEST_MULTISIG2 || ethers.constants.HashZero,
+        // process.env.PRIVATEKEY_TEST_MULTISIG1 || ethers.constants.HashZero,
+        // process.env.PRIVATEKEY_TEST_MULTISIG2 || ethers.constants.HashZero,
       ],
     },
     test: {

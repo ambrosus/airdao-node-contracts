@@ -1,7 +1,7 @@
 import { MasterMultisig, Multisig } from "../../typechain-types";
 import { Contracts } from "../contracts/contracts";
-import { ContractNames, multisigsNames } from "../contracts/names";
-import { submitTransaction } from "../methods/internal";
+import { ContractNames } from "../contracts/names";
+import { submitTransaction } from "./submitTransaction";
 
 export interface Perm {
   // address is
@@ -26,12 +26,13 @@ export interface User {
 // VIEW
 
 export async function getPermissions(contracts: Contracts, multisigAddresses?: string[]) {
-  if (!multisigAddresses)
-    multisigAddresses = multisigsNames
+  if (!multisigAddresses) {
+    multisigAddresses = contracts.getAllMultisigNames()
       .map((mn) => contracts.getContractByNameSafe(mn)?.address)
       .filter((el) => el !== undefined) as string[];
+  }
 
-  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
+  const masterMultisig = contracts.masterMultisig as MasterMultisig;
   const contractResults = await masterMultisig.getAllSigners(multisigAddresses);
 
   const groups = getGroups(multisigAddresses, contractResults);
@@ -80,13 +81,13 @@ export async function setUserGroups(contracts: Contracts, userAddress: string, n
 // NON VIEW
 
 export async function setPermissions(contracts: Contracts, changes: MasterMultisig.ChangeSignersStructStruct[]) {
-  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
+  const masterMultisig = contracts.masterMultisig as MasterMultisig;
   const calldata = (await masterMultisig.populateTransaction.changeSignersMaster(changes)).data!;
   return await submitTransaction(masterMultisig, masterMultisig.address, 0, calldata);
 }
 
 export async function setThreshold(contracts: Contracts, multisigToChange: ContractNames, newThreshold: number) {
-  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
+  const masterMultisig = contracts.masterMultisig as MasterMultisig;
   const slaveMultisig = contracts.getContractByName(multisigToChange) as Multisig;
 
   const calldata = (await masterMultisig.populateTransaction.changeThreshold(newThreshold)).data!;

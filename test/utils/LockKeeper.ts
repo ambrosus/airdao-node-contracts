@@ -310,9 +310,8 @@ describe("LockKeeper", function () {
       await erc20.approve(lockKeeper.address, 100);
       await lockKeeper.lockSingle(user2.address, erc20.address, 1672531200, 100, "example of lockSingle");
 
-      const tx = await lockKeeper.cancelLock(1);
-      const tx1 = await tx.wait();
-      expect(tx1.events[1].args.canceledAmount).to.equal(100);
+      await expect(lockKeeper.cancelLock(1))
+        .to.emit(lockKeeper, "LockCanceled").withArgs(1, 100);
     });
   });
 

@@ -1,8 +1,15 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { impersonateAccount, loadFixture, setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { TEST_BlockListener, TEST_Pool_Manager, TEST_ValidatorSet } from "../../typechain-types";
+import {
+  TEST_BlockListener,
+  TEST_Pool_Manager,
+  TEST_Pool_Manager__factory,
+  TEST_ValidatorSet
+} from "../../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { formatEther, parseEther } from "ethers/lib/utils";
+import { AddressZero } from "@ethersproject/constants";
 
 describe("ValidatorSet", function () {
   const addrs = Array.from({ length: 100 }, (_, i) =>
@@ -13,6 +20,7 @@ describe("ValidatorSet", function () {
   let testPool: TEST_Pool_Manager;
   let blockListener: TEST_BlockListener;
   let owner: SignerWithAddress;
+  let testPoolSigner: SignerWithAddress;
 
   async function deploy() {
     [owner] = await ethers.getSigners();
@@ -23,8 +31,10 @@ describe("ValidatorSet", function () {
     // const LockKeeperFactory = await ethers.getContractFactory("LockKeeper");
     // const lockKeeper = await LockKeeperFactory.deploy();
 
-    const TestPoolFactory = await ethers.getContractFactory("TEST_Pool_Manager");
-    const testPool = await TestPoolFactory.deploy(validatorSet.address);
+    const testPool = await new TEST_Pool_Manager__factory(owner).deploy(validatorSet.address);
+    await impersonateAccount(testPool.address);
+    await setBalance(testPool.address, parseEther("10000"));
+    const testPoolSigner = await ethers.getSigner(testPool.address);
 
     const BlockListener = await ethers.getContractFactory("TEST_BlockListener");
     blockListener = await BlockListener.deploy();
@@ -32,11 +42,11 @@ describe("ValidatorSet", function () {
 
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), testPool.address);
 
-    return { validatorSet, testPool, owner };
+    return { validatorSet, testPool, testPoolSigner, owner };
   }
 
   beforeEach(async function () {
-    ({ validatorSet, testPool } = await loadFixture(deploy));
+    ({ validatorSet, testPool, testPoolSigner } = await loadFixture(deploy));
   });
 
   // todo make funtions like removeTop, removeQueue, addTop, addQueue with finding new heads
@@ -64,29 +74,71 @@ describe("ValidatorSet", function () {
       });
     });
 
-    describe("addBlockListener", function () {
-      it("should add a block listener", async function () {
-        const [user] = await ethers.getSigners();
-        await validatorSet.addBlockListener(user.address);
+    describe("getStakesByManager", function () {
+      it("should return stakes by manager", async function () {
+        const testPool2 = await new TEST_Pool_Manager__factory(owner).deploy(validatorSet.address);
 
-        const listeners = await validatorSet.getListeners();
-        expect(listeners).to.have.lengthOf(1);
+        const [user1, user2, user3, user4] = await ethers.getSigners();
+        await validatorSet.grantRole(validatorSet.STAKING_MANAGER_ROLE(), testPool2.address);
+        await testPool.addStake(user1.address, { value: 200 });
+        await testPool.addStake(user2.address, { value: 100 });
+        await testPool2.addStake(user3.address, { value: 200 });
+        await testPool2.addStake(user4.address, { value: 100 });
+
+        expect(await validatorSet.getStakesByManager(testPool.address)).to.deep.equal([user1.address, user2.address]);
+        expect(await validatorSet.getStakesByManager(testPool2.address)).to.deep.equal([user3.address, user4.address]);
       });
     });
 
-    describe("removeBlockListener", function () {
-      it("should remove a block listener", async function () {
-        await validatorSet.addBlockListener(blockListener.address);
+    describe("blockListeners", function () {
 
-        let listeners = await validatorSet.getListeners();
-        expect(listeners).to.have.lengthOf(1);
-        expect(listeners[0]).to.equal(blockListener.address);
+      describe("addBlockListener", function () {
+        it("should add a block listener", async function () {
+          const [user] = await ethers.getSigners();
+          await validatorSet.addBlockListener(user.address);
 
-        await validatorSet.removeBlockListener(blockListener.address);
+          const listeners = await validatorSet.getListeners();
+          const listeners2 = await validatorSet.getBlockListeners();
+          expect(listeners).to.have.lengthOf(1);
+          expect(listeners2).to.have.lengthOf(1);
+        });
 
-        listeners = await validatorSet.getListeners();
-        expect(listeners).to.have.lengthOf(0);
+        it("should revert if already listener", async function () {
+          const [user] = await ethers.getSigners();
+          await validatorSet.addBlockListener(user.address);
+          await expect(validatorSet.addBlockListener(user.address)).to.be.revertedWith("Already listener");
+        });
+
+        it("should revert if not admin", async function () {
+          const [_, notAdmin] = await ethers.getSigners();
+          await expect(validatorSet.connect(notAdmin).addBlockListener(owner.address)).to.be.reverted;
+        });
+
       });
+
+      describe("removeBlockListener", function () {
+        it("should remove a block listener", async function () {
+          await validatorSet.addBlockListener(blockListener.address);
+          await validatorSet.addBlockListener(testPool.address);
+
+          expect(await validatorSet.getListeners()).to.deep.equal([blockListener.address, testPool.address]);
+
+          await validatorSet.removeBlockListener(testPool.address);
+          expect(await validatorSet.getListeners()).to.deep.equal([blockListener.address]);
+        });
+
+        it("should revert if not listener", async function () {
+          const [user] = await ethers.getSigners();
+          await expect(validatorSet.removeBlockListener(user.address)).to.be.revertedWith("Not found");
+        });
+
+        it("should revert if not admin", async function () {
+          const [_, notAdmin] = await ethers.getSigners();
+          await expect(validatorSet.connect(notAdmin).removeBlockListener(owner.address)).to.be.reverted;
+        });
+
+      });
+
     });
 
     describe("process", function () {
@@ -102,6 +154,8 @@ describe("ValidatorSet", function () {
 
         expect(await blockListener.blockProcessed()).to.be.true;
       });
+
+
     });
 
     describe("stake unstake", function () {
@@ -186,9 +240,21 @@ describe("ValidatorSet", function () {
             .withArgs(B);
           await expectArraysEqual([C, D], [A, B]);
         });
+
+        it("amount must be > 0", async function () {
+          await expect(testPool.addStake(B, { value: 0 })).to.be.revertedWith("amount must be > 0");
+        });
+
+        it("should revert if stake is already exists", async function () {
+          await expect(validatorSet.connect(testPoolSigner).newStake(A, 200, true)).to.be.revertedWith("Already has stake");
+        });
+
+        it("only stake manager can stake", async function () {
+          await expect(validatorSet.newStake(B, 100, false)).to.be.reverted;
+        });
       });
 
-      describe("", function () {
+      describe("modify stake", function () {
         beforeEach(async function () {
           await testPool.addStake(A, { value: 100 });
           await testPool.addStake(B, { value: 200 });
@@ -332,6 +398,19 @@ describe("ValidatorSet", function () {
             await expect(testPool.addStake(B, { value: 10 })).to.not.emit(validatorSet, "TopListNodeAdded");
             await expectArraysEqual([C, D], [A, B]);
           });
+
+          it("should revert if amount == 0", async function () {
+            await expect(validatorSet.connect(testPoolSigner).stake(B, 0)).to.be.revertedWith("amount must be > 0");
+          });
+
+          it("should revert if stake not exists", async function () {
+            await expect(validatorSet.connect(testPoolSigner).stake(owner.address, 200)).to.be.revertedWith("Stake doesn't exist");
+          });
+
+          it("should revert if call not from same staking manager", async function () {
+            await expect(validatorSet.stake(B, 200 )).to.be.revertedWith("stakingContract must be the same");
+          });
+
         });
 
         describe("decrease stake", function () {
@@ -397,6 +476,18 @@ describe("ValidatorSet", function () {
               .withArgs(B, testPool.address, -10);
             await expectArraysEqual([C, D], [A, B]);
           });
+
+          it("should revert if amount == 0", async function () {
+            await expect(validatorSet.connect(testPoolSigner).unstake(B, 0)).to.be.revertedWith("amount must be > 0");
+          });
+
+          it("should revert if amount > stake", async function () {
+            await expect(validatorSet.connect(testPoolSigner).unstake(B, 20000)).to.be.revertedWith("amount bigger than stake");
+          });
+
+          it("should revert if call not from same staking manager", async function () {
+            await expect(validatorSet.unstake(B, 200 )).to.be.revertedWith("stakingContract must be the same");
+          });
         });
       });
     });
@@ -410,7 +501,46 @@ describe("ValidatorSet", function () {
         const updatedBaseReward = await validatorSet.baseReward();
         expect(updatedBaseReward).to.be.equal(newBaseReward);
       });
+
+      it("should revert if not admin", async function () {
+        const [_, notAdmin] = await ethers.getSigners();
+        await expect(validatorSet.connect(notAdmin).setReward(100)).to.be.reverted;
+      });
+
+      it("setRewardSettings", async function () {
+        const newSettings = [1, 100, 10000, 100000, 10000000];
+        // @ts-ignore
+        await validatorSet.setRewardSettings(newSettings);
+        expect(await validatorSet.getRewardSettings()).to.be.deep.equal(newSettings);
+      });
+
+
+      it("should revert if not admin", async function () {
+        const [_, notAdmin] = await ethers.getSigners();
+        await expect(validatorSet.connect(notAdmin).setRewardSettings([1, 100, 10000, 100000, 10000000])).to.be.reverted;
+      });
+
+
     });
+
+    describe("changeTopStakesCount", function () {
+      it("should update the top stakes count", async function () {
+        await validatorSet.changeTopStakesCount(5);
+        expect(await validatorSet.topStakesCount()).to.be.equal(5);
+      });
+
+      it("should revert if not admin", async function () {
+        const [_, notAdmin] = await ethers.getSigners();
+        await expect(validatorSet.connect(notAdmin).changeTopStakesCount(5)).to.be.reverted;
+      });
+
+      it("should revert if count is 0", async function () {
+        await expect(validatorSet.changeTopStakesCount(0)).to.be.revertedWith("newTopStakesCount must be > 0");
+      });
+
+
+    });
+
   });
 
   describe("modifiers", function () {
@@ -447,7 +577,22 @@ describe("ValidatorSet", function () {
     //
     //
     // });
+
+    it("_updateExternal should be called only from contract itself", async function () {
+      await expect(validatorSet._updateExternal()).to.be.reverted;
+    });
   });
+
+  it("emitReward should revert if called not by staking manager", async function () {
+    await expect(validatorSet.emitReward(AddressZero, AddressZero, AddressZero, AddressZero, AddressZero, 0)).to.be.reverted;
+  });
+
+  it("finalizeChange should revert if called not by super user", async function () {
+    const [_, notAdmin] = await ethers.getSigners();
+    await expect(validatorSet.connect(notAdmin).finalizeChange()).to.be.reverted;
+  });
+
+
 
   async function integrityCheck() {
     const hasDuplicates = (array: any[]) => new Set(array).size !== array.length;

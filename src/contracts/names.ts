@@ -1,3 +1,8 @@
+export enum MultisigVersions {
+  common = "common",
+  ecosystem = "ecosystem",
+}
+
 export enum ContractNames {
   MasterMultisig = "MasterMultisig",
 
@@ -41,16 +46,6 @@ export enum ContractNames {
   Treasury = "Treasury",
   TreasuryMultisig = "Treasury_Multisig",
 
-  LiquidPool = "LiquidPool",
-  LiquidPoolStAMB = "LiquidPool_StAMB",
-  LiquidPoolMultisig = "LiquidPool_Multisig",
-  LiquidPoolRewardsBank = "LiquidPool_RewardsBank",
-  LiquidNodesManager = "LiquidNodesManager",
-  LiquidNodesManagerRewardsBank = "LiquidNodesManager_RewardsBank",
-  LiquidNodesManagerTreasury = "LiquidNodesManager_Treasury",
-  LiquidNodesManagerTreasuryFees = "LiquidNodesManager_TreasuryFees",
-  LiquidPoolStakingTiers = "LiquidPool_StakingTiers",
-
   // funds
 
   AirBond = "AirBond",
@@ -67,11 +62,29 @@ export enum ContractNames {
 
   // bond marketplace
 
-  BondMarketplaceMultisig = "BondMarketplace_Multisig",
-  BondMarketplaceRewardsBank = "BondMarketplace_RewardsBank",
+  Ecosystem_MasterMultisig = "Ecosystem_MasterMultisig",
+
+  Ecosystem_BondMarketplaceMultisig = "Ecosystem_BondMarketplace_Multisig",
+  Ecosystem_BondMarketplaceRewardsBank = "Ecosystem_BondMarketplace_RewardsBank",
+
+  Ecosystem_StarfleetMultisig = "Ecosystem_Starfleet_Multisig",
+  Ecosystem_StarfleetRewardsBank = "Ecosystem_Starfleet_RewardsBank",
+
+  Ecosystem_AstradexMultisig = "Ecosystem_Astradex_Multisig",
+
+  Ecosystem_LiquidPool = "Ecosystem_LiquidPool",
+  Ecosystem_LiquidPoolStAMB = "Ecosystem_LiquidPool_StAMB",
+  Ecosystem_LiquidPoolMultisig = "Ecosystem_LiquidPool_Multisig",
+  Ecosystem_LiquidPoolRewardsBank = "Ecosystem_LiquidPool_RewardsBank",
+  Ecosystem_LiquidNodesManager = "Ecosystem_LiquidNodesManager",
+  Ecosystem_LiquidNodesManagerRewardsBank = "Ecosystem_LiquidNodesManager_RewardsBank",
+  Ecosystem_LiquidNodesManagerTreasury = "Ecosystem_LiquidNodesManager_Treasury",
+  Ecosystem_LiquidNodesManagerTreasuryFees = "Ecosystem_LiquidNodesManager_TreasuryFees",
+  Ecosystem_LiquidPoolStakingTiers = "Ecosystem_LiquidPool_StakingTiers",
+
 }
 
-export const MULTISIGS = {
+export const MULTISIGS_COMMON = {
   [ContractNames.FinanceMaster]: ContractNames.FinanceMasterMultisig,
   [ContractNames.FinanceRewards]: ContractNames.FinanceRewardsMultisig,
   [ContractNames.FinanceInvestors]: ContractNames.FinanceInvestorsMultisig,
@@ -90,19 +103,40 @@ export const MULTISIGS = {
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
 
-  [ContractNames.LiquidPool]: ContractNames.LiquidPoolMultisig,
-  [ContractNames.LiquidNodesManager]: ContractNames.LiquidPoolMultisig,
-  [ContractNames.LiquidPoolRewardsBank]: ContractNames.LiquidPoolMultisig,
-  [ContractNames.LiquidNodesManagerRewardsBank]: ContractNames.LiquidPoolMultisig,
-  [ContractNames.LiquidNodesManagerTreasury]: ContractNames.LiquidPoolMultisig,
-  [ContractNames.LiquidNodesManagerTreasuryFees]: ContractNames.LiquidPoolMultisig,
-  [ContractNames.LiquidPoolStAMB]: ContractNames.LiquidPoolMultisig,
-  [ContractNames.LiquidPoolStakingTiers]: ContractNames.LiquidPoolMultisig,
-
-
-  [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
+  [ContractNames.Ecosystem_LiquidPool]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManager]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidPoolRewardsBank]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManagerRewardsBank]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManagerTreasury]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManagerTreasuryFees]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidPoolStAMB]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidPoolStakingTiers]: ContractNames.Ecosystem_LiquidPoolMultisig,
 };
 
-export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
+export const MULTISIGS_ECOSYSTEM = {
+  [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
+  [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
+};
 
-export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];
+export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
+
+
+export function getEnvironment(version: MultisigVersions = MultisigVersions.common) {
+  if (version == MultisigVersions.ecosystem) {
+    return {
+      master: ContractNames.Ecosystem_MasterMultisig,
+      slaves: [
+        ...Object.values(MULTISIGS_ECOSYSTEM),
+        // multisigs below are not listed in the MULTISIGS_ECOSYSTEM, so we add them manually
+        ContractNames.Ecosystem_AstradexMultisig,
+      ],
+    };
+  }
+  if (version == MultisigVersions.common) {
+    return {
+      master: ContractNames.MasterMultisig,
+      slaves: Object.values(MULTISIGS_COMMON)
+    };
+  }
+  throw new Error("Unknown environment");
+}

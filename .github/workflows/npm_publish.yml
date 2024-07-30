@@ -2,6 +2,12 @@ name: Publish Package to npmjs
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The tag to publish with'
+        required: true
+        default: 'latest'
 
 jobs:
   build:
@@ -19,6 +25,12 @@ jobs:
 
       - run: npm install
       - run: npm run build
-      - run: npm publish --access public
+      - run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            npm publish --access public
+          else
+            npm publish --access public --tag ${{ github.event.inputs.tag }}
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+

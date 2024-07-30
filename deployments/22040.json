@@ -766,7 +766,7 @@
     "deployTx": "0x8f6c33ff0324a756a5a8f7e6ad7e84abceaa31bad64e531ca051fdc26ee4033f",
     "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper",
     "proxy": {
-      "implementation": "0x585896742516DF0703D72018E5c049D2C293718F",
+      "implementation": "0x5a733c4cf22473fedAF0Dfd4020d0eC5C0B1Be04",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -1054,7 +1054,7 @@
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
-  "BondMarketplace_Multisig": {
+  "Ecosystem_BondMarketplace_Multisig": {
     "address": "0xb04D84FC6BA3202f741d0db0124d890e7A3493b7",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
@@ -1094,7 +1094,7 @@
     "deployTx": "0xe6d5722aae0514b25e9627d02bbdf25d9953d93f180e6b36f157eea307b12dd2",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "BondMarketplace_RewardsBank": {
+  "Ecosystem_BondMarketplace_RewardsBank": {
     "address": "0xC6613c683f2d4684D806FAcb9D413f41221537c6",
     "abi": [
       "constructor()",
