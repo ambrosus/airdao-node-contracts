@@ -1257,7 +1257,7 @@
     "deployTx": "0x1602fc44dcce224f33f0452cec32d4a527defba282f9dddbd2befbbf870dbb82",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "LiquidPool_Multisig": {
+  "Ecosystem_LiquidPool_Multisig": {
     "address": "0x5b3E759016f72aFC0294cd203C3FA76eEd01C599",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
@@ -1297,7 +1297,7 @@
     "deployTx": "0x6688f27128bff1e90950fc1ad2b5b7b04957c5a47665c83e300e915cc300f05f",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "LiquidNodesManager_RewardsBank": {
+  "Ecosystem_LiquidNodesManager_RewardsBank": {
     "address": "0xa3eaAC73462f829Bc534C2b3e1B94738fb962308",
     "abi": [
       "constructor()",
@@ -1317,7 +1317,7 @@
     "deployTx": "0xe0301a8e0114eb1b325cf87e9e7aba635b23e1b3aadbd219510d4a823fd181be",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "LiquidNodesManager_Treasury": {
+  "Ecosystem_LiquidNodesManager_Treasury": {
     "address": "0x3335Af5C890838fdfa1ACc1026f7dF72478af219",
     "abi": [
       "constructor(address owner, uint256 _fee)",
@@ -1334,7 +1334,7 @@
     "deployTx": "0x79330a564cff938923085d796e76d6ad30b40933878443c8640c075594549a7f",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
-  "LiquidNodesManager_TreasuryFees": {
+  "Ecosystem_LiquidNodesManager_TreasuryFees": {
     "address": "0xd62F24d25ad63f343328EfcB4272c21024f918b9",
     "abi": [
       "constructor(address owner, uint256 _fee)",
@@ -1351,7 +1351,7 @@
     "deployTx": "0x0a60a0238bab95cc375d4aa6a8c21c39dc593ced0482891565dc94908105b194",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
-  "LiquidPool_RewardsBank": {
+  "Ecosystem_LiquidPool_RewardsBank": {
     "address": "0xdeB90C11908feBFE38B5adF20c08a531c2eCFE9e",
     "abi": [
       "constructor()",
@@ -1371,7 +1371,7 @@
     "deployTx": "0x595ad4429244890449855621ac954ab9834cba51696fa3f69843a5fc48b6fb1d",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "LiquidPool_StAMB": {
+  "Ecosystem_LiquidPool_StAMB": {
     "address": "0x9e64d4772dAA874e5A9AaBe385063B7772AEe42a",
     "abi": [
       "constructor()",
@@ -1408,7 +1408,7 @@
     "deployTx": "0xe962303878577a1c84df3234bbe0f1d65d293246ccb9b4664b32d9902fb68e0c",
     "fullyQualifiedName": "contracts/staking/liquid/StAMB.sol:StAMB"
   },
-  "LiquidPool_StakingTiers": {
+  "Ecosystem_LiquidPool_StakingTiers": {
     "address": "0xF53cf866b69136883D60297283640913A7F34F7f",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
@@ -1444,7 +1444,7 @@
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
-  "LiquidNodesManager": {
+  "Ecosystem_LiquidNodesManager": {
     "address": "0x4Cf9E9FAE2280Cddc2770f03C27Ff9a7bB8CA6e8",
     "abi": [
       "event AddNodeRequest(uint256 indexed requestId, uint256 indexed nodeId, uint256 stake)",
@@ -1498,7 +1498,7 @@
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
-  "LiquidPool": {
+  "Ecosystem_LiquidPool": {
     "address": "0xb344e0900b4747cb9F12960659CD216F7CCd5674",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",

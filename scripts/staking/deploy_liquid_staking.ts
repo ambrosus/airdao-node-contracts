@@ -12,18 +12,20 @@ import {
   ValidatorSet,
 } from "../../typechain-types";
 import {Roadmap2023MultisigSettings} from "../addresses";
+import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 export async function main() {
   const {chainId} = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
+  wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
 
   const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.LiquidPoolMultisig,
+    contractName: ContractNames.Ecosystem_LiquidPoolMultisig,
     artifactName: "Multisig",
     deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
     signer: deployer,
@@ -33,7 +35,7 @@ export async function main() {
 
   // block rewards will be withdrawn from this contract
   const nodesRewardsBank = await deploy<RewardsBank__factory>({
-    contractName: ContractNames.LiquidNodesManagerRewardsBank,
+    contractName: ContractNames.Ecosystem_LiquidNodesManagerRewardsBank,
     artifactName: "RewardsBank",
     deployArgs: [],
     signer: deployer,
@@ -42,7 +44,7 @@ export async function main() {
 
   // block rewards will be transferred to this contract (except fees)
   const nodesRewardsTreasury = await deploy<Treasury__factory>({
-    contractName: ContractNames.LiquidNodesManagerTreasury,
+    contractName: ContractNames.Ecosystem_LiquidNodesManagerTreasury,
     artifactName: "Treasury",
     signer: deployer,
     deployArgs: [deployer.address, 0],
@@ -51,7 +53,7 @@ export async function main() {
 
   // fees from block rewards will be transferred to this contract
   const nodesRewardsTreasuryFees = await deploy<Treasury__factory>({
-    contractName: ContractNames.LiquidNodesManagerTreasuryFees,
+    contractName: ContractNames.Ecosystem_LiquidNodesManagerTreasuryFees,
     artifactName: "Treasury",
     signer: deployer,
     deployArgs: [
@@ -64,7 +66,7 @@ export async function main() {
 
   // staking rewards and interest will be withdrawn from this contract
   const poolRewardsBank = await deploy<RewardsBank__factory>({
-    contractName: ContractNames.LiquidPoolRewardsBank,
+    contractName: ContractNames.Ecosystem_LiquidPoolRewardsBank,
     artifactName: "RewardsBank",
     signer: deployer,
     deployArgs: [],
@@ -73,7 +75,7 @@ export async function main() {
 
 
   const stAmb = await deploy<StAMB__factory>({
-    contractName: ContractNames.LiquidPoolStAMB,
+    contractName: ContractNames.Ecosystem_LiquidPoolStAMB,
     artifactName: "StAMB",
     signer: deployer,
     deployArgs: [],
@@ -82,7 +84,7 @@ export async function main() {
 
 
   const stakingTiers = await deploy<StakingTiers__factory>({
-    contractName: ContractNames.LiquidPoolStakingTiers,
+    contractName: ContractNames.Ecosystem_LiquidPoolStakingTiers,
     artifactName: "StakingTiers",
     deployArgs: [stAmb.address],
     signer: deployer,
@@ -95,7 +97,7 @@ export async function main() {
   const maxNodesCount = 10;
 
   const nodeManager = await deploy<LiquidNodesManager__factory>({
-    contractName: ContractNames.LiquidNodesManager,
+    contractName: ContractNames.Ecosystem_LiquidNodesManager,
     artifactName: "LiquidNodesManager",
     deployArgs: [
       validatorSet.address,
@@ -117,7 +119,7 @@ export async function main() {
   const lockPeriod = 30 * 24 * 60 * 60; // 30 days
 
   const liquidPool = await deploy<LiquidPool__factory>({
-    contractName: ContractNames.LiquidPool,
+    contractName: ContractNames.Ecosystem_LiquidPool,
     artifactName: "LiquidPool",
     deployArgs: [
       nodeManager.address,

@@ -3,12 +3,8 @@ import {BigNumberish, ethers} from "ethers";
 import {ContractNames} from "../contracts/names";
 import {
   AirBond,
-<<<<<<< HEAD
   BaseNodes_Manager,
   LegacyPoolsNodes_Manager,
-=======
-  BaseNodes_Manager, LegacyPoolsNodes_Manager,
->>>>>>> dev
   ServerNodes_Manager,
   Treasury,
   ValidatorSet,
