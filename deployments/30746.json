@@ -1098,7 +1098,7 @@
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   },
   "Ecosystem_BondMarketplace_Multisig": {
-    "address": "0x761314376Ac00758DB402b47F44104529768605b",
+    "address": "0xFE633aB44e17309C073bDaA3004C5DF7eF78Fc0a",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1134,11 +1134,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xf1d39b72af293772617b7c5515d548f18a6abc55dc30c4173b72382cc313c32b",
+    "deployTx": "0xfac727200e0836da9e78889e77eaa15671e31d3632429b6ea560c289a06a31a2",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_BondMarketplace_RewardsBank": {
-    "address": "0xFFafaD16D4C174cA8E403E764704eb2784037b26",
+    "address": "0x2a5cffc6f81DbAf50b3e36b9173a4Fd69b8b7dF9",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1154,7 +1154,7 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x0a9cf5c7b2bf4b772508d528839b7dcd86655ffe2149eb19240d18748b910651",
+    "deployTx": "0x57d94327d1204525b81ad83fd4079e224ea135d3972f81e0290692de1824f0b6",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_Starfleet_Multisig": {
