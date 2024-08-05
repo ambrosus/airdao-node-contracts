@@ -57,7 +57,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     uint internal _latestRewardBlock; // block when reward was called last time (to prevent call more then once)
     uint internal _latestRemoveFromTopBlock; // block when node was removed from top list last time (to prevent call more then once per finalization)
 
-    uint256[20] private __gap;
+    mapping(address => uint) public latestNodeRewardTime; // timestamp when reward was called last time for node
+
+    uint256[19] private __gap;
 
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
@@ -257,6 +259,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     function _reward() internal {
         require(block.number > _latestRewardBlock, "reward already called in this block");
         _latestRewardBlock = block.number;
+        latestNodeRewardTime[msg.sender] = block.timestamp;
 
         Stake storage stake = stakes[msg.sender];
         uint rewardAmount = baseReward * finalizedValidators.length * stake.amount / totalStakeAmount;
