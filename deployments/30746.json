@@ -1,6 +1,6 @@
 {
   "MasterMultisig": {
-    "address": "0x096B5914C95C34Df19500DAff77470C845EC749D",
+    "address": "0x130c0e94E79DbA9F8A63D6452210C89e5942130c",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -39,11 +39,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xfbcda39532ce6acfbfc96ea3893a9f777063d26b4653286b7e24174d03fc6ba2",
+    "deployTx": "0x85bad07081cd2740f7721c281c8e1830e6cf34234104403286568cc94453e0e3",
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   },
   "FinanceMaster_Multisig": {
-    "address": "0x8c33e9D24eBf3918D37eC2F26BaE044C9fD30Ea9",
+    "address": "0x7cee2ae3042D2C646Aa24FACfA92dfeE589046f0",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -79,11 +79,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xdb1829816e019b99f033ee8a35c76ac30adc1b9d9bb6b9dcff2b3a1da5c4488d",
+    "deployTx": "0x45c9bd2b564557493752cfa7ee5978eb582923a94c90a84b0d25a5794ca6db8c",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceMaster": {
-    "address": "0x55Be7dd776fAbe89d93bAC66ed1cf0Ab31bdd6eB",
+    "address": "0x871c1F199bD17F1cbed559DE974a7F1568b6E1Ea",
     "abi": [
       "constructor(address owner, uint256 maxBanks_, uint256 maxBankBalance_)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -96,11 +96,11 @@
       "function transferToBanks()",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x091b7c56673bfbcd637ac6955c8304f8676ea72a94c121b66d60dde63bb1839b",
+    "deployTx": "0x6c5d9ae17c8282cacfb5d0dc1e518f428f630122c3813f418a434de3651db06b",
     "fullyQualifiedName": "contracts/finance/MasterFinance.sol:MasterFinance"
   },
   "FinanceRewards_Multisig": {
-    "address": "0x615D835e0C492b4309E79439765F66Db7BdcE200",
+    "address": "0x952b98DBDa3319BF0e339cC9CC574fF768F80f3c",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -136,11 +136,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xd0d3d245e4ef6d3066915913b388956641720ba243267a52c28c367bfc474509",
+    "deployTx": "0xcaa6387b8c7d73d2b5651655d7ca534e12b0b7c1acc7c0afd7bc5f3d9c283ddf",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceRewards": {
-    "address": "0x0c3001D98a02dFFf10814E2e5e1DA5a276C2552a",
+    "address": "0x1bB13b68DbA3571415B4092802777B5cA15de897",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -150,11 +150,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x23d8dba7932985815dcdd0eb637fc5cfc5a2b02bd8b20ef35688297866b6a7b4",
+    "deployTx": "0x59382481b80a321acf605bae5213e703b5cf0e57ee15d2c98cb656e7ff36d2e3",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceInvestors_Multisig": {
-    "address": "0x3B851d4d79C44AbBBF914D6bc61A2BdCC7387d85",
+    "address": "0xfB069aFFe6e75674FaBf67108e9094fb988A31D9",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -190,11 +190,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xd281d3165b60cfadf6bbe03c1fa3ac7f2796bc3e3eadfad4c35164ba9caacdb5",
+    "deployTx": "0x38cf4ef7510998e7a711177239a95f0bc03252613fce2020df148141065f3afe",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceInvestors": {
-    "address": "0x7F4f5d586F33075F4Ac1D3FC11fb394Da6f7c041",
+    "address": "0x5f0EA6276D40A3529E060EA5Acb9bf963f5c430a",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -204,11 +204,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xd163900a0749982745f1735329a382560a0b92631212c0770362b3069197c802",
+    "deployTx": "0xcf3cd170aba80e3727bc04dbda325b6d2cef3ca4d1332da0b1d0d030e81cf6cd",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceTeam_Multisig": {
-    "address": "0x9436CEC90DC41F03c7b679779D3B55dca5a02382",
+    "address": "0xdC103bf9a3789f78958f365321F3BA07e369667A",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -244,11 +244,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x681188c7fa36d0f00b67dc0b636d61aae0d058e159e490c95acbff894d4799ff",
+    "deployTx": "0xee2118b0fbeb5c41aa118661be9a02d3eb48a9ad34a910022bed5bbffdf15bd7",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceTeam": {
-    "address": "0x132827Ee051b7276a2f85D6964F6182974aa243c",
+    "address": "0x450A606B9D42D081CE58bC5cDF6acA380acF7731",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -258,11 +258,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x9d5228d5b742e1b33bbf178c48ba81211eb9dd01db37e317839229b4fb792ebe",
+    "deployTx": "0xbd247261009ca93a2f1d666d050ef730535af11baa2dc61b18a4eb7a08569bab",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceEcosystem_Multisig": {
-    "address": "0x4db96017947838031561b35A643B2d9Dbf163241",
+    "address": "0xe8DA2709BCAD1e2045f25A13347ed994b3d2cBaD",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -298,11 +298,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x6f8d7ac58bd42a024fc32122144cda41c0e23fa7c2e4f760725461bc005bb082",
+    "deployTx": "0x4308cf4fa038b7277a8a191f0a9a54f2b4cf8843d3b00d3fc0932b41bec50a91",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceEcosystem": {
-    "address": "0x090801d716A9d501F57519B1f4bd6aBD2961aa88",
+    "address": "0x7aE1eAFC7a9b106b392ddEE027449b09dbDE1347",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -312,11 +312,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xc98e7ac88e7996b81bfbec2ae62c4f723f210c4d524a04108762c3c8974bed0c",
+    "deployTx": "0xca402a9c326642ee64c4302ac98494cbd8883ddbc0f03e3f495fc562755f7ccc",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceRevenue_Multisig": {
-    "address": "0x17c9b9A8BeeB1FE98566877AF442dbeBd0F5dB09",
+    "address": "0x97464F18b71cbF5f42B134CE48b47341f4B4fddf",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -352,11 +352,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x5a656fd660ec6df94e2e40317e51590ad42a1a82a86f27f9a33eff11fbbac543",
+    "deployTx": "0x9a68ceae7d9c59d44f6c75f5a0a0ef314eadc2ab33826beb5e83d744360251bf",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceRevenue": {
-    "address": "0xF01EF9dFf8cA6e4324b000812D75Aa4A67ee52ca",
+    "address": "0xc2fCf18eCFDEf92393552f1016470F1F4059580c",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -366,11 +366,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xeab9cf28015c1b85a89d0ac3e29a9d73803f2b5450d494464345fdc6f6d9d30f",
+    "deployTx": "0x5e230c3ab02892ad78997acd32ce511d80c003cb5ed75174d42c7400e5e8a901",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "AirBond": {
-    "address": "0x58E98B0974A22270D974Ce914Fc430E048368546",
+    "address": "0xE2Fb2d9014B4c7b2705F81D21a6693219Cc518Ba",
     "abi": [
       "constructor(address admin)",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -400,11 +400,11 @@
       "function transfer(address to, uint256 amount) returns (bool)",
       "function transferFrom(address from, address to, uint256 amount) returns (bool)"
     ],
-    "deployTx": "0xc552e2137bb48666d9dce57211f3388d0ccbbf8c85e6a74a0d6a1366e1f69eba",
+    "deployTx": "0x967d7eae8261cb3fc848f7d8de6595dfde717430ab38bcd896d9b6ff8598bfbc",
     "fullyQualifiedName": "contracts/funds/AirBond.sol:AirBond"
   },
   "AirDrop": {
-    "address": "0xea3011C9Efeb1e2A63A0c6cb23a0e0314970735F",
+    "address": "0x689020fd1aa4e064bdf9c6D1d19F0Cf378b19753",
     "abi": [
       "constructor(address airBondToken_, address backendAddress_, uint256 minAmbBalance_, tuple(address user, bytes32 category, uint256 amount)[] claims) payable",
       "event Claim(address user, bytes32[] categories, uint256[] amounts)",
@@ -422,11 +422,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xa5a16f6a7ca909d2246d7e34ca9508e08ed7af9a28d78bbd559753769962440f",
+    "deployTx": "0xbfe8a619fceda33845022551e5b7f9d9043ec3cdff79a3a12750b2f830fa8252",
     "fullyQualifiedName": "contracts/projects/airdrop/AirDrop.sol:AirDrop"
   },
   "ValidatorSet_Multisig": {
-    "address": "0xeeff62628dcD8E8AF2aA376C718f54602a54B5c5",
+    "address": "0xb08cFc95eEA0F1d9Bb79002d23FA204B8836A536",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -462,11 +462,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x79ddea778ee4065e4a6e42d5ad4a4f7996810514248fe07a1cb38efdc328d87b",
+    "deployTx": "0xf4abaa22efe0555659e4dcff34a2f303a8a579b1ed1d11232b397956e58caf26",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "ValidatorSet": {
-    "address": "0x8e21c4FD0FBEb51484272a9DaA626740B3817e48",
+    "address": "0x585896742516DF0703D72018E5c049D2C293718F",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -509,6 +509,7 @@
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
       "function initialize(address _rewardOracle, uint256 _baseReward, uint256 _topStakesCount)",
+      "function latestNodeRewardTime(address) view returns (uint256)",
       "function newStake(address nodeAddress, uint256 amount, bool isAlwaysTop)",
       "function process()",
       "function proxiableUUID() view returns (bytes32)",
@@ -526,15 +527,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x34d0e361994c64187e0674f885ec98587053c56b1b531d3cc4f3a92fe3862914",
+    "deployTx": "0x03e5f5f53c18bb14280a692a237825de8d15618a71d67ba09bbea0d7f5c08e67",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0x8eb921E5F4C3e04a6cd9D7934e533225aEf722e5",
+      "implementation": "0x3fbb4BfEfB478fcE4fb52503ce95e7602E4BB760",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Treasury_Multisig": {
-    "address": "0x1D1c26e0b8DAFa08FD678A888a8f4de175B1d060",
+    "address": "0xC54007213080526139d38eAe66777dFac413772C",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -570,11 +571,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x66b56b26c18d7f1a2880924543b3b041955fa28ecaa0757877d8656252876641",
+    "deployTx": "0x9a40a198b9c650119d2a8f4e83dc000f9f7a8debb403fd03c0503f588d3bb9d2",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Treasury": {
-    "address": "0x765e3e03f8dfca312EfdAb378e386E1EA60ee93F",
+    "address": "0x55C402b5F9C2c3DfE3d866B36598f0Fd53e03B89",
     "abi": [
       "constructor(address owner, uint256 _fee)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -587,11 +588,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x6bfb3e23af84c985266d44fb7916c7aaec37cb5845450f23eabb6efee9fb6b97",
+    "deployTx": "0xf72c2a467da425276fd23664ddb6d7f662056e116613713b8f3fe4b65f7a24a4",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
   "BaseNodesManager_Multisig": {
-    "address": "0x130c0e94E79DbA9F8A63D6452210C89e5942130c",
+    "address": "0xA9646A0281996fDcB88f8f6f01Af52BB0268c494",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -627,11 +628,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xea9afff75a51ad3c9c8719a81aa7dde73d0f33e8d43738a13c959cd1f4f256c9",
+    "deployTx": "0x7b46d61c889950db56e95e735cb0774c030d44b740fbf0984ab3431ad986c3f8",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "BaseNodesManager_RewardsBank": {
-    "address": "0x7cee2ae3042D2C646Aa24FACfA92dfeE589046f0",
+    "address": "0x4798Cbd108e3D7b531ef2f3d67E7fFabdEe29867",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -647,11 +648,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xc5eda95d4a8647ed697e93387a54499079c533676a50e9a45ea1f06bc32f2a13",
+    "deployTx": "0xb41fce8a92dc32fa617d025b239d2baf46ff8511d4e369a11dc5e44efbbc4b35",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "BaseNodesManager": {
-    "address": "0x952b98DBDa3319BF0e339cC9CC574fF768F80f3c",
+    "address": "0x073F6D7a999aa5F9172f4Fe1AB4604268ecbFd0E",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -679,15 +680,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x00b3b2ade736e27a13b24c75d33725de0d4f8e3482f0b94db5a01c6a93328be1",
+    "deployTx": "0xcdb8eb540789c2549e3d97ae9018fa4ecdc0f0eb292c60ea3d3b092f3da737b1",
     "fullyQualifiedName": "contracts/staking/BaseNodes_Manager.sol:BaseNodes_Manager",
     "proxy": {
-      "implementation": "0x871c1F199bD17F1cbed559DE974a7F1568b6E1Ea",
+      "implementation": "0xb805D144dCF9eEEe0E12e1a55E9AD46905Ef47fe",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "ServerNodesManager_Multisig": {
-    "address": "0x450A606B9D42D081CE58bC5cDF6acA380acF7731",
+    "address": "0x91c2F6725a1e076929E1fDECCfD72209D0694af0",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -723,11 +724,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x6348214e5e99b23ffe6b88b37469761cdf3966ef9807ce2af1f80435cd626da4",
+    "deployTx": "0xde177ec3414ebc34ea66f5d03148efb48ba627cd66b57c1719e44c64cccfce8a",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LockKeeper": {
-    "address": "0x7aE1eAFC7a9b106b392ddEE027449b09dbDE1347",
+    "address": "0x761314376Ac00758DB402b47F44104529768605b",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -763,15 +764,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0xfbdcfa5a2c238c54cc287329a7debb1e8adc0464eb5cd235bc2cb51216a1560c",
+    "deployTx": "0xfe056a6757760edd4b8fb75f28bafa4d82913fd517af7bf41d5e9f99784e0ffe",
     "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper",
     "proxy": {
-      "implementation": "0xe8DA2709BCAD1e2045f25A13347ed994b3d2cBaD",
+      "implementation": "0x0aE9a337A10F1E31cAf4Ff7b0F915277361708c6",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "ServerNodesManager_RewardsBank": {
-    "address": "0x97464F18b71cbF5f42B134CE48b47341f4B4fddf",
+    "address": "0xFFafaD16D4C174cA8E403E764704eb2784037b26",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -787,11 +788,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xedfcbe09a60b9bbaeb96c387b6d0cb538693158aab29f0f013e765e0105731cc",
+    "deployTx": "0x0a9cf5c7b2bf4b772508d528839b7dcd86655ffe2149eb19240d18748b910651",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "ServerNodesManager": {
-    "address": "0xE2Fb2d9014B4c7b2705F81D21a6693219Cc518Ba",
+    "address": "0x8C52c360270b324A65Cd4bD4a5e2DCBe6aF8f500",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -805,7 +806,6 @@
       "event Unpaused(address account)",
       "event Upgraded(address indexed implementation)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function _upgrade(address newLockKeeper)",
       "function addStake(address nodeAddress) payable",
       "function airBond() view returns (address)",
       "function changeMinStakeAmount(uint256 newMinStakeAmount)",
@@ -847,15 +847,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0xc7e4bfe8569721a262837264a3dd4c8e3388103c16af94d591dfc51e956aee58",
+    "deployTx": "0xfeee2216aad0cca21c3832f3f9502d41dc1887c17f930a6988bb3713a9d376e8",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0xc2fCf18eCFDEf92393552f1016470F1F4059580c",
+      "implementation": "0x5705Cf73136EDeE17Ce481Da589c4c0CaA36C693",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "LegacyPoolManager_Multisig": {
-    "address": "0xC54007213080526139d38eAe66777dFac413772C",
+    "address": "0x7A70536307a0411d2Df2FE832CFa16231089dD6F",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -891,11 +891,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xf228d7a56dfa39b4a47f695aa94f8e25c8927c1e07411506fdb920f629402bbd",
+    "deployTx": "0xd88f60eefb2ed992d03f24e51e74c61552ebb7a5b9f527f74cb701ac9632daa8",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LegacyPoolManager_RewardsBank": {
-    "address": "0x55C402b5F9C2c3DfE3d866B36598f0Fd53e03B89",
+    "address": "0xBE94eFB16edFCB44b3De6C452062D1B599d3d40d",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -911,11 +911,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xb1cb76f1bbdd6d3d586453ee38dd0c33ebb287fdc075b2e0f965e5e0fddc0740",
+    "deployTx": "0xe1bed92b4b11866522abf78b305668159875d5cf18ecb2de39518d5f057ea714",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LegacyPoolManager": {
-    "address": "0x4798Cbd108e3D7b531ef2f3d67E7fFabdEe29867",
+    "address": "0x2B6d32BADB2F3C6f5D7CfEF07962a50109A57fA9",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -956,15 +956,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x97a0ac5dd43d1b6f1d6aadcda586562182012a66e0002842f2a1d38e20910430",
+    "deployTx": "0x3490c0a396ebcfa443e4b59b98bb77d46a79c43b169b829a0550f40f9f81bf9a",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
-      "implementation": "0xA9646A0281996fDcB88f8f6f01Af52BB0268c494",
+      "implementation": "0xe2672E824C249b24851389e69225959d1c6c1A1F",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Fees_Multisig": {
-    "address": "0xB17eEc1d977bea26c67c8Be86DF98C33a21F7fE9",
+    "address": "0x480ca9040a1e64E9337c6Adac6730069B509DC08",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1000,11 +1000,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x40f4e7ff45b0f60f0de2f980216b67136a4ed475e06b632699e1380076e55cf4",
+    "deployTx": "0x5860f8d6d939b59f8ec5d0a1498afa68a249ce920177f7d403fce84659312bd2",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Fees_Treasure": {
-    "address": "0xE6b3585c2E2Fe8C39EECB163e5D8C90346c873F4",
+    "address": "0x52d026B38b3382Fe1b8a28EA55895aF875191750",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -1014,11 +1014,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xed4151acc4c3922ebccb48c4c72ad085c63544fc8201227044e4e7d2d2b56b87",
+    "deployTx": "0xd7966523ce8788556affd8d65378363dfd7c08131f730dafb1d73a8d9bb87840",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "Fees": {
-    "address": "0x91c2F6725a1e076929E1fDECCfD72209D0694af0",
+    "address": "0x1bc3aedfe168E84c8fCddaD279E650D4CFfd7a24",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1047,15 +1047,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0xc44f435436276bbe3916a7b2f2953220f25d4ab80e5c5d4f06b8919690c46c25",
+    "deployTx": "0x2f45a693c91a1ea25fc5c30ee4bb18c75cdb34df8b1bc0607d41235952c5c16e",
     "fullyQualifiedName": "contracts/fees/Fees.sol:Fees",
     "proxy": {
-      "implementation": "0xF3EE25f6600B68cDBeECa955B4bCcF9c9ABF9a40",
+      "implementation": "0xe208a39e3F988f1565628457F17E9Aa469B78F76",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Ecosystem_MasterMultisig": {
-    "address": "0x1c65553DFCd298872ed905089677ef7Ad57eEe17",
+    "address": "0x5b4Dc8dA222eb0e19581D95Ff08b8809caE1d801",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1094,11 +1094,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x1ac616567b6a5a35f1ad037864ed941ffcde5df4cd7ecc441fb4a6c94ea2a7be",
+    "deployTx": "0x3424784fd0d16a485cc845453e2dbbacc89aadc7b9ad73bbf0a8bbca0bc18d3e",
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   },
   "Ecosystem_BondMarketplace_Multisig": {
-    "address": "0xFE633aB44e17309C073bDaA3004C5DF7eF78Fc0a",
+    "address": "0xb51C3D68E21C5A6d2F5514b7337F7f055a383B26",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1134,11 +1134,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xfac727200e0836da9e78889e77eaa15671e31d3632429b6ea560c289a06a31a2",
+    "deployTx": "0x17758941c06ebba77f745c78d87d7e19d683b2f8e87835822db6bd147ef080e1",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_BondMarketplace_RewardsBank": {
-    "address": "0x2a5cffc6f81DbAf50b3e36b9173a4Fd69b8b7dF9",
+    "address": "0x63a75D14e6Adf3Cce709FddCd489dFFBA4e437e5",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1154,11 +1154,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x57d94327d1204525b81ad83fd4079e224ea135d3972f81e0290692de1824f0b6",
+    "deployTx": "0xf9dc313b5c26afdf0c5a25f6dade228f3b45f179a120a52b3385c0aaaa01f9df",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_Starfleet_Multisig": {
-    "address": "0x39a499cd81C494E8EBC226D416B245978820414e",
+    "address": "0xaa52FB83135FEfBB71fAcE1C2f7D654d52C08a37",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1194,11 +1194,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x50c7a1553dda424de0ed72012f4e7f8ccbb806a083c39043d1cac218e8693b38",
+    "deployTx": "0xe33b033d096b0ee3b3b6a3ecc8940648ac104e32d411b1704e1204a232486ab5",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_Starfleet_RewardsBank": {
-    "address": "0x6bd45c40b8843fb2f66269Cfbb06e554f2a3FA11",
+    "address": "0x5Fb2adefDC0cF350B87E6Ac31A66E3844afFcfD1",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1214,11 +1214,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x2716daa18908b5a695534955229138712b19b803722a1b9963819636b5b403a1",
+    "deployTx": "0x35e859a77a1f7e92092a33e4ea1e33fa59790d341d8b9aa559099172c96e3728",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_Astradex_Multisig": {
-    "address": "0x279Bf64a537bee8A2101b2caDF024755A02EbafA",
+    "address": "0x0d8bF2fE178c013e34ec3F66FAceF3C1d45172f0",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1254,7 +1254,7 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x1602fc44dcce224f33f0452cec32d4a527defba282f9dddbd2befbbf870dbb82",
+    "deployTx": "0x9cf8af39a87c86aba3cebb2f62afc1651be9fa4ec92eb417d97c02a8284c6ab5",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   }
 }

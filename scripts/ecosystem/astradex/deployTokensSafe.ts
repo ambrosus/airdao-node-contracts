@@ -7,6 +7,9 @@ import { Multisig__factory, RewardsBank__factory } from "../../../typechain-type
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
 
+  if (chainId !== 16718)
+    return;
+
   const [deployer] = await ethers.getSigners();
   const masterMultisig = loadDeployment(ContractNames.Ecosystem_MasterMultisig, chainId).address;
 
