@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.3.6",
+  "version": "1.3.10",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
@@ -30,7 +30,8 @@
     "deploy_multisig:ecosystem": "hardhat run scripts/multisig/deploy_ecosystem_multisig.ts --network main",
     "deploy_bond": "hardhat run scripts/ecosystem/bond-marketplace/deploy.ts --network dev",
     "deploy_starfleet": "hardhat run scripts/ecosystem/starfleet/deploy.ts --network main",
-    "deploy_stradex": "hardhat run scripts/ecosystem/astradex/deploy.ts --network main",
+    "deploy_astradex": "hardhat run scripts/ecosystem/astradex/deploy.ts --network main",
+    "deploy_astradex_tokensafe": "hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network main",
     "deploy_all": "npm run deploy_multisig && npm run deploy_finance && npm run deploy_airdrop && npm run deploy_staking && npm run deploy_fees && npm run deploy_multisig:ecosystem && npm run deploy_bond",
     "migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network dev",
     "test_script": "hardhat run scripts/test.ts --network test",

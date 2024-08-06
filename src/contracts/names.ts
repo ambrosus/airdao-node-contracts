@@ -71,6 +71,8 @@ export enum ContractNames {
   Ecosystem_StarfleetRewardsBank = "Ecosystem_Starfleet_RewardsBank",
 
   Ecosystem_AstradexMultisig = "Ecosystem_Astradex_Multisig",
+  Ecosystem_AstradexTokenSafe = "Ecosystem_Astradex_TokenSafe",
+  Ecosystem_AstradexTokenSafeMultisig = "Ecosystem_Astradex_TokenSafe_Multisig",
 
   Ecosystem_LiquidPool = "Ecosystem_LiquidPool",
   Ecosystem_LiquidPoolStAMB = "Ecosystem_LiquidPool_StAMB",
@@ -116,6 +118,7 @@ export const MULTISIGS_COMMON = {
 export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
   [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
+  [ContractNames.Ecosystem_AstradexTokenSafe]: ContractNames.Ecosystem_AstradexTokenSafeMultisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};

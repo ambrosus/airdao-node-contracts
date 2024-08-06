@@ -509,6 +509,7 @@
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
       "function initialize(address _rewardOracle, uint256 _baseReward, uint256 _topStakesCount)",
+      "function latestNodeRewardTime(address) view returns (uint256)",
       "function newStake(address nodeAddress, uint256 amount, bool isAlwaysTop)",
       "function process()",
       "function proxiableUUID() view returns (bytes32)",
@@ -529,7 +530,7 @@
     "deployTx": "0x129e2ca1ad4ad54eb854aff2aafa4bd79aebe48c070d865a2ca99711e3bca990",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0x871c1F199bD17F1cbed559DE974a7F1568b6E1Ea",
+      "implementation": "0xeFfc86f39423d762be186187283Ffe5c352b7ee3",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
