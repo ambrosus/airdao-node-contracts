@@ -17,7 +17,6 @@ export async function main() {
       signer: deployer,
     });
   } else {
-    console.log("Deploing MasterMultisig for ECOSYSTEM...");
     await deploy<MasterMultisig__factory>({
       contractName: ContractNames.Ecosystem_MasterMultisig,
       artifactName: "MasterMultisig",
