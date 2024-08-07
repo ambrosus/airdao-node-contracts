@@ -1258,7 +1258,7 @@
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_LiquidPool_Multisig": {
-    "address": "0x5b3E759016f72aFC0294cd203C3FA76eEd01C599",
+    "address": "0x6Ba32B310F752a05b6239312d9753b2df2B1Be1D",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1294,11 +1294,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x6688f27128bff1e90950fc1ad2b5b7b04957c5a47665c83e300e915cc300f05f",
+    "deployTx": "0xdb0a187da7995107168b4a994acf3c8ab25f80183c48c3288ebad16da3a58c15",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_LiquidNodesManager_RewardsBank": {
-    "address": "0xa3eaAC73462f829Bc534C2b3e1B94738fb962308",
+    "address": "0x9aB22C061e64AB8F2Ee005586A4196e24774afD6",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1314,11 +1314,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xe0301a8e0114eb1b325cf87e9e7aba635b23e1b3aadbd219510d4a823fd181be",
+    "deployTx": "0x413d4b00726f1b555b965f5786b76e46f21a2ad873ebf3c8ea706a4f1ff253a5",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_LiquidNodesManager_Treasury": {
-    "address": "0x3335Af5C890838fdfa1ACc1026f7dF72478af219",
+    "address": "0xE18ca4e29CfEdAEc92176874D672BE17A001c2EC",
     "abi": [
       "constructor(address owner, uint256 _fee)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -1331,11 +1331,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x79330a564cff938923085d796e76d6ad30b40933878443c8640c075594549a7f",
+    "deployTx": "0x15141e30e7036a42931a76e79a9fe10e37d2ea1f2141bf1a7c6defd5cfb2e3ac",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
   "Ecosystem_LiquidNodesManager_TreasuryFees": {
-    "address": "0xd62F24d25ad63f343328EfcB4272c21024f918b9",
+    "address": "0xac71AF25f26298bAa96469816b4b24A7a74597a6",
     "abi": [
       "constructor(address owner, uint256 _fee)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -1348,11 +1348,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x0a60a0238bab95cc375d4aa6a8c21c39dc593ced0482891565dc94908105b194",
+    "deployTx": "0x9ecc3e4623e7ba1a3d0cf0d3b4ebae574cbe0e73cfc8658ab395fb6c0cdc8ac6",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
   "Ecosystem_LiquidPool_RewardsBank": {
-    "address": "0xdeB90C11908feBFE38B5adF20c08a531c2eCFE9e",
+    "address": "0xE03a6068Da1B05769730151D3A7127A244B66992",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1368,11 +1368,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x595ad4429244890449855621ac954ab9834cba51696fa3f69843a5fc48b6fb1d",
+    "deployTx": "0x42a27aa0f9527125e12fc73ada5f6c68d2ef39c7f34f93443876d1df88bf3849",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_LiquidPool_StAMB": {
-    "address": "0x9e64d4772dAA874e5A9AaBe385063B7772AEe42a",
+    "address": "0x80Ea1C48202C3DEe965908277F06bB0b9afeA097",
     "abi": [
       "constructor()",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -1405,11 +1405,11 @@
       "function transfer(address to, uint256 amount) returns (bool)",
       "function transferFrom(address from, address to, uint256 amount) returns (bool)"
     ],
-    "deployTx": "0xe962303878577a1c84df3234bbe0f1d65d293246ccb9b4664b32d9902fb68e0c",
+    "deployTx": "0xbce3d31966a7b3622a801d495148ce49271df47755ff0fa0afeb7cff642130cf",
     "fullyQualifiedName": "contracts/staking/liquid/StAMB.sol:StAMB"
   },
   "Ecosystem_LiquidPool_StakingTiers": {
-    "address": "0xF53cf866b69136883D60297283640913A7F34F7f",
+    "address": "0x0c77acB567DecF9175E57F6729F2b24019CDdccC",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1437,15 +1437,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0xdcb87f9f9afd751aa3b4a9777c5ac7efed13908de93f666ceeb8d501dcec6780",
+    "deployTx": "0x6a41d8a40d7eca1d30608a55ca33edc2017acddc5b96a24e3aaa1424c578ef8b",
     "fullyQualifiedName": "contracts/staking/liquid/StakingTiers.sol:StakingTiers",
     "proxy": {
-      "implementation": "0xd205002d3c56E2BB337446Dac37EF856735Dbf44",
+      "implementation": "0xC2398FDb1DD64E38297071de404C53b0e063fA61",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Ecosystem_LiquidNodesManager": {
-    "address": "0x4Cf9E9FAE2280Cddc2770f03C27Ff9a7bB8CA6e8",
+    "address": "0xB56FE444d8Fa16361310E7544174A2608c91Be00",
     "abi": [
       "event AddNodeRequest(uint256 indexed requestId, uint256 indexed nodeId, uint256 stake)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
@@ -1482,6 +1482,7 @@
       "function reward(address nodeAddress, uint256 amount)",
       "function rewardsBank() view returns (address)",
       "function setLiquidPool(address liquidPool_)",
+      "function setNodeStakeAndCount(uint256 nodeStake_, uint256 maxNodesCount_)",
       "function stake() payable",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
       "function treasury() view returns (address)",
@@ -1491,15 +1492,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x51eda3f37982985b6f685eb770cd3f611c85db51173117f1f591e5052e50de60",
+    "deployTx": "0x0c6b151ba463859937bf8bb15dad910273419b52a17d38403aef44e398c47bb8",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidNodesManager.sol:LiquidNodesManager",
     "proxy": {
-      "implementation": "0xe76b15Fe85b0A8d4e2173b9c056Baa805A76450F",
+      "implementation": "0x7E0F09c8c2aAf4743B57355edb051F5E5ED6F73d",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Ecosystem_LiquidPool": {
-    "address": "0xb344e0900b4747cb9F12960659CD216F7CCd5674",
+    "address": "0xf60Dc740f8b31d5455C8714c5311435b70e9Bc20",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1542,10 +1543,10 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x267083374c667279d4a4849367bac4111143bc0c6ead9660075231d9ee8de9b9",
+    "deployTx": "0x067ceff522f3b50dc3dee6d503588edf2b26ea4cb6798838e68238dbde7e0da9",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0x2cAc5160a178A0Dce30321BB9F9a89eaceFF9684",
+      "implementation": "0xbA1A70D494CD77c2F5f82F10e328dbDa0401000D",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }

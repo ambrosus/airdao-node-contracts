@@ -97,6 +97,11 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         liquidPool = liquidPool_;
     }
 
+    function setNodeStakeAndCount(uint nodeStake_, uint maxNodesCount_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        nodeStake = nodeStake_;
+        maxNodesCount = maxNodesCount_;
+    }
+
     // INTERNAL METHODS
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
