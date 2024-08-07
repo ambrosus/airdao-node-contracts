@@ -143,8 +143,8 @@ export async function main() {
   await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
   console.log("Setup nodeManager");
-  await (await nodeManager.setLiquidPool(liquidPool.address)).wait();
   await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await nodeManager.grantRole(await nodeManager.POOL_ROLE(), liquidPool.address)).wait();
 
   console.log("Setup nodesRewardsBank");
   await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
@@ -164,7 +164,7 @@ export async function main() {
   console.log("Register nodeManager as staking manager");
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
   console.log("Add block listeners");
-  await (await validatorSet.addBlockListener(nodeManager.address)).wait();
+  await (await validatorSet.addBlockListener(liquidPool.address)).wait();
 
 
   return;
@@ -173,7 +173,6 @@ export async function main() {
   await (await nodeManager.revokeRole(await nodeManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await liquidPool.revokeRole(await liquidPool.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await stakingTiers.revokeRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
-
 
 }
 

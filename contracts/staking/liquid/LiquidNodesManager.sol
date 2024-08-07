@@ -4,13 +4,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../../consensus/IValidatorSet.sol";
-import {IOnBlockListener} from "../../consensus/OnBlockNotifier.sol";
 import "../../funds/RewardsBank.sol";
 import "../../finance/Treasury.sol";
 import "./LiquidPool.sol";
 import "../../utils/TransferViaCall.sol";
 
-contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
+contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
     bytes32 constant public POOL_ROLE = keccak256("POOL_ROLE");
 
@@ -19,8 +18,6 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable, IOnBlo
 
     address public treasury;
     Treasury public treasuryFee;
-
-    LiquidPool public liquidPool;
 
     uint public nodeStake; // stake for 1 onboarded node
     uint public maxNodesCount;
@@ -56,25 +53,18 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable, IOnBlo
 
     // POOL METHODS
 
-    function stake() external payable onlyPool {
+    function stake() external payable onlyRole(POOL_ROLE) {
         // try to onboard new node
         _requestNodeCreation();
     }
 
-    function unstake(uint amount) external onlyPool {
+    function unstake(uint amount) external onlyRole(POOL_ROLE) {
         // retire node if not enough free balance
         while (getFreeBalance() < amount) {
             _retireNode();
         }
         transferViaCall(payable(msg.sender), amount);
     }
-
-    // IOnBlockListener impl
-
-    function onBlock() external {
-        liquidPool.tryInterest();
-    }
-
     // IStakeManager impl
 
     function reward(address nodeAddress, uint256 amount) public {
@@ -97,10 +87,6 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable, IOnBlo
     }
 
     // ADMIN METHODS
-
-    function setLiquidPool(LiquidPool liquidPool_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        liquidPool = liquidPool_;
-    }
 
     function setNodeStakeAndCount(uint nodeStake_, uint maxNodesCount_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         nodeStake = nodeStake_;
@@ -168,10 +154,5 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable, IOnBlo
     // balance that not used for nodes stakes
     function getFreeBalance() public view returns (uint) {
         return address(this).balance - _totalNodesStake;
-    }
-
-    modifier onlyPool() {
-        require(msg.sender == address(liquidPool), "LiquidNodesManager: caller is not a pool");
-        _;
     }
 }

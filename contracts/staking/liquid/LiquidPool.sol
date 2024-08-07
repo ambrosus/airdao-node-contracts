@@ -5,12 +5,13 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "../../funds/RewardsBank.sol";
+import {IOnBlockListener} from "../../consensus/OnBlockNotifier.sol";
 import "./StAMB.sol";
 import "./StakingTiers.sol";
 import "./LiquidNodesManager.sol";
 
 
-contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
+contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
     uint constant private MILLION = 1000000;
 
     LiquidNodesManager public nodeManager;
@@ -146,7 +147,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable {
         }
     }
 
-    function tryInterest() external {
+    function onBlock() external {
         if (lastInterestTime + interestPeriod < block.timestamp)
             _addInterestToDeposit();
     }
