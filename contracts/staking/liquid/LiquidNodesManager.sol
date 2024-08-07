@@ -4,12 +4,13 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../../consensus/IValidatorSet.sol";
+import {IOnBlockListener} from "../../consensus/OnBlockNotifier.sol";
 import "../../funds/RewardsBank.sol";
 import "../../finance/Treasury.sol";
 import "./LiquidPool.sol";
 import "../../utils/TransferViaCall.sol";
 
-contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
+contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
     bytes32 constant public BACKEND_ROLE = keccak256("BACKEND_ROLE");
     bytes32 constant public POOL_ROLE = keccak256("POOL_ROLE");
 
@@ -68,6 +69,12 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
         transferViaCall(payable(msg.sender), amount);
     }
 
+    // IOnBlockListener impl
+
+    function onBlock() external {
+        liquidPool.tryInterest();
+    }
+
     // IStakeManager impl
 
     function reward(address nodeAddress, uint256 amount) public {
@@ -79,8 +86,6 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
 
         rewardsBank.withdrawAmb(payable(treasury), amount);
         validatorSet.emitReward(address(rewardsBank), nodeAddress, address(this), address(treasury), address(0), amount);
-
-        liquidPool.tryInterest();
     }
 
     function report(address nodeAddress) public {}

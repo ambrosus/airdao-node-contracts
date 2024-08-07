@@ -163,6 +163,8 @@ export async function main() {
   // on prod - multisig only
   console.log("Register nodeManager as staking manager");
   await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
+  console.log("Add block listeners");
+  await (await validatorSet.addBlockListener(nodeManager.address)).wait();
 
 
   return;
