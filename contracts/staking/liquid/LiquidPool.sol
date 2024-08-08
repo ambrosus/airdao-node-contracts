@@ -186,7 +186,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     // "claim" rewards for user before his stake changes
     function _beforeUserStakeChanged(address user) private {
         uint rewardsAmount = _calcRewards(getStake(user));
-        //if (rewardsAmount == 0) return;
+        if (rewardsAmount == 0) return;
 
         rewardsCanClaim[user] += rewardsAmount - rewardsDebt[user];
         rewardsDebt[user] = rewardsAmount;
