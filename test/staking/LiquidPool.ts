@@ -88,7 +88,7 @@ describe("LiquidPool", function () {
 
 
     await stAMB.setLiquidPool(liquidPool.address);
-    await nodeManager.setLiquidPool(liquidPool.address);
+    await nodeManager.grantRole(await nodeManager.POOL_ROLE(), liquidPool.address);
 
     await rewardsBankNode.grantRole(await rewardsBankNode.DEFAULT_ADMIN_ROLE(), nodeManager.address);
     await rewardsBankPool.grantRole(await rewardsBankPool.DEFAULT_ADMIN_ROLE(), liquidPool.address);
@@ -151,7 +151,7 @@ describe("LiquidPool", function () {
     it("should work (claim rewards)", async function () {
       // increase time by 1 day and call interest => rewards should increase by 10%
       await time.increase(D1);
-      await liquidPool.tryInterest();
+      await liquidPool.onBlock();
       expect(await liquidPool.getTotalRewards()).to.eq(10);
 
       expect(await liquidPool.getClaimAmount(owner.address)).to.eq(10);
@@ -178,7 +178,7 @@ describe("LiquidPool", function () {
 
       // increase time by 1 day and call interest => rewards should increase by 10%
       await time.increase(D1);
-      await liquidPool.tryInterest();
+      await liquidPool.onBlock();
       expect(await liquidPool.getTotalRewards()).to.eq(10);
       expect(await liquidPool.getClaimAmount(owner.address)).to.eq(10);
     });
@@ -262,7 +262,7 @@ describe("LiquidPool", function () {
 
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       await time.increase(D1);
-      await liquidPool.tryInterest();
+      await liquidPool.onBlock();
       expect(await liquidPool.getTotalRewards()).to.be.equal(100);
     });
 
@@ -271,14 +271,14 @@ describe("LiquidPool", function () {
       await liquidPool.connect(addr1).stake({value: 900});
 
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
-      await liquidPool.tryInterest();
+      await liquidPool.onBlock();
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
     });
 
     it("should do nothing if there is no stakes", async function () {
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       await time.increase(D1);
-      await liquidPool.tryInterest();
+      await liquidPool.onBlock();
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
     });
 

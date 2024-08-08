@@ -51,7 +51,7 @@ describe("LiquidNodesManager", function () {
       maxNodeCount,
     ])) as LiquidNodesManager;
 
-    await nodeManager.setLiquidPool(owner.address);
+    await nodeManager.grantRole(await nodeManager.POOL_ROLE(), owner.address);
     await nodeManager.grantRole(await nodeManager.BACKEND_ROLE(), owner.address);
     await rewardsBankPool.grantRole(await rewardsBankNode.DEFAULT_ADMIN_ROLE(), nodeManager.address);
     await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address);
@@ -59,7 +59,7 @@ describe("LiquidNodesManager", function () {
 
     await setBalance(rewardsBankNode.address, ethers.utils.parseEther("1000"));
     await setBalance(rewardsBankPool.address, ethers.utils.parseEther("1000"));
-    
+
     const rewardsBank = rewardsBankNode;
 
     return {
