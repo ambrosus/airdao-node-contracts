@@ -110,7 +110,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
     return {
       master: ContractNames.Ecosystem_MasterMultisig,
       slaves: [
-        ...Object.values(MULTISIGS_ECOSYSTEM),
+        ...new Set(Object.values(MULTISIGS_ECOSYSTEM)),
         // multisigs below are not listed in the MULTISIGS_ECOSYSTEM, so we add them manually
         ContractNames.Ecosystem_AstradexMultisig,
       ],
@@ -119,7 +119,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
   if (version == MultisigVersions.common) {
     return {
       master: ContractNames.MasterMultisig,
-      slaves: Object.values(MULTISIGS_COMMON)
+      slaves: [...new Set(Object.values(MULTISIGS_ECOSYSTEM))]
     };
   }
   throw new Error("Unknown environment");
