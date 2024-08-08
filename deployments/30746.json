@@ -1504,6 +1504,7 @@
       "event BeaconUpgraded(address indexed beacon)",
       "event Claim(address indexed account, uint256 ambAmount, uint256 bondAmount)",
       "event Initialized(uint8 version)",
+      "event Interest(uint256 amount)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
@@ -1544,7 +1545,7 @@
     "deployTx": "0x67cfbc56e0af96be48c4cadd1d7c0f91cf0fff1b1402fe6a541b283a6820e286",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0x4067D9025068D48743720C1D14B9dE55f78A4cc5",
+      "implementation": "0x460C611278F3d38ebef630f89204ee7706daF6dC",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }

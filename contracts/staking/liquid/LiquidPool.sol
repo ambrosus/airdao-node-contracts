@@ -39,9 +39,9 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     mapping(address => uint) internal rewardsDebt;
 
 
-
     event StakeChanged(address indexed account, int amount);
     event Claim(address indexed account, uint ambAmount, uint bondAmount);
+    event Interest(uint amount);
 
 
     function initialize(
@@ -114,10 +114,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         stAmb.burn(msg.sender, amount);
         nodeManager.unstake(amount);
-        
+
         // todo lock like in server nodes manager
         payable(msg.sender).transfer(amount);
-        
+
         _claimRewards(msg.sender, desiredCoeff);
 
         emit StakeChanged(msg.sender, - int(amount));
@@ -168,9 +168,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     function getClaimAmount(address user) public view returns (uint) {
         uint rewardsAmount = _calcRewards(getStake(user));
-        return rewardsAmount + rewardsCanClaim[user]- rewardsDebt[user];
+        return rewardsAmount + rewardsCanClaim[user] - rewardsDebt[user];
     }
-
 
     // PRIVATE METHODS
 
@@ -181,9 +180,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         totalRewards += newRewards;
         lastInterestTime = block.timestamp;
 
-        //  todo       emit Interest(newRewards);
+        emit Interest(newRewards);
     }
-
 
     // "claim" rewards for user before his stake changes
     function _beforeUserStakeChanged(address user) private {
