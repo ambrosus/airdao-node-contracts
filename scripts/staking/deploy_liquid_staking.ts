@@ -93,8 +93,8 @@ export async function main() {
   });
 
 
-  const nodeStake = 5000000;
-  const maxNodesCount = 10;
+  const nodeStake = ethers.utils.parseEther("5000000");
+  const maxNodesCount = 5;
 
   const nodeManager = await deploy<LiquidNodesManager__factory>({
     contractName: ContractNames.Ecosystem_LiquidNodesManager,
