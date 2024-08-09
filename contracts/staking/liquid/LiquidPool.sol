@@ -29,14 +29,15 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     uint internal totalRewards;  // rewards from interest, includes totalRewardsDebt, can be much greater than real rewards
     uint internal totalRewardsDebt; // real rewards = totalRewards - totalRewardsDebt
-    uint256[50] __gap;
 
     // rewards that has been "claimed" before stake changes.
-    mapping(address => uint) internal rewardsCanClaim;
+    mapping(address => uint) public rewardsCanClaim;
 
     // new stakes will immediately have rewards to claim (coz of how shares works), so we need to
     // artificially decrease their stakes by some value.
-    mapping(address => uint) internal rewardsDebt;
+    mapping(address => uint) public rewardsDebt;
+
+    uint256[10] __gap;
 
 
     event StakeChanged(address indexed account, int amount);
@@ -93,6 +94,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         totalRewards += rewardsAmount;
         rewardsDebt[msg.sender] += rewardsAmount;
+        totalRewardsDebt += rewardsAmount;
 
 
         stAmb.mint(msg.sender, msg.value);
@@ -110,6 +112,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         totalRewards -= rewardsAmount;
         rewardsDebt[msg.sender] -= rewardsAmount;
+        totalRewardsDebt -= rewardsAmount;
 
 
         stAmb.burn(msg.sender, amount);
@@ -186,10 +189,11 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     // "claim" rewards for user before his stake changes
     function _beforeUserStakeChanged(address user) private {
         uint rewardsAmount = _calcRewards(getStake(user));
-        if (rewardsAmount == 0) return;
-
-        rewardsCanClaim[user] += rewardsAmount - rewardsDebt[user];
-        rewardsDebt[user] = rewardsAmount;
+//        if (rewardsAmount == 0) return;
+        uint rewardWithoutDebt = rewardsAmount - rewardsDebt[user];
+        rewardsCanClaim[user] += rewardWithoutDebt;
+        totalRewardsDebt += rewardWithoutDebt;
+        rewardsDebt[user] += rewardWithoutDebt;
     }
 
 
