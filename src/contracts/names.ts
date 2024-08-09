@@ -119,7 +119,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
   if (version == MultisigVersions.common) {
     return {
       master: ContractNames.MasterMultisig,
-      slaves: [...new Set(Object.values(MULTISIGS_ECOSYSTEM))]
+      slaves: [...new Set(Object.values(MULTISIGS_COMMON))]
     };
   }
   throw new Error("Unknown environment");
