@@ -1532,10 +1532,9 @@
       "function renounceRole(bytes32 role, address account)",
       "function revokeRole(bytes32 role, address account)",
       "function rewardsBank() view returns (address)",
-      "function rewardsCanClaim(address) view returns (uint256)",
-      "function rewardsDebt(address) view returns (uint256)",
       "function setInterest(uint256 interest_, uint256 interestPeriod_)",
       "function setLockPeriod(uint256 lockPeriod_)",
+      "function setMinStakeValue(uint256 minStakeValue_)",
       "function stAmb() view returns (address)",
       "function stake() payable",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
@@ -1547,7 +1546,7 @@
     "deployTx": "0x16aa6743653caef0517e3ae7967e796f8ae7b9a744796298e37735149b00b561",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0x7aC7693dFb6AeEEEa2A32deC3e63f315274b165C",
+      "implementation": "0xcA397b96179Eb0010247ae9A79Bcb0779D2F0078",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }

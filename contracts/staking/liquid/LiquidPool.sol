@@ -31,11 +31,11 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     uint internal totalRewardsDebt; // real rewards = totalRewards - totalRewardsDebt
 
     // rewards that has been "claimed" before stake changes.
-    mapping(address => uint) public rewardsCanClaim;
+    mapping(address => uint) internal rewardsCanClaim;
 
     // new stakes will immediately have rewards to claim (coz of how shares works), so we need to
     // artificially decrease their stakes by some value.
-    mapping(address => uint) public rewardsDebt;
+    mapping(address => uint) internal rewardsDebt;
 
     uint256[10] __gap;
 
@@ -81,6 +81,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     function setLockPeriod(uint lockPeriod_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         lockPeriod = lockPeriod_;
+    }
+
+    function setMinStakeValue(uint minStakeValue_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        minStakeValue = minStakeValue_;
     }
 
     // PUBLIC METHODS
