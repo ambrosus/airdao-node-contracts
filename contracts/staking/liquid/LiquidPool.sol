@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "../../funds/RewardsBank.sol";
+import "../../LockKeeper.sol";
 import {IOnBlockListener} from "../../consensus/OnBlockNotifier.sol";
 import "./StAMB.sol";
 import "./StakingTiers.sol";
@@ -17,11 +18,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     LiquidNodesManager public nodeManager;
     RewardsBank public rewardsBank;
     StakingTiers public tiers;
+    LockKeeper public lockKeeper;
     address public bondAddress;
     StAMB public stAmb;
 
     uint public minStakeValue;
-    uint public lockPeriod;
+    uint public unstakeLockTime;
 
     uint public interest;  // user will get interest % of his stake
     uint public interestPeriod;  // period in seconds for interest calculation
@@ -37,6 +39,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     // artificially decrease their stakes by some value.
     mapping(address => uint) internal rewardsDebt;
 
+    mapping(address => uint) public lockedWithdraws; // nodeAddress => lockId
+
     uint256[10] __gap;
 
 
@@ -47,8 +51,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     function initialize(
         LiquidNodesManager nodeManager_, RewardsBank rewardsBank_, StakingTiers tiers_,
-        address bondAddress_, StAMB stAmb_,
-        uint interest_, uint interestPeriod_, uint minStakeValue_, uint lockPeriod_
+        LockKeeper lockKeeper_, address bondAddress_, StAMB stAmb_,
+        uint interest_, uint interestPeriod_, uint minStakeValue_, uint unstakeLockTime_
     ) public initializer {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
@@ -56,6 +60,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         nodeManager = nodeManager_;
         rewardsBank = rewardsBank_;
         tiers = tiers_;
+        lockKeeper = lockKeeper_;
         bondAddress = bondAddress_;
         stAmb = stAmb_;
 
@@ -63,7 +68,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         interestPeriod = interestPeriod_;
 
         minStakeValue = minStakeValue_;
-        lockPeriod = lockPeriod_;
+        unstakeLockTime = unstakeLockTime_;
 
         lastInterestTime = block.timestamp;
 
@@ -79,8 +84,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         interestPeriod = interestPeriod_;
     }
 
-    function setLockPeriod(uint lockPeriod_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        lockPeriod = lockPeriod_;
+    function setLockPeriod(uint unstakeLockTime_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        unstakeLockTime = unstakeLockTime_;
     }
 
     function setMinStakeValue(uint minStakeValue_) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -121,6 +126,19 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         stAmb.burn(msg.sender, amount);
         nodeManager.unstake(amount);
+
+        // cancel previous lock (if exists). canceledAmount will be added to new lock
+        uint canceledAmount;
+        if (lockKeeper.getLock(lockedWithdraws[msg.sender]).totalClaims > 0)  // prev lock exists
+            canceledAmount = lockKeeper.cancelLock(lockedWithdraws[msg.sender]);
+
+        // lock funds
+        lockedWithdraws[msg.sender] = lockKeeper.lockSingle{value: amount + canceledAmount}(
+            msg.sender, address(0),
+            uint64(block.timestamp + unstakeLockTime), amount + canceledAmount,
+            string(abi.encodePacked("ServerNodes unstake: ", _addressToString(msg.sender)))
+        );
+
 
         // todo lock like in server nodes manager
         payable(msg.sender).transfer(amount);
@@ -200,7 +218,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         rewardsDebt[user] += rewardWithoutDebt;
     }
 
-
     function _claimRewards(address user, uint desiredCoeff) private {
         require(desiredCoeff <= 100, "Invalid desired coeff");
         require(tiers.isTierAllowed(user, desiredCoeff), "User tier is too low");
@@ -224,6 +241,21 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         return stAmbAmount * totalRewards / getTotalStAmb();
     }
 
+        function _addressToString(address x) internal pure returns (string memory) {
+        bytes memory s = new bytes(40);
+        for (uint i = 0; i < 20; i++) {
+            uint8 b = uint8(uint(uint160(x)) / (2 ** (8 * (19 - i))));
+            uint8 hi = (b / 16);
+            uint8 lo = (b - 16 * hi);
+            s[2 * i] = _char(hi);
+            s[2 * i + 1] = _char(lo);
+        }
+        return string(s);
+    }
+
+    function _char(uint8 b) internal pure returns (bytes1 c) {
+        return bytes1(b + (b < 10 ? 0x30 : 0x57));
+    }
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 

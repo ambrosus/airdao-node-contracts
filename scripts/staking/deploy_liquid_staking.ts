@@ -7,6 +7,7 @@ import {
   Multisig__factory,
   RewardsBank__factory,
   StakingTiers__factory,
+  LockKeeper__factory,
   StAMB__factory,
   Treasury__factory,
   ValidatorSet,
@@ -92,6 +93,14 @@ export async function main() {
     loadIfAlreadyDeployed: true,
   });
 
+  const lockKeeper = await deploy<LockKeeper__factory>({
+    contractName: ContractNames.LockKeeper,
+    artifactName: "LockKeeper",
+    deployArgs: [],
+    signer: deployer,
+    loadIfAlreadyDeployed: true,
+    isUpgradeableProxy: true,
+  });
 
   const nodeStake = ethers.utils.parseEther("5000000");
   const maxNodesCount = 5;
@@ -125,6 +134,7 @@ export async function main() {
       nodeManager.address,
       poolRewardsBank.address,
       stakingTiers.address,
+      lockKeeper.address,
       airBond.address,
       stAmb.address,
       interest,

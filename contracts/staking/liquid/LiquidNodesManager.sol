@@ -26,7 +26,7 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
 
     uint private _requestId;
     uint private _requestStake;
-    uint256[50] __gap;
+    uint256[10] __gap;
 
 
     event AddNodeRequest(uint indexed requestId, uint indexed nodeId, uint stake);
