@@ -125,7 +125,7 @@ export async function main() {
   const interest = 100000;
   const interestRate = 24 * 60 * 60; // 24 hours
   const minStakeValue = 10000;
-  const lockPeriod = 30 * 24 * 60 * 60; // 30 days
+  const unstakeLockTime = 14 * 24 * 60 * 60; // 14 days
 
   const liquidPool = await deploy<LiquidPool__factory>({
     contractName: ContractNames.Ecosystem_LiquidPool,
@@ -140,7 +140,7 @@ export async function main() {
       interest,
       interestRate,
       minStakeValue,
-      lockPeriod,
+      unstakeLockTime
     ],
     signer: deployer,
     isUpgradeableProxy: true,

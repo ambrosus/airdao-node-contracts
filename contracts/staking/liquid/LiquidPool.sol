@@ -11,7 +11,6 @@ import "./StAMB.sol";
 import "./StakingTiers.sol";
 import "./LiquidNodesManager.sol";
 
-
 contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
     uint constant private MILLION = 1000000;
 
@@ -30,7 +29,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     uint internal lastInterestTime; // newReward = totalStAmb * (interest/1e6) * (timePassed / interestPeriod)
 
     uint internal totalRewards;  // rewards from interest, includes totalRewardsDebt, can be much greater than real rewards
-    uint internal totalRewardsDebt; // real rewards = totalRewards - totalRewardsDebt
+    uint public totalRewardsDebt; // real rewards = totalRewards - totalRewardsDebt
 
     // rewards that has been "claimed" before stake changes.
     mapping(address => uint) internal rewardsCanClaim;
@@ -84,7 +83,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         interestPeriod = interestPeriod_;
     }
 
-    function setLockPeriod(uint unstakeLockTime_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setUnstakeLockTime(uint unstakeLockTime_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         unstakeLockTime = unstakeLockTime_;
     }
 
@@ -101,12 +100,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         uint rewardsAmount = _calcRewards(msg.value);
 
+        stAmb.mint(msg.sender, msg.value);
+
         totalRewards += rewardsAmount;
         rewardsDebt[msg.sender] += rewardsAmount;
         totalRewardsDebt += rewardsAmount;
 
-
-        stAmb.mint(msg.sender, msg.value);
         nodeManager.stake{value: msg.value}();
 
         emit StakeChanged(msg.sender, int(msg.value));
@@ -136,12 +135,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         lockedWithdraws[msg.sender] = lockKeeper.lockSingle{value: amount + canceledAmount}(
             msg.sender, address(0),
             uint64(block.timestamp + unstakeLockTime), amount + canceledAmount,
-            string(abi.encodePacked("ServerNodes unstake: ", _addressToString(msg.sender)))
+            string(abi.encodePacked("LiquidStaking unstake"))
         );
-
-
-        // todo lock like in server nodes manager
-        payable(msg.sender).transfer(amount);
 
         _claimRewards(msg.sender, desiredCoeff);
 
@@ -211,7 +206,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     // "claim" rewards for user before his stake changes
     function _beforeUserStakeChanged(address user) private {
         uint rewardsAmount = _calcRewards(getStake(user));
-//        if (rewardsAmount == 0) return;
         uint rewardWithoutDebt = rewardsAmount - rewardsDebt[user];
         rewardsCanClaim[user] += rewardWithoutDebt;
         totalRewardsDebt += rewardWithoutDebt;
@@ -239,18 +233,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function _calcRewards(uint stAmbAmount) internal view returns (uint) {
         if (getTotalStAmb() == 0) return 0;
         return stAmbAmount * totalRewards / getTotalStAmb();
-    }
-
-        function _addressToString(address x) internal pure returns (string memory) {
-        bytes memory s = new bytes(40);
-        for (uint i = 0; i < 20; i++) {
-            uint8 b = uint8(uint(uint160(x)) / (2 ** (8 * (19 - i))));
-            uint8 hi = (b / 16);
-            uint8 lo = (b - 16 * hi);
-            s[2 * i] = _char(hi);
-            s[2 * i + 1] = _char(lo);
-        }
-        return string(s);
     }
 
     function _char(uint8 b) internal pure returns (bytes1 c) {
