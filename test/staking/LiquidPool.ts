@@ -8,6 +8,8 @@ import {
   LiquidNodesManager,
   LiquidPool,
   RewardsBank__factory,
+  LockKeeper__factory,
+  LockKeeper,
   StakingTiers,
   StAMB,
   StAMB__factory,
@@ -21,7 +23,6 @@ const MILLION = 1_000_000;
 
 const T = 20000000000;
 
-
 const nodeStake = ethers.utils.parseEther("5000000");
 const maxNodeCount = 10;
 
@@ -29,6 +30,7 @@ const interest = 0.10 * MILLION; // 10%
 const interestPeriod = D1; // 1 day
 const minStakeValue = 10;
 const lockPeriod = 30 * D1; // 30 days
+const penalty = 0.10 * MILLION; // 10%
 
 
 describe("LiquidPool", function () {
@@ -36,6 +38,7 @@ describe("LiquidPool", function () {
   let stAMB: StAMB;
   let airBond: AirBond;
   let stakingTiers: StakingTiers;
+  let lockKeeper: LockKeeper;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
 
@@ -53,6 +56,7 @@ describe("LiquidPool", function () {
     const treasuryFee = await new Treasury__factory(owner).deploy(owner.address, 0.1 * 10000);
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
 
+    const lockKeeper = await new LockKeeper__factory(owner).deploy();
 
     const stAMB = await new StAMB__factory(owner).deploy();
 
@@ -78,12 +82,14 @@ describe("LiquidPool", function () {
       nodeManager.address,
       rewardsBankPool.address,
       stakingTiers.address,
+      lockKeeper.address,
       airBond.address,
       stAMB.address,
       interest,
       interestPeriod,
       minStakeValue,
-      lockPeriod
+      lockPeriod,
+      penalty
     ])) as LiquidPool;
 
 
@@ -101,11 +107,11 @@ describe("LiquidPool", function () {
     await setBalance(rewardsBankPool.address, ethers.utils.parseEther("1000"));
     await airBond.mint(rewardsBankPool.address, ethers.utils.parseEther("1000"));
 
-    return {liquidPool, stAMB, airBond, stakingTiers, owner, addr1};
+    return {liquidPool, stAMB, airBond, stakingTiers, lockKeeper, owner, addr1};
   }
 
   beforeEach(async function () {
-    ({liquidPool, stAMB, airBond, stakingTiers, owner, addr1} = await loadFixture(deploy));
+    ({liquidPool, stAMB, airBond, stakingTiers, lockKeeper, owner, addr1} = await loadFixture(deploy));
   });
 
   describe("stake", function () {
@@ -128,7 +134,37 @@ describe("LiquidPool", function () {
       await expect(liquidPool.stake({value: 0})).to.be.revertedWith("Pool: stake value too low");
     });
 
+    it("should allow to stake from many addresses", async function () {
+      const testAddr1 = ethers.Wallet.createRandom().connect(ethers.provider);
+      setBalance(testAddr1.address, ethers.utils.parseEther("100"));
+      await expect(liquidPool.connect(testAddr1).stake({value: 10})).to.changeEtherBalance(testAddr1, -10);
+      expect(await liquidPool.getTotalStAmb()).to.be.equal(10);
+      expect(await liquidPool.getStake(testAddr1.address)).to.be.equal(10);
 
+      // increase time by 1 day and call interest => rewards should increase by 10%
+      await time.increase(D1);
+      await liquidPool.onBlock();
+
+      const testAddr2 = ethers.Wallet.createRandom().connect(ethers.provider);
+      setBalance(testAddr2.address, ethers.utils.parseEther("100"));
+      await expect(liquidPool.connect(testAddr2).stake({value: 10})).to.changeEtherBalance(testAddr2, -10);
+      expect(await liquidPool.getTotalStAmb()).to.be.equal(20);
+      expect(await liquidPool.getStake(testAddr2.address)).to.be.equal(10);
+
+      // increase time by 1 day and call interest => rewards should increase by 10%
+      await time.increase(D1);
+      await liquidPool.onBlock();
+
+      const testAddr3 = ethers.Wallet.createRandom().connect(ethers.provider);
+      setBalance(testAddr3.address, ethers.utils.parseEther("100"));
+      await expect(liquidPool.connect(testAddr3).stake({value: 10})).to.changeEtherBalance(testAddr3, -10);
+      expect(await liquidPool.getTotalStAmb()).to.be.equal(30);
+      expect(await liquidPool.getStake(testAddr3.address)).to.be.equal(10);
+      
+      // increase time by 1 day and call interest => rewards should increase by 10%
+      await time.increase(D1);
+      await liquidPool.onBlock();
+    });
   });
 
 
@@ -139,16 +175,11 @@ describe("LiquidPool", function () {
     });
 
 
-    it("should work (no rewards)", async function () {
-
-      await expect(liquidPool.unstake(100, 100))
-        .to.changeEtherBalance(owner, 100);
-
-      expect(await liquidPool.getTotalStAmb()).to.be.equal(0);
-      expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
+    it("should work (no rewards, with delay)", async function () {
+      await expect(liquidPool.unstake(100, 100)).to.emit(lockKeeper, "Locked");
     });
 
-    it("should work (claim rewards)", async function () {
+    it("should work (claim rewards, with delay)", async function () {
       // increase time by 1 day and call interest => rewards should increase by 10%
       await time.increase(D1);
       await liquidPool.onBlock();
@@ -156,10 +187,27 @@ describe("LiquidPool", function () {
 
       expect(await liquidPool.getClaimAmount(owner.address)).to.eq(10);
 
-      await expect(() => liquidPool.unstake(100, 100))
-        .to.changeEtherBalance(owner, 110);
+      await expect(liquidPool.unstake(100, 100)).to.emit(lockKeeper, "Locked");
+    });
 
-      // todo unlock like in server nodes
+    it("should work (no rewards, without delay)", async function () {
+      //the penalty is 10% of the stake
+      await expect(liquidPool.unstakeFast(100, 100)).to.changeEtherBalance(owner, 90);
+
+      expect(await liquidPool.getTotalStAmb()).to.be.equal(0);
+      expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
+    });
+
+    it("should work (claim rewards, without delay)", async function () {
+      // increase time by 1 day and call interest => rewards should increase by 10%
+      await time.increase(D1);
+      await liquidPool.onBlock();
+      expect(await liquidPool.getTotalRewards()).to.eq(10);
+
+      expect(await liquidPool.getClaimAmount(owner.address)).to.eq(10);
+
+      // the penalty is 10% of the stake
+      await expect(() => liquidPool.unstakeFast(100, 100)).to.changeEtherBalance(owner, 100);
 
       expect(await liquidPool.getTotalStAmb()).to.be.equal(0);
       expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
@@ -240,18 +288,6 @@ describe("LiquidPool", function () {
 
     it("should revert if not admin", async function () {
       await expect(liquidPool.connect(addr1).setInterest(1000, 2 * D1)).to.be.reverted;
-    });
-  });
-
-
-  describe("setLockPeriod", function () {
-    it("should work", async function () {
-      await liquidPool.setLockPeriod(2 * D1);
-      expect(await liquidPool.lockPeriod()).to.be.equal(2 * D1);
-    });
-
-    it("should revert if not admin", async function () {
-      await expect(liquidPool.connect(addr1).setLockPeriod(2 * D1)).to.be.reverted;
     });
   });
 
