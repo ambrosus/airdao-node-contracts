@@ -23,6 +23,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     uint public minStakeValue;
     uint public unstakeLockTime;
+    uint public fastUnstakePenalty; // penalty in parts per million
 
     uint public interest;  // user will get interest % of his stake
     uint public interestPeriod;  // period in seconds for interest calculation
@@ -51,7 +52,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function initialize(
         LiquidNodesManager nodeManager_, RewardsBank rewardsBank_, StakingTiers tiers_,
         LockKeeper lockKeeper_, address bondAddress_, StAMB stAmb_,
-        uint interest_, uint interestPeriod_, uint minStakeValue_, uint unstakeLockTime_
+        uint interest_, uint interestPeriod_, uint minStakeValue_, uint unstakeLockTime_, uint fastUnstakePenalty_
     ) public initializer {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
         require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
@@ -68,6 +69,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         minStakeValue = minStakeValue_;
         unstakeLockTime = unstakeLockTime_;
+        fastUnstakePenalty = fastUnstakePenalty_;
 
         lastInterestTime = block.timestamp;
 
@@ -91,6 +93,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         minStakeValue = minStakeValue_;
     }
 
+    function setFastUnstakePenalty(uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        fastUnstakePenalty = penalty;
+    }
+
     // PUBLIC METHODS
 
     function stake() public payable {
@@ -109,6 +115,29 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         nodeManager.stake{value: msg.value}();
 
         emit StakeChanged(msg.sender, int(msg.value));
+    }
+
+    function unstakeFast(uint amount, uint desiredCoeff) public {
+        require(amount <= getStake(msg.sender), "Sender has not enough tokens");
+
+        _beforeUserStakeChanged(msg.sender);  // claim rewards before stake changes
+
+        uint rewardsAmount = _calcRewards(amount);
+
+        totalRewards -= rewardsAmount;
+        rewardsDebt[msg.sender] -= rewardsAmount;
+        totalRewardsDebt -= rewardsAmount;
+
+        stAmb.burn(msg.sender, amount);
+        nodeManager.unstake(amount);
+
+
+        uint penalty = amount * fastUnstakePenalty / MILLION;
+        payable(msg.sender).transfer(amount - penalty);
+
+        _claimRewards(msg.sender, desiredCoeff);
+
+        emit StakeChanged(msg.sender, - int(amount));
     }
 
     function unstake(uint amount, uint desiredCoeff) public {
