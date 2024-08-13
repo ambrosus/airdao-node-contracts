@@ -47,6 +47,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     event StakeChanged(address indexed account, int amount);
     event Claim(address indexed account, uint ambAmount, uint bondAmount);
     event Interest(uint amount);
+    event UnstakeLocked(address indexed account, uint amount, uint unlockTime);
+    event UnstakeFast(address indexed account, uint amount, uint penalty);
 
 
     function initialize(
@@ -138,6 +140,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         _claimRewards(msg.sender, desiredCoeff);
 
         emit StakeChanged(msg.sender, - int(amount));
+        emit UnstakeFast(msg.sender, amount, penalty);
     }
 
     function unstake(uint amount, uint desiredCoeff) public {
@@ -170,6 +173,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         _claimRewards(msg.sender, desiredCoeff);
 
         emit StakeChanged(msg.sender, - int(amount));
+        emit UnstakeLocked(msg.sender, amount, block.timestamp + unstakeLockTime);
     }
 
     function claimRewards(uint desiredCoeff) public {
