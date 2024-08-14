@@ -15,6 +15,15 @@ import {
 import {Roadmap2023MultisigSettings} from "../addresses";
 import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
+import { parse } from "csv-parse/sync";
+import fs from "fs";
+
+interface AccountData {
+  address: string;
+  balance: bigint;
+  lastZeroBalanceTimestamp: number;
+}
+
 export async function main() {
   const {chainId} = await ethers.provider.getNetwork();
 
@@ -126,6 +135,7 @@ export async function main() {
   const interestRate = 24 * 60 * 60; // 24 hours
   const minStakeValue = 10000;
   const unstakeLockTime = 14 * 24 * 60 * 60; // 14 days
+  const penalty = 100000;
 
   const liquidPool = await deploy<LiquidPool__factory>({
     contractName: ContractNames.Ecosystem_LiquidPool,
@@ -140,7 +150,8 @@ export async function main() {
       interest,
       interestRate,
       minStakeValue,
-      unstakeLockTime
+      unstakeLockTime,
+      penalty
     ],
     signer: deployer,
     isUpgradeableProxy: true,
@@ -178,12 +189,41 @@ export async function main() {
 
 
   return;
+
+  console.log("Setup bonuses");
+  const bonuses = getBonuses();
+  await (await stakingTiers.setBonusBatch(Array.from(bonuses.keys()), Array.from(bonuses.values()))).wait();
+
   await (await nodesRewardsBank.revokeRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await poolRewardsBank.revokeRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await nodeManager.revokeRole(await nodeManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await liquidPool.revokeRole(await liquidPool.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await stakingTiers.revokeRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
 
+}
+
+
+function getBonuses(): Map<string, number> {
+  //TODO: Add the csv file path
+  const filePath = "";
+  const bonusMap = new Map<string, number>();
+  const currentTime = Math.floor(Date.now() / 1000);
+  const thereeYearsInSeconds = 3 * 365 * 24 * 60 * 60;
+
+  const csvData = fs.readFileSync(filePath, "utf8");
+
+  const records = parse(csvData, {
+    columns: true,
+    skip_empty_lines: true,
+  }) as AccountData[];
+
+  for (const record of records) {
+    const stakingTime = currentTime - record.lastZeroBalanceTimestamp;
+    const bonus = (stakingTime * 75) / thereeYearsInSeconds;
+    bonusMap.set(record.address, bonus);
+  }
+
+  return bonusMap;
 }
 
 
