@@ -128,13 +128,13 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         uint rewardsAmount = _calcRewards(amount);
 
+        stAmb.burn(msg.sender, amount);
+
         totalRewards -= rewardsAmount;
         rewardsDebt[msg.sender] -= rewardsAmount;
         totalRewardsDebt -= rewardsAmount;
 
-        stAmb.burn(msg.sender, amount);
         nodeManager.unstake(amount);
-
 
         uint penalty = amount * fastUnstakePenalty / MILLION;
         payable(msg.sender).transfer(amount - penalty);
@@ -152,12 +152,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         uint rewardsAmount = _calcRewards(amount);
 
+        stAmb.burn(msg.sender, amount);
+
         totalRewards -= rewardsAmount;
         rewardsDebt[msg.sender] -= rewardsAmount;
         totalRewardsDebt -= rewardsAmount;
 
-
-        stAmb.burn(msg.sender, amount);
         nodeManager.unstake(amount);
 
         // cancel previous lock (if exists). canceledAmount will be added to new lock
