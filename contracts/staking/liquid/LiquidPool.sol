@@ -23,7 +23,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     uint public minStakeValue;
     uint public unstakeLockTime;
-    uint public fastUnstakePenalty; // penalty in parts per million
 
     uint public interest;  // user will get interest % of his stake
     uint public interestPeriod;  // period in seconds for interest calculation
@@ -41,7 +40,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     mapping(address => uint) public lockedWithdraws; // nodeAddress => lockId
 
-    uint256[10] __gap;
+    //TODO: Replace and restore gaps before deployment on test or prod
+    uint public fastUnstakePenalty; // penalty in parts per million
+
+    uint256[9] __gap;
 
 
     event StakeChanged(address indexed account, int amount);
