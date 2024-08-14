@@ -1509,11 +1509,14 @@
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
       "event StakeChanged(address indexed account, int256 amount)",
+      "event UnstakeFast(address indexed account, uint256 amount, uint256 penalty)",
+      "event UnstakeLocked(address indexed account, uint256 amount, uint256 unlockTime)",
       "event Upgraded(address indexed implementation)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
       "function beforeTokenTransfer(address from, address to, uint256 amount)",
       "function bondAddress() view returns (address)",
       "function claimRewards(uint256 desiredCoeff)",
+      "function fastUnstakePenalty() view returns (uint256)",
       "function getClaimAmount(address user) view returns (uint256)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function getStake(address user) view returns (uint256)",
@@ -1521,7 +1524,7 @@
       "function getTotalStAmb() view returns (uint256)",
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function initialize(address nodeManager_, address rewardsBank_, address tiers_, address lockKeeper_, address bondAddress_, address stAmb_, uint256 interest_, uint256 interestPeriod_, uint256 minStakeValue_, uint256 unstakeLockTime_)",
+      "function initialize(address nodeManager_, address rewardsBank_, address tiers_, address lockKeeper_, address bondAddress_, address stAmb_, uint256 interest_, uint256 interestPeriod_, uint256 minStakeValue_, uint256 unstakeLockTime_, uint256 fastUnstakePenalty_)",
       "function interest() view returns (uint256)",
       "function interestPeriod() view returns (uint256)",
       "function lockKeeper() view returns (address)",
@@ -1533,6 +1536,7 @@
       "function renounceRole(bytes32 role, address account)",
       "function revokeRole(bytes32 role, address account)",
       "function rewardsBank() view returns (address)",
+      "function setFastUnstakePenalty(uint256 penalty)",
       "function setInterest(uint256 interest_, uint256 interestPeriod_)",
       "function setMinStakeValue(uint256 minStakeValue_)",
       "function setUnstakeLockTime(uint256 unstakeLockTime_)",
@@ -1542,6 +1546,7 @@
       "function tiers() view returns (address)",
       "function totalRewardsDebt() view returns (uint256)",
       "function unstake(uint256 amount, uint256 desiredCoeff)",
+      "function unstakeFast(uint256 amount, uint256 desiredCoeff)",
       "function unstakeLockTime() view returns (uint256)",
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
@@ -1549,7 +1554,7 @@
     "deployTx": "0x7870039432dfcb1a9965058d0cda30e6e4471b49a95abad4401b65cb098a93bf",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0xc3B24De6c62f16A2D6D8AB334F9b2c92D826BD74",
+      "implementation": "0x4E4472A9a006639A0945a13d93B5a71C2C17eA62",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }

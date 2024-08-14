@@ -1462,6 +1462,292 @@
           }
         }
       }
+    },
+    "3a959d86744adfedf0ce4189a13390a6a0eba41b49720570eace503e2e38374c": {
+      "address": "0x4E4472A9a006639A0945a13d93B5a71C2C17eA62",
+      "txHash": "0x4eb4d34758f33a14049f9f74f36018b73bef62fd0cdb54bdd0dbcaaeef570f6c",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)34_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:62"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:260"
+          },
+          {
+            "label": "nodeManager",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_contract(LiquidNodesManager)7822",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:17"
+          },
+          {
+            "label": "rewardsBank",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_contract(RewardsBank)7266",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:18"
+          },
+          {
+            "label": "tiers",
+            "offset": 0,
+            "slot": "153",
+            "type": "t_contract(StakingTiers)9191",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:19"
+          },
+          {
+            "label": "lockKeeper",
+            "offset": 0,
+            "slot": "154",
+            "type": "t_contract(LockKeeper)6889",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:20"
+          },
+          {
+            "label": "bondAddress",
+            "offset": 0,
+            "slot": "155",
+            "type": "t_address",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:21"
+          },
+          {
+            "label": "stAmb",
+            "offset": 0,
+            "slot": "156",
+            "type": "t_contract(StAMB)8983",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:22"
+          },
+          {
+            "label": "minStakeValue",
+            "offset": 0,
+            "slot": "157",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:24"
+          },
+          {
+            "label": "unstakeLockTime",
+            "offset": 0,
+            "slot": "158",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:25"
+          },
+          {
+            "label": "interest",
+            "offset": 0,
+            "slot": "159",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:27"
+          },
+          {
+            "label": "interestPeriod",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:28"
+          },
+          {
+            "label": "lastInterestTime",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:29"
+          },
+          {
+            "label": "totalRewards",
+            "offset": 0,
+            "slot": "162",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:31"
+          },
+          {
+            "label": "totalRewardsDebt",
+            "offset": 0,
+            "slot": "163",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:32"
+          },
+          {
+            "label": "rewardsCanClaim",
+            "offset": 0,
+            "slot": "164",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:35"
+          },
+          {
+            "label": "rewardsDebt",
+            "offset": 0,
+            "slot": "165",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:39"
+          },
+          {
+            "label": "lockedWithdraws",
+            "offset": 0,
+            "slot": "166",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:41"
+          },
+          {
+            "label": "fastUnstakePenalty",
+            "offset": 0,
+            "slot": "167",
+            "type": "t_uint256",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "168",
+            "type": "t_array(t_uint256)9_storage",
+            "contract": "LiquidPool",
+            "src": "contracts/staking/liquid/LiquidPool.sol:46"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)9_storage": {
+            "label": "uint256[9]",
+            "numberOfBytes": "288"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(LiquidNodesManager)7822": {
+            "label": "contract LiquidNodesManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(LockKeeper)6889": {
+            "label": "contract LockKeeper",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RewardsBank)7266": {
+            "label": "contract RewardsBank",
+            "numberOfBytes": "20"
+          },
+          "t_contract(StAMB)8983": {
+            "label": "contract StAMB",
+            "numberOfBytes": "20"
+          },
+          "t_contract(StakingTiers)9191": {
+            "label": "contract StakingTiers",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)34_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }
