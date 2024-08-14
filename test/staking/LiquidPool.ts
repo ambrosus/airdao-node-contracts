@@ -213,6 +213,18 @@ describe("LiquidPool", function () {
       expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
     });
 
+    it("should show 0 rewards after unstake", async function () {
+      // increase time by 1 day and call interest => rewards should increase by 10%
+      await time.increase(D1);
+      await liquidPool.onBlock();
+      expect(await liquidPool.getTotalRewards()).to.eq(10);
+
+      expect(await liquidPool.getClaimAmount(owner.address)).to.eq(10);
+
+      await expect(liquidPool.unstake(100, 100)).to.emit(lockKeeper, "Locked");
+      expect(await liquidPool.getClaimAmount(owner.address)).to.eq(0);
+    });
+
     it("should reject unstaking more then staked", async function () {
       await expect(liquidPool.unstake(1000, 75)).to.be.revertedWith("Sender has not enough tokens");
     });

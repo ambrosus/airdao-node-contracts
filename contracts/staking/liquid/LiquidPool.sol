@@ -221,6 +221,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     function getClaimAmount(address user) public view returns (uint) {
         uint rewardsAmount = _calcRewards(getStake(user));
+
+        if (rewardsAmount + rewardsCanClaim[user] <= rewardsDebt[user])
+            return 0;
+
         return rewardsAmount + rewardsCanClaim[user] - rewardsDebt[user];
     }
 
