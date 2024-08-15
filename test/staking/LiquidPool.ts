@@ -179,6 +179,11 @@ describe("LiquidPool", function () {
       await expect(liquidPool.unstake(100, 100)).to.emit(lockKeeper, "Locked");
     });
 
+    it("should work (no rewards, with delay, several unstakes)", async function () {
+      await expect(liquidPool.unstake(50, 100)).to.emit(lockKeeper, "Locked");
+      await expect(liquidPool.unstake(50, 100)).to.emit(lockKeeper, "Locked");
+    });
+
     it("should work (claim rewards, with delay)", async function () {
       // increase time by 1 day and call interest => rewards should increase by 10%
       await time.increase(D1);

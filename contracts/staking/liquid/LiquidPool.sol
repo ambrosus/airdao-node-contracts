@@ -281,7 +281,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     receive() external payable {
-        require(msg.sender == address(nodeManager), "Not allowed");
+        require(msg.sender == address(nodeManager) || msg.sender == address(lockKeeper), "Not allowed");
     }
 
 }
