@@ -1536,6 +1536,7 @@
       "function renounceRole(bytes32 role, address account)",
       "function revokeRole(bytes32 role, address account)",
       "function rewardsBank() view returns (address)",
+      "function rewardsDebt(address) view returns (uint256)",
       "function setFastUnstakePenalty(uint256 penalty)",
       "function setInterest(uint256 interest_, uint256 interestPeriod_)",
       "function setMinStakeValue(uint256 minStakeValue_)",
@@ -1554,7 +1555,7 @@
     "deployTx": "0x7870039432dfcb1a9965058d0cda30e6e4471b49a95abad4401b65cb098a93bf",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0x6aba61DA4CD5A12DBfE1f3263540B293890b9214",
+      "implementation": "0x63E07Cb9CCe82D0ee9f08ad0943ad5fe79691702",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }
