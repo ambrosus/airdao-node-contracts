@@ -23,7 +23,7 @@ const MILLION = 1_000_000;
 
 const T = 20000000000;
 
-const nodeStake = ethers.utils.parseEther("5000000");
+const nodeStake = ethers.utils.parseEther("500");
 const maxNodeCount = 10;
 
 const interest = 0.10 * MILLION; // 10%
@@ -167,6 +167,34 @@ describe("LiquidPool", function () {
     });
   });
 
+  it("Test strange unstake case", async function () {
+    await stakingTiers.setBonus(owner.address, 100);  // can unstake with rewards in 100% amb
+    console.log("Test strange unstake case");
+    console.log("stake owner");
+    await liquidPool.stake({value: 1000});
+
+    console.log("Add rewards");
+    await time.increase(D1);
+    await liquidPool.onBlock();
+
+    console.log("stake addr1");
+    await liquidPool.connect(addr1).stake({value: 1000});
+
+    console.log("Add rewards");
+    await time.increase(D1);
+    await liquidPool.onBlock();
+
+    console.log("unstake owner");
+    await liquidPool.unstake(1000, 100);
+
+    console.log("Onwer rewardsDept", await liquidPool.rewardsDebt(owner.address));
+    console.log("Owner rewards", await liquidPool.getClaimAmount(owner.address));
+    console.log("Owner staked", await liquidPool.getStake(owner.address));
+
+    console.log("stake owner");
+    await liquidPool.stake({value: 1000});
+  });
+
 
   describe("unstake", function () {
     beforeEach(async function () {
@@ -228,6 +256,34 @@ describe("LiquidPool", function () {
 
       await expect(liquidPool.unstake(100, 100)).to.emit(lockKeeper, "Locked");
       expect(await liquidPool.getClaimAmount(owner.address)).to.eq(0);
+    });
+
+    it("should work with multiple stakes after unstake", async function () {
+      console.log("Test strange unstake case");
+      console.log("stake owner");
+      await liquidPool.stake({value: 1000});
+
+      console.log("Add rewards");
+      await time.increase(D1);
+      await liquidPool.onBlock();
+
+      console.log("stake addr1");
+      await liquidPool.connect(addr1).stake({value: 1000});
+
+      console.log("Add rewards");
+      await time.increase(D1);
+      await liquidPool.onBlock();
+
+      console.log("unstake owner");
+      await liquidPool.unstake(1000, 100);
+
+      console.log("Onwer rewardsDept", await liquidPool.rewardsDebt(owner.address));
+      console.log("Owner rewards", await liquidPool.getClaimAmount(owner.address));
+      console.log("Owner staked", await liquidPool.getStake(owner.address));
+
+      console.log("stake owner");
+      await liquidPool.stake({value: 1000});
+
     });
 
     it("should reject unstaking more then staked", async function () {
