@@ -30,7 +30,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     uint public interestPeriod;  // period in seconds for interest calculation
     uint internal lastInterestTime; // newReward = totalStAmb * (interest/1e6) * (timePassed / interestPeriod)
 
-    uint internal totalRewards;  // rewards from interest, includes totalRewardsDebt, can be much greater than real rewards
+    uint public totalRewards;  // rewards from interest, includes totalRewardsDebt, can be much greater than real rewards
     uint public totalRewardsDebt; // real rewards = totalRewards - totalRewardsDebt
 
     // rewards that has been "claimed" before stake changes.
@@ -111,25 +111,28 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("stake: beginning: totalRewardsDebt:", totalRewardsDebt);
         console.log("stake: beginning: totalStAmb:", getTotalStAmb());
 
-        console.log("stake: before stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
-        _beforeUserStakeChanged(msg.sender);  // "claim" rewards before stake changes
-        console.log("stake: after stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
+//        console.log("stake: before stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
+//        _beforeUserStakeChanged(msg.sender);  // "claim" rewards before stake changes
+//        console.log("stake: after stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
 
         uint rewardsAmount = _calcRewards(msg.value);
         console.log("stake: rewardsAmount:", rewardsAmount);
+
 
         console.log("stake: before mint: rewardsDebt", rewardsDebt[msg.sender]);
         stAmb.mint(msg.sender, msg.value);
         console.log("stake: after mint: rewardsDebt", rewardsDebt[msg.sender]);
 
-        console.log("stake: calculating debt");
-        //totalRewards += rewardsAmount;
+
+        totalRewards += rewardsAmount;
         rewardsDebt[msg.sender] += rewardsAmount;
         totalRewardsDebt += rewardsAmount;
 
-        console.log("stake: before stake call:", rewardsDebt[msg.sender]);
-        nodeManager.stake{value: msg.value}();
-        console.log("stake: after stake call:", rewardsDebt[msg.sender]);
+
+
+
+
+    nodeManager.stake{value: msg.value}();
 
         console.log("stake: end: totalRewards:", totalRewards);
         console.log("stake: end: totalRewardsDebt:", totalRewardsDebt);
@@ -147,7 +150,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         stAmb.burn(msg.sender, amount);
 
-        //totalRewards -= rewardsAmount;
+        totalRewards -= rewardsAmount;
         rewardsDebt[msg.sender] -= rewardsAmount;
         totalRewardsDebt -= rewardsAmount;
 
@@ -181,7 +184,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("unstake: after burn: rewardsDebt", rewardsDebt[msg.sender]);
 
         console.log("unstake: calculating debt");
-        //totalRewards += rewardsAmount;
+        totalRewards += rewardsAmount;
         rewardsDebt[msg.sender] -= rewardsAmount;
         totalRewardsDebt -= rewardsAmount;
 
@@ -220,7 +223,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("claimRewards: before stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
         _beforeUserStakeChanged(msg.sender);
         console.log("claimRewards: after stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
-            
+
         console.log("claimRewards: before claimRewards: totalRewards:", rewardsDebt[msg.sender]);
         _claimRewards(msg.sender, desiredCoeff);
         console.log("claimRewards: after claimRewards: totalRewards:", rewardsDebt[msg.sender]);
@@ -288,12 +291,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     // "claim" rewards for user before his stake changes
     function _beforeUserStakeChanged(address user) private {
-        uint rewardsAmount = _calcRewards(getStake(user)); 
+        uint rewardsAmount = _calcRewards(getStake(user));
         console.log("beforeUserStakeChanged: rewardsAmount:", rewardsAmount);
-        uint rewardWithoutDebt = rewardsAmount - rewardsDebt[user]; 
+        uint rewardWithoutDebt = rewardsAmount - rewardsDebt[user];
         console.log("beforeUserStakeChanged: rewardWithoutDebt:", rewardWithoutDebt);
         rewardsCanClaim[user] += rewardWithoutDebt;
-        totalRewardsDebt += rewardWithoutDebt; 
+        totalRewardsDebt += rewardWithoutDebt;
         rewardsDebt[user] += rewardWithoutDebt;
     }
 
@@ -305,7 +308,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         if (amount == 0) return;
 
         rewardsCanClaim[user] = 0;
-        totalRewards -= amount;
+        console.log("claim rewards");
+        console.log("totalRewards:", totalRewards);
+        console.log("amount:", amount);
+//        totalRewards -= amount;
 
         uint ambAmount = amount * desiredCoeff / 100;
         uint bondAmount = amount - ambAmount;
@@ -317,13 +323,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     }
 
     function _calcRewards(uint stAmbAmount) internal view returns (uint) {
-        if (getTotalStAmb() == 0) return 0;
+        if (getTotalStAmb() == 0 || totalRewards == 0) return stAmbAmount;
         return stAmbAmount * totalRewards / getTotalStAmb();
     }
 
-    function _char(uint8 b) internal pure returns (bytes1 c) {
-        return bytes1(b + (b < 10 ? 0x30 : 0x57));
-    }
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 

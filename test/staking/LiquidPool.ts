@@ -1,6 +1,6 @@
-import {loadFixture, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
-import {ethers, upgrades} from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import { loadFixture, setBalance, time } from "@nomicfoundation/hardhat-network-helpers";
+import { ethers, upgrades } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import {
   AirBond,
@@ -16,7 +16,7 @@ import {
   TEST_ValidatorSet,
   Treasury__factory
 } from "../../typechain-types";
-import {expect} from "chai";
+import { expect } from "chai";
 
 const D1 = 60 * 60 * 24;
 const MILLION = 1_000_000;
@@ -28,7 +28,7 @@ const maxNodeCount = 10;
 
 const interest = 0.10 * MILLION; // 10%
 const interestPeriod = D1; // 1 day
-const minStakeValue = 10;
+const minStakeValue = 1;
 const lockPeriod = 30 * D1; // 30 days
 const penalty = 0.10 * MILLION; // 10%
 
@@ -107,23 +107,54 @@ describe("LiquidPool", function () {
     await setBalance(rewardsBankPool.address, ethers.utils.parseEther("1000"));
     await airBond.mint(rewardsBankPool.address, ethers.utils.parseEther("1000"));
 
-    return {liquidPool, stAMB, airBond, stakingTiers, lockKeeper, owner, addr1};
+    return { liquidPool, stAMB, airBond, stakingTiers, lockKeeper, owner, addr1 };
   }
 
   beforeEach(async function () {
-    ({liquidPool, stAMB, airBond, stakingTiers, lockKeeper, owner, addr1} = await loadFixture(deploy));
+    ({ liquidPool, stAMB, airBond, stakingTiers, lockKeeper, owner, addr1 } = await loadFixture(deploy));
   });
+
+  it("should work", async function () {
+    const [A, B, C] = await ethers.getSigners();
+
+
+    await liquidPool.connect(A).stake({ value: 15_000 });
+    expect(await liquidPool.getStake(A.address)).to.be.equal(15_000);
+    expect(await liquidPool.totalRewards()).to.be.equal(15_000);
+    expect(await liquidPool.totalRewardsDebt()).to.be.equal(15_000);
+    expect(await liquidPool.rewardsDebt(A.address)).to.be.equal(15_000);
+
+    await liquidPool.connect(B).stake({ value: 5_000 });
+    expect(await liquidPool.getStake(B.address)).to.be.equal(5_000);
+    expect(await liquidPool.totalRewards()).to.be.equal(20_000);
+    expect(await liquidPool.totalRewardsDebt()).to.be.equal(20_000);
+    expect(await liquidPool.rewardsDebt(B.address)).to.be.equal(5_000);
+
+
+    await liquidPool.connect(C).stake({ value: 15_000 });
+    expect(await liquidPool.getStake(C.address)).to.be.equal(15_000);
+    expect(await liquidPool.totalRewards()).to.be.equal(35_000);
+    expect(await liquidPool.totalRewardsDebt()).to.be.equal(35_000);
+    expect(await liquidPool.rewardsDebt(C.address)).to.be.equal(15_000);
+
+
+
+
+
+  });
+
+
 
   describe("stake", function () {
     it("should work", async function () {
-      await expect(liquidPool.stake({value: 50}))
+      await expect(liquidPool.stake({ value: 50 }))
         .to.changeEtherBalance(owner, -50);
 
       expect(await liquidPool.getTotalStAmb()).to.be.equal(50);
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       expect(await liquidPool.getStake(owner.address)).to.be.equal(50);
 
-      await expect(liquidPool.stake({value: 25}))
+      await expect(liquidPool.stake({ value: 25 }))
         .to.changeEtherBalance(owner, -25);
 
       expect(await liquidPool.getTotalStAmb()).to.be.equal(75);
@@ -131,13 +162,13 @@ describe("LiquidPool", function () {
     });
 
     it("should reject stakes below minStakeValue", async function () {
-      await expect(liquidPool.stake({value: 0})).to.be.revertedWith("Pool: stake value too low");
+      await expect(liquidPool.stake({ value: 0 })).to.be.revertedWith("Pool: stake value too low");
     });
 
     it("should allow to stake from many addresses", async function () {
       const testAddr1 = ethers.Wallet.createRandom().connect(ethers.provider);
       setBalance(testAddr1.address, ethers.utils.parseEther("100"));
-      await expect(liquidPool.connect(testAddr1).stake({value: 10})).to.changeEtherBalance(testAddr1, -10);
+      await expect(liquidPool.connect(testAddr1).stake({ value: 10 })).to.changeEtherBalance(testAddr1, -10);
       expect(await liquidPool.getTotalStAmb()).to.be.equal(10);
       expect(await liquidPool.getStake(testAddr1.address)).to.be.equal(10);
 
@@ -147,7 +178,7 @@ describe("LiquidPool", function () {
 
       const testAddr2 = ethers.Wallet.createRandom().connect(ethers.provider);
       setBalance(testAddr2.address, ethers.utils.parseEther("100"));
-      await expect(liquidPool.connect(testAddr2).stake({value: 10})).to.changeEtherBalance(testAddr2, -10);
+      await expect(liquidPool.connect(testAddr2).stake({ value: 10 })).to.changeEtherBalance(testAddr2, -10);
       expect(await liquidPool.getTotalStAmb()).to.be.equal(20);
       expect(await liquidPool.getStake(testAddr2.address)).to.be.equal(10);
 
@@ -157,10 +188,10 @@ describe("LiquidPool", function () {
 
       const testAddr3 = ethers.Wallet.createRandom().connect(ethers.provider);
       setBalance(testAddr3.address, ethers.utils.parseEther("100"));
-      await expect(liquidPool.connect(testAddr3).stake({value: 10})).to.changeEtherBalance(testAddr3, -10);
+      await expect(liquidPool.connect(testAddr3).stake({ value: 10 })).to.changeEtherBalance(testAddr3, -10);
       expect(await liquidPool.getTotalStAmb()).to.be.equal(30);
       expect(await liquidPool.getStake(testAddr3.address)).to.be.equal(10);
-      
+
       // increase time by 1 day and call interest => rewards should increase by 10%
       await time.increase(D1);
       await liquidPool.onBlock();
@@ -198,7 +229,7 @@ describe("LiquidPool", function () {
 
   describe("unstake", function () {
     beforeEach(async function () {
-      await liquidPool.stake({value: 100});
+      await liquidPool.stake({ value: 100 });
       await stakingTiers.setBonus(owner.address, 100);  // can unstake with rewards in 100% amb
     });
 
@@ -208,6 +239,12 @@ describe("LiquidPool", function () {
     });
 
     it("should work (no rewards, with delay, several unstakes)", async function () {
+      await expect(liquidPool.unstake(50, 100)).to.emit(lockKeeper, "Locked");
+      await expect(liquidPool.unstake(50, 100)).to.emit(lockKeeper, "Locked");
+    });
+
+
+    it("should work (no rewards, with delay, twice)", async function () {
       await expect(liquidPool.unstake(50, 100)).to.emit(lockKeeper, "Locked");
       await expect(liquidPool.unstake(50, 100)).to.emit(lockKeeper, "Locked");
     });
@@ -294,7 +331,7 @@ describe("LiquidPool", function () {
 
   describe("claimRewards", function () {
     beforeEach(async function () {
-      await liquidPool.stake({value: 100});
+      await liquidPool.stake({ value: 100 });
       await stakingTiers.setBonus(owner.address, 100);  // can unstake with rewards in 100% amb
 
       // increase time by 1 day and call interest => rewards should increase by 10%
@@ -366,8 +403,8 @@ describe("LiquidPool", function () {
 
   describe("tryInterest", function () {
     it("should work", async function () {
-      await liquidPool.stake({value: 100});
-      await liquidPool.connect(addr1).stake({value: 900});
+      await liquidPool.stake({ value: 100 });
+      await liquidPool.connect(addr1).stake({ value: 900 });
 
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       await time.increase(D1);
@@ -376,8 +413,8 @@ describe("LiquidPool", function () {
     });
 
     it("should do nothing if called too early", async function () {
-      await liquidPool.stake({value: 100});
-      await liquidPool.connect(addr1).stake({value: 900});
+      await liquidPool.stake({ value: 100 });
+      await liquidPool.connect(addr1).stake({ value: 900 });
 
       expect(await liquidPool.getTotalRewards()).to.be.equal(0);
       await liquidPool.onBlock();
