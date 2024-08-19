@@ -110,6 +110,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("stake: beginning: totalRewards:", totalRewards);
         console.log("stake: beginning: totalRewardsDebt:", totalRewardsDebt);
         console.log("stake: beginning: totalStAmb:", getTotalStAmb());
+        console.log("stake: beginning: userRewards:", getClaimAmount(msg.sender));
 
 //        console.log("stake: before stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
 //        _beforeUserStakeChanged(msg.sender);  // "claim" rewards before stake changes
@@ -121,22 +122,19 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         console.log("stake: before mint: rewardsDebt", rewardsDebt[msg.sender]);
         stAmb.mint(msg.sender, msg.value);
+        console.log("stake: stAmb minted:", msg.value);
         console.log("stake: after mint: rewardsDebt", rewardsDebt[msg.sender]);
-
 
         totalRewards += rewardsAmount;
         rewardsDebt[msg.sender] += rewardsAmount;
         totalRewardsDebt += rewardsAmount;
 
-
-
-
-
-    nodeManager.stake{value: msg.value}();
+        nodeManager.stake{value: msg.value}();
 
         console.log("stake: end: totalRewards:", totalRewards);
         console.log("stake: end: totalRewardsDebt:", totalRewardsDebt);
         console.log("stake: end: totalStAmb:", getTotalStAmb());
+        console.log("stake: end: userRewards:", getClaimAmount(msg.sender));
 
         emit StakeChanged(msg.sender, int(msg.value));
     }
@@ -171,6 +169,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("unstake: beginning: totalRewards:", totalRewards);
         console.log("unstake: beginning: totalRewardsDebt:", totalRewardsDebt);
         console.log("unstake: beginning: totalStAmb:", getTotalStAmb());
+        console.log("unstake: beginning: userRewards:", getClaimAmount(msg.sender));
 
         console.log("unstake: before stakeChanged call: rewardsDebt", rewardsDebt[msg.sender]);
         _beforeUserStakeChanged(msg.sender);  // claim rewards before stake changes
@@ -181,10 +180,11 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         console.log("unstake: before burn: rewardsDebt", rewardsDebt[msg.sender]);
         stAmb.burn(msg.sender, amount);
+        console.log("unstake: stAmb burned:", amount);
         console.log("unstake: after burn: rewardsDebt", rewardsDebt[msg.sender]);
 
         console.log("unstake: calculating debt");
-        totalRewards += rewardsAmount;
+        totalRewards -= rewardsAmount;
         rewardsDebt[msg.sender] -= rewardsAmount;
         totalRewardsDebt -= rewardsAmount;
 
@@ -214,6 +214,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("unstake: end: totalRewards:", totalRewards);
         console.log("unstake: end: totalRewardsDebt:", totalRewardsDebt);
         console.log("unstake: end: totalStAmb:", getTotalStAmb());
+        console.log("unstake: end: userRewards:", getClaimAmount(msg.sender));
 
         emit StakeChanged(msg.sender, - int(amount));
         emit UnstakeLocked(msg.sender, amount, block.timestamp + unstakeLockTime);
