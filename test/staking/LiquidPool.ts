@@ -197,58 +197,38 @@ describe("LiquidPool", function () {
   it("Test strange unstake case", async function () {
     await stakingTiers.setBonus(owner.address, 100);  // can unstake with rewards in 100% amb
     await stakingTiers.setBonus(addr1.address, 100);  // can unstake with rewards in 100% amb
-    console.log("Test strange unstake case");
-    console.log("stake owner");
     await expect(await liquidPool.stake({value: 1000})).to.changeEtherBalance(owner, -1000);
     expect(await liquidPool.getStake(owner.address)).to.be.equal(1000);
     expect(await liquidPool.getTotalStAmb()).to.be.equal(1000);
-    //expect(await liquidPool.totalRewards()).to.be.equal(1000);
-    //expect(await liquidPool.totalRewardsDebt()).to.be.equal(1000);
-    //expect(await liquidPool.rewardsDebt(owner.address)).to.be.equal(1000);
 
-    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     expect(await liquidPool.totalRewards()).to.be.equal(1100);
     expect(await liquidPool.getClaimAmount(owner.address)).to.be.equal(100);
 
-    console.log("stake addr1");
     await expect(await liquidPool.connect(addr1).stake({value: 1000})).to.changeEtherBalance(addr1, -1000);
     expect(await liquidPool.getStake(addr1.address)).to.be.equal(1000);
     expect(await liquidPool.getTotalStAmb()).to.be.equal(2000);
-    //expect(await liquidPool.totalRewards()).to.be.equal(2100);
-    //expect(await liquidPool.totalRewardsDebt()).to.be.equal(2100);
-    //expect(await liquidPool.rewardsDebt(addr1.address)).to.be.equal(1000);
 
-    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
-    //expect(await liquidPool.totalRewards()).to.be.equal(2300);
     expect(await liquidPool.getClaimAmount(addr1.address)).to.be.equal(100);
     expect(await liquidPool.getClaimAmount(owner.address)).to.be.equal(200);
 
-    console.log("unstake owner");
     await expect(await liquidPool.unstake(1000, 100)).to.changeEtherBalance(owner, 200); //expecting to get rewards in amb
     expect(await liquidPool.getClaimAmount(owner.address)).to.be.equal(0);
     expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
-    // totalRewards ???
-    // totalRewardsDebt ???
     expect(await liquidPool.getTotalStAmb()).to.be.equal(1000);
     expect(await liquidPool.rewardsDebt(owner.address)).to.be.equal(0);
 
-    console.log("unstake addr1");
     await expect(await liquidPool.connect(addr1).unstake(1000, 100)).to.changeEtherBalance(addr1, 100); //expecting to get rewards in amb
     expect(await liquidPool.getClaimAmount(addr1.address)).to.be.equal(0);
     expect(await liquidPool.getStake(addr1.address)).to.be.equal(0);
-    // totalRewards ???
-    // totalRewardsDebt ???
     expect(await liquidPool.getTotalStAmb()).to.be.equal(0);    
     expect(await liquidPool.rewardsDebt(addr1.address)).to.be.equal(0);
 
-
-    console.log("stake owner");
     await liquidPool.stake({value: 1000});
   });
 
@@ -319,34 +299,6 @@ describe("LiquidPool", function () {
 
       await expect(liquidPool.unstake(100, 100)).to.emit(lockKeeper, "Locked");
       expect(await liquidPool.getClaimAmount(owner.address)).to.eq(0);
-    });
-
-    it("should work with multiple stakes after unstake", async function () {
-      console.log("Test strange unstake case");
-      console.log("stake owner");
-      await liquidPool.stake({value: 1000});
-
-      console.log("Add rewards");
-      await time.increase(D1);
-      await liquidPool.onBlock();
-
-      console.log("stake addr1");
-      await liquidPool.connect(addr1).stake({value: 1000});
-
-      console.log("Add rewards");
-      await time.increase(D1);
-      await liquidPool.onBlock();
-
-      console.log("unstake owner");
-      await liquidPool.unstake(1000, 100);
-
-      console.log("Onwer rewardsDept", await liquidPool.rewardsDebt(owner.address));
-      console.log("Owner rewards", await liquidPool.getClaimAmount(owner.address));
-      console.log("Owner staked", await liquidPool.getStake(owner.address));
-
-      console.log("stake owner");
-      await liquidPool.stake({value: 1000});
-
     });
 
     it("should reject unstaking more then staked", async function () {
