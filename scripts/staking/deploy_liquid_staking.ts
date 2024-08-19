@@ -204,8 +204,7 @@ export async function main() {
 
 
 function getBonuses(): Map<string, number> {
-  //TODO: Add the csv file path
-  const filePath = "";
+  const filePath = "./scripts/staking/staking_holders.csv";
   const bonusMap = new Map<string, number>();
   const currentTime = Math.floor(Date.now() / 1000);
   const thereeYearsInSeconds = 3 * 365 * 24 * 60 * 60;
