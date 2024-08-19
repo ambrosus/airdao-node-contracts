@@ -113,12 +113,12 @@ export const MULTISIGS_COMMON = {
   [ContractNames.Ecosystem_LiquidNodesManagerTreasuryFees]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidPoolStAMB]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidPoolStakingTiers]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_AstradexTokenSafe]: ContractNames.Ecosystem_AstradexTokenSafeMultisig,  // yes, this should be under master multisig
 };
 
 export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
   [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
-  [ContractNames.Ecosystem_AstradexTokenSafe]: ContractNames.Ecosystem_AstradexTokenSafeMultisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
@@ -129,7 +129,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
     return {
       master: ContractNames.Ecosystem_MasterMultisig,
       slaves: [
-        ...Object.values(MULTISIGS_ECOSYSTEM),
+        ...new Set(Object.values(MULTISIGS_ECOSYSTEM)),
         // multisigs below are not listed in the MULTISIGS_ECOSYSTEM, so we add them manually
         ContractNames.Ecosystem_AstradexMultisig,
       ],
@@ -138,7 +138,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
   if (version == MultisigVersions.common) {
     return {
       master: ContractNames.MasterMultisig,
-      slaves: Object.values(MULTISIGS_COMMON)
+      slaves: [...new Set(Object.values(MULTISIGS_COMMON))]
     };
   }
   throw new Error("Unknown environment");
