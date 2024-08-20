@@ -38,7 +38,7 @@ const config: HardhatUserConfig = {
     test: {
       url: "https://network.ambrosus-test.io",
       hardfork: "byzantium",
-      gasPrice: 0,
+      // gasPrice: 0,
       accounts: [
         process.env.PRIVATEKEY_OWNER_AMB || ethers.constants.HashZero,
         process.env.PRIVATEKEY_TEST_MULTISIG1 || ethers.constants.HashZero,
