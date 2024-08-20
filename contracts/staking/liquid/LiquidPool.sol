@@ -11,6 +11,8 @@ import "./StAMB.sol";
 import "./StakingTiers.sol";
 import "./LiquidNodesManager.sol";
 
+import "hardhat/console.sol";
+
 contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
     uint constant private MILLION = 1000000;
 
@@ -160,8 +162,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         // cancel previous lock (if exists). canceledAmount will be added to new lock
         uint canceledAmount;
+        console.log("unstake: Canceling previous lock");
+        console.log(lockKeeper.getLock(lockedWithdraws[msg.sender]).totalClaims);
         if (lockKeeper.getLock(lockedWithdraws[msg.sender]).totalClaims > 0)  // prev lock exists
             canceledAmount = lockKeeper.cancelLock(lockedWithdraws[msg.sender]);
+
+        console.log("unstake: canceledAmount:", canceledAmount);
 
         // lock funds
         lockedWithdraws[msg.sender] = lockKeeper.lockSingle{value: amount + canceledAmount}(
@@ -169,6 +175,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
             uint64(block.timestamp + unstakeLockTime), amount + canceledAmount,
             string(abi.encodePacked("LiquidStaking unstake"))
         );
+
+        console.log("unstake: lock id:", lockedWithdraws[msg.sender]);
 
         _claimRewards(msg.sender, desiredCoeff);
 
