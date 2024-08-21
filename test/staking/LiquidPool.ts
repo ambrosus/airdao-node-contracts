@@ -221,25 +221,21 @@ describe("LiquidPool", function () {
     expect(await liquidPool.getClaimAmount(owner.address)).to.be.equal(0);
     expect(await liquidPool.getStake(owner.address)).to.be.equal(500);
     expect(await liquidPool.getTotalStAmb()).to.be.equal(1500);
-    //expect(await liquidPool.rewardsDebt(owner.address)).to.be.equal(0);
-
-    await expect(await liquidPool.connect(addr1).unstake(500, 100)).to.changeEtherBalance(addr1, 100); //expecting to get rewards in amb
-    expect(await liquidPool.getClaimAmount(addr1.address)).to.be.equal(0);
-    expect(await liquidPool.getStake(addr1.address)).to.be.equal(500);
-    expect(await liquidPool.getTotalStAmb()).to.be.equal(1000);    
-    //expect(await liquidPool.rewardsDebt(addr1.address)).to.be.equal(0);
 
     await expect(await liquidPool.unstake(500, 100)).to.changeEtherBalance(owner, 0); //expecting to get zero rewards
     expect(await liquidPool.getClaimAmount(owner.address)).to.be.equal(0);
     expect(await liquidPool.getStake(owner.address)).to.be.equal(0);
+    expect(await liquidPool.getTotalStAmb()).to.be.equal(1000);    
+
+    await expect(await liquidPool.connect(addr1).unstake(500, 100)).to.changeEtherBalance(addr1, 100); //expecting to get rewards in amb
+    expect(await liquidPool.getClaimAmount(addr1.address)).to.be.equal(0);
+    expect(await liquidPool.getStake(addr1.address)).to.be.equal(500);
     expect(await liquidPool.getTotalStAmb()).to.be.equal(500);
-    //expect(await liquidPool.rewardsDebt(owner.address)).to.be.equal(0);
 
     await expect(await liquidPool.connect(addr1).unstake(500, 100)).to.changeEtherBalance(addr1, 0); //expecting to get rewards in amb
     expect(await liquidPool.getClaimAmount(addr1.address)).to.be.equal(0);
     expect(await liquidPool.getStake(addr1.address)).to.be.equal(0);
     expect(await liquidPool.getTotalStAmb()).to.be.equal(0);    
-    //expect(await liquidPool.rewardsDebt(addr1.address)).to.be.equal(0);
 
     await liquidPool.stake({value: 1000});
   });

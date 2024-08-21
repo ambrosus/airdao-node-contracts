@@ -148,9 +148,20 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function unstake(uint amount, uint desiredCoeff) public {
         require(amount <= getStake(msg.sender), "Sender has not enough tokens");
 
+        console.log("unstake: amount:", amount);
+        console.log("unstake: start: rewardsAmount:", _calcRewards(getStake(msg.sender)));
+        console.log("unstake: start: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
+        console.log("unstake: start: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+
         _beforeUserStakeChanged(msg.sender);  // claim rewards before stake changes
 
+        console.log("unstake: after stakeChanged: rewardsAmount:", _calcRewards(getStake(msg.sender)));
+        console.log("unstake: after stakeChanged: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
+        console.log("unstake: after stakeChanged: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+
         uint rewardsAmount = _calcRewards(amount);
+
+        console.log("unstake: rewardsAmount to calc:", rewardsAmount);
 
         stAmb.burn(msg.sender, amount);
 
@@ -162,12 +173,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         // cancel previous lock (if exists). canceledAmount will be added to new lock
         uint canceledAmount;
-        console.log("unstake: Canceling previous lock");
-        console.log(lockKeeper.getLock(lockedWithdraws[msg.sender]).totalClaims);
         if (lockKeeper.getLock(lockedWithdraws[msg.sender]).totalClaims > 0)  // prev lock exists
             canceledAmount = lockKeeper.cancelLock(lockedWithdraws[msg.sender]);
-
-        console.log("unstake: canceledAmount:", canceledAmount);
 
         // lock funds
         lockedWithdraws[msg.sender] = lockKeeper.lockSingle{value: amount + canceledAmount}(
@@ -176,9 +183,15 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
             string(abi.encodePacked("LiquidStaking unstake"))
         );
 
-        console.log("unstake: lock id:", lockedWithdraws[msg.sender]);
+        console.log("unstake: before claimRewards: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
+        console.log("unstake: before claimRewards: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+        console.log("unstake: before claimRewards: rewardsAmount:", _calcRewards(getStake(msg.sender)));
 
         _claimRewards(msg.sender, desiredCoeff);
+
+        console.log("unstake: after claimRewards: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
+        console.log("unstake: after claimRewards: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+        console.log("unstake: after claimRewards: rewardsAmount:", _calcRewards(getStake(msg.sender)));
 
         emit StakeChanged(msg.sender, - int(amount));
         emit UnstakeLocked(msg.sender, amount, block.timestamp + unstakeLockTime);
