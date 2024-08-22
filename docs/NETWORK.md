@@ -46,6 +46,14 @@ Follow one of this guides:
 
 
 
+## Deploying smart-contracts on AirDAO network
+Because AirDAO network is Ethereum compatible, you can use the same tools and methods as for Ethereum network.
+https://ethereum.org/en/developers/docs/smart-contracts/deploying/
+
+Just make sure that you are using the correct RPC endpoint and supported EVM version, everything else should work the same.
+
+
+
 ## EIPs and EVM version
 
 AirDAO network is based on Ethereum network and currently supports **EVM version** up to **Constantinople** / **Petersburg** in the mainnet and testnet.

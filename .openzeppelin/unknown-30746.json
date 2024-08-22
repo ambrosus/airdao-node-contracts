@@ -1,10 +1,16 @@
 {
   "manifestVersion": "3.2",
-  "proxies": [],
+  "proxies": [
+    {
+      "address": "0x1bc3aedfe168E84c8fCddaD279E650D4CFfd7a24",
+      "txHash": "0x2f45a693c91a1ea25fc5c30ee4bb18c75cdb34df8b1bc0607d41235952c5c16e",
+      "kind": "uups"
+    }
+  ],
   "impls": {
-    "69b1a6d3238e23fc5797272349e6b8637583715c4adf7fc7231c7066ef6c1c1f": {
-      "address": "0x92e2502fcF33EE739373E6DaB1Db25e1318018a4",
-      "txHash": "0xf06469508466a4af7711e151e2306c80063e82c49e322572c6373c0e0fbee870",
+    "092dae8c054ee1655874d64ba380203320a026366deed8e57df369877a760ce8": {
+      "address": "0xe208a39e3F988f1565628457F17E9Aa469B78F76",
+      "txHash": "0xaba098b66c5d3f3996054dab718d4736e68cfefb2b30d1703076e46972d7b484",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -14,7 +20,7 @@
             "slot": "0",
             "type": "t_uint8",
             "contract": "Initializable",
-            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:63",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
             "retypedFrom": "bool"
           },
           {
@@ -23,125 +29,97 @@
             "slot": "0",
             "type": "t_bool",
             "contract": "Initializable",
-            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:68"
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
           },
           {
             "label": "_roles",
             "offset": 0,
-            "slot": "1",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)3267_storage)",
-            "contract": "AccessControl",
-            "src": "@openzeppelin/contracts/access/AccessControl.sol:56"
+            "slot": "101",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)179_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:62"
           },
           {
-            "label": "token",
+            "label": "__gap",
             "offset": 0,
-            "slot": "2",
-            "type": "t_contract(ERC20)5159",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:14"
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:260"
           },
           {
-            "label": "bank",
+            "label": "_roleMembers",
             "offset": 0,
-            "slot": "3",
-            "type": "t_contract(RewardsBank)10830",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:15"
+            "slot": "151",
+            "type": "t_mapping(t_bytes32,t_struct(AddressSet)2960_storage)",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:22"
           },
           {
-            "label": "name",
+            "label": "__gap",
             "offset": 0,
-            "slot": "4",
-            "type": "t_string_storage",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:17"
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:76"
           },
           {
-            "label": "minStakeValue",
+            "label": "gasPrice",
             "offset": 0,
-            "slot": "5",
+            "slot": "201",
             "type": "t_uint256",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:18"
+            "contract": "Fees",
+            "src": "contracts/fees/Fees.sol:17"
           },
           {
-            "label": "totalStake",
+            "label": "payAddress",
             "offset": 0,
-            "slot": "6",
-            "type": "t_uint256",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:19"
-          },
-          {
-            "label": "active",
-            "offset": 0,
-            "slot": "7",
-            "type": "t_bool",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:20"
-          },
-          {
-            "label": "rewardToken",
-            "offset": 1,
-            "slot": "7",
+            "slot": "202",
             "type": "t_address",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:21"
+            "contract": "Fees",
+            "src": "contracts/fees/Fees.sol:18"
           },
           {
-            "label": "rewardTokenPrice",
+            "label": "feePercent",
             "offset": 0,
-            "slot": "8",
+            "slot": "203",
             "type": "t_uint256",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:22"
-          },
-          {
-            "label": "interest",
-            "offset": 0,
-            "slot": "9",
-            "type": "t_uint256",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:24"
-          },
-          {
-            "label": "interestRate",
-            "offset": 0,
-            "slot": "10",
-            "type": "t_uint256",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:25"
-          },
-          {
-            "label": "stakes",
-            "offset": 0,
-            "slot": "11",
-            "type": "t_mapping(t_address,t_uint256)",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:27"
-          },
-          {
-            "label": "rewards",
-            "offset": 0,
-            "slot": "12",
-            "type": "t_mapping(t_address,t_uint256)",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:28"
-          },
-          {
-            "label": "_lastChanged",
-            "offset": 0,
-            "slot": "13",
-            "type": "t_mapping(t_address,t_uint256)",
-            "contract": "TokenPool",
-            "src": "contracts/staking/token/TokenPool.sol:29"
+            "contract": "Fees",
+            "src": "contracts/fees/Fees.sol:19"
           }
         ],
         "types": {
           "t_address": {
             "label": "address",
             "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
           },
           "t_bool": {
             "label": "bool",
@@ -151,32 +129,36 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(ERC20)5159": {
-            "label": "contract ERC20",
-            "numberOfBytes": "20"
-          },
-          "t_contract(RewardsBank)10830": {
-            "label": "contract RewardsBank",
-            "numberOfBytes": "20"
-          },
           "t_mapping(t_address,t_bool)": {
             "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)",
+          "t_mapping(t_bytes32,t_struct(AddressSet)2960_storage)": {
+            "label": "mapping(bytes32 => struct EnumerableSetUpgradeable.AddressSet)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(RoleData)3267_storage)": {
-            "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+          "t_mapping(t_bytes32,t_struct(RoleData)179_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
             "numberOfBytes": "32"
           },
-          "t_string_storage": {
-            "label": "string",
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
             "numberOfBytes": "32"
           },
-          "t_struct(RoleData)3267_storage": {
-            "label": "struct AccessControl.RoleData",
+          "t_struct(AddressSet)2960_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)2645_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(RoleData)179_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
             "members": [
               {
                 "label": "members",
@@ -187,6 +169,24 @@
               {
                 "label": "adminRole",
                 "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Set)2645_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
                 "offset": 0,
                 "slot": "1"
               }

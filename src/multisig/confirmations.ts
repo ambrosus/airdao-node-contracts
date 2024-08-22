@@ -2,7 +2,7 @@ import { Contracts } from "../contracts/contracts";
 import { Interface } from "ethers/lib/utils";
 import { Multisig } from "../../typechain-types";
 import { BigNumber } from "ethers";
-import { ContractNames, multisigsNames } from "../contracts/names";
+import { ContractNames } from "../contracts/names";
 
 export async function getTransactionsFromContracts(contracts: Contracts, multisigAddresses?: string[]) {
   // todo get events and provide timestmap and other info
@@ -14,9 +14,11 @@ export async function getTransactionsFromContracts(contracts: Contracts, multisi
 
   const multisigNamesList = multisigAddresses
     ? multisigAddresses.map((address) => contracts.getNameByAddress(address))
-    : multisigsNames;
+    : contracts.getAllMultisigNames();
 
-  const multisigTransactions = await Promise.all(multisigNamesList.map((mn) => getTransactions(contracts, mn)));
+  const multisigTransactions = await Promise.all(
+    multisigNamesList.map((mn) => getTransactions(contracts, mn))
+  );
   return multisigTransactions.flat();
 }
 

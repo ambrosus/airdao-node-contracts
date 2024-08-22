@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.2.29",
+  "version": "1.3.15",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
@@ -9,13 +9,13 @@
   "homepage": "https://github.com/ambrosus/airdao-node-contracts",
   "scripts": {
     "build": "npm run build:sol && npm run build:js",
-    "move_build_to_multisig": "cp -r ./dist /home/svin/dev/work/ambrosus/multisigApplication/node_modules/@airdao/airdao-node-contracts",
     "build:js": "rm -rf ./dist/ && tsc -p tsconfig.sdk.json",
     "build:sol": "hardhat compile --force",
     "test": "REPORT_GAS=true hardhat test",
     "coverage": "COVERAGE=true hardhat coverage",
     "format:check": "eslint ./ && prettier --check ./",
     "format:fix": "eslint --fix ./ && prettier --write ./",
+
     "deploy_multisig": "hardhat run scripts/multisig/deploy_multisig.ts --network dev",
     "deploy_finance": "hardhat run scripts/finance/deploy_finance.ts --network dev",
     "deploy_airdrop": "hardhat run scripts/finance/deploy_airdrop.ts --network dev",
@@ -24,13 +24,15 @@
     "deploy_basenodes_manager": "hardhat run scripts/staking/deploy_basenodes_manager.ts --network dev",
     "deploy_servernodes_manager": "hardhat run scripts/staking/deploy_servernodes_manager.ts --network dev",
     "deploy_legacy_pool_manager": "hardhat run scripts/staking/deploy_legacy_pool_manager.ts --network dev",
-    "deploy_staking": "npm run deploy_validatorset && npm run deploy_treasury && npm run deploy_basenodes_manager && npm run deploy_servernodes_manager && npm run deploy_legacy_pool_manager",
-    "deploy_fees": "hardhat run scripts/fees/deploy_fees.ts --network dev",
-    "deploy_bond": "hardhat run scripts/bond-marketplace/deploy_rewards_bank.ts --network dev",
-    "deploy_all": "npm run deploy_multisig && npm run deploy_finance && npm run deploy_airdrop && npm run deploy_staking && npm run deploy_fees && npm run deploy_bond",
     "migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network dev",
-    "test_script": "hardhat run scripts/test.ts --network test",
-    "integration_test_script": "hardhat run scripts/staking/new_validatorset_integration_test.ts --network local",
+    "deploy_fees": "hardhat run scripts/fees/deploy_fees.ts --network dev",
+
+    "deploy_multisig:ecosystem": "hardhat run scripts/multisig/deploy_ecosystem_multisig.ts --network dev",
+    "deploy_bond": "hardhat run scripts/ecosystem/bond-marketplace/deploy.ts --network dev",
+    "deploy_starfleet": "hardhat run scripts/ecosystem/starfleet/deploy.ts --network dev",
+    "deploy_astradex": "hardhat run scripts/ecosystem/astradex/deploy.ts --network dev",
+    "deploy_astradex_tokensafe": "hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network dev",
+
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"

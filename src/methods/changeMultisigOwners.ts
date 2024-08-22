@@ -1,15 +1,14 @@
 import { Contracts } from "../contracts/contracts";
-import { ContractNames, slavesMultisigsNames } from "../contracts/names";
 import { MasterMultisig } from "../../typechain-types";
-import { submitTransaction } from "./internal";
+import { submitTransaction } from "../multisig/submitTransaction";
 
 export async function changeMultisigOwners(contracts: Contracts, newOwner: string, multisigAddresses?: string[]) {
   if (!multisigAddresses)
-    multisigAddresses = slavesMultisigsNames
+    multisigAddresses = contracts.slavesMultisigNames
       .map((n) => contracts.getContractByNameSafe(n)?.address)
       .filter((el) => el !== undefined) as string[];
 
-  const masterMultisig = contracts.getContractByName(ContractNames.MasterMultisig) as MasterMultisig;
+  const masterMultisig = contracts.masterMultisig as MasterMultisig;
 
   if (multisigAddresses.includes(masterMultisig.address))
     throw Error("You probably don't want to change the owner of the master multisig");

@@ -1,6 +1,6 @@
 import { Multisig } from "../../typechain-types";
 import { BaseContract, BigNumberish, PopulatedTransaction } from "ethers";
-import { MULTISIGS } from "../contracts/names";
+import {  MULTISIGS } from "../contracts/names";
 import { Contracts } from "../contracts/contracts";
 
 export async function submitTransaction(

@@ -2,7 +2,7 @@ import { loadFixture, setBalance } from "@nomicfoundation/hardhat-network-helper
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Finance, MasterFinance } from "../../typechain-types";
+import { Bank, Finance, MasterFinance } from "../../typechain-types";
 import { BigNumber } from "ethers";
 
 describe("Finance", function () {
@@ -11,6 +11,7 @@ describe("Finance", function () {
 
   let masterFinance: MasterFinance;
   let finance: Finance;
+  let bank1: Bank;
   let owner: SignerWithAddress;
 
   async function deploy() {
@@ -18,12 +19,14 @@ describe("Finance", function () {
     const masterFinance = await masterFinanceFactory.deploy(owner.address, bankCount, maxBankBalance);
     const financeFactory = await ethers.getContractFactory("Finance");
     const finance = await financeFactory.deploy(owner.address);
-    return { masterFinance, finance };
+    const bankFactory = await ethers.getContractFactory("Bank");
+    const bank1 = await bankFactory.deploy();
+    return { masterFinance, finance, bank1 };
   }
 
   beforeEach(async function () {
     [owner] = await ethers.getSigners();
-    ({ masterFinance, finance } = await loadFixture(deploy));
+    ({ masterFinance, finance, bank1 } = await loadFixture(deploy));
   });
 
   describe("create banks", function () {
@@ -36,7 +39,7 @@ describe("Finance", function () {
         expect(await ethers.provider.getBalance(bank), "bank-check-" + i).to.be.eq(maxBankBalance);
       }
 
-      await expect(masterFinance.banks(bankCount), "bank-check-excess").to.be.reverted;
+      expect(masterFinance.banks(bankCount), "bank-check-excess").to.be.reverted;
     });
 
     it("masterFinance will have extra balance via setBalance", async function () {
@@ -48,7 +51,7 @@ describe("Finance", function () {
         expect(await ethers.provider.getBalance(bank), "bank-check-" + i).to.be.eq(maxBankBalance);
       }
 
-      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
+      expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
     });
 
     it("masterFinance will have extra balance via transfer", async function () {
@@ -62,7 +65,7 @@ describe("Finance", function () {
         expect(await ethers.provider.getBalance(bank), "bank-check-" + i).to.be.eq(maxBankBalance);
       }
 
-      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
+      expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
     });
 
     it("last bank will have lower balance", async function () {
@@ -99,19 +102,19 @@ describe("Finance", function () {
 
     it("masterfinance withdraw() extra balance", async function () {
       await owner.sendTransaction({ to: masterFinance.address, value: 420 });
-      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
+      expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
 
       await expect(masterFinance.withdraw(owner.address, 420))
         .to.changeEtherBalance(owner, 420)
         .to.emit(masterFinance, "Withdraw")
         .withArgs(owner.address, 420);
 
-      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(0);
+      expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(0);
     });
 
     it("masterfinance withdraw() all, include extra balance", async function () {
       await owner.sendTransaction({ to: masterFinance.address, value: 420 });
-      await expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
+      expect(await ethers.provider.getBalance(masterFinance.address)).to.be.eq(420);
 
       let balance = (await masterFinance.getBalances())[1].reduce((acc, val) => acc.add(val), BigNumber.from(0));
       await masterFinance.withdraw(owner.address, balance);
@@ -175,6 +178,11 @@ describe("Finance", function () {
       const bank = await ethers.getContractAt("Bank", await masterFinance.banks(0));
       await expect(bank.connect(owner).withdraw(owner.address, 420)).to.be.revertedWith(
         "Ownable: caller is not the owner"
+      );
+    });
+    it("bank withdraw() exceed balance ", async function () {
+      await expect(bank1.connect(owner).withdraw(owner.address, 420)).to.be.revertedWith(
+        "Transfer failed"
       );
     });
   });

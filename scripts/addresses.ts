@@ -1,5 +1,7 @@
 export const Lang = "0xc3A192b4A637fcD20c87e91eEB561121C28d4028";
 export const Igor = "0x55d46039e187b37a0201068dE189ecB63eaE87d2";
+export const Igor2 = "0x85e5e089782a3cAd89D1672DFBd7A9300d635Aa6";
+export const Aleksandr = "0x125854A4Ce5875ca46d1504ECf08897976022563";
 export const Andrii = "0xb16398c0698149Ae6EC342614830bC0511b83CAf";
 export const Rory = "0x40B7d71E70fA6311cB0b300c1Ba6926A2A9000b8";
 export const Kevin = "0x55feDD7843efc88A9ddd066B2ec2C8618C38fB62";
@@ -28,6 +30,8 @@ export const AndriiTest = "0xb017DcCC473499C83f1b553bE564f3CeAf002254";
 export const Roadmap2023Addresses = [Valerii, Oleksii, Olena, Igor, Andrii, Alina, Alex, Seth, Sophie, Matthieu, Michael];
 export const Roadmap2023MultisigSettings = [Roadmap2023Addresses, Roadmap2023Addresses.map(() => true), 50] as const;  // all are initiators
 
+export const EcosystemAddresses = [Aleksandr, Andrii, Igor2];
+export const EcosystemMultisigSettings = [EcosystemAddresses, EcosystemAddresses.map(() => true), 51] as const;  // all are initiators
 
 
 export function getAddressName(address: string) {

@@ -1,3 +1,8 @@
+export enum MultisigVersions {
+  common = "common",
+  ecosystem = "ecosystem",
+}
+
 export enum ContractNames {
   MasterMultisig = "MasterMultisig",
 
@@ -63,11 +68,20 @@ export enum ContractNames {
 
   // bond marketplace
 
-  BondMarketplaceMultisig = "BondMarketplace_Multisig",
-  BondMarketplaceRewardsBank = "BondMarketplace_RewardsBank",
+  Ecosystem_MasterMultisig = "Ecosystem_MasterMultisig",
+
+  Ecosystem_BondMarketplaceMultisig = "Ecosystem_BondMarketplace_Multisig",
+  Ecosystem_BondMarketplaceRewardsBank = "Ecosystem_BondMarketplace_RewardsBank",
+
+  Ecosystem_StarfleetMultisig = "Ecosystem_Starfleet_Multisig",
+  Ecosystem_StarfleetRewardsBank = "Ecosystem_Starfleet_RewardsBank",
+
+  Ecosystem_AstradexMultisig = "Ecosystem_Astradex_Multisig",
+  Ecosystem_AstradexTokenSafe = "Ecosystem_Astradex_TokenSafe",
+  Ecosystem_AstradexTokenSafeMultisig = "Ecosystem_Astradex_TokenSafe_Multisig",
 }
 
-export const MULTISIGS = {
+export const MULTISIGS_COMMON = {
   [ContractNames.FinanceMaster]: ContractNames.FinanceMasterMultisig,
   [ContractNames.FinanceRewards]: ContractNames.FinanceRewardsMultisig,
   [ContractNames.FinanceInvestors]: ContractNames.FinanceInvestorsMultisig,
@@ -86,10 +100,33 @@ export const MULTISIGS = {
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
 
-  [ContractNames.BondMarketplaceRewardsBank]: ContractNames.BondMarketplaceMultisig,
-  [ContractNames.TokenPoolsManager]: ContractNames.TokenPoolsManagerMultisig,
+  [ContractNames.Ecosystem_AstradexTokenSafe]: ContractNames.Ecosystem_AstradexTokenSafeMultisig,  // yes, this should be under master multisig
 };
 
-export const slavesMultisigsNames = [...new Set(Object.values(MULTISIGS))];
+export const MULTISIGS_ECOSYSTEM = {
+  [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
+  [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
+};
 
-export const multisigsNames = [ContractNames.MasterMultisig, ...slavesMultisigsNames];
+export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
+
+
+export function getEnvironment(version: MultisigVersions = MultisigVersions.common) {
+  if (version == MultisigVersions.ecosystem) {
+    return {
+      master: ContractNames.Ecosystem_MasterMultisig,
+      slaves: [
+        ...new Set(Object.values(MULTISIGS_ECOSYSTEM)),
+        // multisigs below are not listed in the MULTISIGS_ECOSYSTEM, so we add them manually
+        ContractNames.Ecosystem_AstradexMultisig,
+      ],
+    };
+  }
+  if (version == MultisigVersions.common) {
+    return {
+      master: ContractNames.MasterMultisig,
+      slaves: [...new Set(Object.values(MULTISIGS_COMMON))]
+    };
+  }
+  throw new Error("Unknown environment");
+}
