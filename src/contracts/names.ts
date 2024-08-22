@@ -73,6 +73,7 @@ export enum ContractNames {
   Ecosystem_AstradexMultisig = "Ecosystem_Astradex_Multisig",
   Ecosystem_AstradexTokenSafe = "Ecosystem_Astradex_TokenSafe",
   Ecosystem_AstradexTokenSafeMultisig = "Ecosystem_Astradex_TokenSafe_Multisig",
+  Ecosystem_Astradex_ChronosFeeCollector = "Ecosystem_Astradex_ChronosFeeCollector",
 }
 
 export const MULTISIGS_COMMON = {
@@ -100,6 +101,7 @@ export const MULTISIGS_COMMON = {
 export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
   [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
+  [ContractNames.Ecosystem_Astradex_ChronosFeeCollector]: ContractNames.Ecosystem_AstradexMultisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
@@ -112,7 +114,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
       slaves: [
         ...new Set(Object.values(MULTISIGS_ECOSYSTEM)),
         // multisigs below are not listed in the MULTISIGS_ECOSYSTEM, so we add them manually
-        ContractNames.Ecosystem_AstradexMultisig,
+
       ],
     };
   }
