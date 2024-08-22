@@ -32,6 +32,7 @@
     "deploy_starfleet": "hardhat run scripts/ecosystem/starfleet/deploy.ts --network dev",
     "deploy_astradex": "hardhat run scripts/ecosystem/astradex/deploy.ts --network dev",
     "deploy_astradex_tokensafe": "hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network dev",
+    "deploy_astradex_fee_collector": "hardhat run scripts/ecosystem/astradex/deployFeeCollector.ts --network dev",
 
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",
