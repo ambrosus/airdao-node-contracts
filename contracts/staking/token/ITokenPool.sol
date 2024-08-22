@@ -16,6 +16,11 @@ interface ITokenPool {
     //EVENTS
     event StakeChanged(address indexed user, uint amount);
     event MinStakeValueChanged(uint minStakeValue);
+    event InterestAdded(uint amount);
+    event InterestRateChanged(uint interest, uint interestRate);
+    event LockPeriodChanged(uint period);
+    event RewardTokenPriceChanged(uint price);
+    event FastUnstakePenaltyChanged(uint penalty);
     event RewardClaimed(address indexed user, uint amount);
     event Deactivated();
     event Activated();

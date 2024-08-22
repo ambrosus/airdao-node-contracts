@@ -5,10 +5,9 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "./TokenPool.sol";
-import "./ITokenPoolsManager.sol";
 import "../../funds/RewardsBank.sol";
 
-contract TokenPoolsManager is AccessControl, ITokenPoolsManager {
+contract TokenPoolsManager is AccessControl{
     RewardsBank public bank;
     UpgradeableBeacon public beacon;
 
@@ -19,6 +18,10 @@ contract TokenPoolsManager is AccessControl, ITokenPoolsManager {
         beacon = beacon_;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
+
+    event PoolCreated(string name, address pool);
+    event PoolDeactivated(string name);
+    event PoolActivated(string name);
 
     // OWNER METHODS
 
