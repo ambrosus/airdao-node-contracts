@@ -23,9 +23,9 @@ contract StakingTiers is AccessControlUpgradeable, UUPSUpgradeable {
         return calculateTier(user) >= desiredTier;
     }
 
-    function calculateTier(address user) public view returns (uint) {
+    function calculateTier(address user) public returns (uint) {
         uint liquidStakingTime;
-        uint obtainedAt = stAmb.obtainedAt(user);
+        uint obtainedAt = stAmb.calculateHoldingTime(user);
         if (obtainedAt != 0)
             liquidStakingTime = block.timestamp - obtainedAt;
         uint liquidPercent = liquidStakingTime * 75 / (3 * 365  days);
