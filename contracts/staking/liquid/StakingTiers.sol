@@ -8,8 +8,8 @@ import "./StAMB.sol";
 contract StakingTiers is AccessControlUpgradeable, UUPSUpgradeable {
 
     StAMB public stAmb;
-    uint256[50] __gap;
     mapping (address => uint) public bonuses;
+    uint256[10] __gap;
 
     event BonusSet(address indexed user, uint bonus);
 
@@ -19,7 +19,7 @@ contract StakingTiers is AccessControlUpgradeable, UUPSUpgradeable {
     }
 
 
-    function isTierAllowed(address user, uint desiredTier) external returns (bool) {
+    function isTierAllowed(address user, uint desiredTier) external view returns (bool) {
         return calculateTier(user) >= desiredTier;
     }
 

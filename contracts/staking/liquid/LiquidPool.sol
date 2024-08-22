@@ -167,7 +167,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         lockedWithdraws[msg.sender] = lockKeeper.lockSingle{value: amount + canceledAmount}(
             msg.sender, address(0),
             uint64(block.timestamp + unstakeLockTime), amount + canceledAmount,
-            string(abi.encodePacked("LiquidStaking unstake"))
+            "LiquidStaking unstake"
         );
 
         _claimRewards(msg.sender, desiredCoeff);
