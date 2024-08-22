@@ -27,6 +27,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     uint public interest;  // user will get interest % of his stake
     uint public interestPeriod;  // period in seconds for interest calculation
     uint internal lastInterestTime; // newReward = totalStAmb * (interest/1e6) * (timePassed / interestPeriod)
+    uint public fastUnstakePenalty; // penalty in parts per million
 
     uint public totalRewards;  // rewards from interest, includes totalRewardsDebt, can be much greater than real rewards
     uint public totalRewardsDebt; // real rewards = totalRewards - totalRewardsDebt
@@ -40,16 +41,13 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     mapping(address => uint) public lockedWithdraws; // nodeAddress => lockId
 
-    //TODO: Replace and restore gaps before deployment on test or prod
-    uint public fastUnstakePenalty; // penalty in parts per million
-
-    uint256[9] __gap;
+    uint256[10] __gap;
 
 
     event StakeChanged(address indexed account, int amount);
     event Claim(address indexed account, uint ambAmount, uint bondAmount);
     event Interest(uint amount);
-    event UnstakeLocked(address indexed account, uint amount, uint unlockTime);
+    event UnstakeLocked(address indexed account, uint amount, uint unlockTime, uint creationTime);
     event UnstakeFast(address indexed account, uint amount, uint penalty);
 
 
@@ -173,7 +171,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         _claimRewards(msg.sender, desiredCoeff);
 
         emit StakeChanged(msg.sender, - int(amount));
-        emit UnstakeLocked(msg.sender, amount, block.timestamp + unstakeLockTime);
+        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + unstakeLockTime, block.timestamp);
     }
 
     function claimRewards(uint desiredCoeff) public {
