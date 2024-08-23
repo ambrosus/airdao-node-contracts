@@ -8,8 +8,8 @@ import "./StAMB.sol";
 contract StakingTiers is AccessControlUpgradeable, UUPSUpgradeable {
 
     StAMB public stAmb;
-    uint256[50] __gap;
     mapping (address => uint) public bonuses;
+    uint256[10] __gap;
 
     event BonusSet(address indexed user, uint bonus);
 
@@ -19,15 +19,12 @@ contract StakingTiers is AccessControlUpgradeable, UUPSUpgradeable {
     }
 
 
-    function isTierAllowed(address user, uint desiredTier) external returns (bool) {
+    function isTierAllowed(address user, uint desiredTier) external view returns (bool) {
         return calculateTier(user) >= desiredTier;
     }
 
     function calculateTier(address user) public view returns (uint) {
-        uint liquidStakingTime;
-        uint obtainedAt = stAmb.obtainedAt(user);
-        if (obtainedAt != 0)
-            liquidStakingTime = block.timestamp - obtainedAt;
+        uint liquidStakingTime = stAmb.calculateHoldingTime(user);
         uint liquidPercent = liquidStakingTime * 75 / (3 * 365  days);
 
         uint nativePercent = 25 + liquidPercent + bonuses[user];
