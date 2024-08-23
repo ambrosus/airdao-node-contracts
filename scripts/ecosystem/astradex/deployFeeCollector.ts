@@ -8,7 +8,7 @@ export async function main() {
 
   const [deployer] = await ethers.getSigners();
   const multisig = loadDeployment(ContractNames.Ecosystem_AstradexMultisig, chainId).address;
-
+  
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.Ecosystem_Astradex_ChronosFeeCollector,
     artifactName: "RewardsBank",
