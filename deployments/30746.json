@@ -1316,5 +1316,25 @@
     ],
     "deployTx": "0x2f71cd6c64d6931c1856da3952e759089dc1e76e25efc6aec1998348e8f2413b",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+  },
+  "Ecosystem_Astradex_ChronosFeeCollector": {
+    "address": "0xf70E53a7078Fa606ca9958284c31ffCF9569AcfE",
+    "abi": [
+      "constructor()",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function withdrawAmb(address addressTo, uint256 amount)",
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0xafd3d68f0595bb9775dd9d2f5ba8cda9630a57c9812ae73994a00016ca60162b",
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   }
 }

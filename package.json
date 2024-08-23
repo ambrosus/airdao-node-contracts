@@ -15,7 +15,6 @@
     "coverage": "COVERAGE=true hardhat coverage",
     "format:check": "eslint ./ && prettier --check ./",
     "format:fix": "eslint --fix ./ && prettier --write ./",
-
     "deploy_multisig": "hardhat run scripts/multisig/deploy_multisig.ts --network dev",
     "deploy_finance": "hardhat run scripts/finance/deploy_finance.ts --network dev",
     "deploy_airdrop": "hardhat run scripts/finance/deploy_airdrop.ts --network dev",
@@ -26,14 +25,12 @@
     "deploy_legacy_pool_manager": "hardhat run scripts/staking/deploy_legacy_pool_manager.ts --network dev",
     "migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network dev",
     "deploy_fees": "hardhat run scripts/fees/deploy_fees.ts --network dev",
-
     "deploy_multisig:ecosystem": "hardhat run scripts/multisig/deploy_ecosystem_multisig.ts --network dev",
     "deploy_bond": "hardhat run scripts/ecosystem/bond-marketplace/deploy.ts --network dev",
     "deploy_starfleet": "hardhat run scripts/ecosystem/starfleet/deploy.ts --network dev",
     "deploy_astradex": "hardhat run scripts/ecosystem/astradex/deploy.ts --network dev",
     "deploy_astradex_tokensafe": "hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network dev",
-    "deploy_astradex_fee_collector": "hardhat run scripts/ecosystem/astradex/deployFeeCollector.ts --network dev",
-
+    "deploy_astradex_fee_collector": "hardhat run scripts/ecosystem/astradex/deployFeeCollector.ts --network test",
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"
