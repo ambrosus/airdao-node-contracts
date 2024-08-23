@@ -13,7 +13,6 @@ contract StAMB is ERC20, AccessControl {
     LiquidPool public liquidPool;
     mapping(address => uint) public obtainedAt;
     mapping(address => uint) public holdingTime;
-    mapping(address => uint) public lastHoldingTimeUpdate;
 
     constructor() ERC20("Staked AMB", "StAMB") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -33,6 +32,7 @@ contract StAMB is ERC20, AccessControl {
 
     function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         if (balanceOf(from) == 0)
+            holdingTime[from] += block.timestamp - obtainedAt[from];
             obtainedAt[from] = 0;
 
         if (obtainedAt[to] == 0 && balanceOf(to) > 0)
@@ -45,13 +45,8 @@ contract StAMB is ERC20, AccessControl {
         _setupRole(MINTER_ROLE, address(liquidPool_));
     }
 
-    function calculateHoldingTime(address user) public returns (uint) {
-        if (obtainedAt[user] == 0)
-            return 0;
-
-        holdingTime[user] += block.timestamp - obtainedAt[user] - lastHoldingTimeUpdate[user];
-        lastHoldingTimeUpdate[user] = block.timestamp;
-        return holdingTime[user];
+    function calculateHoldingTime(address user) public view returns (uint) {
+        return holdingTime[user] + (block.timestamp - obtainedAt[user]);
     }
 }
 
