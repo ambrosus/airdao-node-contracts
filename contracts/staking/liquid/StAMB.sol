@@ -46,7 +46,10 @@ contract StAMB is ERC20, AccessControl {
     }
 
     function calculateHoldingTime(address user) public view returns (uint) {
-        return holdingTime[user] + (block.timestamp - obtainedAt[user]);
+        if (obtainedAt[user] == 0)
+            return holdingTime[user];
+        else
+            return holdingTime[user] + (block.timestamp - obtainedAt[user]);
     }
 }
 
