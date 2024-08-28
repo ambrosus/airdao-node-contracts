@@ -104,18 +104,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     // PUBLIC METHODS
 
     function stake() public payable {
+        // todo final stake value should be checked here ?
         require(msg.value >= minStakeValue, "Pool: stake value too low");
 
-        console.log("stake: start: rewardsAmount:", _calcRewards(getStake(msg.sender)));
-        console.log("stake: start: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
-
-        uint rewardsAmount = _calcRewards(msg.value);
-
-        stAmb.mint(msg.sender, msg.value);
-
-        totalRewards += rewardsAmount;
-        rewardsDebt[msg.sender] += rewardsAmount;
-        totalRewardsDebt += rewardsAmount;
+        _stake(msg.sender, msg.value);
 
         nodeManager.stake{value: msg.value}();
 
@@ -129,15 +121,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function unstakeFast(uint amount, uint desiredCoeff) public {
         require(amount <= getStake(msg.sender), "Sender has not enough tokens");
 
-        _beforeUserStakeChanged(msg.sender);  // claim rewards before stake changes
-
-        uint rewardsAmount = _calcRewards(amount);
-
-        stAmb.burn(msg.sender, amount);
-
-        totalRewards -= rewardsAmount;
-        rewardsDebt[msg.sender] -= rewardsAmount;
-        totalRewardsDebt -= rewardsAmount;
+        _unstake(msg.sender, amount);
 
         nodeManager.unstake(amount);
 
@@ -153,30 +137,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function unstake(uint amount, uint desiredCoeff) public {
         require(amount <= getStake(msg.sender), "Sender has not enough tokens");
 
-        console.log("unstake: amount:", amount);
-        console.log("unstake: start: rewardsAmount:", _calcRewards(getStake(msg.sender)));
-        console.log("unstake: start: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
-        console.log("unstake: start: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
-
-        _beforeUserStakeChanged(msg.sender);  // claim rewards before stake changes
-
-        console.log("unstake: after stakeChanged: rewardsAmount:", _calcRewards(getStake(msg.sender)));
-        console.log("unstake: after stakeChanged: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
-        console.log("unstake: after stakeChanged: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
-
-        uint rewardsAmount = _calcRewards(amount);
-
-        console.log("unstake: rewardsAmount to calc:", rewardsAmount);
-
-        stAmb.burn(msg.sender, amount);
-
-        totalRewards -= rewardsAmount;
-        rewardsDebt[msg.sender] -= rewardsAmount;
-        totalRewardsDebt -= rewardsAmount;
-
-        console.log("unstake: after burn: rewardsAmount:", _calcRewards(getStake(msg.sender)));
-        console.log("unstake: after burn: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
-        console.log("unstake: after burn: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+        _unstake(msg.sender, amount);
 
         nodeManager.unstake(amount);
 
@@ -205,6 +166,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("unstake: rewardsDebt more then rewardsAmount: ", rewardsDebt[msg.sender] > _calcRewards(getStake(msg.sender)));
         if (rewardsDebt[msg.sender] > _calcRewards(getStake(msg.sender))) {
             console.log("unstake: rewardsDebt - rewardsAmount: ", rewardsDebt[msg.sender] - _calcRewards(getStake(msg.sender)));
+            revert("rewardsDebt > rewardsAmount");
         }
 
         emit StakeChanged(msg.sender, - int(amount));
@@ -279,13 +241,57 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         emit Interest(newRewards);
     }
 
+
+    function _stake(address user, uint amount) internal {
+
+        console.log("stake: start: rewardsAmount:", _calcRewards(getStake(user)));
+        console.log("stake: start: rewardsDebt[msg.sender]:", rewardsDebt[user]);
+
+        uint rewardsAmount = _calcRewards(amount);
+
+        stAmb.mint(user, amount);
+
+        totalRewards += rewardsAmount;
+        _updateRewardsDebt(user, _calcRewards(getStake(user)));
+    }
+
+    function _unstake(address user, uint amount) internal {
+
+        console.log("unstake: stake:", getStake(user));
+        console.log("unstake: amount:", amount);
+        console.log("unstake: start: rewardsCanClaim[user]:", rewardsCanClaim[user]);
+        console.log("unstake: start: rewardsDebt[user]:", rewardsDebt[user]);
+        console.log("unstake: start: rewardsAmount:", _calcRewards(getStake(user)));
+
+        uint rewardsAmount = _calcRewards(amount);
+
+        console.log("unstake: rewardsAmount to calc:", rewardsAmount);
+
+        stAmb.burn(user, amount);
+
+        totalRewards -= rewardsAmount;
+        _updateRewardsDebt(user, _calcRewards(getStake(user)));
+
+        console.log("unstake: after burn: rewardsAmount:", _calcRewards(getStake(user)));
+        console.log("unstake: after burn: rewardsCanClaim[user]:", rewardsCanClaim[user]);
+        console.log("unstake: after burn: rewardsDebt[user]:", rewardsDebt[user]);
+
+
+    }
+
+    function _updateRewardsDebt(address user, uint newDebt) internal {
+        uint oldDebt = rewardsDebt[user];
+        if (newDebt < oldDebt) totalRewardsDebt -= oldDebt - newDebt;
+        else totalRewardsDebt += newDebt - oldDebt;
+        rewardsDebt[user] = newDebt;
+    }
+
     // "claim" rewards for user before his stake changes
     function _beforeUserStakeChanged(address user) private {
         uint rewardsAmount = _calcRewards(getStake(user));
         uint rewardWithoutDebt = rewardsAmount - rewardsDebt[user];
         rewardsCanClaim[user] += rewardWithoutDebt;
-        totalRewardsDebt += rewardWithoutDebt;
-        rewardsDebt[user] += rewardWithoutDebt;
+        _updateRewardsDebt(user, rewardsAmount);
     }
 
     function _claimRewards(address user, uint desiredCoeff) private {
