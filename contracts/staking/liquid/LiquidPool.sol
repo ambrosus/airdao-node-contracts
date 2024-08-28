@@ -11,8 +11,6 @@ import "./StAMB.sol";
 import "./StakingTiers.sol";
 import "./LiquidNodesManager.sol";
 
-import "hardhat/console.sol";
-
 contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
     uint constant private MILLION = 1000000;
 
@@ -111,10 +109,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         nodeManager.stake{value: msg.value}();
 
-        console.log("stake: end: rewardsAmount:", _calcRewards(getStake(msg.sender)));
-        console.log("stake: end: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
-
-
         emit StakeChanged(msg.sender, int(msg.value));
     }
 
@@ -153,21 +147,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
             "LiquidStaking unstake"
         );
 
-        console.log("unstake: before claimRewards: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
-        console.log("unstake: before claimRewards: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
-        console.log("unstake: before claimRewards: rewardsAmount:", _calcRewards(getStake(msg.sender)));
-
         _claimRewards(msg.sender, desiredCoeff);
-
-        console.log("unstake: after claimRewards: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
-        console.log("unstake: after claimRewards: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
-        console.log("unstake: after claimRewards: rewardsAmount:", _calcRewards(getStake(msg.sender)));
-
-        console.log("unstake: rewardsDebt more then rewardsAmount: ", rewardsDebt[msg.sender] > _calcRewards(getStake(msg.sender)));
-        if (rewardsDebt[msg.sender] > _calcRewards(getStake(msg.sender))) {
-            console.log("unstake: rewardsDebt - rewardsAmount: ", rewardsDebt[msg.sender] - _calcRewards(getStake(msg.sender)));
-            revert("rewardsDebt > rewardsAmount");
-        }
 
         emit StakeChanged(msg.sender, - int(amount));
         emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + unstakeLockTime, block.timestamp);
@@ -202,8 +182,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function onBlock() external {
         if (lastInterestTime + interestPeriod < block.timestamp)
             _addInterestToDeposit();
-        console.log("onBlock: totalRewards:", totalRewards);
-        console.log("onBlock: totalRewardsDebt:", totalRewardsDebt);
     }
 
     // VIEW METHODS
@@ -243,10 +221,6 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
 
     function _stake(address user, uint amount) internal {
-
-        console.log("stake: start: rewardsAmount:", _calcRewards(getStake(user)));
-        console.log("stake: start: rewardsDebt[msg.sender]:", rewardsDebt[user]);
-
         uint rewardsAmount = _calcRewards(amount);
 
         stAmb.mint(user, amount);
@@ -256,27 +230,12 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     }
 
     function _unstake(address user, uint amount) internal {
-
-        console.log("unstake: stake:", getStake(user));
-        console.log("unstake: amount:", amount);
-        console.log("unstake: start: rewardsCanClaim[user]:", rewardsCanClaim[user]);
-        console.log("unstake: start: rewardsDebt[user]:", rewardsDebt[user]);
-        console.log("unstake: start: rewardsAmount:", _calcRewards(getStake(user)));
-
         uint rewardsAmount = _calcRewards(amount);
-
-        console.log("unstake: rewardsAmount to calc:", rewardsAmount);
 
         stAmb.burn(user, amount);
 
         totalRewards -= rewardsAmount;
         _updateRewardsDebt(user, _calcRewards(getStake(user)));
-
-        console.log("unstake: after burn: rewardsAmount:", _calcRewards(getStake(user)));
-        console.log("unstake: after burn: rewardsCanClaim[user]:", rewardsCanClaim[user]);
-        console.log("unstake: after burn: rewardsDebt[user]:", rewardsDebt[user]);
-
-
     }
 
     function _updateRewardsDebt(address user, uint newDebt) internal {
