@@ -128,36 +128,42 @@ describe("LiquidPool", function () {
     console.log("tx 1, block 125390, stake 15k, user1");
     await liquidPool.connect(user1).stake({value: 15_000});
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 2, block 125468, unstake 800, user1");
     await liquidPool.connect(user1).unstake(800, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 3, block 125518, claim, user1");
     await liquidPool.connect(user1).claimRewards(100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 4, block 125590, stake 35k, user1");
     await liquidPool.connect(user1).stake({value: 35_000});
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 5, block 125709, stake 5m, user2");
     await liquidPool.connect(user2).stake({value: 5_000_000});
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 6, block 126086, unstake 5m, user2");
     await liquidPool.connect(user2).unstake(5000000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -167,6 +173,7 @@ describe("LiquidPool", function () {
     console.log("tx 8, block 126136, unstake 2.2k, user1");
     await liquidPool.connect(user1).unstake(2200, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -176,6 +183,7 @@ describe("LiquidPool", function () {
     console.log("tx 10, block 127761, stake 100k, user1");
     await liquidPool.connect(user1).stake({value: 100_000});
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -188,18 +196,21 @@ describe("LiquidPool", function () {
     console.log("tx 13, block 132716, stake 750k, user5");
     await liquidPool.connect(user5).stake({value: 750_000});
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 14, block 132746, unstake 300k, user4");
     await liquidPool.connect(user4).unstake(300000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 15, block 132817, unstake 100k, user5");
     await liquidPool.connect(user5).unstake(100000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -209,18 +220,21 @@ describe("LiquidPool", function () {
     console.log("tx 17, block 132856, stake 1m, user6");
     await liquidPool.connect(user6).stake({value: 1_000_000});
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 18, block 133322, unstake 50k, user5");
     await liquidPool.connect(user5).unstake(50000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 19, block 133614, unstake 101k, user5");
     await liquidPool.connect(user5).unstake(101000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -236,6 +250,7 @@ describe("LiquidPool", function () {
     console.log("tx 23, block 133677, unstake 1k, user7");
     await liquidPool.connect(user7).unstake(1000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -245,12 +260,14 @@ describe("LiquidPool", function () {
     console.log("tx 25, block 134852, unstake 1k, user2");
     await liquidPool.connect(user2).unstake(1000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
     console.log("tx 26, block 135799, unstake 250k, user4");
     await liquidPool.connect(user4).unstake(250000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -260,6 +277,7 @@ describe("LiquidPool", function () {
     console.log("tx 28, block 136837, unstake 1k, user5");
     await liquidPool.connect(user5).unstake(1000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -269,6 +287,7 @@ describe("LiquidPool", function () {
     console.log("tx 30, block 137341, unstake 1k, user8");
     await liquidPool.connect(user4).unstake(250000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 
@@ -278,6 +297,7 @@ describe("LiquidPool", function () {
     console.log("tx 32, block 140592, unstake 100k, user2");
     await liquidPool.connect(user2).unstake(100000, 100);
 
+    console.log("Add rewards");
     await time.increase(D1);
     await liquidPool.onBlock();
 

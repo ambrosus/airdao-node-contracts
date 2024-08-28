@@ -106,6 +106,9 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function stake() public payable {
         require(msg.value >= minStakeValue, "Pool: stake value too low");
 
+        console.log("stake: start: rewardsAmount:", _calcRewards(getStake(msg.sender)));
+        console.log("stake: start: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+
         uint rewardsAmount = _calcRewards(msg.value);
 
         stAmb.mint(msg.sender, msg.value);
@@ -115,6 +118,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         totalRewardsDebt += rewardsAmount;
 
         nodeManager.stake{value: msg.value}();
+
+        console.log("stake: end: rewardsAmount:", _calcRewards(getStake(msg.sender)));
+        console.log("stake: end: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+
 
         emit StakeChanged(msg.sender, int(msg.value));
     }
@@ -167,6 +174,10 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         rewardsDebt[msg.sender] -= rewardsAmount;
         totalRewardsDebt -= rewardsAmount;
 
+        console.log("unstake: after burn: rewardsAmount:", _calcRewards(getStake(msg.sender)));
+        console.log("unstake: after burn: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
+        console.log("unstake: after burn: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
+
         nodeManager.unstake(amount);
 
         // cancel previous lock (if exists). canceledAmount will be added to new lock
@@ -190,6 +201,11 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         console.log("unstake: after claimRewards: rewardsCanClaim[msg.sender]:", rewardsCanClaim[msg.sender]);
         console.log("unstake: after claimRewards: rewardsDebt[msg.sender]:", rewardsDebt[msg.sender]);
         console.log("unstake: after claimRewards: rewardsAmount:", _calcRewards(getStake(msg.sender)));
+
+        console.log("unstake: rewardsDebt more then rewardsAmount: ", rewardsDebt[msg.sender] > _calcRewards(getStake(msg.sender)));
+        if (rewardsDebt[msg.sender] > _calcRewards(getStake(msg.sender))) {
+            console.log("unstake: rewardsDebt - rewardsAmount: ", rewardsDebt[msg.sender] - _calcRewards(getStake(msg.sender)));
+        }
 
         emit StakeChanged(msg.sender, - int(amount));
         emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + unstakeLockTime, block.timestamp);
@@ -224,6 +240,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     function onBlock() external {
         if (lastInterestTime + interestPeriod < block.timestamp)
             _addInterestToDeposit();
+        console.log("onBlock: totalRewards:", totalRewards);
+        console.log("onBlock: totalRewardsDebt:", totalRewardsDebt);
     }
 
     // VIEW METHODS
