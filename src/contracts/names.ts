@@ -73,6 +73,17 @@ export enum ContractNames {
   Ecosystem_AstradexMultisig = "Ecosystem_Astradex_Multisig",
   Ecosystem_AstradexTokenSafe = "Ecosystem_Astradex_TokenSafe",
   Ecosystem_AstradexTokenSafeMultisig = "Ecosystem_Astradex_TokenSafe_Multisig",
+
+  Ecosystem_LiquidPool = "Ecosystem_LiquidPool",
+  Ecosystem_LiquidPoolStAMB = "Ecosystem_LiquidPool_StAMB",
+  Ecosystem_LiquidPoolMultisig = "Ecosystem_LiquidPool_Multisig",
+  Ecosystem_LiquidPoolRewardsBank = "Ecosystem_LiquidPool_RewardsBank",
+  Ecosystem_LiquidNodesManager = "Ecosystem_LiquidNodesManager",
+  Ecosystem_LiquidNodesManagerRewardsBank = "Ecosystem_LiquidNodesManager_RewardsBank",
+  Ecosystem_LiquidNodesManagerTreasury = "Ecosystem_LiquidNodesManager_Treasury",
+  Ecosystem_LiquidNodesManagerTreasuryFees = "Ecosystem_LiquidNodesManager_TreasuryFees",
+  Ecosystem_LiquidPoolStakingTiers = "Ecosystem_LiquidPool_StakingTiers",
+
 }
 
 export const MULTISIGS_COMMON = {
@@ -100,6 +111,14 @@ export const MULTISIGS_COMMON = {
 export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
   [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
+  [ContractNames.Ecosystem_LiquidPool]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManager]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidPoolRewardsBank]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManagerRewardsBank]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManagerTreasury]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidNodesManagerTreasuryFees]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidPoolStAMB]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_LiquidPoolStakingTiers]: ContractNames.Ecosystem_LiquidPoolMultisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
