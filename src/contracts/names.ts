@@ -84,6 +84,7 @@ export enum ContractNames {
   Ecosystem_LiquidNodesManagerTreasuryFees = "Ecosystem_LiquidNodesManager_TreasuryFees",
   Ecosystem_LiquidPoolStakingTiers = "Ecosystem_LiquidPool_StakingTiers",
 
+  Ecosystem_GovernmentMultisig = "Ecosystem_Government_Multisig",
 }
 
 export const MULTISIGS_COMMON = {
@@ -132,6 +133,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
         ...new Set(Object.values(MULTISIGS_ECOSYSTEM)),
         // multisigs below are not listed in the MULTISIGS_ECOSYSTEM, so we add them manually
         ContractNames.Ecosystem_AstradexMultisig,
+        ContractNames.Ecosystem_GovernmentMultisig,
       ],
     };
   }
