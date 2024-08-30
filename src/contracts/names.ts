@@ -104,7 +104,11 @@ export const MULTISIGS_COMMON = {
   [ContractNames.Treasury]: ContractNames.TreasuryMultisig,
   [ContractNames.Fees]: ContractNames.FeesMultisig,
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
+};
 
+export const MULTISIGS_ECOSYSTEM = {
+  [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
+  [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
   [ContractNames.Ecosystem_LiquidPool]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidNodesManager]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidPoolRewardsBank]: ContractNames.Ecosystem_LiquidPoolMultisig,
@@ -114,11 +118,6 @@ export const MULTISIGS_COMMON = {
   [ContractNames.Ecosystem_LiquidPoolStAMB]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidPoolStakingTiers]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_AstradexTokenSafe]: ContractNames.Ecosystem_AstradexTokenSafeMultisig,  // yes, this should be under master multisig
-};
-
-export const MULTISIGS_ECOSYSTEM = {
-  [ContractNames.Ecosystem_BondMarketplaceRewardsBank]: ContractNames.Ecosystem_BondMarketplaceMultisig,
-  [ContractNames.Ecosystem_StarfleetRewardsBank]: ContractNames.Ecosystem_StarfleetMultisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
