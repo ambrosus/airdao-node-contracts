@@ -2,18 +2,19 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "./ITokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-contract TokenPool is Initializable, AccessControl, ITokenPool {
+import "hardhat/console.sol";
+
+contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     uint constant public MILLION = 1_000_000;
     
-    ERC20 public token;
-    RewardsBank public bank;
+    IERC20 public token;
+    RewardsBank public rewardsBank;
     LockKeeper public lockKeeper;
 
     string public name;
@@ -37,12 +38,27 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
     mapping(address => uint) private claimableRewards;
     mapping(address => uint) private lockedWithdrawals;
 
+    //EVENTS
+
+    event Deactivated();
+    event Activated();
+    event MinStakeValueChanged(uint minStakeValue);
+    event InterestRateChanged(uint interest, uint interestRate);
+    event LockPeriodChanged(uint period);
+    event RewardTokenPriceChanged(uint price);
+    event FastUnstakePenaltyChanged(uint penalty);
+    event StakeChanged(address indexed user, uint amount);
+    event Claim(address indexed user, uint amount);
+    event Interest(uint amount);
+    event UnstakeLocked(address indexed user, uint amount, uint unlockTime, uint creationTime);
+    event UnstakeFast(address indexed user, uint amount, uint penalty);
+
     function initialize(
         address token_, RewardsBank rewardsBank_, LockKeeper lockkeeper_, string memory name_, uint minStakeValue_,
         uint fastUnstakePenalty_, uint intereset_, uint interestRate_, uint lockPeriod_, address rewardToken_, uint rewardTokenPrice_
     ) public  initializer {
-        token = ERC20(token_);
-        bank = rewardsBank_;
+        token = IERC20(token_);
+        rewardsBank = rewardsBank_;
         lockKeeper = lockkeeper_;
 
         name = name_;
@@ -53,6 +69,7 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
         lockPeriod = lockPeriod_;
         rewardToken = rewardToken_;
         rewardTokenPrice = rewardTokenPrice_;
+        lastInterestUpdate = block.timestamp;
 
         active = true;
 
@@ -104,19 +121,10 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
 
     function stake(uint amount) public {
         require(active, "Pool is not active");
-        require(amount >= minStakeValue, "Amount is less than minStakeValue");
+        require(amount >= minStakeValue, "Pool: stake value is too low");
         require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
-        _calcClaimableRewards(msg.sender);
-
-        uint rewardsAmount = _calcRewards(amount);
-
-        stakes[msg.sender] += amount;
-        totalStake += amount;
-
-        totalRewards += rewardsAmount;
-        rewardsDebt[msg.sender] += rewardsAmount;
-        totalRewardsDebt += rewardsAmount;
+        _stake(msg.sender, amount);
 
         emit StakeChanged(msg.sender, amount);
     }
@@ -124,21 +132,14 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
     function unstake(uint amount) public {
         require(stakes[msg.sender] >= amount, "Not enough stake");
 
-        _calcClaimableRewards(msg.sender);
-
-        uint rewardsAmount = _calcRewards(amount);
-
-        stakes[msg.sender] -= amount;
-        totalStake -= amount;
-
-        totalRewards -= rewardsAmount;
-        rewardsDebt[msg.sender] -= rewardsAmount;
-        totalRewardsDebt -= rewardsAmount;
+        _unstake(msg.sender, amount);
 
         // cancel previous lock (if exists). canceledAmount will be added to new lock
         uint canceledAmount;
         if (lockKeeper.getLock(lockedWithdrawals[msg.sender]).totalClaims > 0) // prev lock exists
             canceledAmount = lockKeeper.cancelLock(lockedWithdrawals[msg.sender]);
+
+        token.approve(address(lockKeeper), amount + canceledAmount);
 
         // lock funds
         lockedWithdrawals[msg.sender] = lockKeeper.lockSingle(
@@ -146,17 +147,34 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
             string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(token))))
         );
 
+        _claimRewards(msg.sender);
+
+        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + lockPeriod, block.timestamp);
         emit StakeChanged(msg.sender, stakes[msg.sender]);
     }
 
     function unstakeFast(uint amount) public {
         require(stakes[msg.sender] >= amount, "Not enough stake");
 
+        _unstake(msg.sender, amount);
+
+        uint penalty = amount * fastUnstakePenalty / MILLION;
+        SafeERC20.safeTransfer(token, msg.sender, amount - penalty);
+
+        _claimRewards(msg.sender);
+
+        emit UnstakeFast(msg.sender, amount, penalty);
         emit StakeChanged(msg.sender, stakes[msg.sender]);
     }
 
     function claim() public {
-        _claim(msg.sender);
+        console.log("claiming rewards");
+        _calcClaimableRewards(msg.sender);
+        _claimRewards(msg.sender);
+    }
+
+    function onBlock() external {
+        _addInterest();
     }
 
     // VIEW METHODS
@@ -174,7 +192,11 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
     }
 
     function getUserRewards(address user) public view returns (uint) {
-        //TODO: implement
+        uint rewardsAmount = _calcRewards(stakes[user]);
+        if (rewardsAmount + claimableRewards[user] <= rewardsDebt[user]) 
+            return 0;
+
+        return rewardsAmount + claimableRewards[user] - rewardsDebt[user];
     }
 
     // INTERNAL METHODS
@@ -189,19 +211,52 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
     }
 
     function _addInterest() internal {
+        if (lastInterestUpdate + interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - lastInterestUpdate;
-        uint newRewards = totalStake * interest * timePassed / (MILLION * interestRate);
+        uint newRewards = totalStake * interest * timePassed / MILLION / interestRate;
 
         totalRewards += newRewards;
         lastInterestUpdate = block.timestamp;
-        emit InterestAdded(newRewards);
+        emit Interest(newRewards);
     }
 
-    function _claim(address user) internal {
-        //TODO: Implement
+    function _stake(address user, uint amount) internal {
+        uint rewardsAmount = _calcRewards(amount);
 
-        bank.withdrawErc20(rewardToken, user, rewardAmount);
-        emit RewardClaimed(user, rewardAmount);
+        stakes[msg.sender] += amount;
+        totalStake += amount;
+
+        totalRewards += rewardsAmount;
+
+        _updateRewardsDebt(user, _calcRewards(stakes[user]));
+    }
+
+    function _unstake(address user, uint amount) internal {
+        uint rewardsAmount = _calcRewards(amount);
+
+        stakes[msg.sender] -= amount;
+        totalStake -= amount;
+
+        totalRewards -= rewardsAmount;
+        _updateRewardsDebt(user, _calcRewards(stakes[user]));
+    }
+
+    function _updateRewardsDebt(address user, uint newDebt) internal {
+        uint oldDebt = rewardsDebt[user];
+        if (newDebt < oldDebt) totalRewardsDebt -= oldDebt - newDebt;
+        else totalRewardsDebt += newDebt - oldDebt;
+        rewardsDebt[user] = newDebt;
+    }
+
+    function _claimRewards(address user) internal {
+        uint amount = claimableRewards[user];
+        if (amount == 0) return;
+
+        claimableRewards[user] = 0;
+
+        uint rewardTokenAmount = amount * rewardTokenPrice;
+        rewardsBank.withdrawErc20(rewardToken, payable(user), rewardTokenAmount);
+        emit Claim(user, rewardTokenAmount);
     }
 
     function _calcRewards(uint amount) internal view returns (uint) {
@@ -219,6 +274,10 @@ contract TokenPool is Initializable, AccessControl, ITokenPool {
             s[2 * i + 1] = _char(lo);
         }
         return string(s);
+    }
+
+    function _char(uint8 b) internal pure returns (bytes1 c) {
+        return bytes1(b + (b < 10 ? 0x30 : 0x57));
     }
 
 }
