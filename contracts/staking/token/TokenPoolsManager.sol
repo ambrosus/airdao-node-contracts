@@ -6,14 +6,19 @@ import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "./TokenPool.sol";
 import "../../funds/RewardsBank.sol";
+import "../../LockKeeper.sol";
+
+import "hardhat/console.sol";
 
 contract TokenPoolsManager is AccessControl{
+    LockKeeper lockKeeper;
     RewardsBank public bank;
     UpgradeableBeacon public beacon;
 
     mapping(string => address) public pools;
 
-    constructor(RewardsBank bank_, UpgradeableBeacon beacon_) {
+    constructor(RewardsBank bank_, LockKeeper lockKeeper_, UpgradeableBeacon beacon_) {
+        lockKeeper = lockKeeper_;
         bank = bank_;
         beacon = beacon_;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -26,13 +31,15 @@ contract TokenPoolsManager is AccessControl{
     // OWNER METHODS
 
     function createPool(
-        string memory name, address token_, uint interest_, uint interestRate_,
-        uint minStakeValue_, address rewardToken_, uint rewardTokenPrice_
+        address token_, string memory name, uint minStakeValue_,
+        uint fastUnstakePenalty_, uint interest_, uint interestRate_, uint lockPeriod_, address rewardToken_, uint rewardTokenPrice_
     ) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+        console.log("Entered createPool");
         bytes memory data = abi.encodeWithSignature(
-            "initialize(string,address,address,uint256,uint256,uint256,address,uint256)",
-                        name, token_, bank, interest_, interestRate_, minStakeValue_, rewardToken_, rewardTokenPrice_);
+            "initialize(address,address,address,string,uint256,uint256,uint256,uint256,uint256,address,uint256)",
+                        token_, bank, lockKeeper, name, minStakeValue_, fastUnstakePenalty_, interest_, interestRate_, lockPeriod_, rewardToken_, rewardTokenPrice_);
         address pool = address(new BeaconProxy(address(beacon), data));
+        console.log("Pool created at address: %s", pool);
         pools[name] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
         emit PoolCreated(name, pool);

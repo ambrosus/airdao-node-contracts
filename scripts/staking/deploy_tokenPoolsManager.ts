@@ -7,15 +7,12 @@ import {
   TokenPoolsManager__factory,
   Multisig__factory,
   RewardsBank__factory,
-  TokenPoolBeacon__factory,
-  TokenPool__factory,
 } from "../../typechain-types";
 import {Roadmap2023MultisigSettings} from "../addresses";
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
-
 
   const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
@@ -49,6 +46,8 @@ export async function main() {
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), poolsManager.address)).wait();
   await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
   await (await poolsManager.grantRole(await poolsManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+
+  //TODO: Rewoke roles from deployer
 }
 
 if (require.main === module) {

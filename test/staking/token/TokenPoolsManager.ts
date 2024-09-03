@@ -1,14 +1,14 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import {
-  TokenPool,
   TokenPoolsManager,
   RewardsBank,
   AirBond__factory,
   RewardsBank__factory,
   TokenPoolsManager__factory,
-  TokenPoolBeacon__factory,
+  LockKeeper__factory,
 } from "../../../typechain-types";
 
 import TokenPoolJson from "../../../artifacts/contracts/staking/token/TokenPool.sol/TokenPool.json";
@@ -29,7 +29,9 @@ describe("PoolsManager", function () {
     const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
     const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
 
-    const poolsManager = await new TokenPoolsManager__factory(owner).deploy(rewardsBank.address, tokenPoolBeacon.address);
+    const lockKeeper = await new LockKeeper__factory(owner).deploy();
+
+    const poolsManager = await new TokenPoolsManager__factory(owner).deploy(rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address);
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), poolsManager.address)).wait();
     const tokenAddr = airBond.address;
@@ -43,23 +45,31 @@ describe("PoolsManager", function () {
 
   describe("Pool Management", function () {
     it("Should allow the owner to create a pool", async function () {
+      const minStakeValue = 10;
+      const fastUnstakePenalty = 100000; // 10%
       const interest = 100000; // 10%
       const interestRate = 24 * 60 * 60; // 24 hours
-      const minStakeValue = 10;
+      const lockPeriod = 24 * 60 * 60; // 24 hours
+      const rewardsTokenPrice = 1;
 
-      const tx = await poolsManager.createPool("TestProxy", tokenAddr, interest, interestRate, minStakeValue, tokenAddr, 1);
+      console.log("before createPool");
+      const tx = await poolsManager.createPool(tokenAddr, "TestProxy", minStakeValue, fastUnstakePenalty, interest, interestRate, lockPeriod, tokenAddr, rewardsTokenPrice);
       const receipt = await tx.wait();
+      console.log("Receipt: ", receipt);
       const poolAddress = receipt.events![4].args![1];
 
       expect(await poolsManager.getPoolAddress("TestProxy")).to.equal(poolAddress);
     });
 
     it("Should activate and deactivate a pool", async function () {
+      const minStakeValue = 10;
+      const fastUnstakePenalty = 100000; // 10%
       const interest = 100000; // 10%
       const interestRate = 24 * 60 * 60; // 24 hours
-      const minStakeValue = 10;
+      const lockPeriod = 24 * 60 * 60; // 24 hours
+      const rewardsTokenPrice = 1;
 
-      await poolsManager.createPool("TestProxy", tokenAddr, interest, interestRate, minStakeValue, tokenAddr, 1);
+      await poolsManager.createPool(tokenAddr, "TestProxy", minStakeValue, fastUnstakePenalty, interest, interestRate, lockPeriod, tokenAddr, rewardsTokenPrice);
       const poolAddress = await poolsManager.getPoolAddress("TestProxy");
       console.log("Pool Address: ", poolAddress);
 
