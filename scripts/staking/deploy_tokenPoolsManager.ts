@@ -7,6 +7,7 @@ import {
   TokenPoolsManager__factory,
   Multisig__factory,
   RewardsBank__factory,
+  LockKeeper__factory
 } from "../../typechain-types";
 import {Roadmap2023MultisigSettings} from "../addresses";
 export async function main() {
@@ -31,6 +32,17 @@ export async function main() {
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
+
+  const lockKeeper = await deploy<LockKeeper__factory>({
+    contractName: ContractNames.LockKeeper,
+    artifactName: "LockKeeper",
+    deployArgs: [],
+    signer: deployer,
+    loadIfAlreadyDeployed: true,
+    isUpgradeableProxy: true,
+  });
+
+
     
   const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
   const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
@@ -38,7 +50,7 @@ export async function main() {
   const poolsManager = await deploy<TokenPoolsManager__factory>({
     contractName: ContractNames.TokenPoolsManager,
     artifactName: "TokenPoolsManager",
-    deployArgs: [rewardsBank.address, tokenPoolBeacon.address],
+    deployArgs: [rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
