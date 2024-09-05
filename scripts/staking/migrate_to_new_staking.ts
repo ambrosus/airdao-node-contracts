@@ -19,7 +19,7 @@ import {
 import { BigNumber, Contract, PopulatedTransaction } from "ethers";
 import { loadDeployment } from "@airdao/deployments/deploying";
 import { ContractNames } from "../../src";
-import {Parallel} from "../parallel";
+import {Parallel} from "../utils/parallel";
 import {NodeOnboardedEvent} from "../../typechain-types/contracts/staking/pools/Legacy/RolesEventEmitter";
 import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
@@ -135,6 +135,8 @@ async function main() {
 
   console.log("finalizing validator set");
   await (await validatorSet.finalizeChange()).wait();
+
+  if (chainId !== 16718) return; // continue only on prod
 
   // setup ownerships
   const defaultAdminRole = await validatorSet.DEFAULT_ADMIN_ROLE();

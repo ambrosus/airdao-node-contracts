@@ -16,6 +16,8 @@ fi
 
 npx hardhat run scripts/multisig/deploy_multisig.ts --network "${NETWORK}"
 npx hardhat run scripts/finance/deploy_finance.ts --network "${NETWORK}"
+npx hardhat run scripts/finance/deploy_airbond.ts --network "${NETWORK}"
+npx hardhat run scripts/ecosystem/airdrop/deploy_airdrop.ts --network "${NETWORK}"
 npx hardhat run scripts/finance/deploy_airdrop.ts --network "${NETWORK}"
 npx hardhat run scripts/staking/deploy_validatorset.ts --network "${NETWORK}"
 npx hardhat run scripts/staking/deploy_treasury.ts --network "${NETWORK}"
@@ -30,6 +32,7 @@ npx hardhat run scripts/ecosystem/bond-marketplace/deploy.ts --network "${NETWOR
 npx hardhat run scripts/ecosystem/starfleet/deploy.ts --network "${NETWORK}"
 npx hardhat run scripts/ecosystem/astradex/deploy.ts --network "${NETWORK}"
 npx hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network "${NETWORK}"
+npx hardhat run scripts/ecosystem/liquid_staking/deploy.ts --network
 
 npx hardhat sourcify --network "${NETWORK}"
 

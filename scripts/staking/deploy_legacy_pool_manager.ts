@@ -1,16 +1,15 @@
-import {ethers} from "hardhat";
+import { ethers } from "hardhat";
 import {
   Context__factory,
   Head,
   LegacyPoolsNodes_Manager__factory,
-  Multisig__factory,
   RewardsBank__factory,
   StorageCatalogue__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import {deploy, loadDeployment} from "@airdao/deployments/deploying";
-import {ContractNames} from "../../src";
-import {Roadmap2023MultisigSettings} from "../addresses";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
+import { ContractNames } from "../../src";
+import { deployMultisig } from "../utils/deployMultisig";
 
 const HEAD = "0x0000000000000000000000000000000000000F10";
 
@@ -20,16 +19,9 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
-  const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.LegacyPoolManagerMultisig,
-    artifactName: "Multisig",
-    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
-    signer: deployer,
-    loadIfAlreadyDeployed: true,
-  });
+  const multisig = await deployMultisig(ContractNames.LegacyPoolManagerMultisig, deployer, "common");
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.LegacyPoolManagerRewardsBank,
