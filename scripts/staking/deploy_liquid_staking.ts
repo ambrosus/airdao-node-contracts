@@ -12,7 +12,7 @@ import {
   Treasury__factory,
   ValidatorSet,
 } from "../../typechain-types";
-import {Roadmap2023MultisigSettings} from "../addresses";
+import { EcosystemMultisigSettings } from "../addresses";
 import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
 
 import { parse } from "csv-parse/sync";
@@ -31,13 +31,13 @@ export async function main() {
   wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
+  const masterMultisig = loadDeployment(ContractNames.Ecosystem_MasterMultisig, chainId).address;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
 
   const multisig = await deploy<Multisig__factory>({
     contractName: ContractNames.Ecosystem_LiquidPoolMultisig,
     artifactName: "Multisig",
-    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
+    deployArgs: [...EcosystemMultisigSettings, masterMultisig],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
