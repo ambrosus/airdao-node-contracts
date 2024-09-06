@@ -35,11 +35,11 @@ export async function main() {
     loadIfAlreadyDeployed: true,
     isUpgradeableProxy: true,
   });
-
-
     
+  console.log("deploying TokenPool Beacon");
   const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
   const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
+  console.log("TokenPool Beacon deployed to:", tokenPoolBeacon.address);
 
   const poolsManager = await deploy<TokenPoolsManager__factory>({
     contractName: ContractNames.Ecosystem_TokenPoolsManager,
