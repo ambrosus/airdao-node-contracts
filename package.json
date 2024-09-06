@@ -18,15 +18,13 @@
 
     "deploy_multisig": "hardhat run scripts/multisig/deploy_multisig.ts --network dev",
     "deploy_finance": "hardhat run scripts/finance/deploy_finance.ts --network dev",
-    "deploy_airdrop": "hardhat run scripts/finance/deploy_airdrop.ts --network dev",
+    "deploy_airbond": "hardhat run scripts/finance/deploy_airbond.ts --network dev",
+    "deploy_airdrop": "hardhat run scripts/ecosystem/airdrop/deploy_airdrop.ts --network dev",
     "deploy_validatorset": "hardhat run scripts/staking/deploy_validatorset.ts --network dev",
     "deploy_treasury": "hardhat run scripts/staking/deploy_treasury.ts --network dev",
     "deploy_basenodes_manager": "hardhat run scripts/staking/deploy_basenodes_manager.ts --network dev",
     "deploy_servernodes_manager": "hardhat run scripts/staking/deploy_servernodes_manager.ts --network dev",
     "deploy_legacy_pool_manager": "hardhat run scripts/staking/deploy_legacy_pool_manager.ts --network dev",
-    "deploy_liquid_staking": "hardhat run scripts/staking/deploy_liquid_staking.ts --network dev",
-    "deploy_token_staking": "hardhat run scripts/staking/deploy_token_staking.ts --network dev",
-    "deploy_all": "npm run deploy_multisig && npm run deploy_finance && npm run deploy_airdrop && npm run deploy_staking && npm run deploy_fees && npm run deploy_multisig:ecosystem && npm run deploy_bond",
     "migration_to_new_staking": "hardhat run scripts/staking/migrate_to_new_staking.ts --network dev",
     "deploy_fees": "hardhat run scripts/fees/deploy_fees.ts --network dev",
 
@@ -36,6 +34,9 @@
     "deploy_astradex": "hardhat run scripts/ecosystem/astradex/deploy.ts --network dev",
     "deploy_astradex_tokensafe": "hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network dev",
     "deploy_government": "hardhat run scripts/ecosystem/government/deploy.ts --network dev",
+    "deploy_liquid_staking": "hardhat run scripts/ecosystem/liquid_staking/deploy.ts --network dev",
+    "deploy_token_staking": "hardhat run scripts/staking/deploy_token_staking.ts --network dev",
+
 
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",

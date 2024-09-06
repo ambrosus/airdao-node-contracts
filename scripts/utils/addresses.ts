@@ -17,13 +17,9 @@ export const Matthieu = "0x37d6bF7e8875137EefA8286e6AEA2cc4bFAF1247";
 export const Michael = "0xB72aDaffEb3419487C49690Dc68e963F7d7D81AC";
 
 // testing
-export const SharedDev = "0xD693a3cc5686e74Ca2e72e8120A2F2013B8eE66E";
-export const DimaTest = "0xc9E2CB16dEC44be85b8994D1EcDD4cA7a690c28b";
-export const DimaTest96 = "0x4fB246FAf8FAc198f8e5B524E74ABC6755956696";
-export const DimaTest2B = "0x8468D3B30A6308e3a1d4e3Ebf2B7C14E5e842C2B";
-export const DimaTest3C = "0x60bBa9ca40D4A5ef331b6065dC58a13c91a67B3C";
-export const DimaTest08 = "0xE6b7De299a3c76d8ee42Fd1B769b42Eec25baB08";
-
+// export const SharedDev = "0xD693a3cc5686e74Ca2e72e8120A2F2013B8eE66E";  // old one
+export const Dev1111 = "0x1111472FCa4260505EcE4AcD07717CADa41c1111";
+export const Dev028b = "0xc9E2CB16dEC44be85b8994D1EcDD4cA7a690c28b";
 export const AndriiTest = "0xb017DcCC473499C83f1b553bE564f3CeAf002254";
 
 
@@ -37,7 +33,7 @@ export const EcosystemMultisigSettings = [EcosystemAddresses, EcosystemAddresses
 export function getAddressName(address: string) {
   const names = {
     Lang, Igor, Andrii, Rory, Kevin, Seth, Valerii, Oleksii, OleksiiD, Olena, Alina, Alex, Sophie, Matthieu, Michael,
-    SharedDev, DimaTest, DimaTest96, DimaTest2B, DimaTest3C, DimaTest08, AndriiTest
+    Dev1111, DimaTest: Dev028b, AndriiTest
   };
   for (const [name, addr] of Object.entries(names))
     if (addr == address) return name;

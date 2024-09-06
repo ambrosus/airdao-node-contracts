@@ -1,22 +1,21 @@
-import {ethers} from "hardhat";
-import {ContractNames} from "../../src";
-import {deploy, loadDeployment} from "@airdao/deployments/deploying";
+import { ethers } from "hardhat";
+import { ContractNames } from "../../../src";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import {
   LiquidNodesManager__factory,
   LiquidPool__factory,
-  Multisig__factory,
+  LockKeeper__factory,
   RewardsBank__factory,
   StakingTiers__factory,
-  LockKeeper__factory,
   StAMB__factory,
   Treasury__factory,
   ValidatorSet,
-} from "../../typechain-types";
-import {Roadmap2023MultisigSettings} from "../addresses";
-import { wrapProviderToError } from "../../src/utils/AmbErrorProvider";
+} from "../../../typechain-types";
+import { wrapProviderToError } from "../../../src/utils/AmbErrorProvider";
 
 import { parse } from "csv-parse/sync";
 import fs from "fs";
+import { deployMultisig } from "../../utils/deployMultisig";
 
 interface AccountData {
   address: string;
@@ -31,16 +30,10 @@ export async function main() {
   wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
 
-  const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.Ecosystem_LiquidPoolMultisig,
-    artifactName: "Multisig",
-    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
-    signer: deployer,
-    loadIfAlreadyDeployed: true,
-  });
+  const multisig = await deployMultisig(ContractNames.Ecosystem_LiquidPoolMultisig, deployer, "eco");
+
 
 
   // block rewards will be withdrawn from this contract
@@ -187,8 +180,7 @@ export async function main() {
   console.log("Add block listeners");
   await (await validatorSet.addBlockListener(liquidPool.address)).wait();
 
-
-  return;
+  if (chainId != 16718) return;  // continue only on prod
 
   console.log("Setup bonuses");
   const bonuses = getBonuses();
