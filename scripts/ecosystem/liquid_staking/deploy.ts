@@ -50,7 +50,7 @@ export async function main() {
     contractName: ContractNames.Ecosystem_LiquidNodesManagerTreasury,
     artifactName: "Treasury",
     signer: deployer,
-    deployArgs: [deployer.address, 0],
+    deployArgs: [multisig.address, 0],
     loadIfAlreadyDeployed: true,
   });
 
@@ -60,7 +60,7 @@ export async function main() {
     artifactName: "Treasury",
     signer: deployer,
     deployArgs: [
-      deployer.address,
+      multisig.address,
       0.10 * 10000, // 10% fee
     ],
     loadIfAlreadyDeployed: true,
