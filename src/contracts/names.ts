@@ -46,12 +46,6 @@ export enum ContractNames {
   Treasury = "Treasury",
   TreasuryMultisig = "Treasury_Multisig",
 
-  TokenPool = "TokenPool",
-  TokenPoolBeacon = "TokenPoolBeacon",
-  TokenPoolsManager = "TokenPoolsManager",
-  TokenPoolsManagerMultisig = "TokenPoolsManager_Multisig",
-  TokenPoolsManagerRewardsBank = "TokenPoolsManager_RewardsBank",
-
   // funds
 
   AirBond = "AirBond",
@@ -89,6 +83,12 @@ export enum ContractNames {
   Ecosystem_LiquidNodesManagerTreasury = "Ecosystem_LiquidNodesManager_Treasury",
   Ecosystem_LiquidNodesManagerTreasuryFees = "Ecosystem_LiquidNodesManager_TreasuryFees",
   Ecosystem_LiquidPoolStakingTiers = "Ecosystem_LiquidPool_StakingTiers",
+
+  Ecosystem_TokenPool = "Ecosystem_TokenPool",
+  Ecosystem_TokenPoolBeacon = "Ecosystem_TokenPoolBeacon",
+  Ecosystem_TokenPoolsManager = "Ecosystem_TokenPoolsManager",
+  Ecosystem_TokenPoolsManagerMultisig = "Ecosystem_TokenPoolsManager_Multisig",
+  Ecosystem_TokenPoolsManagerRewardsBank = "Ecosystem_TokenPoolsManager_RewardsBank",
 
   Ecosystem_GovernmentMultisig = "Ecosystem_Government_Multisig",
 }

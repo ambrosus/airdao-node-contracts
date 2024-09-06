@@ -35,7 +35,7 @@
     "deploy_astradex_tokensafe": "hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network dev",
     "deploy_government": "hardhat run scripts/ecosystem/government/deploy.ts --network dev",
     "deploy_liquid_staking": "hardhat run scripts/ecosystem/liquid_staking/deploy.ts --network dev",
-    "deploy_token_staking": "hardhat run scripts/staking/deploy_token_staking.ts --network dev",
+    "deploy_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy.ts --network dev",
 
 
     "sourcify:dev": "hardhat sourcify --network dev",
