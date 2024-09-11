@@ -84,13 +84,15 @@ export enum ContractNames {
   Ecosystem_LiquidNodesManagerTreasuryFees = "Ecosystem_LiquidNodesManager_TreasuryFees",
   Ecosystem_LiquidPoolStakingTiers = "Ecosystem_LiquidPool_StakingTiers",
 
-  Ecosystem_TokenPool = "Ecosystem_TokenPool",
-  Ecosystem_TokenPoolBeacon = "Ecosystem_TokenPoolBeacon",
+  Ecosystem_GovernmentMultisig = "Ecosystem_Government_Multisig",
+
+  Ecosystem_SingleSidePool = "Ecosystem_SingleSidePool",
+  Ecosystem_SingleSidePoolBeacon = "Ecosystem_SingleSidePool_Beacon",
+  Ecosystem_DoubleSidePool = "Ecosystem_DoubleSidePool",
+  Ecosystem_DoubleSidePoolBeacon = "Ecosystem_DoubleSidePool_Beacon",
   Ecosystem_TokenPoolsManager = "Ecosystem_TokenPoolsManager",
   Ecosystem_TokenPoolsManagerMultisig = "Ecosystem_TokenPoolsManager_Multisig",
   Ecosystem_TokenPoolsManagerRewardsBank = "Ecosystem_TokenPoolsManager_RewardsBank",
-
-  Ecosystem_GovernmentMultisig = "Ecosystem_Government_Multisig",
 }
 
 export const MULTISIGS_COMMON = {
@@ -126,6 +128,7 @@ export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_LiquidNodesManagerTreasuryFees]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidPoolStAMB]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidPoolStakingTiers]: ContractNames.Ecosystem_LiquidPoolMultisig,
+  [ContractNames.Ecosystem_TokenPoolsManager]: ContractNames.Ecosystem_TokenPoolsManagerMultisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
