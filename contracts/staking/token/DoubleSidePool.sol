@@ -84,18 +84,16 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     event InterestChanged(bool dependant, uint interest);
     event InterestRateChanged(bool dependant, uint interestRate);
 
-    event PoolMaxStakeValueChanged(uint poolMaxStakeValue);
+    event MaxTotalStakeValueChanged(uint poolMaxStakeValue);
+    event MaxStakePerUserValueChanged(uint maxStakePerUserValue);
     event StakeLockPeriodChanged(uint period);
     event StakeLimitsMultiplierChanged(uint value);
-    event ApyBonusMultiplierChanged(uint value);
 
     event StakeChanged(bool dependant, address indexed user, uint amount);
     event Claim(bool dependant, address indexed user, uint amount);
     event Interest(bool dependant, uint amount);
     event UnstakeLocked(bool dependant, address indexed user, uint amount, uint unlockTime, uint creationTime);
     event UnstakeFast(bool dependant, address indexed user, uint amount, uint penalty);
-
-    // TODO: Add more dependant side specific events
 
     function initialize(
         RewardsBank rewardsBank_, LockKeeper lockkeeper_, string memory name_,
@@ -114,9 +112,10 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
     // OWNER METHODS
 
-    function addDependantSide(DependantSideConfig memory dependantSideConfig_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addDependentSide(bytes calldata prams) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!hasSecondSide, "Second side already exists");
         hasSecondSide = true;
+        DependantSideConfig memory dependantSideConfig_ = abi.decode(prams, (DependantSideConfig));
         dependantSideConfig = dependantSideConfig_;
     }
 
@@ -184,17 +183,17 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
     function setMaxTotalStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
         dependantSideConfig.maxTotalStakeValue = value;
-        emit PoolMaxStakeValueChanged(value);
-    }
-
-    function setStakeLimitsMultiplier(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        dependantSideConfig.stakeLimitsMultiplier = value;
-        emit StakeLimitsMultiplierChanged(value);
+        emit MaxTotalStakeValueChanged(value);
     }
 
     function setStakeLockPeriod(uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
         dependantSideConfig.stakeLockPeriod = period;
         emit StakeLockPeriodChanged(period);
+    }
+
+    function setStakeLimitsMultiplier(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        dependantSideConfig.stakeLimitsMultiplier = value;
+        emit StakeLimitsMultiplierChanged(value);
     }
 
     //TODO: Add more setters 
