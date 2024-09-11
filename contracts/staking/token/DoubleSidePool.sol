@@ -13,7 +13,7 @@ import "hardhat/console.sol";
 //The side defined by the address of the token. Zero address means native coin
 contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
-    struct MainSideConfig {
+  struct MainSideConfig {
         address token;
         address rewardToken;
         uint rewardTokenPrice;
@@ -112,11 +112,10 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
     // OWNER METHODS
 
-    function addDependentSide(bytes calldata prams) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addDependentSide(DependantSideConfig calldata config_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!hasSecondSide, "Second side already exists");
         hasSecondSide = true;
-        DependantSideConfig memory dependantSideConfig_ = abi.decode(prams, (DependantSideConfig));
-        dependantSideConfig = dependantSideConfig_;
+        dependantSideConfig = config_;
     }
 
     function activate() public onlyRole(DEFAULT_ADMIN_ROLE) {

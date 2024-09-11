@@ -63,8 +63,7 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
     event UnstakeLocked(address indexed user, uint amount, uint unlockTime, uint creationTime);
     event UnstakeFast(address indexed user, uint amount, uint penalty);
 
-    function initialize(bytes calldata params_) public  initializer {
-        Config memory config_ = abi.decode(params_, (Config));
+    function initialize(Config calldata config_) public  initializer {
         config = config_;
 
         info.lastInterestUpdate = block.timestamp;
@@ -177,16 +176,16 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
 
     // VIEW METHODS
 
+    function getConfig() public view returns (Config memory) {
+        return config;
+    }
+
+    function getInfo() public view returns (Info memory) {
+        return info;
+    }
+
     function getStake(address user) public view returns (uint) {
         return stakers[user].stake;
-    }
-
-    function getInterest() public view returns (uint) {
-        return config.interest;
-    }
-
-    function getInterestRate() public view returns (uint) {
-        return config.interestRate;
     }
 
     function getUserRewards(address user) public view returns (uint) {

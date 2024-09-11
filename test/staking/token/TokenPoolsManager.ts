@@ -11,7 +11,7 @@ import {
   LockKeeper__factory,
 } from "../../../typechain-types";
 
-import TokenPoolJson from "../../../artifacts/contracts/staking/token/TokenPool.sol/TokenPool.json";
+import SignleSidePoolJson from "../../../artifacts/contracts/staking/token/SingleSidePool.sol/SingleSidePool.json";
 
 import { expect } from "chai";
 
@@ -26,12 +26,17 @@ describe("PoolsManager", function () {
 
     const rewardsBank = await new RewardsBank__factory(owner).deploy();
     const airBond = await new AirBond__factory(owner).deploy(owner.address);
-    const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
-    const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
+
+    const singleSidePoolFactory = await ethers.getContractFactory("SingleSidePool");
+    const singleSidePoolBeacon = await upgrades.deployBeacon(singleSidePoolFactory);
+
+    const doubleSidePoolFactory = await ethers.getContractFactory("DoubleSidePool");
+    const doubleSidePoolBeacon = await upgrades.deployBeacon(doubleSidePoolFactory);
 
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
 
-    const poolsManager = await new TokenPoolsManager__factory(owner).deploy(rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address);
+    const poolsManager = await new TokenPoolsManager__factory(owner)
+      .deploy(rewardsBank.address, lockKeeper.address, singleSidePoolBeacon.address, doubleSidePoolBeacon.address);
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), poolsManager.address)).wait();
     const tokenAddr = airBond.address;
@@ -74,7 +79,7 @@ describe("PoolsManager", function () {
       console.log("Pool Address: ", poolAddress);
 
       //await poolsManager.deactivatePool("TestProxy");
-      const proxyPool = new ethers.Contract(poolAddress, TokenPoolJson.abi, owner);
+      const proxyPool = new ethers.Contract(poolAddress, SignleSidePoolJson.abi, owner);
       const active = await proxyPool.active();
       console.log("Active: ", active);
     });

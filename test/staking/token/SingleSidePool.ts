@@ -5,7 +5,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   RewardsBank,
   AirBond,
-  TokenPool,
+  SingleSidePool,
   RewardsBank__factory,
   AirBond__factory,
   LockKeeper__factory,
@@ -13,20 +13,11 @@ import {
 } from "../../../typechain-types";
 
 const D1 = 24 * 60 * 60;
-const MILLION = 1000000;
-
-const name = "Test";
-const minStakeValue = 10;
-const fastUnstakePenalty = 100000; // 10%
-const interest = 100000; // 10%
-const interestRate = D1; // 1 day
-const lockPeriod = 24 * 60 * 60; // 1 day
-const rewardTokenPrice = 1;
 
 import { expect } from "chai";
-describe("TokenPool", function () {
+describe("SingleSidePool", function () {
   let owner: SignerWithAddress;
-  let tokenPool: TokenPool;
+  let singleSidePool: SingleSidePool;
   let rewardsBank: RewardsBank;
   let lockKeeper: LockKeeper;
   let token: AirBond;
@@ -37,54 +28,66 @@ describe("TokenPool", function () {
     const token = await new AirBond__factory(owner).deploy(owner.address);
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
 
-    const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
+    const singleSidePoolFactory = await ethers.getContractFactory("SingleSidePool");
 
-    const tokenPool = (await upgrades.deployProxy(tokenPoolFactory, [
-      token.address, rewardsBank.address, lockKeeper.address, name, minStakeValue, fastUnstakePenalty,  
-      interest, interestRate, lockPeriod, token.address, rewardTokenPrice
-    ])) as TokenPool;
+    const singleSidePoolParams: SingleSidePool.ConfigStruct = {
+      token: token.address,
+      rewardsBank: rewardsBank.address,
+      lockKeeper: lockKeeper.address,
+      name: "Test",
+      minStakeValue: 10,
+      fastUnstakePenalty: 100000, // 10%
+      interest: 100000, // 10%
+      interestRate: D1, // 1 day
+      lockPeriod: D1, // 1 day
+      rewardToken: token.address,
+      rewardTokenPrice: 1,
+    };
+    
+    const singleSidePool = (await upgrades.deployProxy(singleSidePoolFactory, [singleSidePoolParams])) as SingleSidePool;
 
-    await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), tokenPool.address)).wait();
+    await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), singleSidePool.address)).wait();
     await (await token.grantRole(await token.MINTER_ROLE(), owner.address)).wait();
 
     await token.mint(owner.address, 100000000000);
 
-    return { owner, tokenPool, rewardsBank, lockKeeper, token };
+    return { owner, singleSidePool, rewardsBank, lockKeeper, token };
   }
 
   beforeEach(async function () {
-    ({ owner, tokenPool, rewardsBank, lockKeeper, token } = await loadFixture(deploy));
+    ({ owner, singleSidePool, rewardsBank, lockKeeper, token } = await loadFixture(deploy));
   });
 
   describe("Owner Methods", function () {
     it("Should deactivate and activate the pool", async function () {
-      await tokenPool.deactivate();
-      expect(await tokenPool.active()).to.equal(false);
+      await singleSidePool.deactivate();
+      expect(await singleSidePool.active()).to.equal(false);
 
-      await tokenPool.activate();
-      expect(await tokenPool.active()).to.equal(true);
+      await singleSidePool.activate();
+      expect(await singleSidePool.active()).to.equal(true);
     });
   });
 
   describe("Staking", function () {
     beforeEach(async function () {
-      await token.approve(tokenPool.address, 1000000);
+      await token.approve(singleSidePool.address, 1000000);
     });
 
     it("Should allow staking", async function () {
       const stake = 1000;
-      await tokenPool.stake(stake);
-      expect(await tokenPool.totalStake()).to.equal(stake);
-      expect(await tokenPool.getStake(owner.address)).to.equal(stake);
+      await singleSidePool.stake(stake);
+      const info = await singleSidePool.info();
+      expect(info.totalStake).to.equal(stake);
+      expect(await singleSidePool.getStake(owner.address)).to.equal(stake);
     });
 
     it("Should not allow staking when pool is deactivated", async function () {
-      await tokenPool.deactivate();
-      await expect(tokenPool.stake(1000)).to.be.revertedWith("Pool is not active");
+      await singleSidePool.deactivate();
+      await expect(singleSidePool.stake(1000)).to.be.revertedWith("Pool is not active");
     });
 
     it("Should not allow staking below minimum stake value", async function () {
-      await expect(tokenPool.stake(1)).to.be.revertedWith("Pool: stake value is too low");
+      await expect(singleSidePool.stake(1)).to.be.revertedWith("Pool: stake value is too low");
     });
 
   });
@@ -93,61 +96,62 @@ describe("TokenPool", function () {
     const stake = 1000;
 
     beforeEach(async function () {
-      await token.approve(tokenPool.address, 1000000000);
-      await tokenPool.stake(stake);
+      await token.approve(singleSidePool.address, 1000000000);
+      await singleSidePool.stake(stake);
     });
 
     it("Should allow unstaking with rewards", async function () {
       await time.increase(D1);
-      await tokenPool.onBlock();
+      await singleSidePool.onBlock();
 
-      await expect(await tokenPool.unstake(stake)).to.emit(lockKeeper, "Locked");
-      expect(await tokenPool.totalStake()).to.equal(0);
-      expect(await tokenPool.getStake(owner.address)).to.equal(0);
+      await expect(await singleSidePool.unstake(stake)).to.emit(lockKeeper, "Locked");
+      const info = await singleSidePool.info();
+      expect(info.totalStake).to.equal(0);
+      expect(await singleSidePool.getStake(owner.address)).to.equal(0);
     });
 
     it("Should allow fast unstaking with rewards", async function () {
       await time.increase(D1);
-      await tokenPool.onBlock();
+      await singleSidePool.onBlock();
 
       const balanceBefore = await token.balanceOf(owner.address);
-      await tokenPool.unstakeFast(stake);
+      await singleSidePool.unstakeFast(stake);
       const balanceAfter = await token.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(stake * 0.9);
     });
 
     it("Should allow unstaking without rewards", async function () {
-      await expect(tokenPool.unstake(stake)).to.emit(lockKeeper, "Locked");
+      await expect(singleSidePool.unstake(stake)).to.emit(lockKeeper, "Locked");
     });
 
     it("Should allow fast unstaking without rewards", async function () {
       const balanceBefore = await token.balanceOf(owner.address);
-      await tokenPool.unstakeFast(stake);
+      await singleSidePool.unstakeFast(stake);
       const balanceAfter = await token.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(stake * 0.9);
     });
 
     it("Should not allow unstaking more than staked", async function () {
-      await expect(tokenPool.unstake(stake * 2)).to.be.revertedWith("Not enough stake");
+      await expect(singleSidePool.unstake(stake * 2)).to.be.revertedWith("Not enough stake");
     });
 
     it("Should not allow fast unstaking more than staked", async function () {
       const balanceBefore = await token.balanceOf(owner.address);
-      await tokenPool.unstakeFast(stake);
+      await singleSidePool.unstakeFast(stake);
       const balanceAfter = await token.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(stake * 0.9);
 
     });
 
     it("Should allow unstaking when pool is deactivated", async function () {
-      await tokenPool.deactivate();
-      await expect(tokenPool.unstake(stake)).to.emit(lockKeeper, "Locked");
+      await singleSidePool.deactivate();
+      await expect(singleSidePool.unstake(stake)).to.emit(lockKeeper, "Locked");
     });
 
     it("Should allow fast unstaking when pool is deactivated", async function () {
-      await tokenPool.deactivate();
+      await singleSidePool.deactivate();
       const balanceBefore = await token.balanceOf(owner.address);
-      await tokenPool.unstakeFast(stake);
+      await singleSidePool.unstakeFast(stake);
       const balanceAfter = await token.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(stake * 0.9);
     });
@@ -156,42 +160,42 @@ describe("TokenPool", function () {
   describe("Rewards", function () {
     beforeEach(async function () {
       await token.mint(owner.address, 100000000000);
-      await token.approve(tokenPool.address, 1000000);
+      await token.approve(singleSidePool.address, 1000000);
       await token.transfer(rewardsBank.address, 10000);
     });
 
     it("Should allow claiming rewards", async function () {
-      await tokenPool.stake(1000);
+      await singleSidePool.stake(1000);
 
       // Wait for 1 day
       await time.increase(D1);
-      await tokenPool.onBlock();
+      await singleSidePool.onBlock();
 
       const expectedReward = 100;
-      const rewards = await tokenPool.getUserRewards(owner.address);
+      const rewards = await singleSidePool.getUserRewards(owner.address);
       expect (rewards).to.equal(expectedReward);
 
       const balanceBefore = await token.balanceOf(owner.address);
-      await tokenPool.claim();
+      await singleSidePool.claim();
       const balanceAfter = await token.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(100);
     });
 
     it("Should allow claiming rewards when pool is deactivated", async function () {
-      await tokenPool.stake(1000);
+      await singleSidePool.stake(1000);
 
       // Wait for 1 day
       await time.increase(D1);
-      await tokenPool.onBlock();
+      await singleSidePool.onBlock();
 
-      await tokenPool.deactivate();
+      await singleSidePool.deactivate();
 
       const expectedReward = 100;
-      const rewards = await tokenPool.getUserRewards(owner.address);
+      const rewards = await singleSidePool.getUserRewards(owner.address);
       expect (rewards).to.equal(expectedReward);
 
       const balanceBefore = await token.balanceOf(owner.address);
-      await tokenPool.claim();
+      await singleSidePool.claim();
       const balanceAfter = await token.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(100);
     });

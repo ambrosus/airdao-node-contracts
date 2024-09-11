@@ -38,12 +38,11 @@ contract TokenPoolsManager is AccessControl{
 
     // OWNER METHODS
 
-    function createSingleSidePool(bytes calldata params_) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+    function createSingleSidePool(SingleSidePool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         console.log("Entered createPool");
-        SingleSidePool.Config memory params = abi.decode(params_, (SingleSidePool.Config));
         bytes memory data = abi.encodeWithSignature(
             "initialize((address,address,address,string,address,uint256,uint256,uint256,uint256,uint256,uint256))",
-            params_);
+            params);
         address pool = address(new BeaconProxy(address(singleSideBeacon), data));
         console.log("Pool created at address: %s", pool);
         pools[params.name] = pool;
@@ -67,10 +66,10 @@ contract TokenPoolsManager is AccessControl{
         emit PoolActivated(_pool);
     }
 
-    function createDoubleSidePool(string calldata name_, bytes calldata params_) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+    function createDoubleSidePool(string calldata name_, DoubleSidePool.MainSideConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         bytes memory data = abi.encodeWithSignature(
             "initialize(address,address,string,(address,address,uint,uint,uint,uint,uint,uint,uint))",
-            bank, lockKeeper, name_, params_);
+            bank, lockKeeper, name_, params);
         address pool = address(new BeaconProxy(address(doubleSideBeacon), data));
         doubleSidePools[name_] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
@@ -78,10 +77,10 @@ contract TokenPoolsManager is AccessControl{
         return pool;
     }
 
-    function addDependentSide(string calldata name_, bytes calldata params_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addDependentSide(string calldata name_, DoubleSidePool.DependantSideConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(doubleSidePools[name_] != address(0), "Pool does not exist");
         DoubleSidePool pool = DoubleSidePool(doubleSidePools[name_]);
-        pool.addDependentSide(params_);
+        pool.addDependentSide(params);
         emit DependentSideAdded(name_, address(pool));
     }
 

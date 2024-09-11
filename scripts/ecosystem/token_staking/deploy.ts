@@ -1,5 +1,5 @@
 import { ethers, upgrades } from "hardhat";
-import { deploy,  } from "@airdao/deployments/deploying";
+import { deploy } from "@airdao/deployments/deploying";
 
 import { ContractNames } from "../../../src";
 
