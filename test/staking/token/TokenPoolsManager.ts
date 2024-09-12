@@ -6,9 +6,11 @@ import {
   TokenPoolsManager,
   RewardsBank,
   AirBond__factory,
+  SingleSidePool,
   RewardsBank__factory,
   TokenPoolsManager__factory,
   LockKeeper__factory,
+  LockKeeper,
 } from "../../../typechain-types";
 
 import SignleSidePoolJson from "../../../artifacts/contracts/staking/token/SingleSidePool.sol/SingleSidePool.json";
@@ -20,6 +22,7 @@ describe("PoolsManager", function () {
   let rewardsBank: RewardsBank;
   let tokenAddr: string;
   let owner: SignerWithAddress;
+  let lockKeeper: LockKeeper;
 
   async function deploy() {
     const [owner] = await ethers.getSigners();
@@ -41,24 +44,29 @@ describe("PoolsManager", function () {
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), poolsManager.address)).wait();
     const tokenAddr = airBond.address;
 
-    return { poolsManager, rewardsBank, tokenAddr, owner };
+    return { poolsManager, rewardsBank, lockKeeper, tokenAddr, owner };
   }
 
   beforeEach(async function () {
-    ({ poolsManager, rewardsBank, tokenAddr, owner } = await loadFixture(deploy));
+    ({ poolsManager, rewardsBank, lockKeeper, tokenAddr, owner } = await loadFixture(deploy));
   });
 
-  describe("Pool Management", function () {
-    it("Should allow the owner to create a pool", async function () {
-      const minStakeValue = 10;
-      const fastUnstakePenalty = 100000; // 10%
-      const interest = 100000; // 10%
-      const interestRate = 24 * 60 * 60; // 24 hours
-      const lockPeriod = 24 * 60 * 60; // 24 hours
-      const rewardsTokenPrice = 1;
+  describe("SingleSidePool Management", function () {
+    it("Should allow the owner to create a single side pool", async function () {
+      const singleSidePoolConfig: SingleSidePool.ConfigStruct = {
+        token: tokenAddr,
+        name: "TestPool",
+        minStakeValue: 10,
+        rewardToken: tokenAddr,
+        rewardTokenPrice: 1,
+        fastUnstakePenalty: 100000, // 10%
+        interest: 100000, // 10%
+        interestRate: 24 * 60 * 60, // 24 hours
+        lockPeriod: 24 * 60 * 60, // 24 hours
+      };
 
       console.log("before createPool");
-      const tx = await poolsManager.createPool(tokenAddr, "TestProxy", minStakeValue, fastUnstakePenalty, interest, interestRate, lockPeriod, tokenAddr, rewardsTokenPrice);
+      const tx = await poolsManager.createSingleSidePool(singleSidePoolConfig);
       const receipt = await tx.wait();
       console.log("Receipt: ", receipt);
       const poolAddress = receipt.events![4].args![1];
@@ -67,14 +75,19 @@ describe("PoolsManager", function () {
     });
 
     it("Should activate and deactivate a pool", async function () {
-      const minStakeValue = 10;
-      const fastUnstakePenalty = 100000; // 10%
-      const interest = 100000; // 10%
-      const interestRate = 24 * 60 * 60; // 24 hours
-      const lockPeriod = 24 * 60 * 60; // 24 hours
-      const rewardsTokenPrice = 1;
+      const singleSidePoolConfig: SingleSidePool.ConfigStruct = {
+        token: tokenAddr,
+        name: "TestPool",
+        minStakeValue: 10,
+        rewardToken: tokenAddr,
+        rewardTokenPrice: 1,
+        fastUnstakePenalty: 100000, // 10%
+        interest: 100000, // 10%
+        interestRate: 24 * 60 * 60, // 24 hours
+        lockPeriod: 24 * 60 * 60, // 24 hours
+      };
 
-      await poolsManager.createPool(tokenAddr, "TestProxy", minStakeValue, fastUnstakePenalty, interest, interestRate, lockPeriod, tokenAddr, rewardsTokenPrice);
+      await poolsManager.createSingleSidePool(tokenAddr, "TestProxy", minStakeValue, fastUnstakePenalty, interest, interestRate, lockPeriod, tokenAddr, rewardsTokenPrice);
       const poolAddress = await poolsManager.getPoolAddress("TestProxy");
       console.log("Pool Address: ", poolAddress);
 

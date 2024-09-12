@@ -41,8 +41,8 @@ contract TokenPoolsManager is AccessControl{
     function createSingleSidePool(SingleSidePool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         console.log("Entered createPool");
         bytes memory data = abi.encodeWithSignature(
-            "initialize((address,address,address,string,address,uint256,uint256,uint256,uint256,uint256,uint256))",
-            params);
+            "initialize(address,address,(address,string,address,uint256,uint256,uint256,uint256,uint256,uint256))",
+            bank, lockKeeper, params);
         address pool = address(new BeaconProxy(address(singleSideBeacon), data));
         console.log("Pool created at address: %s", pool);
         pools[params.name] = pool;

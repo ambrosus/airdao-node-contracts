@@ -15,8 +15,6 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
 
     struct Config {
         IERC20 token;
-        RewardsBank rewardsBank;
-        LockKeeper lockKeeper;
         string name;
         address rewardToken; 
         uint rewardTokenPrice; // The coefficient to calculate the reward token amount
@@ -42,6 +40,8 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
     }
 
     bool public active;
+    RewardsBank rewardsBank;
+    LockKeeper lockKeeper;
 
     Config public config;
     Info public info;
@@ -63,7 +63,9 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
     event UnstakeLocked(address indexed user, uint amount, uint unlockTime, uint creationTime);
     event UnstakeFast(address indexed user, uint amount, uint penalty);
 
-    function initialize(Config calldata config_) public  initializer {
+    function initialize(RewardsBank bank_, LockKeeper keeper_, Config calldata config_) public  initializer {
+        rewardsBank = bank_;
+        lockKeeper = keeper_;
         config = config_;
 
         info.lastInterestUpdate = block.timestamp;
@@ -133,13 +135,13 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
 
         // cancel previous lock (if exists). canceledAmount will be added to new lock
         uint canceledAmount;
-        if (config.lockKeeper.getLock(stakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
-            canceledAmount = config.lockKeeper.cancelLock(stakers[msg.sender].lockedWithdrawal);
+        if (lockKeeper.getLock(stakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
+            canceledAmount = lockKeeper.cancelLock(stakers[msg.sender].lockedWithdrawal);
 
-        config.token.approve(address(config.lockKeeper), amount + canceledAmount);
+        config.token.approve(address(lockKeeper), amount + canceledAmount);
 
         // lock funds
-        stakers[msg.sender].lockedWithdrawal = config.lockKeeper.lockSingle(
+        stakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
             msg.sender, address(config.token), uint64(block.timestamp + config.lockPeriod), amount + canceledAmount,
             string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(config.token))))
         );
@@ -252,7 +254,7 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
         stakers[user].claimableRewards = 0;
 
         uint rewardTokenAmount = amount * config.rewardTokenPrice;
-        config.rewardsBank.withdrawErc20(config.rewardToken, payable(user), rewardTokenAmount);
+        rewardsBank.withdrawErc20(config.rewardToken, payable(user), rewardTokenAmount);
         emit Claim(user, rewardTokenAmount);
     }
 
