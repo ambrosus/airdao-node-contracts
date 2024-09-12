@@ -11,9 +11,11 @@ import {
   TokenPoolsManager__factory,
   LockKeeper__factory,
   LockKeeper,
+  DoubleSidePool,
 } from "../../../typechain-types";
 
 import SignleSidePoolJson from "../../../artifacts/contracts/staking/token/SingleSidePool.sol/SingleSidePool.json";
+import DoubleSidePoolJson from "../../../artifacts/contracts/staking/token/DoubleSidePool.sol/DoubleSidePool.json";
 
 import { expect } from "chai";
 
@@ -65,13 +67,11 @@ describe("PoolsManager", function () {
         lockPeriod: 24 * 60 * 60, // 24 hours
       };
 
-      console.log("before createPool");
       const tx = await poolsManager.createSingleSidePool(singleSidePoolConfig);
       const receipt = await tx.wait();
-      console.log("Receipt: ", receipt);
       const poolAddress = receipt.events![4].args![1];
 
-      expect(await poolsManager.getPoolAddress("TestProxy")).to.equal(poolAddress);
+      expect(await poolsManager.getPoolAddress("TestPool")).to.equal(poolAddress);
     });
 
     it("Should activate and deactivate a pool", async function () {
@@ -87,17 +87,82 @@ describe("PoolsManager", function () {
         lockPeriod: 24 * 60 * 60, // 24 hours
       };
 
-      await poolsManager.createSingleSidePool(tokenAddr, "TestProxy", minStakeValue, fastUnstakePenalty, interest, interestRate, lockPeriod, tokenAddr, rewardsTokenPrice);
-      const poolAddress = await poolsManager.getPoolAddress("TestProxy");
-      console.log("Pool Address: ", poolAddress);
+      await poolsManager.createSingleSidePool(singleSidePoolConfig);
+      const poolAddress = await poolsManager.getPoolAddress("TestPool");
 
-      //await poolsManager.deactivatePool("TestProxy");
       const proxyPool = new ethers.Contract(poolAddress, SignleSidePoolJson.abi, owner);
-      const active = await proxyPool.active();
-      console.log("Active: ", active);
+      expect(await proxyPool.active()).to.equal(true);
+      await poolsManager.deactivateSingleSidePool("TestPool");
+      expect(await proxyPool.active()).to.equal(false);
     });
 
   });
+
+  describe("DoubleSidePool Management", function () {
+    it("Should allow the owner to create a double side pool", async function () {
+      const doubleSidePoolConfig: DoubleSidePool.MainSideConfigStruct = {
+        token: tokenAddr,
+        rewardToken: tokenAddr,
+        rewardTokenPrice: 1,
+        minStakeValue: 10,
+        unstakeLockPeriod: 24 * 60 * 60, // 24 hours
+        fastUnstakePenalty: 100000, // 10%
+        interest: 100000, // 10%
+        interestRate: 24 * 60 * 60, // 24 hours
+        lockPeriod: 24 * 60 * 60, // 24 hours
+      };
+
+      const tx = await poolsManager.createDoubleSidePool("TestPool", doubleSidePoolConfig);
+      const receipt = await tx.wait();
+      const poolAddress = receipt.events![4].args![1];
+
+      expect(await poolsManager.getDoubleSidePoolAddress("TestPool")).to.equal(poolAddress);
+    });
+
+    // add dependant side
+    it("Should allow the owner to add a dependant side to a double side pool", async function () {
+      const doubleSidePoolConfig: DoubleSidePool.MainSideConfigStruct = {
+        token: tokenAddr,
+        rewardToken: tokenAddr,
+        rewardTokenPrice: 1,
+        minStakeValue: 10,
+        unstakeLockPeriod: 24 * 60 * 60, // 24 hours
+        fastUnstakePenalty: 100000, // 10%
+        interest: 100000, // 10%
+        interestRate: 24 * 60 * 60, // 24 hours
+        lockPeriod: 24 * 60 * 60, // 24 hours
+      };
+
+      await poolsManager.createDoubleSidePool("TestPool", doubleSidePoolConfig);
+
+      const dependantSideConfig: DoubleSidePool.DependantSideConfigStruct = {
+        token: tokenAddr,
+        rewardToken: tokenAddr,
+        rewardTokenPrice: 1,
+        minStakeValue: 10,
+        unstakeLockPeriod: 24 * 60 * 60, // 24 hours
+        fastUnstakePenalty: 100000, // 10%
+        interest: 100000, // 10%
+        interestRate: 24 * 60 * 60, // 24 hours
+        lockPeriod: 24 * 60 * 60, // 24 hours
+        maxTotalStakeValue: ethers.utils.parseEther("1000"),
+        maxStakePerUserValue: ethers.utils.parseEther("1000"),
+        stakeLockPeriod: 24 * 60 * 60,
+        stakeLimitsMultiplier: 24 * 60 * 60,
+      };
+
+      const tx = await poolsManager.addDependantSide("TestPool", dependantSideConfig);
+      const receipt = await tx.wait();
+      const poolAddress = receipt.events![0].args![1];
+      expect(await poolsManager.getDoubleSidePoolAddress("TestPool")).to.equal(poolAddress);
+      
+      const contract = new ethers.Contract(poolAddress, DoubleSidePoolJson.abi, owner);
+      const dependantSideConfigStruct: DoubleSidePool.DependantSideConfigStruct = await contract.getDependantSideConfig();
+      expect(dependantSideConfigStruct.token).to.equal(tokenAddr);
+    });
+    // activate deactivate 
+  });
+
 
 });
 

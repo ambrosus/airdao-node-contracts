@@ -112,7 +112,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
     // OWNER METHODS
 
-    function addDependentSide(DependantSideConfig calldata config_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addDependantSide(DependantSideConfig calldata config_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!hasSecondSide, "Second side already exists");
         hasSecondSide = true;
         dependantSideConfig = config_;

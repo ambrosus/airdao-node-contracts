@@ -67,20 +67,22 @@ contract TokenPoolsManager is AccessControl{
     }
 
     function createDoubleSidePool(string calldata name_, DoubleSidePool.MainSideConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+        console.log("Entered createDoubleSidePool");
         bytes memory data = abi.encodeWithSignature(
-            "initialize(address,address,string,(address,address,uint,uint,uint,uint,uint,uint,uint))",
+            "initialize(address,address,string,(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256))",
             bank, lockKeeper, name_, params);
         address pool = address(new BeaconProxy(address(doubleSideBeacon), data));
+        console.log("DoubleSidePool created at address: %s", pool);
         doubleSidePools[name_] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
         emit DoubleSidePoolCreate(name_, pool);
         return pool;
     }
 
-    function addDependentSide(string calldata name_, DoubleSidePool.DependantSideConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addDependantSide(string calldata name_, DoubleSidePool.DependantSideConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(doubleSidePools[name_] != address(0), "Pool does not exist");
         DoubleSidePool pool = DoubleSidePool(doubleSidePools[name_]);
-        pool.addDependentSide(params);
+        pool.addDependantSide(params);
         emit DependentSideAdded(name_, address(pool));
     }
 
