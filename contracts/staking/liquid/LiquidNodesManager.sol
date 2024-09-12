@@ -54,6 +54,10 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
     // POOL METHODS
 
     function stake() external payable onlyRole(POOL_ROLE) {
+        // retire node if maxNodesCount was changed
+        if (nodes.length > maxNodesCount) {
+            _retireNode();
+        }
         // try to onboard new node
         _requestNodeCreation();
     }
@@ -64,6 +68,8 @@ contract LiquidNodesManager is UUPSUpgradeable, AccessControlUpgradeable {
             _retireNode();
         }
         transferViaCall(payable(msg.sender), amount);
+        // Try to onboard new node in case if maxNodesCount was changed
+        _requestNodeCreation();
     }
     // IStakeManager impl
 
