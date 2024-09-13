@@ -19,18 +19,18 @@ import {
 import { expect } from "chai";
 
 const D1 = 60 * 60 * 24;
-const MILLION = 1_000_000;
+const BILLION = 1_000_000_000;
 
 const T = 20000000000;
 
 const nodeStake = ethers.utils.parseEther("500");
 const maxNodeCount = 10;
 
-const interest = 0.10 * MILLION; // 10%
+const interest = 0.10 * BILLION; // 10%
 const interestPeriod = D1; // 1 day
 const minStakeValue = 1;
 const lockPeriod = 30 * D1; // 30 days
-const penalty = 0.10 * MILLION; // 10%
+const penalty = 0.10 * BILLION; // 10%
 
 
 describe("LiquidPool", function () {
@@ -379,7 +379,7 @@ describe("LiquidPool", function () {
     });
 
     it("should revert if interest is too high", async function () {
-      await expect(liquidPool.setInterest(MILLION + 1, 2 * D1)).to.be.reverted;
+      await expect(liquidPool.setInterest(BILLION + 1, 2 * D1)).to.be.reverted;
     });
 
     it("should revert if not admin", async function () {
