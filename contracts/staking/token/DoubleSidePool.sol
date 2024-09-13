@@ -106,6 +106,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         hasSecondSide = false;
 
         mainSideConfig = mainSideConfig_;
+        mainSideInfo.lastInterestUpdate = block.timestamp;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -116,6 +117,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         require(!hasSecondSide, "Second side already exists");
         hasSecondSide = true;
         dependantSideConfig = config_;
+        dependantSideInfo.lastInterestUpdate = block.timestamp;
     }
 
     function activate() public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -273,7 +275,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     }
 
     function getUserDependantSideRewards(address user) public view returns (uint) {
-        uint rewardsAmount = _calcRewards(false, dependantSideStakers[user].stake);
+        uint rewardsAmount = _calcRewards(true, dependantSideStakers[user].stake);
         if (rewardsAmount + dependantSideStakers[user].claimableRewards <= dependantSideStakers[user].rewardsDebt) 
             return 0;
 
@@ -285,7 +287,6 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     // MAIN SIDE METHODS
 
     function _addInterestMainSide() internal {
-        if (mainSideInfo.lastInterestUpdate + mainSideConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - mainSideInfo.lastInterestUpdate;
         uint newRewards = mainSideInfo.totalStake * mainSideConfig.interest * timePassed / BILLION / mainSideConfig.interestRate;
 
@@ -308,7 +309,6 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         uint rewardsAmount = _calcRewards(false, amount);
 
         mainSideStakers[msg.sender].stake += amount;
-        mainSideStakers[msg.sender].stakedAt = block.timestamp;
         mainSideInfo.totalStake += amount;
 
         mainSideInfo.totalRewards += rewardsAmount;
@@ -335,16 +335,20 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
             canceledAmount = lockKeeper.cancelLock(mainSideStakers[msg.sender].lockedWithdrawal);
 
         if (mainSideConfig.token == address(0)) {
-            payable(msg.sender).transfer(amount - canceledAmount);
+            // lock funds
+            mainSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
+                msg.sender, address(mainSideConfig.token), uint64(block.timestamp + mainSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainSideConfig.token))))
+            );
         } else {
-            IERC20(mainSideConfig.token).approve(address(lockKeeper), amount - canceledAmount);
+            IERC20(mainSideConfig.token).approve(address(lockKeeper), amount + canceledAmount);
+            // lock funds
+            mainSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
+                msg.sender, address(mainSideConfig.token), uint64(block.timestamp + mainSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainSideConfig.token))))
+            );
         }
 
-        // lock funds
-        mainSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
-            msg.sender, address(mainSideConfig.token), uint64(block.timestamp + mainSideConfig.lockPeriod), amount + canceledAmount,
-            string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainSideConfig.token))))
-        );
 
         _claimRewards(false, msg.sender);
 
@@ -380,6 +384,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     // DEPENDANT SIDE METHODS
 
     function _addInterestDependantSide() internal {
+        if (!hasSecondSide) return;
         if (dependantSideInfo.lastInterestUpdate + dependantSideConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - dependantSideInfo.lastInterestUpdate;
         uint newRewards = dependantSideInfo.totalStake * dependantSideConfig.interest * timePassed / BILLION / dependantSideConfig.interestRate;
@@ -396,21 +401,26 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
             require(mainSideConfig.token == address(0), "Pool: does not accept native coin");
             require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            SafeERC20.safeTransferFrom(IERC20(mainSideConfig.token), msg.sender, address(this), amount);
+            SafeERC20.safeTransferFrom(IERC20(dependantSideConfig.token), msg.sender, address(this), amount);
         }
+
+        console.log("Staking dependant side");
+        console.log("max user stake: ", _maxUserStakeValue(msg.sender));
+        console.log("amount: ", amount);
 
         uint rewardsAmount = _calcRewards(true, amount);
 
         dependantSideStakers[msg.sender].stake += amount;
         dependantSideInfo.totalStake += amount;
+        dependantSideStakers[msg.sender].stakedAt = block.timestamp;
 
-        require(dependantSideInfo.totalStake <= dependantSideConfig.maxTotalStakeValue, "Pool: max stake value exceeded");
         require(dependantSideStakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
+        require(dependantSideInfo.totalStake <= dependantSideConfig.maxTotalStakeValue, "Pool: max stake value exceeded");
         require(dependantSideStakers[msg.sender].stake <= dependantSideConfig.maxStakePerUserValue, "Pool: max stake per user exceeded");
 
         dependantSideInfo.totalRewards += rewardsAmount;
 
-        _updateRewardsDebt(true, user, _calcRewards(true, mainSideStakers[user].stake));
+        _updateRewardsDebt(true, user, _calcRewards(true, dependantSideStakers[user].stake));
         emit StakeChanged(true, msg.sender, amount);
     }
 
@@ -432,16 +442,20 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
             canceledAmount = lockKeeper.cancelLock(dependantSideStakers[msg.sender].lockedWithdrawal);
 
         if (mainSideConfig.token == address(0)) {
-            payable(msg.sender).transfer(amount - canceledAmount);
+            // lock funds
+            dependantSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
+                msg.sender, address(dependantSideConfig.token), uint64(block.timestamp + dependantSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(dependantSideConfig.token))))
+            );
         } else {
-            IERC20(mainSideConfig.token).approve(address(lockKeeper), amount - canceledAmount);
+            IERC20(dependantSideConfig.token).approve(address(lockKeeper), amount + canceledAmount);
+            // lock funds
+            dependantSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
+                msg.sender, address(dependantSideConfig.token), uint64(block.timestamp + dependantSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(dependantSideConfig.token))))
+            );
         }
 
-        // lock funds
-        dependantSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
-            msg.sender, address(mainSideConfig.token), uint64(block.timestamp + dependantSideConfig.lockPeriod), amount + canceledAmount,
-            string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(dependantSideConfig.token))))
-        );
 
         _claimRewards(true, msg.sender);
 
@@ -476,7 +490,9 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     }
 
     function _maxUserStakeValue(address user) internal view returns (uint) {
-        return mainSideStakers[user].stake * dependantSideConfig.stakeLimitsMultiplier / BILLION;
+        console.log("main side stake: ", mainSideStakers[user].stake);
+        console.log("stake limits multiplier: ", dependantSideConfig.stakeLimitsMultiplier);
+        return mainSideStakers[user].stake * dependantSideConfig.stakeLimitsMultiplier;
     }
 
     //COMMON METHODS
@@ -531,10 +547,10 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     function _calcRewards(bool dependant, uint amount) internal view returns (uint) {
         if (dependant) {
             if (dependantSideInfo.totalStake == 0 && dependantSideInfo.totalRewards == 0) return amount;
-            amount * dependantSideInfo.totalRewards / dependantSideInfo.totalStake;
+            return amount * dependantSideInfo.totalRewards / dependantSideInfo.totalStake;
         } else {
             if (mainSideInfo.totalStake == 0 && mainSideInfo.totalRewards == 0) return amount;
-            amount * mainSideInfo.totalRewards / mainSideInfo.totalStake;
+            return amount * mainSideInfo.totalRewards / mainSideInfo.totalStake;
         }
     }
 
