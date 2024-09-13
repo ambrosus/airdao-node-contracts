@@ -12,7 +12,7 @@ import "./StakingTiers.sol";
 import "./LiquidNodesManager.sol";
 
 contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListener {
-    uint constant private MILLION = 1000000;
+    uint constant private BILLION = 1000000000;
 
     LiquidNodesManager public nodeManager;
     RewardsBank public rewardsBank;
@@ -24,7 +24,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     uint public minStakeValue;
     uint public unstakeLockTime;
 
-    uint public interest;  // user will get interest % of his stake
+    uint public interest;  // user will get interest % of his stake. Sets in parts per billion
     uint public interestPeriod;  // period in seconds for interest calculation
     uint internal lastInterestTime; // newReward = totalStAmb * (interest/1e6) * (timePassed / interestPeriod)
     uint public fastUnstakePenalty; // penalty in parts per million
@@ -57,7 +57,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
         uint interest_, uint interestPeriod_, uint minStakeValue_, uint unstakeLockTime_, uint fastUnstakePenalty_
     ) public initializer {
         require(minStakeValue_ > 0, "Pool min stake value is zero");
-        require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
+        require(interest_ >= 0 && interest_ <= BILLION, "Invalid percent value");
 
         nodeManager = nodeManager_;
         rewardsBank = rewardsBank_;
@@ -119,7 +119,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
         nodeManager.unstake(amount);
 
-        uint penalty = amount * fastUnstakePenalty / MILLION;
+        uint penalty = amount * fastUnstakePenalty / BILLION;
         payable(msg.sender).transfer(amount - penalty);
 
         _claimRewards(msg.sender, desiredCoeff);
@@ -211,7 +211,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
     function _addInterestToDeposit() internal {
         uint timePassed = block.timestamp - lastInterestTime;
-        uint newRewards = getTotalStAmb() * interest * timePassed / MILLION / interestPeriod;
+        uint newRewards = getTotalStAmb() * interest * timePassed / BILLION / interestPeriod;
 
         totalRewards += newRewards;
         lastInterestTime = block.timestamp;
