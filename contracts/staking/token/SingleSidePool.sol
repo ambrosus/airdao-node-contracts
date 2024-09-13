@@ -11,7 +11,6 @@ import "../../LockKeeper.sol";
 import "hardhat/console.sol";
 
 contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
-    uint constant public MILLION = 1_000_000;
 
     struct Config {
         IERC20 token;
@@ -38,6 +37,8 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
         uint claimableRewards;
         uint lockedWithdrawal;
     }
+
+    uint constant public BILLION = 1_000_000_000;
 
     bool public active;
     RewardsBank rewardsBank;
@@ -157,7 +158,7 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
 
         _unstake(msg.sender, amount);
 
-        uint penalty = amount * config.fastUnstakePenalty / MILLION;
+        uint penalty = amount * config.fastUnstakePenalty / BILLION;
         SafeERC20.safeTransfer(config.token, msg.sender, amount - penalty);
 
         _claimRewards(msg.sender);
@@ -212,7 +213,7 @@ contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
     function _addInterest() internal {
         if (info.lastInterestUpdate + config.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - info.lastInterestUpdate;
-        uint newRewards = info.totalStake * config.interest * timePassed / MILLION / config.interestRate;
+        uint newRewards = info.totalStake * config.interest * timePassed / BILLION / config.interestRate;
 
         info.totalRewards += newRewards;
         info.lastInterestUpdate = block.timestamp;

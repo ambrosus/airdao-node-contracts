@@ -56,7 +56,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         uint stakedAt;
     }
 
-    uint constant public MILLION = 1_000_000;
+    uint constant public BILLION = 1_000_000_000;
 
     LockKeeper public lockKeeper;
     RewardsBank public rewardsBank;
@@ -287,7 +287,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     function _addInterestMainSide() internal {
         if (mainSideInfo.lastInterestUpdate + mainSideConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - mainSideInfo.lastInterestUpdate;
-        uint newRewards = mainSideInfo.totalStake * mainSideConfig.interest * timePassed / MILLION / mainSideConfig.interestRate;
+        uint newRewards = mainSideInfo.totalStake * mainSideConfig.interest * timePassed / BILLION / mainSideConfig.interestRate;
 
         mainSideInfo.totalRewards += newRewards;
         mainSideInfo.lastInterestUpdate = block.timestamp;
@@ -364,7 +364,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         mainSideInfo.totalRewards -= rewardsAmount;
         _updateRewardsDebt(false, user, _calcRewards(false, mainSideStakers[user].stake));
 
-        uint penalty = amount * mainSideConfig.fastUnstakePenalty / MILLION;
+        uint penalty = amount * mainSideConfig.fastUnstakePenalty / BILLION;
         if (mainSideConfig.token == address(0)) {
             payable(msg.sender).transfer(amount - penalty);
         } else {
@@ -382,7 +382,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     function _addInterestDependantSide() internal {
         if (dependantSideInfo.lastInterestUpdate + dependantSideConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - dependantSideInfo.lastInterestUpdate;
-        uint newRewards = dependantSideInfo.totalStake * dependantSideConfig.interest * timePassed / MILLION / dependantSideConfig.interestRate;
+        uint newRewards = dependantSideInfo.totalStake * dependantSideConfig.interest * timePassed / BILLION / dependantSideConfig.interestRate;
 
         dependantSideInfo.totalRewards += newRewards;
         dependantSideInfo.lastInterestUpdate = block.timestamp;
@@ -462,7 +462,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         dependantSideInfo.totalRewards -= rewardsAmount;
         _updateRewardsDebt(true, user, _calcRewards(true, dependantSideStakers[user].stake));
 
-        uint penalty = amount * dependantSideConfig.fastUnstakePenalty / MILLION;
+        uint penalty = amount * dependantSideConfig.fastUnstakePenalty / BILLION;
         if (dependantSideConfig.token == address(0)) {
             payable(msg.sender).transfer(amount - penalty);
         } else {
@@ -476,7 +476,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     }
 
     function _maxUserStakeValue(address user) internal view returns (uint) {
-        return mainSideStakers[user].stake * dependantSideConfig.stakeLimitsMultiplier / MILLION;
+        return mainSideStakers[user].stake * dependantSideConfig.stakeLimitsMultiplier / BILLION;
     }
 
     //COMMON METHODS

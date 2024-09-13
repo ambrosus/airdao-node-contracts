@@ -13,6 +13,7 @@ import {
 } from "../../../typechain-types";
 
 const D1 = 24 * 60 * 60;
+const BILLION = 1000000000;
 
 import { expect } from "chai";
 describe("SingleSidePool", function () {
@@ -32,19 +33,17 @@ describe("SingleSidePool", function () {
 
     const singleSidePoolParams: SingleSidePool.ConfigStruct = {
       token: token.address,
-      rewardsBank: rewardsBank.address,
-      lockKeeper: lockKeeper.address,
       name: "Test",
       minStakeValue: 10,
-      fastUnstakePenalty: 100000, // 10%
-      interest: 100000, // 10%
+      fastUnstakePenalty: 0.10 * BILLION, // 10%
+      interest: 0.10 * BILLION, // 10%
       interestRate: D1, // 1 day
       lockPeriod: D1, // 1 day
       rewardToken: token.address,
       rewardTokenPrice: 1,
     };
     
-    const singleSidePool = (await upgrades.deployProxy(singleSidePoolFactory, [singleSidePoolParams])) as SingleSidePool;
+    const singleSidePool = (await upgrades.deployProxy(singleSidePoolFactory, [rewardsBank.address, lockKeeper.address, singleSidePoolParams])) as SingleSidePool;
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), singleSidePool.address)).wait();
     await (await token.grantRole(await token.MINTER_ROLE(), owner.address)).wait();
