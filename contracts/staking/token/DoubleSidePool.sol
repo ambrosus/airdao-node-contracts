@@ -197,8 +197,6 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         emit StakeLimitsMultiplierChanged(value);
     }
 
-    //TODO: Add more setters 
-
     // PUBLIC METHODS
 
     function stake(bool dependant, uint amount) public {
@@ -412,7 +410,8 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
         dependantSideStakers[msg.sender].stake += amount;
         dependantSideInfo.totalStake += amount;
-        dependantSideStakers[msg.sender].stakedAt = block.timestamp;
+        if (dependantSideStakers[msg.sender].stakedAt == 0)
+            dependantSideStakers[msg.sender].stakedAt = block.timestamp;
 
         require(dependantSideStakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
         require(dependantSideInfo.totalStake <= dependantSideConfig.maxTotalStakeValue, "Pool: max stake value exceeded");
@@ -432,6 +431,8 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
         dependantSideStakers[msg.sender].stake -= amount;
         dependantSideInfo.totalStake -= amount;
+
+        if (dependantSideStakers[msg.sender].stake == 0) dependantSideStakers[msg.sender].stakedAt = 0;
 
         dependantSideInfo.totalRewards -= rewardsAmount;
         _updateRewardsDebt(true, user, _calcRewards(true, dependantSideStakers[user].stake));
@@ -472,6 +473,8 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
         dependantSideStakers[msg.sender].stake -= amount;
         dependantSideInfo.totalStake -= amount;
+
+        if (dependantSideStakers[msg.sender].stake == 0) dependantSideStakers[msg.sender].stakedAt = 0;
 
         dependantSideInfo.totalRewards -= rewardsAmount;
         _updateRewardsDebt(true, user, _calcRewards(true, dependantSideStakers[user].stake));
