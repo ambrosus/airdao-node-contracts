@@ -139,7 +139,7 @@ describe("DoubleSidePool", function () {
 
     it("Should allow staking on the main side", async function () {
       const stake = ethers.utils.parseEther("1000");
-      await doubleSidePool.stake(false, stake);
+      await doubleSidePool.stakeMainSide(stake);
       const info = await doubleSidePool.mainSideInfo();
       expect(info.totalStake).to.equal(stake);
       const staker = await doubleSidePool.getMainSideStaker(owner.address);
@@ -148,11 +148,11 @@ describe("DoubleSidePool", function () {
 
     it("Should not allow staking when pool is deactivated", async function () {
       await doubleSidePool.deactivate();
-      await expect(doubleSidePool.stake(false, 1000)).to.be.revertedWith("Pool is not active");
+      await expect(doubleSidePool.stakeMainSide(1000)).to.be.revertedWith("Pool is not active");
     });
 
     it("Should not allow staking below minimum stake value", async function () {
-      await expect(doubleSidePool.stake(false, 1)).to.be.revertedWith("Pool: stake value is too low");
+      await expect(doubleSidePool.stakeMainSide(1)).to.be.revertedWith("Pool: stake value is too low");
     });
   });
 
@@ -161,14 +161,14 @@ describe("DoubleSidePool", function () {
 
     beforeEach(async function () {
       await mainToken.approve(doubleSidePool.address, ethers.utils.parseEther("1000000"));
-      await doubleSidePool.stake(false, stake);
+      await doubleSidePool.stakeMainSide(stake);
     });
 
     it("Should allow unstaking with rewards", async function () {
       await time.increase(D1);
       await doubleSidePool.onBlock();
 
-      await expect(doubleSidePool.unstake(false, stake)).to.emit(lockKeeper, "Locked");
+      await expect(doubleSidePool.unstakeMainSide(stake)).to.emit(lockKeeper, "Locked");
       const info = await doubleSidePool.mainSideInfo();
       expect(info.totalStake).to.equal(0);
       const staker = await doubleSidePool.getMainSideStaker(owner.address);
@@ -180,18 +180,18 @@ describe("DoubleSidePool", function () {
       await doubleSidePool.onBlock();
 
       const balanceBefore = await mainToken.balanceOf(owner.address);
-      await doubleSidePool.unstakeFast(false, stake);
+      await doubleSidePool.unstakeFastMainSide(stake);
       const balanceAfter = await mainToken.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(stake.mul(90).div(100)); // 90% due to 10% penalty
     });
 
     it("Should not allow unstaking more than staked", async function () {
-      await expect(doubleSidePool.unstake(false, stake.mul(2))).to.be.revertedWith("Not enough stake");
+      await expect(doubleSidePool.unstakeMainSide(stake.mul(2))).to.be.revertedWith("Not enough stake");
     });
 
     it("Should allow unstaking when pool is deactivated", async function () {
       await doubleSidePool.deactivate();
-      await expect(doubleSidePool.unstake(false, stake)).to.emit(lockKeeper, "Locked");
+      await expect(doubleSidePool.unstakeMainSide(stake)).to.emit(lockKeeper, "Locked");
     });
   });
 
@@ -202,7 +202,7 @@ describe("DoubleSidePool", function () {
     });
 
     it("Should allow claiming rewards", async function () {
-      await doubleSidePool.stake(false, 1000);
+      await doubleSidePool.stakeMainSide(1000);
 
       await time.increase(D1);
       await doubleSidePool.onBlock();
@@ -213,13 +213,13 @@ describe("DoubleSidePool", function () {
       expect(rewards).to.equal(expectedReward);
 
       const balanceBefore = await mainToken.balanceOf(owner.address);
-      await doubleSidePool.claim(false);
+      await doubleSidePool.claimMainSide();
       const balanceAfter = await mainToken.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(expectedReward);
     });
 
     it("Should allow claiming rewards when pool is deactivated", async function () {
-      await doubleSidePool.stake(false, 1000);
+      await doubleSidePool.stakeMainSide(1000);
 
       await time.increase(D1);
       await doubleSidePool.onBlock();
@@ -231,7 +231,7 @@ describe("DoubleSidePool", function () {
       expect(rewards).to.equal(expectedReward);
 
       const balanceBefore = await mainToken.balanceOf(owner.address);
-      await doubleSidePool.claim(false);
+      await doubleSidePool.claimMainSide();
       const balanceAfter = await mainToken.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(expectedReward);
     });
@@ -264,10 +264,10 @@ describe("DoubleSidePool", function () {
 
     it("Should allow staking on the dependant side", async function () {
       const mainStake = 100000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const dependantStake = 100;
-      await doubleSidePool.stake(true, dependantStake);
+      await doubleSidePool.stakeDependantSide(dependantStake);
 
       const info = await doubleSidePool.dependantSideInfo();
       expect(info.totalStake).to.equal(dependantStake);
@@ -277,24 +277,24 @@ describe("DoubleSidePool", function () {
 
     it("Should not allow staking on dependant side beyond the limit", async function () {
       const mainStake = 1000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide( mainStake);
 
       const dependantStake = ethers.utils.parseEther("2001"); // Exceeds 2x main stake
-      await expect(doubleSidePool.stake(true, dependantStake)).to.be.revertedWith("Pool: user max stake value exceeded");
+      await expect(doubleSidePool.stakeDependantSide(dependantStake)).to.be.revertedWith("Pool: user max stake value exceeded");
     });
 
     it("Should allow unstaking from the dependant side", async function () {
       await doubleSidePool.setStakeLockPeriod(0);
       const mainStake = 1000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const dependantStake = 100;
-      await doubleSidePool.stake(true, dependantStake);
+      await doubleSidePool.stakeDependantSide(dependantStake);
 
       await time.increase(D1);
       await doubleSidePool.onBlock();
 
-      await expect(doubleSidePool.unstake(true, dependantStake)).to.emit(lockKeeper, "Locked");
+      await expect(doubleSidePool.unstakeDependantSide(dependantStake)).to.emit(lockKeeper, "Locked");
       const info = await doubleSidePool.dependantSideInfo();
       expect(info.totalStake).to.equal(0);
       const staker = await doubleSidePool.getDependantSideStaker(owner.address);
@@ -303,10 +303,10 @@ describe("DoubleSidePool", function () {
 
     it("Should allow claiming rewards from the dependant side", async function () {
       const mainStake = 1000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide( mainStake);
 
       const dependantStake = 100;
-      await doubleSidePool.stake(true, dependantStake);
+      await doubleSidePool.stakeDependantSide(dependantStake);
 
       await time.increase(D1);
       await doubleSidePool.onBlock();
@@ -316,7 +316,7 @@ describe("DoubleSidePool", function () {
       expect(rewards).to.equal(expectedReward);
 
       const balanceBefore = await dependantToken.balanceOf(owner.address);
-      await doubleSidePool.claim(true);
+      await doubleSidePool.claimDependantSide();
       const balanceAfter = await dependantToken.balanceOf(owner.address);
       expect(balanceAfter.sub(balanceBefore)).to.equal(expectedReward);
     });
@@ -324,37 +324,37 @@ describe("DoubleSidePool", function () {
     it("Should not allow staking on dependant side when total stake limit is reached", async function () {
       await doubleSidePool.setMaxTotalStakeValue(1000);
       const mainStake = 100000; // Set a high main stake to avoid individual limit
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const maxStake = 1000;
-      await doubleSidePool.stake(true, maxStake);
+      await doubleSidePool.stakeDependantSide(maxStake);
 
-      await expect(doubleSidePool.stake(true, 10)).to.be.revertedWith("Pool: max stake value exceeded");
+      await expect(doubleSidePool.stakeDependantSide(10)).to.be.revertedWith("Pool: max stake value exceeded");
     });
 
     it("Should not allow unstaking from dependant side before stake lock period", async function () {
       const mainStake = 1000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const dependantStake = 100;
-      await doubleSidePool.stake(true, dependantStake);
+      await doubleSidePool.stakeDependantSide(dependantStake);
 
-      await expect(doubleSidePool.unstake(true, dependantStake)).to.be.revertedWith("Stake is locked");
+      await expect(doubleSidePool.unstakeDependantSide(dependantStake)).to.be.revertedWith("Stake is locked");
     });
 
     it("Should allow fast unstaking from dependant side with penalty", async function () {
       await doubleSidePool.setStakeLockPeriod(0);
       const mainStake = 1000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const dependantStake = 100;
-      await doubleSidePool.stake(true, dependantStake);
+      await doubleSidePool.stakeDependantSide(dependantStake);
 
       //await time.increase(D1);
       //await doubleSidePool.onBlock();
 
       const balanceBefore = await dependantToken.balanceOf(owner.address);
-      await doubleSidePool.unstakeFast(true, dependantStake);
+      await doubleSidePool.unstakeFastDependantSide(dependantStake);
       const balanceAfter = await dependantToken.balanceOf(owner.address);
       
       const expectedReturn = 95; // 95% due to 5% penalty
@@ -363,18 +363,18 @@ describe("DoubleSidePool", function () {
 
     it("Should update stake limits when main side stake changes", async function () {
       const initialMainStake = 1000;
-      await doubleSidePool.stake(false, initialMainStake);
+      await doubleSidePool.stakeMainSide(initialMainStake);
 
       const maxDependantStake = 2000; // 2x multiplier
-      await doubleSidePool.stake(true, maxDependantStake);
+      await doubleSidePool.stakeDependantSide(maxDependantStake);
 
       // Increase main stake
       const additionalMainStake = 100;
-      await doubleSidePool.stake(false, additionalMainStake);
+      await doubleSidePool.stakeMainSide(additionalMainStake);
 
       // Now we should be able to stake more on the dependant side
       const additionalDependantStake = 200;
-      await expect(doubleSidePool.stake(true, additionalDependantStake)).to.not.be.reverted;
+      await expect(doubleSidePool.stakeDependantSide(additionalDependantStake)).to.not.be.reverted;
     });
 
     it("Should not allow adding dependant side twice", async function () {
@@ -424,10 +424,10 @@ describe("DoubleSidePool", function () {
 
     it("Should correctly calculate rewards for both sides", async function () {
       const mainStake = 1000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const dependantStake = 500;
-      await doubleSidePool.stake(true, dependantStake);
+      await doubleSidePool.stakeDependantSide(dependantStake);
 
       await time.increase(D1);
       await doubleSidePool.onBlock();
@@ -442,13 +442,13 @@ describe("DoubleSidePool", function () {
     it("Should allow staking and unstaking on both sides independently", async function () {
       await doubleSidePool.setStakeLockPeriod(0);
       const mainStake = ethers.utils.parseEther("1000");
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const dependantStake = ethers.utils.parseEther("500");
-      await doubleSidePool.stake(true, dependantStake);
+      await doubleSidePool.stakeDependantSide(dependantStake);
 
-      await doubleSidePool.unstake(false, mainStake.div(2));
-      await doubleSidePool.unstake(true, dependantStake.div(2));
+      await doubleSidePool.unstakeMainSide(mainStake.div(2));
+      await doubleSidePool.unstakeDependantSide(dependantStake.div(2));
 
       const mainStaker = await doubleSidePool.getMainSideStaker(owner.address);
       const dependantStaker = await doubleSidePool.getDependantSideStaker(owner.address);
@@ -459,20 +459,20 @@ describe("DoubleSidePool", function () {
 
     it("Should enforce dependant side limits based on main side stake", async function () {
       const mainStake = 1000;
-      await doubleSidePool.stake(false, mainStake);
+      await doubleSidePool.stakeMainSide(mainStake);
 
       const maxDependantStake = 2000; // 2x multiplier
-      await doubleSidePool.stake(true, maxDependantStake);
+      await doubleSidePool.stakeDependantSide(maxDependantStake);
 
       // Trying to stake more should fail
-      await expect(doubleSidePool.stake(true, 100)).to.be.revertedWith("Pool: user max stake value exceeded");
+      await expect(doubleSidePool.stakeDependantSide(100)).to.be.revertedWith("Pool: user max stake value exceeded");
 
       // Unstake half of main side
       await time.increase(D1);
-      await doubleSidePool.unstake(false, 500);
+      await doubleSidePool.unstakeMainSide(500);
 
       // Trying to stake on dependant side should still fail due to existing stake
-      await expect(doubleSidePool.stake(true, 100)).to.be.revertedWith("Pool: user max stake value exceeded");
+      await expect(doubleSidePool.stakeDependantSide(100)).to.be.revertedWith("Pool: user max stake value exceeded");
     });
   });
 
@@ -500,24 +500,24 @@ describe("DoubleSidePool", function () {
     });
 
     it("Should handle zero stakes correctly", async function () {
-      await expect(doubleSidePool.stake(false, 0)).to.be.revertedWith("Pool: stake value is too low");
-      await expect(doubleSidePool.stake(true, 0)).to.be.revertedWith("Pool: stake value is too low");
+      await expect(doubleSidePool.stakeMainSide(0)).to.be.revertedWith("Pool: stake value is too low");
+      await expect(doubleSidePool.stakeDependantSide(0)).to.be.revertedWith("Pool: stake value is too low");
     });
 
     it("Should handle unstaking more than staked amount", async function () {
       const stake = ethers.utils.parseEther("100");
-      await doubleSidePool.stake(false, stake);
-      await doubleSidePool.stake(true, stake);
+      await doubleSidePool.stakeMainSide(stake);
+      await doubleSidePool.stakeDependantSide(stake);
 
       await time.increase(D1);
 
-      await expect(doubleSidePool.unstake(false, stake.mul(2))).to.be.revertedWith("Not enough stake");
-      await expect(doubleSidePool.unstake(true, stake.mul(2))).to.be.revertedWith("Not enough stake");
+      await expect(doubleSidePool.unstakeMainSide(stake.mul(2))).to.be.revertedWith("Not enough stake");
+      await expect(doubleSidePool.unstakeDependantSide(stake.mul(2))).to.be.revertedWith("Not enough stake");
     });
 
     it("Should handle claiming rewards when there are no rewards", async function () {
-      await doubleSidePool.claim(false);
-      await doubleSidePool.claim(true);
+      await doubleSidePool.claimMainSide();
+      await doubleSidePool.claimDependantSide();
       // These should not revert, but also should not transfer any tokens
     });
 
@@ -527,18 +527,18 @@ describe("DoubleSidePool", function () {
       const stake2 = 200;
       const stake3 = 300;
 
-      await doubleSidePool.stake(false, stake1);
-      await doubleSidePool.stake(true, stake1);
+      await doubleSidePool.stakeMainSide(stake1);
+      await doubleSidePool.stakeDependantSide(stake1);
 
       await time.increase(D1 / 2);
 
-      await doubleSidePool.stake(false, stake2);
-      await doubleSidePool.stake(true, stake2);
+      await doubleSidePool.stakeMainSide(stake2);
+      await doubleSidePool.stakeDependantSide(stake2);
 
       await time.increase(D1 / 2);
 
-      await doubleSidePool.unstake(false, stake3);
-      await doubleSidePool.unstake(true, stake3);
+      await doubleSidePool.unstakeMainSide(stake3);
+      await doubleSidePool.unstakeDependantSide(stake3);
 
       const mainStaker = await doubleSidePool.getMainSideStaker(owner.address);
       const dependantStaker = await doubleSidePool.getDependantSideStaker(owner.address);

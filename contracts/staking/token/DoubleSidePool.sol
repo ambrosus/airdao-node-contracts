@@ -8,8 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-import "hardhat/console.sol";
-
 //The side defined by the address of the token. Zero address means native coin
 contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
@@ -199,38 +197,192 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
 
     // PUBLIC METHODS
 
-    function stake(bool dependant, uint amount) public {
-        if (dependant) {
-            _stakeDependantSide(msg.sender, amount);
+    function stakeMainSide(uint amount) public payable {
+        require(active, "Pool is not active");
+        require(amount >= mainSideConfig.minStakeValue, "Pool: stake value is too low");
+        if (msg.value != 0) {
+            require(mainSideConfig.token == address(0), "Pool: does not accept native coin");
+            require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            _stakeMainSide(msg.sender, amount);
+            SafeERC20.safeTransferFrom(IERC20(mainSideConfig.token), msg.sender, address(this), amount);
         }
+
+        uint rewardsAmount = _calcRewardsMainSide(amount);
+
+        mainSideStakers[msg.sender].stake += amount;
+        mainSideInfo.totalStake += amount;
+
+        mainSideInfo.totalRewards += rewardsAmount;
+
+        _updateRewardsDebtMainSide(msg.sender, _calcRewardsMainSide(mainSideStakers[msg.sender].stake));
+        emit StakeChanged(false, msg.sender, amount);
     }
 
-    function unstake(bool dependant, uint amount) public {
-        if (dependant) {
-            _unstakeDependantSide(msg.sender, amount);
+    function stakeDependantSide(uint amount) public payable {
+        require(active, "Pool is not active");
+        require(amount >= dependantSideConfig.minStakeValue, "Pool: stake value is too low");
+        if (msg.value != 0) {
+            require(mainSideConfig.token == address(0), "Pool: does not accept native coin");
+            require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            _unstakeMainSide(msg.sender, amount);
+            SafeERC20.safeTransferFrom(IERC20(dependantSideConfig.token), msg.sender, address(this), amount);
         }
+
+        uint rewardsAmount = _calcRewardsDependantSide(amount);
+
+        dependantSideStakers[msg.sender].stake += amount;
+        dependantSideInfo.totalStake += amount;
+        if (dependantSideStakers[msg.sender].stakedAt == 0)
+            dependantSideStakers[msg.sender].stakedAt = block.timestamp;
+
+        require(dependantSideStakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
+        require(dependantSideInfo.totalStake <= dependantSideConfig.maxTotalStakeValue, "Pool: max stake value exceeded");
+        require(dependantSideStakers[msg.sender].stake <= dependantSideConfig.maxStakePerUserValue, "Pool: max stake per user exceeded");
+
+        dependantSideInfo.totalRewards += rewardsAmount;
+
+        _updateRewardsDebtDependantSide(msg.sender, _calcRewardsDependantSide(dependantSideStakers[msg.sender].stake));
+        emit StakeChanged(true, msg.sender, amount);
     }
 
-    function unstakeFast(bool dependant, uint amount) public {
-        if (dependant) {
-            _unstakeFastDependantSide(msg.sender, amount);
+    function unstakeMainSide(uint amount) public {
+        require(mainSideStakers[msg.sender].stake >= amount, "Not enough stake");
+
+        uint rewardsAmount = _calcRewardsMainSide(amount);
+
+        mainSideStakers[msg.sender].stake -= amount;
+        mainSideInfo.totalStake -= amount;
+
+        mainSideInfo.totalRewards -= rewardsAmount;
+        _updateRewardsDebtMainSide(msg.sender, _calcRewardsMainSide(mainSideStakers[msg.sender].stake));
+
+        // cancel previous lock (if exists). canceledAmount will be added to new lock
+        uint canceledAmount;
+        if (lockKeeper.getLock(mainSideStakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
+            canceledAmount = lockKeeper.cancelLock(mainSideStakers[msg.sender].lockedWithdrawal);
+
+        if (mainSideConfig.token == address(0)) {
+            // lock funds
+            mainSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
+                msg.sender, address(mainSideConfig.token), uint64(block.timestamp + mainSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainSideConfig.token))))
+            );
         } else {
-            _unstakeFastMainSide(msg.sender, amount);
+            IERC20(mainSideConfig.token).approve(address(lockKeeper), amount + canceledAmount);
+            // lock funds
+            mainSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
+                msg.sender, address(mainSideConfig.token), uint64(block.timestamp + mainSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainSideConfig.token))))
+            );
         }
+
+        _claimRewardsMainSide(msg.sender);
+
+        emit UnstakeLocked(false, msg.sender, amount + canceledAmount, block.timestamp + mainSideConfig.lockPeriod, block.timestamp);
+        emit StakeChanged(false, msg.sender, mainSideStakers[msg.sender].stake);
     }
 
-    function claim(bool dependant) public {
-        if (dependant) {
-            _calcClaimableRewards(true, msg.sender);
-            _claimRewards(true, msg.sender);
+    function unstakeDependantSide(uint amount) public {
+        require(dependantSideStakers[msg.sender].stake >= amount, "Not enough stake");
+        require(block.timestamp - dependantSideStakers[msg.sender].stakedAt >= dependantSideConfig.stakeLockPeriod, "Stake is locked");
+
+        uint rewardsAmount = _calcRewardsDependantSide(amount);
+
+        dependantSideStakers[msg.sender].stake -= amount;
+        dependantSideInfo.totalStake -= amount;
+
+        if (dependantSideStakers[msg.sender].stake == 0) dependantSideStakers[msg.sender].stakedAt = 0;
+
+        dependantSideInfo.totalRewards -= rewardsAmount;
+        _updateRewardsDebtDependantSide(msg.sender, _calcRewardsDependantSide(dependantSideStakers[msg.sender].stake));
+
+        // cancel previous lock (if exists). canceledAmount will be added to new lock
+        uint canceledAmount;
+        if (lockKeeper.getLock(dependantSideStakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
+            canceledAmount = lockKeeper.cancelLock(dependantSideStakers[msg.sender].lockedWithdrawal);
+
+        if (mainSideConfig.token == address(0)) {
+            // lock funds
+            dependantSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
+                msg.sender, address(dependantSideConfig.token), uint64(block.timestamp + dependantSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(dependantSideConfig.token))))
+            );
         } else {
-            _calcClaimableRewards(false, msg.sender);
-            _claimRewards(false, msg.sender);
+            IERC20(dependantSideConfig.token).approve(address(lockKeeper), amount + canceledAmount);
+            // lock funds
+            dependantSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
+                msg.sender, address(dependantSideConfig.token), uint64(block.timestamp + dependantSideConfig.lockPeriod), amount + canceledAmount,
+                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(dependantSideConfig.token))))
+            );
         }
+
+
+        _claimRewardsDependantSide(msg.sender);
+
+        emit UnstakeLocked(true, msg.sender, amount + canceledAmount, block.timestamp + mainSideConfig.lockPeriod, block.timestamp);
+        emit StakeChanged(true, msg.sender, dependantSideStakers[msg.sender].stake);
+
+    }
+
+    function unstakeFastMainSide(uint amount) public {
+        require(mainSideStakers[msg.sender].stake >= amount, "Not enough stake");
+
+        uint rewardsAmount = _calcRewardsMainSide(amount);
+
+        mainSideStakers[msg.sender].stake -= amount;
+        mainSideInfo.totalStake -= amount;
+
+        mainSideInfo.totalRewards -= rewardsAmount;
+        _updateRewardsDebtMainSide(msg.sender, _calcRewardsMainSide(mainSideStakers[msg.sender].stake));
+
+        uint penalty = amount * mainSideConfig.fastUnstakePenalty / BILLION;
+        if (mainSideConfig.token == address(0)) {
+            payable(msg.sender).transfer(amount - penalty);
+        } else {
+            SafeERC20.safeTransfer(IERC20(mainSideConfig.token), msg.sender, amount - penalty);
+        }
+
+        _claimRewardsMainSide(msg.sender);
+
+        emit UnstakeFast(false, msg.sender, amount, penalty);
+        emit StakeChanged(false, msg.sender, amount);
+    }
+
+    function unstakeFastDependantSide(uint amount) public {
+        require(dependantSideStakers[msg.sender].stake >= amount, "Not enough stake");
+        require(block.timestamp - dependantSideStakers[msg.sender].stakedAt >= dependantSideConfig.stakeLockPeriod, "Stake is locked");
+
+        uint rewardsAmount = _calcRewardsDependantSide(amount);
+
+        dependantSideStakers[msg.sender].stake -= amount;
+        dependantSideInfo.totalStake -= amount;
+
+        if (dependantSideStakers[msg.sender].stake == 0) dependantSideStakers[msg.sender].stakedAt = 0;
+
+        dependantSideInfo.totalRewards -= rewardsAmount;
+        _updateRewardsDebtDependantSide(msg.sender, _calcRewardsDependantSide(dependantSideStakers[msg.sender].stake));
+
+        uint penalty = amount * dependantSideConfig.fastUnstakePenalty / BILLION;
+        if (dependantSideConfig.token == address(0)) {
+            payable(msg.sender).transfer(amount - penalty);
+        } else {
+            SafeERC20.safeTransfer(IERC20(dependantSideConfig.token), msg.sender, amount - penalty);
+        }
+
+        _claimRewardsDependantSide(msg.sender);
+
+        emit UnstakeFast(true, msg.sender, amount, penalty);
+        emit StakeChanged(true, msg.sender, amount);
+    }
+
+    function claimMainSide() public {
+        _calcClaimableRewardsMainSide(msg.sender);
+        _claimRewardsMainSide(msg.sender);
+    }
+
+    function claimDependantSide() public {
+        _calcClaimableRewardsDependantSide(msg.sender);
+        _claimRewardsDependantSide(msg.sender);
     }
 
     function onBlock() external {
@@ -265,7 +417,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     }
 
     function getUserMainSideRewards(address user) public view returns (uint) {
-        uint rewardsAmount = _calcRewards(false, mainSideStakers[user].stake);
+        uint rewardsAmount = _calcRewardsMainSide(mainSideStakers[user].stake);
         if (rewardsAmount + mainSideStakers[user].claimableRewards <= mainSideStakers[user].rewardsDebt) 
             return 0;
 
@@ -273,7 +425,7 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     }
 
     function getUserDependantSideRewards(address user) public view returns (uint) {
-        uint rewardsAmount = _calcRewards(true, dependantSideStakers[user].stake);
+        uint rewardsAmount = _calcRewardsDependantSide(dependantSideStakers[user].stake);
         if (rewardsAmount + dependantSideStakers[user].claimableRewards <= dependantSideStakers[user].rewardsDebt) 
             return 0;
 
@@ -281,8 +433,6 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
     }
 
     // INTERNAL METHODS
-
-    // MAIN SIDE METHODS
 
     function _addInterestMainSide() internal {
         uint timePassed = block.timestamp - mainSideInfo.lastInterestUpdate;
@@ -292,94 +442,6 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         mainSideInfo.lastInterestUpdate = block.timestamp;
         emit Interest(false, newRewards);
     }
-
-
-    function _stakeMainSide(address user, uint amount) internal {
-        require(active, "Pool is not active");
-        require(amount >= mainSideConfig.minStakeValue, "Pool: stake value is too low");
-        if (msg.value != 0) {
-            require(mainSideConfig.token == address(0), "Pool: does not accept native coin");
-            require(msg.value == amount, "Pool: wrong amount of native coin");
-        } else {
-            SafeERC20.safeTransferFrom(IERC20(mainSideConfig.token), msg.sender, address(this), amount);
-        }
-
-        uint rewardsAmount = _calcRewards(false, amount);
-
-        mainSideStakers[msg.sender].stake += amount;
-        mainSideInfo.totalStake += amount;
-
-        mainSideInfo.totalRewards += rewardsAmount;
-
-        _updateRewardsDebt(false, user, _calcRewards(false, mainSideStakers[user].stake));
-        emit StakeChanged(false, msg.sender, amount);
-    }
-
-
-    function _unstakeMainSide(address user, uint amount) internal {
-        require(mainSideStakers[msg.sender].stake >= amount, "Not enough stake");
-
-        uint rewardsAmount = _calcRewards(false, amount);
-
-        mainSideStakers[msg.sender].stake -= amount;
-        mainSideInfo.totalStake -= amount;
-
-        mainSideInfo.totalRewards -= rewardsAmount;
-        _updateRewardsDebt(false, user, _calcRewards(false, mainSideStakers[user].stake));
-
-        // cancel previous lock (if exists). canceledAmount will be added to new lock
-        uint canceledAmount;
-        if (lockKeeper.getLock(mainSideStakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
-            canceledAmount = lockKeeper.cancelLock(mainSideStakers[msg.sender].lockedWithdrawal);
-
-        if (mainSideConfig.token == address(0)) {
-            // lock funds
-            mainSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
-                msg.sender, address(mainSideConfig.token), uint64(block.timestamp + mainSideConfig.lockPeriod), amount + canceledAmount,
-                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainSideConfig.token))))
-            );
-        } else {
-            IERC20(mainSideConfig.token).approve(address(lockKeeper), amount + canceledAmount);
-            // lock funds
-            mainSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
-                msg.sender, address(mainSideConfig.token), uint64(block.timestamp + mainSideConfig.lockPeriod), amount + canceledAmount,
-                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainSideConfig.token))))
-            );
-        }
-
-
-        _claimRewards(false, msg.sender);
-
-        emit UnstakeLocked(false, msg.sender, amount + canceledAmount, block.timestamp + mainSideConfig.lockPeriod, block.timestamp);
-        emit StakeChanged(false, msg.sender, mainSideStakers[msg.sender].stake);
-    }
-
-
-    function _unstakeFastMainSide(address user, uint amount) internal {
-        require(mainSideStakers[msg.sender].stake >= amount, "Not enough stake");
-
-        uint rewardsAmount = _calcRewards(false, amount);
-
-        mainSideStakers[msg.sender].stake -= amount;
-        mainSideInfo.totalStake -= amount;
-
-        mainSideInfo.totalRewards -= rewardsAmount;
-        _updateRewardsDebt(false, user, _calcRewards(false, mainSideStakers[user].stake));
-
-        uint penalty = amount * mainSideConfig.fastUnstakePenalty / BILLION;
-        if (mainSideConfig.token == address(0)) {
-            payable(msg.sender).transfer(amount - penalty);
-        } else {
-            SafeERC20.safeTransfer(IERC20(mainSideConfig.token), msg.sender, amount - penalty);
-        }
-
-        _claimRewards(false, msg.sender);
-
-        emit UnstakeFast(false, msg.sender, amount, penalty);
-        emit StakeChanged(false, msg.sender, amount);
-    }
-
-    // DEPENDANT SIDE METHODS
 
     function _addInterestDependantSide() internal {
         if (!hasSecondSide) return;
@@ -392,184 +454,79 @@ contract DoubleSidePool  is Initializable, AccessControl, IOnBlockListener {
         emit Interest(true, newRewards);
     }
 
-    function _stakeDependantSide(address user, uint amount) internal {
-        require(active, "Pool is not active");
-        require(amount >= dependantSideConfig.minStakeValue, "Pool: stake value is too low");
-        if (msg.value != 0) {
-            require(mainSideConfig.token == address(0), "Pool: does not accept native coin");
-            require(msg.value == amount, "Pool: wrong amount of native coin");
-        } else {
-            SafeERC20.safeTransferFrom(IERC20(dependantSideConfig.token), msg.sender, address(this), amount);
-        }
-
-        console.log("Staking dependant side");
-        console.log("max user stake: ", _maxUserStakeValue(msg.sender));
-        console.log("amount: ", amount);
-
-        uint rewardsAmount = _calcRewards(true, amount);
-
-        dependantSideStakers[msg.sender].stake += amount;
-        dependantSideInfo.totalStake += amount;
-        if (dependantSideStakers[msg.sender].stakedAt == 0)
-            dependantSideStakers[msg.sender].stakedAt = block.timestamp;
-
-        require(dependantSideStakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
-        require(dependantSideInfo.totalStake <= dependantSideConfig.maxTotalStakeValue, "Pool: max stake value exceeded");
-        require(dependantSideStakers[msg.sender].stake <= dependantSideConfig.maxStakePerUserValue, "Pool: max stake per user exceeded");
-
-        dependantSideInfo.totalRewards += rewardsAmount;
-
-        _updateRewardsDebt(true, user, _calcRewards(true, dependantSideStakers[user].stake));
-        emit StakeChanged(true, msg.sender, amount);
-    }
-
-    function _unstakeDependantSide(address user, uint amount) internal {
-        require(dependantSideStakers[msg.sender].stake >= amount, "Not enough stake");
-        require(block.timestamp - dependantSideStakers[msg.sender].stakedAt >= dependantSideConfig.stakeLockPeriod, "Stake is locked");
-
-        uint rewardsAmount = _calcRewards(true, amount);
-
-        dependantSideStakers[msg.sender].stake -= amount;
-        dependantSideInfo.totalStake -= amount;
-
-        if (dependantSideStakers[msg.sender].stake == 0) dependantSideStakers[msg.sender].stakedAt = 0;
-
-        dependantSideInfo.totalRewards -= rewardsAmount;
-        _updateRewardsDebt(true, user, _calcRewards(true, dependantSideStakers[user].stake));
-
-        // cancel previous lock (if exists). canceledAmount will be added to new lock
-        uint canceledAmount;
-        if (lockKeeper.getLock(dependantSideStakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
-            canceledAmount = lockKeeper.cancelLock(dependantSideStakers[msg.sender].lockedWithdrawal);
-
-        if (mainSideConfig.token == address(0)) {
-            // lock funds
-            dependantSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
-                msg.sender, address(dependantSideConfig.token), uint64(block.timestamp + dependantSideConfig.lockPeriod), amount + canceledAmount,
-                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(dependantSideConfig.token))))
-            );
-        } else {
-            IERC20(dependantSideConfig.token).approve(address(lockKeeper), amount + canceledAmount);
-            // lock funds
-            dependantSideStakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
-                msg.sender, address(dependantSideConfig.token), uint64(block.timestamp + dependantSideConfig.lockPeriod), amount + canceledAmount,
-                string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(dependantSideConfig.token))))
-            );
-        }
-
-
-        _claimRewards(true, msg.sender);
-
-        emit UnstakeLocked(true, msg.sender, amount + canceledAmount, block.timestamp + mainSideConfig.lockPeriod, block.timestamp);
-        emit StakeChanged(true, msg.sender, dependantSideStakers[msg.sender].stake);
-
-    }
-    
-    function _unstakeFastDependantSide(address user, uint amount) internal {
-        require(dependantSideStakers[msg.sender].stake >= amount, "Not enough stake");
-        require(block.timestamp - dependantSideStakers[msg.sender].stakedAt >= dependantSideConfig.stakeLockPeriod, "Stake is locked");
-
-        uint rewardsAmount = _calcRewards(true, amount);
-
-        dependantSideStakers[msg.sender].stake -= amount;
-        dependantSideInfo.totalStake -= amount;
-
-        if (dependantSideStakers[msg.sender].stake == 0) dependantSideStakers[msg.sender].stakedAt = 0;
-
-        dependantSideInfo.totalRewards -= rewardsAmount;
-        _updateRewardsDebt(true, user, _calcRewards(true, dependantSideStakers[user].stake));
-
-        uint penalty = amount * dependantSideConfig.fastUnstakePenalty / BILLION;
-        if (dependantSideConfig.token == address(0)) {
-            payable(msg.sender).transfer(amount - penalty);
-        } else {
-            SafeERC20.safeTransfer(IERC20(dependantSideConfig.token), msg.sender, amount - penalty);
-        }
-
-        _claimRewards(true, msg.sender);
-
-        emit UnstakeFast(true, msg.sender, amount, penalty);
-        emit StakeChanged(true, msg.sender, amount);
-    }
-
     function _maxUserStakeValue(address user) internal view returns (uint) {
-        console.log("main side stake: ", mainSideStakers[user].stake);
-        console.log("stake limits multiplier: ", dependantSideConfig.stakeLimitsMultiplier);
         return mainSideStakers[user].stake * dependantSideConfig.stakeLimitsMultiplier;
     }
 
-    //COMMON METHODS
-
     // store claimable rewards
-    function _calcClaimableRewards(bool dependant, address user) internal {
-        if (dependant) {
-            uint rewardsAmount = _calcRewards(dependant, dependantSideStakers[user].stake);
-            uint rewardsWithoutDebt = rewardsAmount - dependantSideStakers[user].rewardsDebt;
-            dependantSideStakers[user].claimableRewards += rewardsWithoutDebt;
-            dependantSideInfo.totalRewardsDebt += rewardsWithoutDebt;
-            dependantSideStakers[user].rewardsDebt += rewardsWithoutDebt;
-        } else {
-            uint rewardsAmount = _calcRewards(dependant, mainSideStakers[user].stake);
-            uint rewardsWithoutDebt = rewardsAmount - mainSideStakers[user].rewardsDebt;
-            mainSideStakers[user].claimableRewards += rewardsWithoutDebt;
-            mainSideInfo.totalRewardsDebt += rewardsWithoutDebt;
-            mainSideStakers[user].rewardsDebt += rewardsWithoutDebt;
-        }
+    function _calcClaimableRewardsMainSide(address user) internal {
+        uint rewardsAmount = _calcRewardsMainSide(mainSideStakers[user].stake);
+        uint rewardsWithoutDebt = rewardsAmount - mainSideStakers[user].rewardsDebt;
+        mainSideStakers[user].claimableRewards += rewardsWithoutDebt;
+        mainSideInfo.totalRewardsDebt += rewardsWithoutDebt;
+        mainSideStakers[user].rewardsDebt += rewardsWithoutDebt;
     }
 
-    function _claimRewards(bool dependant, address user) internal {
-        if (dependant) {
-            uint amount = dependantSideStakers[user].claimableRewards;
-            if (amount == 0) return;
-
-            dependantSideStakers[user].claimableRewards = 0;
-
-            uint rewardTokenAmount = amount * dependantSideConfig.rewardTokenPrice;
-            if (dependantSideConfig.rewardToken == address(0)) {
-                rewardsBank.withdrawAmb(payable(user), amount);
-            } else {
-                rewardsBank.withdrawErc20(dependantSideConfig.rewardToken, payable(user), rewardTokenAmount);
-            }
-            emit Claim(true, user, rewardTokenAmount);
-        } else {
-            uint amount = mainSideStakers[user].claimableRewards;
-            if (amount == 0) return;
-
-            mainSideStakers[user].claimableRewards = 0;
-
-            uint rewardTokenAmount = amount * mainSideConfig.rewardTokenPrice;
-            if (mainSideConfig.rewardToken == address(0)) {
-                rewardsBank.withdrawAmb(payable(user), amount);
-            } else {
-                rewardsBank.withdrawErc20(mainSideConfig.rewardToken, payable(user), rewardTokenAmount);
-            }
-            emit Claim(false, user, rewardTokenAmount);
-        }
+    function _calcClaimableRewardsDependantSide(address user) internal {
+        uint rewardsAmount = _calcRewardsDependantSide(dependantSideStakers[user].stake);
+        uint rewardsWithoutDebt = rewardsAmount - dependantSideStakers[user].rewardsDebt;
+        dependantSideStakers[user].claimableRewards += rewardsWithoutDebt;
+        dependantSideInfo.totalRewardsDebt += rewardsWithoutDebt;
+        dependantSideStakers[user].rewardsDebt += rewardsWithoutDebt;
     }
 
-    function _calcRewards(bool dependant, uint amount) internal view returns (uint) {
-        if (dependant) {
-            if (dependantSideInfo.totalStake == 0 && dependantSideInfo.totalRewards == 0) return amount;
-            return amount * dependantSideInfo.totalRewards / dependantSideInfo.totalStake;
+    function _claimRewardsMainSide(address user) internal {
+        uint amount = mainSideStakers[user].claimableRewards;
+        if (amount == 0) return;
+
+        mainSideStakers[user].claimableRewards = 0;
+
+        uint rewardTokenAmount = amount * mainSideConfig.rewardTokenPrice;
+        if (mainSideConfig.rewardToken == address(0)) {
+            rewardsBank.withdrawAmb(payable(user), amount);
         } else {
-            if (mainSideInfo.totalStake == 0 && mainSideInfo.totalRewards == 0) return amount;
-            return amount * mainSideInfo.totalRewards / mainSideInfo.totalStake;
+            rewardsBank.withdrawErc20(mainSideConfig.rewardToken, payable(user), rewardTokenAmount);
         }
+        emit Claim(false, user, rewardTokenAmount);
     }
 
+    function _claimRewardsDependantSide(address user) internal {
+       uint amount = dependantSideStakers[user].claimableRewards;
+       if (amount == 0) return;
 
-    function _updateRewardsDebt(bool dependant, address user, uint newDebt) internal {
-        if (dependant) {
-            uint oldDebt = dependantSideStakers[user].rewardsDebt;
-            if (newDebt < oldDebt) dependantSideInfo.totalRewardsDebt -= oldDebt - newDebt;
-            else dependantSideInfo.totalRewardsDebt += newDebt - oldDebt;
-            dependantSideStakers[user].rewardsDebt = newDebt;
-        } else {
-            uint oldDebt = mainSideStakers[user].rewardsDebt;
-            if (newDebt < oldDebt) mainSideInfo.totalRewardsDebt -= oldDebt - newDebt;
-            else mainSideInfo.totalRewardsDebt += newDebt - oldDebt;
-            mainSideStakers[user].rewardsDebt = newDebt;
-        }
+       dependantSideStakers[user].claimableRewards = 0;
+
+       uint rewardTokenAmount = amount * dependantSideConfig.rewardTokenPrice;
+       if (dependantSideConfig.rewardToken == address(0)) {
+           rewardsBank.withdrawAmb(payable(user), amount);
+       } else {
+           rewardsBank.withdrawErc20(dependantSideConfig.rewardToken, payable(user), rewardTokenAmount);
+       }
+       emit Claim(true, user, rewardTokenAmount);
+    }
+
+    function _calcRewardsMainSide(uint amount) internal view returns (uint) {
+        if (mainSideInfo.totalStake == 0 && mainSideInfo.totalRewards == 0) return amount;
+        return amount * mainSideInfo.totalRewards / mainSideInfo.totalStake;
+    }
+
+    function _calcRewardsDependantSide(uint amount) internal view returns (uint) {
+        if (dependantSideInfo.totalStake == 0 && dependantSideInfo.totalRewards == 0) return amount;
+        return amount * dependantSideInfo.totalRewards / dependantSideInfo.totalStake;
+    }
+
+    function _updateRewardsDebtMainSide(address user, uint newDebt) internal {
+        uint oldDebt = mainSideStakers[user].rewardsDebt;
+        if (newDebt < oldDebt) mainSideInfo.totalRewardsDebt -= oldDebt - newDebt;
+        else mainSideInfo.totalRewardsDebt += newDebt - oldDebt;
+        mainSideStakers[user].rewardsDebt = newDebt;
+    }
+
+    function _updateRewardsDebtDependantSide(address user, uint newDebt) internal {
+        uint oldDebt = dependantSideStakers[user].rewardsDebt;
+        if (newDebt < oldDebt) dependantSideInfo.totalRewardsDebt -= oldDebt - newDebt;
+        else dependantSideInfo.totalRewardsDebt += newDebt - oldDebt;
+        dependantSideStakers[user].rewardsDebt = newDebt;
     }
 
     function _addressToString(address x) internal pure returns (string memory) {
