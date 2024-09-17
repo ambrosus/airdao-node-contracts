@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
-import "./SingleSidePool.sol";
-import "./DoubleSidePool.sol";
+import "./TokenPool.sol";
+import "./DepositedTokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
@@ -14,8 +14,8 @@ import "hardhat/console.sol";
 contract TokenPoolsManager is AccessControl{
     LockKeeper lockKeeper;
     RewardsBank public bank;
-    UpgradeableBeacon public singleSideBeacon;
-    UpgradeableBeacon public doubleSideBeacon;
+    UpgradeableBeacon public tokenPoolBeacon;
+    UpgradeableBeacon public depositedTokenPoolBeacon;
 
     mapping(string => address) public pools;
     mapping(string => address) public doubleSidePools;
@@ -23,27 +23,26 @@ contract TokenPoolsManager is AccessControl{
     constructor(RewardsBank bank_, LockKeeper lockKeeper_, UpgradeableBeacon singleSideBeacon_, UpgradeableBeacon doubleSideBeacon_) {
         lockKeeper = lockKeeper_;
         bank = bank_;
-        singleSideBeacon = singleSideBeacon_;
-        doubleSideBeacon = doubleSideBeacon_;
+        tokenPoolBeacon = singleSideBeacon_;
+        depositedTokenPoolBeacon = doubleSideBeacon_;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     event PoolCreated(string name, address pool);
     event PoolDeactivated(string name);
     event PoolActivated(string name);
-    event DoubleSidePoolCreate(string name, address pool);
-    event DoubleSidePoolDeactivated(string name);
-    event DoubleSidePoolActivated(string name);
-    event DependentSideAdded(string name, address pool);
+    event DepositedPoolCreated(string name, address pool);
+    event DepositedPoolDeactivated(string name);
+    event DepositedPoolActivated(string name);
 
     // OWNER METHODS
 
-    function createSingleSidePool(SingleSidePool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+    function createTokenPool(TokenPool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         console.log("Entered createPool");
         bytes memory data = abi.encodeWithSignature(
             "initialize(address,address,(address,string,address,uint256,uint256,uint256,uint256,uint256,uint256))",
             bank, lockKeeper, params);
-        address pool = address(new BeaconProxy(address(singleSideBeacon), data));
+        address pool = address(new BeaconProxy(address(tokenPoolBeacon), data));
         console.log("Pool created at address: %s", pool);
         pools[params.name] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
@@ -51,53 +50,46 @@ contract TokenPoolsManager is AccessControl{
         return pool;
     }
 
-    function deactivateSingleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function deactivateTokenPool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(pools[_pool] != address(0), "Pool does not exist");
-        SingleSidePool pool = SingleSidePool(pools[_pool]);
+        TokenPool pool = TokenPool(pools[_pool]);
         pool.deactivate();
         emit PoolDeactivated(_pool);
     }
 
-    function activateSingleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function activateTokenPool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(pools[_pool] != address(0), "Pool does not exist");
         
-        SingleSidePool pool = SingleSidePool(pools[_pool]);
+        TokenPool pool = TokenPool(pools[_pool]);
         pool.activate();
         emit PoolActivated(_pool);
     }
 
-    function createDoubleSidePool(string calldata name_, DoubleSidePool.MainSideConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+    function createDeposistedTokenPool(string calldata name_, DepositedTokenPool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         console.log("Entered createDoubleSidePool");
         bytes memory data = abi.encodeWithSignature(
-            "initialize(address,address,string,(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256))",
-            bank, lockKeeper, name_, params);
-        address pool = address(new BeaconProxy(address(doubleSideBeacon), data));
+            "initialize(address,address,(string,address,uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))",
+            bank, lockKeeper, params);
+        address pool = address(new BeaconProxy(address(depositedTokenPoolBeacon), data));
         console.log("DoubleSidePool created at address: %s", pool);
         doubleSidePools[name_] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
-        emit DoubleSidePoolCreate(name_, pool);
+        emit DepositedPoolCreated(name_, pool);
         return pool;
-    }
-
-    function addDependantSide(string calldata name_, DoubleSidePool.DependantSideConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(doubleSidePools[name_] != address(0), "Pool does not exist");
-        DoubleSidePool pool = DoubleSidePool(doubleSidePools[name_]);
-        pool.addDependantSide(params);
-        emit DependentSideAdded(name_, address(pool));
     }
 
     function deactivateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(doubleSidePools[_pool] != address(0), "Pool does not exist");
-        DoubleSidePool pool = DoubleSidePool(doubleSidePools[_pool]);
+        DepositedTokenPool pool = DepositedTokenPool(doubleSidePools[_pool]);
         pool.deactivate();
-        emit DoubleSidePoolDeactivated(_pool);
+        emit DepositedPoolDeactivated(_pool);
     }
 
     function activateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(doubleSidePools[_pool] != address(0), "Pool does not exist");
-        DoubleSidePool pool = DoubleSidePool(doubleSidePools[_pool]);
+        DepositedTokenPool pool = DepositedTokenPool(doubleSidePools[_pool]);
         pool.activate();
-        emit DoubleSidePoolActivated(_pool);
+        emit DepositedPoolActivated(_pool);
     }
 
     // VIEW METHODS
@@ -106,7 +98,7 @@ contract TokenPoolsManager is AccessControl{
         return pools[name];
     }
 
-    function getDoubleSidePoolAddress(string memory name) public view returns (address) {
+    function getDepositedPoolAdress(string memory name) public view returns (address) {
         return doubleSidePools[name];
     }
 

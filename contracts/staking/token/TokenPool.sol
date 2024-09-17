@@ -10,7 +10,7 @@ import "../../LockKeeper.sol";
 
 import "hardhat/console.sol";
 
-contract SingleSidePool is Initializable, AccessControl, IOnBlockListener {
+contract TokenPool is Initializable, AccessControl, IOnBlockListener {
 
     struct Config {
         IERC20 token;

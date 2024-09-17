@@ -9,24 +9,23 @@ import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
 //The side defined by the address of the token. Zero address means native coin
-contract DepositedPool  is Initializable, AccessControl, IOnBlockListener {
+contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
+
+    //TODO: Divide on main config and profit config?
     struct Config {
         string name;
         address depositToken;
         uint minDepositValue;
         address profitableToken;
-        address rewardToken;
-        uint rewardTokenPrice;
         uint minStakeValue;
         uint unstakeLockPeriod; // Time in seconds to how long the amount is locker after unstake
-        uint lockPeriod;
-        uint interest;
-        uint interestRate;
+        uint stakeLockPeriod; // Time in seconds to how long the stake is locker before unstake
         uint maxTotalStakeValue;
         uint maxStakePerUserValue;
-        uint stakeLockPeriod; // Time in seconds to how long the stake is locker before unstake
         uint stakeLimitsMultiplier; // Should be represented as parts of BILLION
+        uint interest;
+        uint interestRate;
     }
 
     struct Info {
@@ -230,14 +229,14 @@ contract DepositedPool  is Initializable, AccessControl, IOnBlockListener {
         if (config.profitableToken == address(0)) {
             // lock funds
             stakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
-                msg.sender, address(config.profitableToken), uint64(block.timestamp + config.lockPeriod), amount + canceledAmount,
+                msg.sender, address(config.profitableToken), uint64(block.timestamp + config.unstakeLockPeriod), amount + canceledAmount,
                 string(abi.encodePacked("TokenStaking unstake"))
             );
         } else {
             IERC20(config.profitableToken).approve(address(lockKeeper), amount + canceledAmount);
             // lock funds
             stakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
-                msg.sender, address(config.profitableToken), uint64(block.timestamp + config.lockPeriod), amount + canceledAmount,
+                msg.sender, address(config.profitableToken), uint64(block.timestamp + config.unstakeLockPeriod), amount + canceledAmount,
                 string(abi.encodePacked("TokenStaking unstake"))
             );
         }
@@ -245,7 +244,7 @@ contract DepositedPool  is Initializable, AccessControl, IOnBlockListener {
 
         _claimRewards(msg.sender);
 
-        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + config.lockPeriod, block.timestamp);
+        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + config.unstakeLockPeriod, block.timestamp);
         emit StakeChanged(msg.sender, stakers[msg.sender].stake);
     }
 
