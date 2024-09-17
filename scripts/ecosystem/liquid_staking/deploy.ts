@@ -151,71 +151,68 @@ export async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-  //console.log("Setup stAmb");
-  //await (await stAmb.setLiquidPool(liquidPool.address)).wait();
-  //await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  console.log("Setup stAmb");
+  await (await stAmb.setLiquidPool(liquidPool.address)).wait();
+  await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
-  //console.log("Setup nodeManager");
-  //await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  //await (await nodeManager.grantRole(await nodeManager.POOL_ROLE(), liquidPool.address)).wait();
+  console.log("Setup nodeManager");
+  await (await nodeManager.grantRole(await nodeManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await nodeManager.grantRole(await nodeManager.POOL_ROLE(), liquidPool.address)).wait();
 
-  //console.log("Setup nodesRewardsBank");
-  //await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  //await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), nodeManager.address)).wait();
+  console.log("Setup nodesRewardsBank");
+  await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await nodesRewardsBank.grantRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), nodeManager.address)).wait();
 
-  //console.log("Setup poolRewardsBank");
-  //await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  //await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
+  console.log("Setup poolRewardsBank");
+  await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  await (await poolRewardsBank.grantRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), liquidPool.address)).wait();
 
-  //console.log("Setup liquidPool");
-  //await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-  //console.log("Setup stakingTiers");
-  //await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
-
+  console.log("Setup liquidPool");
+  await (await liquidPool.grantRole(await liquidPool.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+  console.log("Setup stakingTiers");
+  await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
   // on prod - multisig only
-  //if (chainId != 16718) {
-  //  console.log("Register nodeManager as staking manager");
-  //  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
-  //  console.log("Add block listeners");
-  //  await (await validatorSet.addBlockListener(liquidPool.address)).wait();
-  //} else {
-  console.log("Register nodeManager as staking manager calldata");
-  const calldata = await validatorSet.populateTransaction.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address);
-  const multisigTx = await multisig.populateTransaction.submitTransaction(validatorSet.address, 0, calldata.data!);
-  console.log(multisigTx);
-  console.log("Add block listeners calldata");
-  const calldata2 = await validatorSet.populateTransaction.addBlockListener(liquidPool.address);
-  const multisigTx2 = await multisig.populateTransaction.submitTransaction(validatorSet.address, 0, calldata2.data!);
-  console.log(multisigTx2);
-  //}
+  if (chainId != 16718) {
+    console.log("Register nodeManager as staking manager");
+    await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
+    console.log("Add block listeners");
+    await (await validatorSet.addBlockListener(liquidPool.address)).wait();
+  } else {
+    console.log("Register nodeManager as staking manager calldata");
+    const calldata = await validatorSet.populateTransaction.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address);
+    const multisigTx = await multisig.populateTransaction.submitTransaction(validatorSet.address, 0, calldata.data!);
+    console.log(multisigTx);
+    console.log("Add block listeners calldata");
+    const calldata2 = await validatorSet.populateTransaction.addBlockListener(liquidPool.address);
+    const multisigTx2 = await multisig.populateTransaction.submitTransaction(validatorSet.address, 0, calldata2.data!);
+    console.log(multisigTx2);
+  }
 
   if (chainId != 16718) return;  // continue only on prod
 
-  //console.log("Setup bonuses");
-  //const bonuses = getBonuses();
-  //console.log("Setting first batch");
-  //await (await stakingTiers.setBonusBatch(Array.from(bonuses[0].keys()), Array.from(bonuses[0].values()))).wait();
-  //console.log("Setting second batch");
-  //await (await stakingTiers.setBonusBatch(Array.from(bonuses[1].keys()), Array.from(bonuses[1].values()))).wait();
-  //console.log("Bonuses set");
+  console.log("Setup bonuses");
+  const bonuses = getBonuses();
+  console.log("Setting first batch");
+  await (await stakingTiers.setBonusBatch(Array.from(bonuses[0].keys()), Array.from(bonuses[0].values()))).wait();
+  console.log("Setting second batch");
+  await (await stakingTiers.setBonusBatch(Array.from(bonuses[1].keys()), Array.from(bonuses[1].values()))).wait();
+  console.log("Bonuses set");
 
-  // grant backend role 
-  //console.log("Grant backend role");
-  //const backendAddress = process.env.LIQUID_STAKING_BACKEND_ADDRESS || "";
-  //await (await nodeManager.grantRole(await nodeManager.BACKEND_ROLE(), backendAddress)).wait();
-  //console.log("Backend role granted");
+  //grant backend role 
+  console.log("Grant backend role");
+  const backendAddress = process.env.LIQUID_STAKING_BACKEND_ADDRESS || "";
+  await (await nodeManager.grantRole(await nodeManager.BACKEND_ROLE(), backendAddress)).wait();
+  console.log("Backend role granted");
 
   console.log("Revoke admin roles");
-
-  //await (await nodesRewardsBank.revokeRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
-  //await (await poolRewardsBank.revokeRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
-  //await (await nodeManager.revokeRole(await nodeManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
-  //await (await liquidPool.revokeRole(await liquidPool.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
-  //await (await stakingTiers.revokeRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await nodesRewardsBank.revokeRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await poolRewardsBank.revokeRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await nodeManager.revokeRole(await nodeManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await liquidPool.revokeRole(await liquidPool.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
+  await (await stakingTiers.revokeRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
 
 }
-
 
 function getBonuses(): [Map<string, number>, Map<string, number>] {
   const filePath = "./scripts/ecosystem/liquid_staking/staking_holders.csv";
