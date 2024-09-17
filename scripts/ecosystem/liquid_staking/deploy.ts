@@ -34,8 +34,6 @@ export async function main() {
 
   const multisig = await deployMultisig(ContractNames.Ecosystem_LiquidPoolMultisig, deployer, "eco");
 
-
-
   // block rewards will be withdrawn from this contract
   const nodesRewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.Ecosystem_LiquidNodesManagerRewardsBank,
@@ -104,8 +102,8 @@ export async function main() {
     isUpgradeableProxy: true,
   });
 
-  const nodeStake = ethers.utils.parseEther("5000000");
-  const maxNodesCount = 5;
+  const nodeStake = ethers.utils.parseEther("1000");
+  const maxNodesCount = 3;
 
   const nodeManager = await deploy<LiquidNodesManager__factory>({
     contractName: ContractNames.Ecosystem_LiquidNodesManager,
@@ -124,11 +122,11 @@ export async function main() {
   });
 
 
-  const interest = 100000;
-  const interestRate = 24 * 60 * 60; // 24 hours
-  const minStakeValue = 10000;
-  const unstakeLockTime = 14 * 24 * 60 * 60; // 14 days
-  const penalty = 100000;
+  const interest = 5707; // 5% per year
+  const interestRate = 60 * 60; // one hour
+  const minStakeValue = ethers.utils.parseEther("100");
+  const unstakeLockTime = 2 * 60 * 60; // 2 hours
+  const penalty = 0.1 * 1_000_000_000; // 10%
 
   const liquidPool = await deploy<LiquidPool__factory>({
     contractName: ContractNames.Ecosystem_LiquidPool,
