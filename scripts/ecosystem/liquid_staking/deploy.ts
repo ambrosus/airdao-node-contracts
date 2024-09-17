@@ -29,6 +29,8 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
   wrapProviderToError(deployer.provider!);
 
+  console.log();
+
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
 
@@ -149,7 +151,6 @@ export async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-
   console.log("Setup stAmb");
   await (await stAmb.setLiquidPool(liquidPool.address)).wait();
   await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
@@ -183,6 +184,10 @@ export async function main() {
   console.log("Setup bonuses");
   const bonuses = getBonuses();
   await (await stakingTiers.setBonusBatch(Array.from(bonuses.keys()), Array.from(bonuses.values()))).wait();
+
+  // grant backend role 
+  const backendAddress = process.env.LIQUID_STAKING_BACKEND_ADDRESS || "";
+  await (await nodeManager.grantRole(await nodeManager.BACKEND_ROLE(), backendAddress)).wait();
 
   await (await nodesRewardsBank.revokeRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await poolRewardsBank.revokeRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
