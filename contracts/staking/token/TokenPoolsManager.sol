@@ -145,7 +145,7 @@ contract TokenPoolsManager is AccessControl{
     function setMinDepositValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
         DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
-        pool.setMinStakeValue(value);
+        pool.setMinDepositValue(value);
     }
 
     function setMinStakeValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
