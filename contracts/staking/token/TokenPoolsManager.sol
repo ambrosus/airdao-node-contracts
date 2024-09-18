@@ -18,7 +18,7 @@ contract TokenPoolsManager is AccessControl{
     UpgradeableBeacon public depositedTokenPoolBeacon;
 
     mapping(string => address) public pools;
-    mapping(string => address) public doubleSidePools;
+    mapping(string => address) public depositedPools;
 
     constructor(RewardsBank bank_, LockKeeper lockKeeper_, UpgradeableBeacon singleSideBeacon_, UpgradeableBeacon doubleSideBeacon_) {
         lockKeeper = lockKeeper_;
@@ -36,6 +36,7 @@ contract TokenPoolsManager is AccessControl{
     event DepositedPoolActivated(string name);
 
     // OWNER METHODS
+    // TOKEN POOL METHODS
 
     function createTokenPool(TokenPool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         console.log("Entered createPool");
@@ -65,31 +66,128 @@ contract TokenPoolsManager is AccessControl{
         emit PoolActivated(_pool);
     }
 
-    function createDeposistedTokenPool(string calldata name_, DepositedTokenPool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+    function setMinStakeValue(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
+        pool.setMinStakeValue(value);
+    }
+
+    function setInterest(string memory _pool, uint _interest, uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
+        pool.setInterest(_interest, _interestRate);
+    }
+
+    function setLockPeriod(string memory _pool, uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
+        pool.setLockPeriod(period);
+    }
+
+    function setRewardTokenPrice(string memory _pool, uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
+        pool.setRewardTokenPrice(price);
+    }
+
+    function setFastUnstakePenalty(string memory _pool, uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(pools[_pool] != address(0), "Pool does not exist");
+        TokenPool pool = TokenPool(pools[_pool]);
+        pool.setFastUnstakePenalty(penalty);
+    }
+
+    // DEPOSITED POOL METHODS
+    function createDeposistedTokenPool(DepositedTokenPool.MainConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         console.log("Entered createDoubleSidePool");
         bytes memory data = abi.encodeWithSignature(
-            "initialize(address,address,(string,address,uint256,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))",
+            "initialize(address,address,(string,address,address,address,uint256,uint256,uint256))",
             bank, lockKeeper, params);
         address pool = address(new BeaconProxy(address(depositedTokenPoolBeacon), data));
         console.log("DoubleSidePool created at address: %s", pool);
-        doubleSidePools[name_] = pool;
+        depositedPools[params.name] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
-        emit DepositedPoolCreated(name_, pool);
+        emit DepositedPoolCreated(params.name, pool);
         return pool;
     }
 
+    function configureDepositedTokenPoolLimits(string calldata name, DepositedTokenPool.LimitsConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[name] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[name]);
+        pool.setLimitsConfig(params);
+    }
+
     function deactivateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(doubleSidePools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(doubleSidePools[_pool]);
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
         pool.deactivate();
         emit DepositedPoolDeactivated(_pool);
     }
 
     function activateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(doubleSidePools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(doubleSidePools[_pool]);
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
         pool.activate();
         emit DepositedPoolActivated(_pool);
+    }
+
+    function setRewardTokenPriceD(string memory _pool, uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setRewardTokenPrice(price);
+    }
+
+    function setInterestD(string memory _pool, uint _interest, uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setInterest(_interest, _interestRate);
+    }
+
+    function setMinDepositValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setMinStakeValue(value);
+    }
+
+    function setMinStakeValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setMinStakeValue(value);
+    }
+
+    function setFastUnstakePenaltyD(string memory _pool, uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setFastUnstakePenalty(penalty);
+    }
+
+    function setUnstakeLockPeriodD(string memory _pool, uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setUnstakeLockPeriod(period);
+    }
+
+    function setStakeLockPeriodD(string memory _pool, uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setStakeLockPeriod(period);
+    }
+
+    function setMaxTotalStakeValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setMaxTotalStakeValue(value);
+    }
+
+    function setMaxStakePerUserValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setMaxStakePerUserValue(value);
+    }
+
+    function setStakeLimitsMultiplierD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(depositedPools[_pool] != address(0), "Pool does not exist");
+        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        pool.setStakeLimitsMultiplier(value);
     }
 
     // VIEW METHODS
@@ -99,7 +197,7 @@ contract TokenPoolsManager is AccessControl{
     }
 
     function getDepositedPoolAdress(string memory name) public view returns (address) {
-        return doubleSidePools[name];
+        return depositedPools[name];
     }
 
 }

@@ -11,21 +11,25 @@ import "../../LockKeeper.sol";
 //The side defined by the address of the token. Zero address means native coin
 contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
-
-    //TODO: Divide on main config and profit config?
-    struct Config {
+    struct MainConfig {
         string name;
         address depositToken;
-        uint minDepositValue;
         address profitableToken;
+        address rewardToken;
+        uint rewardTokenPrice;
+        uint interest;
+        uint interestRate;
+    }
+
+    struct LimitsConfig {
+        uint minDepositValue;
         uint minStakeValue;
+        uint fastUnstakePenalty;
         uint unstakeLockPeriod; // Time in seconds to how long the amount is locker after unstake
         uint stakeLockPeriod; // Time in seconds to how long the stake is locker before unstake
         uint maxTotalStakeValue;
         uint maxStakePerUserValue;
         uint stakeLimitsMultiplier; // Should be represented as parts of BILLION
-        uint interest;
-        uint interestRate;
     }
 
     struct Info {
@@ -46,14 +50,13 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     uint constant public BILLION = 1_000_000_000;
+    bool public active;
 
     LockKeeper public lockKeeper;
     RewardsBank public rewardsBank;
-    
-    string public name;
-    bool public active;
 
-    Config public config;
+    MainConfig public mainConfig;
+    LimitsConfig public limitsConfig;
     Info public info;
 
     mapping(address => Staker) public stakers;
@@ -62,37 +65,43 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     event Deactivated();
     event Activated();
-    event MinStakeValueChanged(uint minStakeValue);
-    event UnstakeLockePeriodChanged(uint period);
     event RewardTokenPriceChanged(uint price);
-    event FastUnstakePenaltyChanged(uint penalty);
     event InterestChanged(uint interest);
     event InterestRateChanged(uint interestRate);
+    event MinDepositValueChanged(uint minDepositValue);
+    event MinStakeValueChanged(uint minStakeValue);
+    event FastUnstakePenaltyChanged(uint penalty);
+    event UnstakeLockPeriodChanged(uint period);
+    event StakeLockPeriodChanged(uint period);
     event MaxTotalStakeValueChanged(uint poolMaxStakeValue);
     event MaxStakePerUserValueChanged(uint maxStakePerUserValue);
-    event StakeLockPeriodChanged(uint period);
     event StakeLimitsMultiplierChanged(uint value);
 
-    event DepositChanged(address indexed user, uint amount);
-    event StakeChanged(address indexed user, uint amount);
+    event Deposited(address indexed user, uint amount);
+    event Withdrawn(address indexed user, uint amount);
+    event Staked(address indexed user, uint amount);
     event Claim(address indexed user, uint amount);
     event Interest(uint amount);
     event UnstakeLocked(address indexed user, uint amount, uint unlockTime, uint creationTime);
 
     function initialize(
-        RewardsBank rewardsBank_, LockKeeper lockkeeper_, Config calldata config_
+        RewardsBank rewardsBank_, LockKeeper lockkeeper_, MainConfig calldata config_
     ) public  initializer {
         lockKeeper = lockkeeper_;
         rewardsBank = rewardsBank_;
 
         active = true;
 
-        config = config_;
+        mainConfig = config_;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     // OWNER METHODS
+
+    function setLimitsConfig(LimitsConfig calldata config) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limitsConfig = config;
+    }
 
     function activate() public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!active, "Pool is already active");
@@ -108,41 +117,56 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     // SETTERS FOR PARAMS
 
-    function setMinStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.minStakeValue = value;
-        emit MinStakeValueChanged(value);
+    function setRewardTokenPrice(uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        mainConfig.rewardTokenPrice = price;
+        emit RewardTokenPriceChanged(price);
     }
 
     function setInterest(uint _interest, uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.interest = _interest;
-        config.interestRate = _interestRate;
+        mainConfig.interest = _interest;
+        mainConfig.interestRate = _interestRate;
 
         emit InterestRateChanged(_interestRate);
         emit InterestChanged(_interest);
     }
 
+    function setMinDepositValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limitsConfig.minDepositValue = value;
+        emit MinStakeValueChanged(value);
+    }
+
+    function setMinStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limitsConfig.minStakeValue = value;
+        emit MinDepositValueChanged(value);
+    }
+
+    function setFastUnstakePenalty(uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limitsConfig.fastUnstakePenalty = penalty;
+        emit FastUnstakePenaltyChanged(penalty);
+    }
+
     function setUnstakeLockPeriod(uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.unstakeLockPeriod = period;
-        emit UnstakeLockePeriodChanged(period);
-    }
-
-    function setRewardTokenPrice(uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.rewardTokenPrice = price;
-        emit RewardTokenPriceChanged(price);
-    }
-
-    function setMaxTotalStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.maxTotalStakeValue = value;
-        emit MaxTotalStakeValueChanged(value);
+        limitsConfig.unstakeLockPeriod = period;
+        emit UnstakeLockPeriodChanged(period);
     }
 
     function setStakeLockPeriod(uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.stakeLockPeriod = period;
+        limitsConfig.stakeLockPeriod = period;
         emit StakeLockPeriodChanged(period);
     }
 
+    function setMaxTotalStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limitsConfig.maxTotalStakeValue = value;
+        emit MaxTotalStakeValueChanged(value);
+    }
+
+    function setMaxStakePerUserValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        limitsConfig.maxStakePerUserValue = value;
+        emit MaxStakePerUserValueChanged(value);
+    }
+
     function setStakeLimitsMultiplier(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.stakeLimitsMultiplier = value;
+        limitsConfig.stakeLimitsMultiplier = value;
         emit StakeLimitsMultiplierChanged(value);
     }
 
@@ -150,18 +174,18 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     function deposit(uint amount) public payable {
         require(active, "Pool is not active");
-        require(amount >= config.minDepositValue, "Pool: deposit value is too low");
+        require(amount >= limitsConfig.minDepositValue, "Pool: deposit value is too low");
         if (msg.value != 0) {
-            require(config.depositToken == address(0), "Pool: does not accept native coin");
+            require(mainConfig.depositToken == address(0), "Pool: does not accept native coin");
             require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            SafeERC20.safeTransferFrom(IERC20(config.depositToken), msg.sender, address(this), amount);
+            SafeERC20.safeTransferFrom(IERC20(mainConfig.depositToken), msg.sender, address(this), amount);
         }
 
         stakers[msg.sender].deposit += amount;
         info.totalDeposit += amount;
 
-        emit DepositChanged(msg.sender, amount);
+        emit Deposited(msg.sender, amount);
     }
 
     function withdraw(uint amount) public {
@@ -170,25 +194,25 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
         stakers[msg.sender].deposit -= amount;
         info.totalDeposit -= amount;
 
-        require(stakers[msg.sender].deposit <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
+        require(stakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
 
-        if (config.depositToken == address(0)) {
+        if (mainConfig.depositToken == address(0)) {
             payable(msg.sender).transfer(amount);
         } else {
-            SafeERC20.safeTransfer(IERC20(config.depositToken), msg.sender, amount);
+            SafeERC20.safeTransfer(IERC20(mainConfig.depositToken), msg.sender, amount);
         }
 
-        emit DepositChanged(msg.sender, stakers[msg.sender].deposit);
+        emit Withdrawn(msg.sender, amount);
     }
 
     function stake(uint amount) public payable {
         require(active, "Pool is not active");
-        require(amount >= config.minStakeValue, "Pool: stake value is too low");
+        require(amount >= limitsConfig.minStakeValue, "Pool: stake value is too low");
         if (msg.value != 0) {
-            require(config.profitableToken == address(0), "Pool: does not accept native coin");
+            require(mainConfig.profitableToken == address(0), "Pool: does not accept native coin");
             require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            SafeERC20.safeTransferFrom(IERC20(config.profitableToken), msg.sender, address(this), amount);
+            SafeERC20.safeTransferFrom(IERC20(mainConfig.profitableToken), msg.sender, address(this), amount);
         }
 
         uint rewardsAmount = _calcRewards(amount);
@@ -200,16 +224,16 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
             stakers[msg.sender].stakedAt = block.timestamp;
 
         require(stakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
-        require(info.totalStake <= config.maxTotalStakeValue, "Pool: max stake value exceeded");
-        require(stakers[msg.sender].stake <= config.maxStakePerUserValue, "Pool: max stake per user exceeded");
+        require(info.totalStake <= limitsConfig.maxTotalStakeValue, "Pool: max stake value exceeded");
+        require(stakers[msg.sender].stake <= limitsConfig.maxStakePerUserValue, "Pool: max stake per user exceeded");
 
         _updateRewardsDebt(msg.sender, _calcRewards(stakers[msg.sender].stake));
-        emit StakeChanged(msg.sender, amount);
+        emit Staked(msg.sender, amount);
     }
 
     function unstake(uint amount) public {
         require(stakers[msg.sender].stake >= amount, "Not enough stake");
-        require(block.timestamp - stakers[msg.sender].stakedAt >= config.stakeLockPeriod, "Stake is locked");
+        require(block.timestamp - stakers[msg.sender].stakedAt >= limitsConfig.stakeLockPeriod, "Stake is locked");
 
         uint rewardsAmount = _calcRewards(amount);
 
@@ -226,26 +250,46 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
         if (lockKeeper.getLock(stakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
             canceledAmount = lockKeeper.cancelLock(stakers[msg.sender].lockedWithdrawal);
 
-        if (config.profitableToken == address(0)) {
+        if (mainConfig.profitableToken == address(0)) {
             // lock funds
             stakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle{value: amount + canceledAmount}(
-                msg.sender, address(config.profitableToken), uint64(block.timestamp + config.unstakeLockPeriod), amount + canceledAmount,
+                msg.sender, address(mainConfig.profitableToken), uint64(block.timestamp + limitsConfig.unstakeLockPeriod), amount + canceledAmount,
                 string(abi.encodePacked("TokenStaking unstake"))
             );
         } else {
-            IERC20(config.profitableToken).approve(address(lockKeeper), amount + canceledAmount);
+            IERC20(mainConfig.profitableToken).approve(address(lockKeeper), amount + canceledAmount);
             // lock funds
             stakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
-                msg.sender, address(config.profitableToken), uint64(block.timestamp + config.unstakeLockPeriod), amount + canceledAmount,
+                msg.sender, address(mainConfig.profitableToken), uint64(block.timestamp + limitsConfig.unstakeLockPeriod), amount + canceledAmount,
                 string(abi.encodePacked("TokenStaking unstake"))
             );
         }
 
-
         _claimRewards(msg.sender);
 
-        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + config.unstakeLockPeriod, block.timestamp);
-        emit StakeChanged(msg.sender, stakers[msg.sender].stake);
+        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + limitsConfig.unstakeLockPeriod, block.timestamp);
+    }
+
+    function unstakeFast(uint amount) public {
+        require(stakers[msg.sender].stake >= amount, "Not enough stake");
+        require(block.timestamp - stakers[msg.sender].stakedAt >= limitsConfig.stakeLockPeriod, "Stake is locked");
+
+        uint rewardsAmount = _calcRewards(amount);
+
+        stakers[msg.sender].stake -= amount;
+        info.totalStake -= amount;
+        info.totalRewards -= rewardsAmount;
+
+        if (stakers[msg.sender].stake == 0) stakers[msg.sender].stakedAt = 0;
+
+        _updateRewardsDebt(msg.sender, _calcRewards(stakers[msg.sender].stake));
+        uint penalty = amount * limitsConfig.fastUnstakePenalty / BILLION;
+        if (mainConfig.profitableToken == address(0)) {
+            payable(msg.sender).transfer(amount - penalty);
+        } else {
+            SafeERC20.safeTransfer(IERC20(mainConfig.profitableToken), msg.sender, amount - penalty);
+        }
+        _claimRewards(msg.sender);
     }
 
     function claim() public {
@@ -260,11 +304,15 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
     // VIEW METHODS
 
     function getName() public view returns (string memory) {
-        return config.name;
+        return mainConfig.name;
     }
 
-    function getConfig() public view returns (Config memory) {
-        return config;
+    function getMainConfig() public view returns (MainConfig memory) {
+        return mainConfig;
+    }
+
+    function getLimitsConfig() public view returns (LimitsConfig memory) {
+        return limitsConfig;
     }
     
     function getInfo() public view returns (Info memory) {
@@ -285,9 +333,9 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     // INTERNAL METHODS
     function _addInterest() internal {
-        if (info.lastInterestUpdate + config.interestRate > block.timestamp) return;
+        if (info.lastInterestUpdate + mainConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - info.lastInterestUpdate;
-        uint newRewards = info.totalStake * config.interest * timePassed / BILLION / config.interestRate;
+        uint newRewards = info.totalStake * mainConfig.interest * timePassed / BILLION / mainConfig.interestRate;
 
         info.totalRewards += newRewards;
         info.lastInterestUpdate = block.timestamp;
@@ -295,7 +343,7 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     function _maxUserStakeValue(address user) internal view returns (uint) {
-        return stakers[user].deposit * config.stakeLimitsMultiplier / BILLION;
+        return stakers[user].deposit * limitsConfig.stakeLimitsMultiplier / BILLION;
     }
 
     // store claimable rewards
@@ -313,11 +361,11 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
        stakers[user].claimableRewards = 0;
 
-       uint rewardTokenAmount = amount * config.rewardTokenPrice;
-       if (config.rewardToken == address(0)) {
+       uint rewardTokenAmount = amount * mainConfig.rewardTokenPrice;
+       if (mainConfig.rewardToken == address(0)) {
            rewardsBank.withdrawAmb(payable(user), amount);
        } else {
-           rewardsBank.withdrawErc20(config.rewardToken, payable(user), rewardTokenAmount);
+           rewardsBank.withdrawErc20(mainConfig.rewardToken, payable(user), rewardTokenAmount);
        }
        emit Claim(user, rewardTokenAmount);
     }
