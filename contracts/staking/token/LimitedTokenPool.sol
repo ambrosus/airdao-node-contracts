@@ -9,11 +9,11 @@ import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
 //The side defined by the address of the token. Zero address means native coin
-contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
+contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     struct MainConfig {
         string name;
-        address depositToken;
+        address limitsMultiplierToken;
         address profitableToken;
         address rewardToken;
         uint rewardTokenPrice;
@@ -177,10 +177,10 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
         require(active, "Pool is not active");
         require(amount >= limitsConfig.minDepositValue, "Pool: deposit value is too low");
         if (msg.value != 0) {
-            require(mainConfig.depositToken == address(0), "Pool: does not accept native coin");
+            require(mainConfig.limitsMultiplierToken == address(0), "Pool: does not accept native coin");
             require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            SafeERC20.safeTransferFrom(IERC20(mainConfig.depositToken), msg.sender, address(this), amount);
+            SafeERC20.safeTransferFrom(IERC20(mainConfig.limitsMultiplierToken), msg.sender, address(this), amount);
         }
 
         stakers[msg.sender].deposit += amount;
@@ -197,10 +197,10 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
         require(stakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
 
-        if (mainConfig.depositToken == address(0)) {
+        if (mainConfig.limitsMultiplierToken == address(0)) {
             payable(msg.sender).transfer(amount);
         } else {
-            SafeERC20.safeTransfer(IERC20(mainConfig.depositToken), msg.sender, amount);
+            SafeERC20.safeTransfer(IERC20(mainConfig.limitsMultiplierToken), msg.sender, amount);
         }
 
         emit Withdrawn(msg.sender, amount);

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "./TokenPool.sol";
-import "./DepositedTokenPool.sol";
+import "./LimitedTokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
@@ -35,7 +35,6 @@ contract TokenPoolsManager is AccessControl{
 
     // OWNER METHODS
     // TOKEN POOL METHODS
-
     function createTokenPool(TokenPool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         bytes memory data = abi.encodeWithSignature(
             "initialize(address,address,(address,string,address,uint256,uint256,uint256,uint256,uint256,uint256))",
@@ -93,7 +92,7 @@ contract TokenPoolsManager is AccessControl{
     }
 
     // DEPOSITED POOL METHODS
-    function createDeposistedTokenPool(DepositedTokenPool.MainConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+    function createLimitedTokenPool(LimitedTokenPool.MainConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         bytes memory data = abi.encodeWithSignature(
             "initialize(address,address,(string,address,address,address,uint256,uint256,uint256))",
             bank, lockKeeper, params);
@@ -104,83 +103,83 @@ contract TokenPoolsManager is AccessControl{
         return pool;
     }
 
-    function configureDepositedTokenPoolLimits(string calldata name, DepositedTokenPool.LimitsConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function configureLimitedTokenPoolLimits(string calldata name, LimitedTokenPool.LimitsConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[name] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[name]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[name]);
         pool.setLimitsConfig(params);
     }
 
     function deactivateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.deactivate();
         emit DepositedPoolDeactivated(_pool);
     }
 
     function activateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.activate();
         emit DepositedPoolActivated(_pool);
     }
 
-    function setRewardTokenPriceD(string memory _pool, uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setRewardTokenPriceL(string memory _pool, uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setRewardTokenPrice(price);
     }
 
-    function setInterestD(string memory _pool, uint _interest, uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setInterestL(string memory _pool, uint _interest, uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setInterest(_interest, _interestRate);
     }
 
-    function setMinDepositValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMinDepositValueL(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setMinDepositValue(value);
     }
 
-    function setMinStakeValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMinStakeValueL(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setMinStakeValue(value);
     }
 
-    function setFastUnstakePenaltyD(string memory _pool, uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setFastUnstakePenaltyL(string memory _pool, uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setFastUnstakePenalty(penalty);
     }
 
-    function setUnstakeLockPeriodD(string memory _pool, uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setUnstakeLockPeriodL(string memory _pool, uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setUnstakeLockPeriod(period);
     }
 
-    function setStakeLockPeriodD(string memory _pool, uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setStakeLockPeriodL(string memory _pool, uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setStakeLockPeriod(period);
     }
 
-    function setMaxTotalStakeValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMaxTotalStakeValueL(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setMaxTotalStakeValue(value);
     }
 
-    function setMaxStakePerUserValueD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMaxStakePerUserValueL(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setMaxStakePerUserValue(value);
     }
 
-    function setStakeLimitsMultiplierD(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setStakeLimitsMultiplierL(string memory _pool, uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
-        DepositedTokenPool pool = DepositedTokenPool(depositedPools[_pool]);
+        LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.setStakeLimitsMultiplier(value);
     }
 

@@ -7,7 +7,7 @@ import {
   RewardsBank,
   AirBond__factory,
   TokenPool,
-  DepositedTokenPool,
+  LimitedTokenPool,
   RewardsBank__factory,
   TokenPoolsManager__factory,
   LockKeeper__factory,
@@ -15,7 +15,7 @@ import {
 } from "../../../typechain-types";
 
 import TokenPoolJson from "../../../artifacts/contracts/staking/token/TokenPool.sol/TokenPool.json";
-import DepositedTokenPoolJson from "../../../artifacts/contracts/staking/token/DepositedTokenPool.sol/DepositedTokenPool.json";
+import LimitedTokenPoolJson from "../../../artifacts/contracts/staking/token/LimitedTokenPool.sol/LimitedTokenPool.json";
 
 
 import { expect } from "chai";
@@ -36,13 +36,13 @@ describe("PoolsManager", function () {
     const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
     const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
 
-    const depositedTokenPoolFactory = await ethers.getContractFactory("DepositedTokenPool");
-    const depositedTokenPoolBeacon = await upgrades.deployBeacon(depositedTokenPoolFactory);
+    const limitedTokenPoolFactory = await ethers.getContractFactory("LimitedTokenPool");
+    const limitedTokenPoolBeacon = await upgrades.deployBeacon(limitedTokenPoolFactory);
 
     const lockKeeper = await new LockKeeper__factory(owner).deploy();
 
     const poolsManager = await new TokenPoolsManager__factory(owner)
-      .deploy(rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address, depositedTokenPoolBeacon.address);
+      .deploy(rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address, limitedTokenPoolBeacon.address);
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), poolsManager.address)).wait();
     const tokenAddr = airBond.address;
@@ -132,11 +132,11 @@ describe("PoolsManager", function () {
     });
   });
 
-  describe("DepositedTokenPool Management", function () {
+  describe("LimitedTokenPool Management", function () {
     it("Should allow the owner to create a deposited token pool", async function () {
-      const depositedTokenPoolConfig: DepositedTokenPool.MainConfigStruct = {
+      const limitedTokenPoolConfig: LimitedTokenPool.MainConfigStruct = {
         name: "TestDepositedPool",
-        depositToken: tokenAddr,
+        limitsMultiplierToken: tokenAddr,
         profitableToken: tokenAddr,
         rewardToken: tokenAddr,
         rewardTokenPrice: 1,
@@ -144,7 +144,7 @@ describe("PoolsManager", function () {
         interestRate: 24 * 60 * 60, // 24 hours
       };
 
-      const tx = await poolsManager.createDeposistedTokenPool(depositedTokenPoolConfig);
+      const tx = await poolsManager.createLimitedTokenPool(limitedTokenPoolConfig);
       const receipt = await tx.wait();
       const poolAddress = receipt.events![3].args![1];
 
@@ -152,9 +152,9 @@ describe("PoolsManager", function () {
     });
 
     it("Should configure deposited token pool limits", async function () {
-      const depositedTokenPoolConfig: DepositedTokenPool.MainConfigStruct = {
+      const limitedTokenPoolConfig: LimitedTokenPool.MainConfigStruct = {
         name: "TestDepositedPool",
-        depositToken: tokenAddr,
+        limitsMultiplierToken: tokenAddr,
         profitableToken: tokenAddr,
         rewardToken: tokenAddr,
         rewardTokenPrice: 1,
@@ -162,9 +162,9 @@ describe("PoolsManager", function () {
         interestRate: 24 * 60 * 60, // 24 hours
       };
 
-      await poolsManager.createDeposistedTokenPool(depositedTokenPoolConfig);
+      await poolsManager.createLimitedTokenPool(limitedTokenPoolConfig);
 
-      const limitsConfig: DepositedTokenPool.LimitsConfigStruct = {
+      const limitsConfig: LimitedTokenPool.LimitsConfigStruct = {
         minDepositValue: ethers.utils.parseEther("10"),
         minStakeValue: ethers.utils.parseEther("10"),
         fastUnstakePenalty: 100000, // 10%
@@ -175,10 +175,10 @@ describe("PoolsManager", function () {
         stakeLimitsMultiplier: 2 * 1000000000, // 2x
       };
 
-      await poolsManager.configureDepositedTokenPoolLimits("TestDepositedPool", limitsConfig);
+      await poolsManager.configureLimitedTokenPoolLimits("TestDepositedPool", limitsConfig);
 
       const poolAddress = await poolsManager.getDepositedPoolAdress("TestDepositedPool");
-      const proxyPool = new ethers.Contract(poolAddress, DepositedTokenPoolJson.abi, owner);
+      const proxyPool = new ethers.Contract(poolAddress, LimitedTokenPoolJson.abi, owner);
       const configuredLimits = await proxyPool.getLimitsConfig();
 
       expect(configuredLimits.minDepositValue).to.equal(limitsConfig.minDepositValue);
@@ -192,9 +192,9 @@ describe("PoolsManager", function () {
     });
 
     it("Should activate and deactivate a deposited token pool", async function () {
-      const depositedTokenPoolConfig: DepositedTokenPool.MainConfigStruct = {
+      const limitedTokenPoolConfig: LimitedTokenPool.MainConfigStruct = {
         name: "TestDepositedPool",
-        depositToken: tokenAddr,
+        limitsMultiplierToken: tokenAddr,
         profitableToken: tokenAddr,
         rewardToken: tokenAddr,
         rewardTokenPrice: 1,
@@ -202,10 +202,10 @@ describe("PoolsManager", function () {
         interestRate: 24 * 60 * 60, // 24 hours
       };
 
-      await poolsManager.createDeposistedTokenPool(depositedTokenPoolConfig);
+      await poolsManager.createLimitedTokenPool(limitedTokenPoolConfig);
       const poolAddress = await poolsManager.getDepositedPoolAdress("TestDepositedPool");
 
-      const proxyPool = new ethers.Contract(poolAddress, DepositedTokenPoolJson.abi, owner);
+      const proxyPool = new ethers.Contract(poolAddress, LimitedTokenPoolJson.abi, owner);
       expect(await proxyPool.active()).to.equal(true);
       await poolsManager.deactivateDoubleSidePool("TestDepositedPool");
       expect(await proxyPool.active()).to.equal(false);
@@ -214,9 +214,9 @@ describe("PoolsManager", function () {
     });
 
     it("Should allow updating deposited token pool parameters", async function () {
-      const depositedTokenPoolConfig: DepositedTokenPool.MainConfigStruct = {
+      const limitedTokenPoolConfig: LimitedTokenPool.MainConfigStruct = {
         name: "TestDepositedPool",
-        depositToken: tokenAddr,
+        limitsMultiplierToken: tokenAddr,
         profitableToken: tokenAddr,
         rewardToken: tokenAddr,
         rewardTokenPrice: 1,
@@ -224,25 +224,25 @@ describe("PoolsManager", function () {
         interestRate: 24 * 60 * 60, // 24 hours
       };
 
-      await poolsManager.createDeposistedTokenPool(depositedTokenPoolConfig);
+      await poolsManager.createLimitedTokenPool(limitedTokenPoolConfig);
       const poolAddress = await poolsManager.getDepositedPoolAdress("TestDepositedPool");
-      const proxyPool = new ethers.Contract(poolAddress, DepositedTokenPoolJson.abi, owner);
+      const proxyPool = new ethers.Contract(poolAddress, LimitedTokenPoolJson.abi, owner);
 
-      await poolsManager.setRewardTokenPriceD("TestDepositedPool", 2);
-      await poolsManager.setInterestD("TestDepositedPool", 200000, 48 * 60 * 60);
+      await poolsManager.setRewardTokenPriceL("TestDepositedPool", 2);
+      await poolsManager.setInterestL("TestDepositedPool", 200000, 48 * 60 * 60);
       const updatedConfig = await proxyPool.getMainConfig();
       expect(updatedConfig.rewardTokenPrice).to.equal(2);
       expect(updatedConfig.interest).to.equal(200000);
       expect(updatedConfig.interestRate).to.equal(48 * 60 * 60);
 
-      await poolsManager.setMinDepositValueD("TestDepositedPool", 20);
-      await poolsManager.setMinStakeValueD("TestDepositedPool", 30);
-      await poolsManager.setFastUnstakePenaltyD("TestDepositedPool", 200000);
-      await poolsManager.setUnstakeLockPeriodD("TestDepositedPool", 48 * 60 * 60);
-      await poolsManager.setStakeLockPeriodD("TestDepositedPool", 72 * 60 * 60);
-      await poolsManager.setMaxTotalStakeValueD("TestDepositedPool", ethers.utils.parseEther("2000000"));
-      await poolsManager.setMaxStakePerUserValueD("TestDepositedPool", ethers.utils.parseEther("200000"));
-      await poolsManager.setStakeLimitsMultiplierD("TestDepositedPool", 3 * 1000000000);
+      await poolsManager.setMinDepositValueL("TestDepositedPool", 20);
+      await poolsManager.setMinStakeValueL("TestDepositedPool", 30);
+      await poolsManager.setFastUnstakePenaltyL("TestDepositedPool", 200000);
+      await poolsManager.setUnstakeLockPeriodL("TestDepositedPool", 48 * 60 * 60);
+      await poolsManager.setStakeLockPeriodL("TestDepositedPool", 72 * 60 * 60);
+      await poolsManager.setMaxTotalStakeValueL("TestDepositedPool", ethers.utils.parseEther("2000000"));
+      await poolsManager.setMaxStakePerUserValueL("TestDepositedPool", ethers.utils.parseEther("200000"));
+      await poolsManager.setStakeLimitsMultiplierL("TestDepositedPool", 3 * 1000000000);
 
       const updatedLimits = await proxyPool.getLimitsConfig();
       expect(updatedLimits.minDepositValue).to.equal(20);
