@@ -8,8 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-import "hardhat/console.sol";
-
 contract TokenPool is Initializable, AccessControl, IOnBlockListener {
 
     struct Config {
@@ -168,7 +166,6 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     function claim() public {
-        console.log("claiming rewards");
         _calcClaimableRewards(msg.sender);
         _claimRewards(msg.sender);
     }

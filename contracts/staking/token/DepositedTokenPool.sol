@@ -8,8 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-import "hardhat/console.sol";
-
 //The side defined by the address of the token. Zero address means native coin
 contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
@@ -224,7 +222,6 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
         info.totalStake += amount;
         info.totalRewards += rewardsAmount;
         if (stakers[msg.sender].stakedAt == 0)
-            console.log("Staked at: %s", block.timestamp);
             stakers[msg.sender].stakedAt = block.timestamp;
 
         require(stakers[msg.sender].stake <= _maxUserStakeValue(msg.sender), "Pool: user max stake value exceeded");
@@ -237,9 +234,6 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     function unstake(uint amount) public {
         require(stakers[msg.sender].stake >= amount, "Not enough stake");
-        console.log("StakedAt: %s", stakers[msg.sender].stakedAt);
-        console.log("block.timestamp: %s", block.timestamp);
-        console.log("stakeLockPeriod: %s", limitsConfig.stakeLockPeriod);
         require(block.timestamp - stakers[msg.sender].stakedAt >= limitsConfig.stakeLockPeriod, "Stake is locked");
 
         uint rewardsAmount = _calcRewards(amount);
@@ -332,8 +326,6 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     function getUserRewards(address user) public view returns (uint) {
         uint rewardsAmount = _calcRewards(stakers[user].stake);
-        console.log("Claimable rewards: %s", stakers[user].claimableRewards);
-        console.log("Rewards debt: %s", stakers[user].rewardsDebt);
         if (rewardsAmount + stakers[user].claimableRewards <= stakers[user].rewardsDebt) 
             return 0;
 
@@ -342,16 +334,9 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     // INTERNAL METHODS
     function _addInterest() internal {
-        console.log("Entering add interest");
         if (info.lastInterestUpdate + mainConfig.interestRate > block.timestamp) return;
-        console.log("Adding interest");
         uint timePassed = block.timestamp - info.lastInterestUpdate;
-        console.log("Time passed: %s", timePassed);
-        console.log("totalStake: %s", info.totalStake);
-        console.log("interest: %s", mainConfig.interest);
-        console.log("interestRate: %s", mainConfig.interestRate);
         uint newRewards = info.totalStake * mainConfig.interest * timePassed / BILLION / mainConfig.interestRate;
-        console.log("New rewards: %s", newRewards);
 
         info.totalRewards += newRewards;
         info.lastInterestUpdate = block.timestamp;
@@ -388,9 +373,6 @@ contract DepositedTokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     function _calcRewards(uint amount) internal view returns (uint) {
-        console.log("Total stake: %s", info.totalStake);
-        console.log("Total rewards: %s", info.totalRewards);
-        console.log("Amount: %s", amount);
         if (info.totalStake == 0 && info.totalRewards == 0) return amount;
         return amount * info.totalRewards / info.totalStake;
     }

@@ -9,8 +9,6 @@ import "./DepositedTokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-import "hardhat/console.sol";
-
 contract TokenPoolsManager is AccessControl{
     LockKeeper lockKeeper;
     RewardsBank public bank;
@@ -39,12 +37,10 @@ contract TokenPoolsManager is AccessControl{
     // TOKEN POOL METHODS
 
     function createTokenPool(TokenPool.Config calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
-        console.log("Entered createPool");
         bytes memory data = abi.encodeWithSignature(
             "initialize(address,address,(address,string,address,uint256,uint256,uint256,uint256,uint256,uint256))",
             bank, lockKeeper, params);
         address pool = address(new BeaconProxy(address(tokenPoolBeacon), data));
-        console.log("Pool created at address: %s", pool);
         pools[params.name] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
         emit PoolCreated(params.name, pool);
@@ -98,12 +94,10 @@ contract TokenPoolsManager is AccessControl{
 
     // DEPOSITED POOL METHODS
     function createDeposistedTokenPool(DepositedTokenPool.MainConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
-        console.log("Entered createDoubleSidePool");
         bytes memory data = abi.encodeWithSignature(
             "initialize(address,address,(string,address,address,address,uint256,uint256,uint256))",
             bank, lockKeeper, params);
         address pool = address(new BeaconProxy(address(depositedTokenPoolBeacon), data));
-        console.log("DoubleSidePool created at address: %s", pool);
         depositedPools[params.name] = pool;
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
         emit DepositedPoolCreated(params.name, pool);

@@ -70,7 +70,6 @@ describe("PoolsManager", function () {
 
       const tx = await poolsManager.createTokenPool(tokenPoolConfig);
       const receipt = await tx.wait();
-      console.log(receipt.events);
       const poolAddress = receipt.events![3].args![1];
 
       expect(await poolsManager.getPoolAddress("TestPool")).to.equal(poolAddress);
