@@ -10,6 +10,7 @@ import "../../LockKeeper.sol";
 
 //The side defined by the address of the token. Zero address means native coin
 contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
+    using SafeERC20 for IERC20;
 
     struct MainConfig {
         string name;
@@ -180,7 +181,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
             require(mainConfig.limitsMultiplierToken == address(0), "Pool: does not accept native coin");
             require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            SafeERC20.safeTransferFrom(IERC20(mainConfig.limitsMultiplierToken), msg.sender, address(this), amount);
+            IERC20(mainConfig.limitsMultiplierToken).safeTransferFrom(msg.sender, address(this), amount);
         }
 
         stakers[msg.sender].deposit += amount;
@@ -200,7 +201,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         if (mainConfig.limitsMultiplierToken == address(0)) {
             payable(msg.sender).transfer(amount);
         } else {
-            SafeERC20.safeTransfer(IERC20(mainConfig.limitsMultiplierToken), msg.sender, amount);
+            IERC20(mainConfig.limitsMultiplierToken).safeTransfer(msg.sender, amount);
         }
 
         emit Withdrawn(msg.sender, amount);
@@ -213,7 +214,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
             require(mainConfig.profitableToken == address(0), "Pool: does not accept native coin");
             require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
-            SafeERC20.safeTransferFrom(IERC20(mainConfig.profitableToken), msg.sender, address(this), amount);
+            IERC20(mainConfig.profitableToken).safeTransferFrom(msg.sender, address(this), amount);
         }
 
         uint rewardsAmount = _calcRewards(amount);
@@ -288,7 +289,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         if (mainConfig.profitableToken == address(0)) {
             payable(msg.sender).transfer(amount - penalty);
         } else {
-            SafeERC20.safeTransfer(IERC20(mainConfig.profitableToken), msg.sender, amount - penalty);
+            IERC20(mainConfig.profitableToken).safeTransfer(msg.sender, amount - penalty);
         }
         _claimRewards(msg.sender);
     }
