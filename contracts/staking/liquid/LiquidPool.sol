@@ -82,7 +82,7 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
     // ADMIN METHODS
 
     function setInterest(uint interest_, uint interestPeriod_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(interest_ >= 0 && interest_ <= 1000000, "Invalid percent value");
+        require(interest_ >= 0 && interest_ <= BILLION, "Invalid percent value");
         interest = interest_;
         interestPeriod = interestPeriod_;
     }

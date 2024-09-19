@@ -29,12 +29,12 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
   wrapProviderToError(deployer.provider!);
 
+  console.log();
+
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
 
   const multisig = await deployMultisig(ContractNames.Ecosystem_LiquidPoolMultisig, deployer, "eco");
-
-
 
   // block rewards will be withdrawn from this contract
   const nodesRewardsBank = await deploy<RewardsBank__factory>({
@@ -104,8 +104,8 @@ export async function main() {
     isUpgradeableProxy: true,
   });
 
-  const nodeStake = ethers.utils.parseEther("5000000");
-  const maxNodesCount = 5;
+  const nodeStake = ethers.utils.parseEther("1000");
+  const maxNodesCount = 3;
 
   const nodeManager = await deploy<LiquidNodesManager__factory>({
     contractName: ContractNames.Ecosystem_LiquidNodesManager,
@@ -124,11 +124,11 @@ export async function main() {
   });
 
 
-  const interest = 100000;
-  const interestRate = 24 * 60 * 60; // 24 hours
-  const minStakeValue = 10000;
-  const unstakeLockTime = 14 * 24 * 60 * 60; // 14 days
-  const penalty = 100000;
+  const interest = 5707; // 5% per year
+  const interestRate = 60 * 60; // one hour
+  const minStakeValue = ethers.utils.parseEther("100");
+  const unstakeLockTime = 2 * 60 * 60; // 2 hours
+  const penalty = 0.1 * 1_000_000_000; // 10%
 
   const liquidPool = await deploy<LiquidPool__factory>({
     contractName: ContractNames.Ecosystem_LiquidPool,
@@ -151,7 +151,6 @@ export async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-
   console.log("Setup stAmb");
   await (await stAmb.setLiquidPool(liquidPool.address)).wait();
   await (await stAmb.grantRole(await stAmb.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
@@ -173,19 +172,40 @@ export async function main() {
   console.log("Setup stakingTiers");
   await (await stakingTiers.grantRole(await stakingTiers.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
 
-
   // on prod - multisig only
-  console.log("Register nodeManager as staking manager");
-  await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
-  console.log("Add block listeners");
-  await (await validatorSet.addBlockListener(liquidPool.address)).wait();
+  if (chainId != 16718) {
+    console.log("Register nodeManager as staking manager");
+    await (await validatorSet.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address)).wait();
+    console.log("Add block listeners");
+    await (await validatorSet.addBlockListener(liquidPool.address)).wait();
+  } else {
+    console.log("Register nodeManager as staking manager calldata");
+    const calldata = await validatorSet.populateTransaction.grantRole(await validatorSet.STAKING_MANAGER_ROLE(), nodeManager.address);
+    const multisigTx = await multisig.populateTransaction.submitTransaction(validatorSet.address, 0, calldata.data!);
+    console.log(multisigTx);
+    console.log("Add block listeners calldata");
+    const calldata2 = await validatorSet.populateTransaction.addBlockListener(liquidPool.address);
+    const multisigTx2 = await multisig.populateTransaction.submitTransaction(validatorSet.address, 0, calldata2.data!);
+    console.log(multisigTx2);
+  }
 
   if (chainId != 16718) return;  // continue only on prod
 
   console.log("Setup bonuses");
   const bonuses = getBonuses();
-  await (await stakingTiers.setBonusBatch(Array.from(bonuses.keys()), Array.from(bonuses.values()))).wait();
+  console.log("Setting first batch");
+  await (await stakingTiers.setBonusBatch(Array.from(bonuses[0].keys()), Array.from(bonuses[0].values()))).wait();
+  console.log("Setting second batch");
+  await (await stakingTiers.setBonusBatch(Array.from(bonuses[1].keys()), Array.from(bonuses[1].values()))).wait();
+  console.log("Bonuses set");
 
+  //grant backend role 
+  console.log("Grant backend role");
+  const backendAddress = process.env.LIQUID_STAKING_BACKEND_ADDRESS || "";
+  await (await nodeManager.grantRole(await nodeManager.BACKEND_ROLE(), backendAddress)).wait();
+  console.log("Backend role granted");
+
+  console.log("Revoke admin roles");
   await (await nodesRewardsBank.revokeRole(await nodesRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await poolRewardsBank.revokeRole(await poolRewardsBank.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
   await (await nodeManager.revokeRole(await nodeManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
@@ -194,10 +214,10 @@ export async function main() {
 
 }
 
-
-function getBonuses(): Map<string, number> {
-  const filePath = "./scripts/staking/staking_holders.csv";
-  const bonusMap = new Map<string, number>();
+function getBonuses(): [Map<string, number>, Map<string, number>] {
+  const filePath = "./scripts/ecosystem/liquid_staking/staking_holders.csv";
+  const bonusMap1 = new Map<string, number>();
+  const bonusMap2 = new Map<string, number>();
   const currentTime = Math.floor(Date.now() / 1000);
   const thereeYearsInSeconds = 3 * 365 * 24 * 60 * 60;
 
@@ -210,13 +230,16 @@ function getBonuses(): Map<string, number> {
 
   for (const record of records) {
     const stakingTime = currentTime - record.lastZeroBalanceTimestamp;
-    const bonus = (stakingTime * 75) / thereeYearsInSeconds;
-    bonusMap.set(record.address, bonus);
+    const bonus = Math.floor((stakingTime * 75) / thereeYearsInSeconds);
+    if (bonusMap1.size < 1200) { 
+      bonusMap1.set(record.address, bonus);
+    } else {
+      bonusMap2.set(record.address, bonus);
+    }
   }
 
-  return bonusMap;
+  return [bonusMap1, bonusMap2];
 }
-
 
 if (require.main === module) {
   main().catch((error) => {

@@ -1659,7 +1659,7 @@
     "deployTx": "0xae6f3627d4174536697a1536fe5522a36c0ff9581c5374a73fd4187bf9caceb0",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0x18a6c40b56C985f2D3C8eB93cA331b1c5a582024",
+      "implementation": "0x7184DD655aacCCb28376Fa1B59e3712566Df670b",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   }
