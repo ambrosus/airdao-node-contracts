@@ -207,9 +207,9 @@ describe("PoolsManager", function () {
 
       const proxyPool = new ethers.Contract(poolAddress, LimitedTokenPoolJson.abi, owner);
       expect(await proxyPool.active()).to.equal(true);
-      await poolsManager.deactivateDoubleSidePool("TestDepositedPool");
+      await poolsManager.deactivateLimitedTokenPool("TestDepositedPool");
       expect(await proxyPool.active()).to.equal(false);
-      await poolsManager.activateDoubleSidePool("TestDepositedPool");
+      await poolsManager.activateLimitedTokenPool("TestDepositedPool");
       expect(await proxyPool.active()).to.equal(true);
     });
 

@@ -109,14 +109,14 @@ contract TokenPoolsManager is AccessControl{
         pool.setLimitsConfig(params);
     }
 
-    function deactivateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function deactivateLimitedTokenPool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
         LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.deactivate();
         emit DepositedPoolDeactivated(_pool);
     }
 
-    function activateDoubleSidePool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function activateLimitedTokenPool(string memory _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(depositedPools[_pool] != address(0), "Pool does not exist");
         LimitedTokenPool pool = LimitedTokenPool(depositedPools[_pool]);
         pool.activate();
