@@ -1,0 +1,38 @@
+type Node @entity {
+  id: ID!
+  address: Bytes!
+  nodeId: BigInt!
+  stake: BigInt!
+  status: NodeStatus!
+  requestId: BigInt
+  onboardedAt: BigInt
+  retiredAt: BigInt
+}
+
+enum NodeStatus {
+  REQUESTED
+  ONBOARDED
+  RETIRED
+}
+
+type AddNodeRequest @entity {
+  id: ID!
+  requestId: BigInt!
+  nodeId: BigInt!
+  stake: BigInt!
+  timestamp: BigInt!
+}
+
+type NodeOnboarded @entity {
+  id: ID!
+  node: Node!
+  requestId: BigInt!
+  timestamp: BigInt!
+}
+
+type NodeRetired @entity {
+  id: ID!
+  node: Node!
+  timestamp: BigInt!
+}
+

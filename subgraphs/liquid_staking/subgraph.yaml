@@ -1,0 +1,31 @@
+specVersion: 1.0.0
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LiquidNodesManager
+    network: https://network.ambrosus.io
+    source:
+      address: "0xBda7cf631Db4535A500ED16Dd98099C04e66F1d5"
+      abi: LiquidNodesManager
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Node
+        - AddNodeRequest
+        - NodeOnboarded
+        - NodeRetired
+      abis:
+        - name: LiquidNodesManager
+          file: ./abis/LiquidNodesManager.json
+      eventHandlers:
+        - event: AddNodeRequest(indexed uint256,indexed uint256,uint256)
+          handler: handleAddNodeRequest
+        - event: NodeOnboarded(indexed uint256,indexed address,indexed uint256,uint256)
+          handler: handleNodeOnboarded
+        - event: NodeRetired(indexed uint256,indexed address,uint256)
+          handler: handleNodeRetired
+      file: ./src/mapping/liquidNodesManager.ts
