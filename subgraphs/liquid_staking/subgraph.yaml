@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: LiquidNodesManager
-    network: https://network.ambrosus.io
+    network: mainnet
     source:
       address: "0xBda7cf631Db4535A500ED16Dd98099C04e66F1d5"
       abi: LiquidNodesManager
@@ -29,12 +29,14 @@ dataSources:
         - event: NodeRetired(indexed uint256,indexed address,uint256)
           handler: handleNodeRetired
       file: ./src/mapping/liquidNodesManager.ts
+
   - kind: ethereum/contract
     name: LiquidPool
-    network: https://network.ambrosus.io
+    network: mainnet
     source:
       address: "0x1234567890123456789012345678901234567890"
       abi: LiquidPool
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

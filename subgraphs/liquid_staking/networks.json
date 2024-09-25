@@ -1,0 +1,32 @@
+{
+    "mainnet": {
+        "LiquidNodesManager": {
+            "address": "",
+            "startBlock": 0
+        },
+        "LiquidPool": {
+            "address": "",
+            "startBlock": 0
+        }
+    },
+    "testnet": {
+        "LiquidNodesManager": {
+            "address": "",
+            "startBlock": 0
+        },
+        "LiquidPool": {
+            "address": "",
+            "startBlock": 0
+        }
+    },
+    "devnet": {
+        "LiquidNodesManager": {
+            "address": "",
+            "startBlock": 0
+        },
+        "LiquidPool": {
+            "address": "",
+            "startBlock": 0
+        }
+    }
+}
