@@ -36,3 +36,63 @@ type NodeRetired @entity {
   timestamp: BigInt!
 }
 
+type User @entity {
+  id: ID!
+  address: Bytes!
+  stakedAmount: BigInt!
+  rewardsDebt: BigInt!
+  claimedRewards: BigInt!
+  lastStakeTime: BigInt
+  lastUnstakeTime: BigInt
+  lockedWithdraws: BigInt!
+}
+
+type Claim @entity {
+  id: ID!
+  user: User!
+  ambAmount: BigInt!
+  bondAmount: BigInt!
+  timestamp: BigInt!
+}
+
+type Interest @entity {
+  id: ID!
+  amount: BigInt!
+  timestamp: BigInt!
+}
+
+type StakeChange @entity {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  isStake: Boolean!
+  timestamp: BigInt!
+}
+
+type UnstakeFast @entity {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  penalty: BigInt!
+  timestamp: BigInt!
+}
+
+type UnstakeLocked @entity {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  unlockTime: BigInt!
+  creationTime: BigInt!
+}
+
+type StakingStats @entity {
+  id: ID!
+  totalStaked: BigInt!
+  totalRewards: BigInt!
+  totalRewardsDebt: BigInt!
+  interestRate: BigInt!
+  interestPeriod: BigInt!
+  minStakeValue: BigInt!
+  unstakeLockTime: BigInt!
+  fastUnstakePenalty: BigInt!
+}

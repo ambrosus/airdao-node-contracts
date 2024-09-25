@@ -29,3 +29,37 @@ dataSources:
         - event: NodeRetired(indexed uint256,indexed address,uint256)
           handler: handleNodeRetired
       file: ./src/mapping/liquidNodesManager.ts
+  - kind: ethereum/contract
+    name: LiquidPool
+    network: https://network.ambrosus.io
+    source:
+      address: "0x1234567890123456789012345678901234567890"
+      abi: LiquidPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Claim
+        - Interest
+        - StakeChange
+        - UnstakeFast
+        - UnstakeLocked
+        - StakingStats
+      abis:
+        - name: LiquidPool  
+          file: ./abis/LiquidPool.json
+      eventHandlers:
+        - event: Claim(indexed address,uint256,uint256)
+          handler: handleClaim
+        - event: Interest(uint256)
+          handler: handleInterest
+        - event: StakeChanged(indexed address,int256)
+          handler: handleStakeChanged
+        - event: UnstakeFast(indexed address,uint256,uint256)
+          handler: handleUnstakeFast
+        - event: UnstakeLocked(indexed address,uint256,uint256,uint256)
+          handler: handleUnstakeLocked
+      file: ./src/mapping/liquidPool.ts
+
