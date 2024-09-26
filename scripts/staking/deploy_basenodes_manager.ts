@@ -1,13 +1,8 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../../src";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import {
-  BaseNodes_Manager__factory,
-  Multisig__factory,
-  RewardsBank__factory,
-  ValidatorSet,
-} from "../../typechain-types";
-import {Roadmap2023MultisigSettings} from "../addresses";
+import { BaseNodes_Manager__factory, RewardsBank__factory, ValidatorSet, } from "../../typechain-types";
+import { deployMultisig } from "../utils/deployMultisig";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -15,16 +10,9 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
-  const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.BaseNodesManagerMultisig,
-    artifactName: "Multisig",
-    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
-    signer: deployer,
-    loadIfAlreadyDeployed: true,
-  });
+  const multisig = await deployMultisig(ContractNames.BaseNodesManagerMultisig, deployer, "common");
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.BaseNodesManagerRewardsBank,

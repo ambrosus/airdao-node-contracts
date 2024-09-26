@@ -1,22 +1,15 @@
 import { ethers, network } from "hardhat";
 import { ContractNames } from "../../src";
-import { Multisig__factory, ValidatorSet__factory } from "../../typechain-types";
-import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import {Roadmap2023MultisigSettings} from "../addresses";
+import { ValidatorSet__factory } from "../../typechain-types";
+import { deploy } from "@airdao/deployments/deploying";
+import { deployMultisig } from "../utils/deployMultisig";
 
 export async function main() {
-  const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
 
-  const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.ValidatorSetMultisig,
-    artifactName: "Multisig",
-    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
-    signer: deployer,
-    loadIfAlreadyDeployed: true,
-  });
+  const multisig = await deployMultisig(ContractNames.ValidatorSetMultisig, deployer, "common");
+
 
   const baseReward = ethers.utils.parseEther("14");
   const topStakesCount = 200;

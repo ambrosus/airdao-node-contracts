@@ -4,16 +4,15 @@ import {ContractNames} from "../../src";
 import {
   Alex,
   Alina,
-  DimaTest96,
   Igor,
   Matthieu,
   Michael,
   Oleksii,
   OleksiiD,
   Seth,
-  SharedDev,
+  Dev1111,
   Sophie,
-} from "../addresses";
+} from "../utils/addresses";
 import {Finance__factory, MasterFinance__factory, Multisig__factory} from "../../typechain-types";
 
 async function main() {
@@ -50,7 +49,7 @@ async function main() {
 
   const multisigSettings: [string[], boolean[], number] = network.name == "main" ?
     [[Michael, Igor, Alina, Alex, Matthieu, Oleksii, Seth, Sophie, OleksiiD], [true, true, true, true, true, true, true, true, true], 75] :
-    [[SharedDev, DimaTest96], [true, true], 1];
+    [[Dev1111], [true], 1];
 
 
   const maxBankBalance = ethers.utils.parseEther("100000000"); // 100 millions amb per bank

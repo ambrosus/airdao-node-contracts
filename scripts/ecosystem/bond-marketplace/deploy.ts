@@ -1,28 +1,12 @@
-import { ethers, network } from "hardhat";
+import { ethers } from "hardhat";
 import { ContractNames } from "../../../src";
-import { Multisig__factory, RewardsBank__factory } from "../../../typechain-types";
-import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import { DimaTest96, EcosystemMultisigSettings, SharedDev, } from "../../addresses";
+import { RewardsBank__factory } from "../../../typechain-types";
+import { deploy } from "@airdao/deployments/deploying";
+import { deployMultisig } from "../../utils/deployMultisig";
 
 export async function main() {
-  const { chainId } = await ethers.provider.getNetwork();
-
   const [deployer] = await ethers.getSigners();
-
-  const masterMultisig = loadDeployment(ContractNames.Ecosystem_MasterMultisig, chainId).address;
-
-  const multisigSettings: [string[], boolean[], number] =
-    network.name == "main"
-      ? EcosystemMultisigSettings as ([string[], boolean[], number])
-      : [[SharedDev, DimaTest96], [true, true], 1];
-
-  const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.Ecosystem_BondMarketplaceMultisig,
-    artifactName: "Multisig",
-    deployArgs: [...multisigSettings, masterMultisig],
-    signer: deployer,
-    loadIfAlreadyDeployed: true,
-  });
+  const multisig = await deployMultisig(ContractNames.Ecosystem_BondMarketplaceMultisig, deployer, "eco");
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.Ecosystem_BondMarketplaceRewardsBank,

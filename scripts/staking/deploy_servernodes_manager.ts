@@ -2,13 +2,12 @@ import { ethers } from "hardhat";
 import { ContractNames } from "../../src";
 import {
   LockKeeper__factory,
-  Multisig__factory,
   RewardsBank__factory,
   ServerNodes_Manager__factory,
   ValidatorSet,
 } from "../../typechain-types";
 import { deploy, loadDeployment } from "@airdao/deployments/deploying";
-import {Roadmap2023MultisigSettings} from "../addresses";
+import { deployMultisig } from "../utils/deployMultisig";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
@@ -16,17 +15,11 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer) as ValidatorSet;
-  const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
   const airBond = loadDeployment(ContractNames.AirBond, chainId);
   const treasury = loadDeployment(ContractNames.Treasury, chainId);
 
-  const multisig = await deploy<Multisig__factory>({
-    contractName: ContractNames.ServerNodesManagerMultisig,
-    artifactName: "Multisig",
-    deployArgs: [...Roadmap2023MultisigSettings, masterMultisig],
-    signer: deployer,
-    loadIfAlreadyDeployed: true,
-  });
+  const multisig = await deployMultisig(ContractNames.ServerNodesManagerMultisig, deployer, "common");
+
 
   const lockKeeper = await deploy<LockKeeper__factory>({
     contractName: ContractNames.LockKeeper,
