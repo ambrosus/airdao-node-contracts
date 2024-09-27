@@ -1318,7 +1318,7 @@
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_Astradex_ChronosFeeCollector": {
-    "address": "0x927ade9eF5a4A4B94E2eBcBcc84441d584c44d7D",
+    "address": "0x5346D8131Bf92B2C1647CEA2061d5aAE71CDAbfa",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1334,7 +1334,7 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x28b23ef153dd329d2786fab91a6a52c42b95495b5e10564ab7476eae825fa5a8",
+    "deployTx": "0x3749534bd57b3a0bb5acb930dcb1e3ef5feb6087c6be69b6cad8d6a7c4d9a2dc",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_Government_Multisig": {
