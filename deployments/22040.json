@@ -1318,6 +1318,26 @@
     "deployTx": "0x91dcfdbe3cb1a0c7a0d7cb5f51a18e75fd4003cc40b35cd577d17962d2810fd9",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
+  "Ecosystem_Astradex_ChronosFeeCollector": {
+    "address": "0x927ade9eF5a4A4B94E2eBcBcc84441d584c44d7D",
+    "abi": [
+      "constructor()",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function withdrawAmb(address addressTo, uint256 amount)",
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0x28b23ef153dd329d2786fab91a6a52c42b95495b5e10564ab7476eae825fa5a8",
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+  },
   "Ecosystem_Government_Multisig": {
     "address": "0xCf457c3A00b2132241357C3b026C590909074837",
     "abi": [
