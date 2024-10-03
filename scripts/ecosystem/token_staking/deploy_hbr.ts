@@ -12,7 +12,7 @@ async function main() {
   }
 
   const airBond = await deploy<HBRToken__factory>({
-    contractName: ContractNames.Ecosystem_HRBToken,
+    contractName: ContractNames.Ecosystem_HBRToken,
     artifactName: "HBRToken",
     deployArgs: [deployer.address],
     signer: deployer,

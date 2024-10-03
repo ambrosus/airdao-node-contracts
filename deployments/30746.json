@@ -1663,7 +1663,7 @@
     }
   },
   "Ecosystem_TokenPoolsManager_Multisig": {
-    "address": "0xF7c8f345Ac1d29F13c16d8Ae34f534D9056E3FF2",
+    "address": "0x724AfcA5194639475094d6a67c4c47d52D6CeC63",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1699,11 +1699,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xbd191d729a142b5c69cba31f0ce5154b5b91722444e14b89b68b2fba88b699f6",
+    "deployTx": "0x67d093a2dc5c8ca61dd8996ee8a41efb6b1c84c7ecd8f8523ad4647a67238ac8",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_TokenPoolsManager_RewardsBank": {
-    "address": "0x92f47Ee54B8320A4E74Ddb256dc6e9129bCFD053",
+    "address": "0xCCd30d8848ac1559a8215B556fB52C2dd12c7516",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1719,11 +1719,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x9ed3d31b3b7615386da8defd5f0ce2ba6a0f209479bded528fc73989765472c1",
+    "deployTx": "0xe81a1e26055f7b0ae2127089697c7825d459fa22a3678f27a116555403dfccd9",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_TokenPoolsManager": {
-    "address": "0x3748b64E235A1EAb7c6bdDca706848d8B8a74D06",
+    "address": "0xe684E41da338363C2777c0097356752d6f24BDae",
     "abi": [
       "constructor(address bank_, address lockKeeper_, address singleSideBeacon_, address doubleSideBeacon_)",
       "event DepositedPoolActivated(string name)",
@@ -1772,11 +1772,11 @@
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
       "function tokenPoolBeacon() view returns (address)"
     ],
-    "deployTx": "0xe0778e564cb58711395d6f266b8730121e6461530aa851bba25fbc6db0d0717f",
+    "deployTx": "0xa3d88b934c95d3df29c2dc19537a6449cc5ebce303eaf50a2cb6860775f43496",
     "fullyQualifiedName": "contracts/staking/token/TokenPoolsManager.sol:TokenPoolsManager"
   },
-  "Ecosystem_HRBToken": {
-    "address": "0xbf2B802AbBC4f3aCd2B591FB167a75D8C0145456",
+  "Ecosystem_HBRToken": {
+    "address": "0x7b6B4cc8704EC9533F69E46682c9aD010F30F0C9",
     "abi": [
       "constructor(address admin)",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -1806,7 +1806,7 @@
       "function transfer(address to, uint256 amount) returns (bool)",
       "function transferFrom(address from, address to, uint256 amount) returns (bool)"
     ],
-    "deployTx": "0x30dbcd1b5e0643e7de2d4e8253cf63a60562033ab8a9b0abe4c90ac3f6969be8",
+    "deployTx": "0xdda8f77783e2347249ba80546a99665569b58c1399a175d8fa9d3b1c0153485c",
     "fullyQualifiedName": "contracts/staking/token/HBRToken.sol:HBRToken"
   }
 }

@@ -14,7 +14,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   wrapProviderToError(deployer.provider!);
 
-  const hbrToken = loadDeployment("Ecosystem_HRBToken", chainId, deployer);
+  const hbrToken = loadDeployment("Ecosystem_HBRToken", chainId, deployer);
 
   const poolsManager = loadDeployment("Ecosystem_TokenPoolsManager", chainId, deployer);
 

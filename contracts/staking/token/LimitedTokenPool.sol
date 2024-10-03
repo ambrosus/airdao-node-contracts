@@ -333,6 +333,10 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         return rewardsAmount + stakers[user].claimableRewards - stakers[user].rewardsDebt;
     }
 
+    function getMaxUserStakeValue(address user) public view returns (uint) {
+        return _maxUserStakeValue(user);
+    }
+
     // INTERNAL METHODS
     function _addInterest() internal {
         if (info.lastInterestUpdate + mainConfig.interestRate > block.timestamp) return;

@@ -93,7 +93,7 @@ export enum ContractNames {
   Ecosystem_TokenPoolsManager = "Ecosystem_TokenPoolsManager",
   Ecosystem_TokenPoolsManagerMultisig = "Ecosystem_TokenPoolsManager_Multisig",
   Ecosystem_TokenPoolsManagerRewardsBank = "Ecosystem_TokenPoolsManager_RewardsBank",
-  Ecosystem_HRBToken = "Ecosystem_HRBToken",
+  Ecosystem_HBRToken = "Ecosystem_HBRToken",
 }
 
 export const MULTISIGS_COMMON = {
