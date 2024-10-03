@@ -185,11 +185,11 @@ contract TokenPoolsManager is AccessControl{
 
     // VIEW METHODS
 
-    function getPoolAddress(string memory name) public view returns (address) {
+    function getTokenPoolAddress(string memory name) public view returns (address) {
         return pools[name];
     }
 
-    function getDepositedPoolAdress(string memory name) public view returns (address) {
+    function getLimitedTokenPoolAdress(string memory name) public view returns (address) {
         return depositedPools[name];
     }
 

@@ -41,11 +41,13 @@ export async function main() {
 
   const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
   const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
+  await tokenPoolBeacon.deployed();
   console.log("TokenPool Beacon deployed to:", tokenPoolBeacon.address);
 
   console.log("deploying LimitedTokenPool Beacon");
   const limitedTokenPoolFactory = await ethers.getContractFactory("LimitedTokenPool");
   const limitedTokenPoolBeacon = await upgrades.deployBeacon(limitedTokenPoolFactory);
+  await limitedTokenPoolBeacon.deployed();
   console.log("LimitedTokenPool Beacon deployed to:", limitedTokenPoolBeacon.address);
 
   console.log("deploying TokenPoolsManager");

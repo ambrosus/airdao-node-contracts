@@ -19,8 +19,8 @@ async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-  await airBond.grantRole(await airBond.DEFAULT_ADMIN_ROLE(), deployer.address); // 
-  await airBond.grantRole(await airBond.MINTER_ROLE(), deployer.address);
+  await (await airBond.grantRole(await airBond.DEFAULT_ADMIN_ROLE(), deployer.address)).wait(); // 
+  await (await airBond.grantRole(await airBond.MINTER_ROLE(), deployer.address)).wait();
 }
 
 if (require.main === module) {

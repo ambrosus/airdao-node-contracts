@@ -14,9 +14,9 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   wrapProviderToError(deployer.provider!);
 
-  const hbrToken = loadDeployment("HBRToken", chainId, deployer);
+  const hbrToken = loadDeployment("Ecosystem_HRBToken", chainId, deployer);
 
-  const poolsManager = loadDeployment("TokenPoolsManager", chainId, deployer);
+  const poolsManager = loadDeployment("Ecosystem_TokenPoolsManager", chainId, deployer);
 
   const mainConfig: LimitedTokenPool.MainConfigStruct = {
     name: "HBR-AMB",
@@ -28,7 +28,7 @@ async function main() {
     interestRate: 24 * 60 * 60,
   };
 
-  const createTx = poolsManager.createLimitedTokenPool(mainConfig);
+  const createTx = await poolsManager.createLimitedTokenPool(mainConfig);
   const createReceipt = await createTx.wait();
   console.log("createReceipt", createReceipt);
 
@@ -43,11 +43,11 @@ async function main() {
     stakeLimitsMultiplier: 10,
   };
 
-  const configureLimitsTx = poolsManager.configureLimitedTokenPoolLimits("HBR-AMB", limitsConfig);
+  const configureLimitsTx = await poolsManager.configureLimitedTokenPoolLimits("HBR-AMB", limitsConfig);
   const configureLimitsReceipt = await configureLimitsTx.wait();
   console.log("configureLimitsReceipt", configureLimitsReceipt);
 
-  const poolAddress = await poolsManager.getLimitedTokenPoolAddress("HBR-AMB");
+  const poolAddress = await poolsManager.getLimitedTokenPoolAdress("HBR-AMB");
   console.log("poolAddress:", poolAddress);
 }
 
