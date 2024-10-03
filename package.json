@@ -36,7 +36,8 @@
     "deploy_government": "hardhat run scripts/ecosystem/government/deploy.ts --network dev",
     "deploy_liquid_staking": "hardhat run scripts/ecosystem/liquid_staking/deploy.ts --network dev",
     "deploy_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy.ts --network dev",
-
+    "deploy_hbr_token": "hardhat run scripts/ecosystem/deploy_hbr.ts --network dev",
+    "create_hbr_amb_pool": "hardhat run scripts/ecosystem/create_hbr_amb_pool.ts --network dev",
 
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",

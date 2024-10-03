@@ -9,12 +9,14 @@ import {
   LockKeeper__factory
 } from "../../../typechain-types";
 
+import { wrapProviderToError } from "../../../src/utils/AmbErrorProvider";
 import { deployMultisig } from "../../utils/deployMultisig";
 
 export async function main() {
   const { chainId } = await ethers.provider.getNetwork();
 
   const [deployer] = await ethers.getSigners();
+  wrapProviderToError(deployer.provider!);
 
   const multisig = await deployMultisig(ContractNames.Ecosystem_TokenPoolsManagerMultisig, deployer);
 
@@ -37,18 +39,20 @@ export async function main() {
     
   console.log("deploying TokenPool Beacon");
 
-  const singleSidePoolFactory = await ethers.getContractFactory("SingleSidePool");
-  const singleSideBeacon = await upgrades.deployBeacon(singleSidePoolFactory);
-  console.log("SingleSidePool Beacon deployed to:", singleSideBeacon.address);
+  const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
+  const tokenPoolBeacon = await upgrades.deployBeacon(tokenPoolFactory);
+  console.log("TokenPool Beacon deployed to:", tokenPoolBeacon.address);
 
-  const doubleSidePoolFactory = await ethers.getContractFactory("DoubleSidePool");
-  const doubleSideBeacon = await upgrades.deployBeacon(doubleSidePoolFactory);
-  console.log("DoubleSidePool Beacon deployed to:", doubleSideBeacon.address);
+  console.log("deploying LimitedTokenPool Beacon");
+  const limitedTokenPoolFactory = await ethers.getContractFactory("LimitedTokenPool");
+  const limitedTokenPoolBeacon = await upgrades.deployBeacon(limitedTokenPoolFactory);
+  console.log("LimitedTokenPool Beacon deployed to:", limitedTokenPoolBeacon.address);
 
+  console.log("deploying TokenPoolsManager");
   const poolsManager = await deploy<TokenPoolsManager__factory>({
     contractName: ContractNames.Ecosystem_TokenPoolsManager,
     artifactName: "TokenPoolsManager",
-    deployArgs: [rewardsBank.address, lockKeeper.address, singleSideBeacon.address, doubleSideBeacon.address],
+    deployArgs: [rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address, limitedTokenPoolBeacon.address],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
