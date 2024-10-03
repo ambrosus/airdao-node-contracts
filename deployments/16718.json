@@ -1571,5 +1571,25 @@
       "implementation": "0xeAAd95c57BC920A175767f1b6187820B193E0889",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
+  },
+  "Ecosystem_Astradex_ChronosFeeCollector": {
+    "address": "0x97B7bDAcE8672a2aA553938FA5C289538E7449Ac",
+    "abi": [
+      "constructor()",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function withdrawAmb(address addressTo, uint256 amount)",
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0xf21babb4ad16277b8ef36ddac63adf4a99f909c0175e832a4ae5c33e55aa9d18",
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   }
 }
