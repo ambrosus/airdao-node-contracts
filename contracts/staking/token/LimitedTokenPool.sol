@@ -326,4 +326,6 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         else info.totalRewardsDebt += newDebt - oldDebt;
         stakers[user].rewardsDebt = newDebt;
     }
+
+    function receive() external payable {}
 }
