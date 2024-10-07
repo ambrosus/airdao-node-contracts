@@ -20,8 +20,8 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     struct LimitsConfig {
-        uint rewardTokenPrice;
-        uint interest;
+        uint rewardTokenPrice; // Represented as parts of BILLION 1 = Billion
+        uint interest; // represented as parts of BILLION. 100% = Billion
         uint interestRate;
         uint minDepositValue;
         uint minStakeValue;
@@ -30,7 +30,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         uint stakeLockPeriod; // Time in seconds to how long the stake is locker before unstake
         uint maxTotalStakeValue;
         uint maxStakePerUserValue;
-        uint stakeLimitsMultiplier; // Should be represented as parts of BILLION
+        uint stakeLimitsMultiplier; // Represented as parts of BILLION 1 = Billion
     }
 
     struct Info {
@@ -92,6 +92,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
     // OWNER METHODS
 
     function setLimitsConfig(LimitsConfig calldata config) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        //TODO: Validate config
         limitsConfig = config;
         emit LimitsConfigChanged(config);
     }
@@ -150,6 +151,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
             require(mainConfig.profitableToken == address(0), "Pool: does not accept native coin");
             require(msg.value == amount, "Pool: wrong amount of native coin");
         } else {
+            require(mainConfig.profitableToken != address(0), "Pool: does not accept ERC20 tokens");
             IERC20(mainConfig.profitableToken).safeTransferFrom(msg.sender, address(this), amount);
         }
 
@@ -304,7 +306,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
        stakers[user].claimableRewards = 0;
 
        // TODO: Use decimals for reward token price
-       uint rewardTokenAmount = amount * limitsConfig.rewardTokenPrice;
+       uint rewardTokenAmount = amount * limitsConfig.rewardTokenPrice / BILLION;
        if (mainConfig.rewardToken == address(0)) {
            rewardsBank.withdrawAmb(payable(user), amount);
        } else {
@@ -323,5 +325,10 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         if (newDebt < oldDebt) info.totalRewardsDebt -= oldDebt - newDebt;
         else info.totalRewardsDebt += newDebt - oldDebt;
         stakers[user].rewardsDebt = newDebt;
+    }
+
+    function _isLimitsConfigValid(LimitsConfig calldata config) internal pure returns (bool) {
+
+        return true;
     }
 }
