@@ -131,7 +131,7 @@ describe("PoolsManager", function () {
       };
 
       await poolsManager.configurePool(poolAddress, newLimitsConfig);
-      const updatedConfig = await proxyPool.getLimitsConfig();
+      const updatedConfig = await proxyPool.limitsConfig();
       
       expect(updatedConfig.rewardTokenPrice).to.equal(2);
       expect(updatedConfig.minStakeValue).to.equal(20);
