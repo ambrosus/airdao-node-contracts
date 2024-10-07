@@ -10,10 +10,13 @@ import "../../LockKeeper.sol";
 
 contract TokenPool is Initializable, AccessControl, IOnBlockListener {
 
-    struct Config {
+    struct MainConfig {
         IERC20 token;
         string name;
         address rewardToken; 
+    }
+
+    struct LimitsConfig {
         uint rewardTokenPrice; // The coefficient to calculate the reward token amount
         uint minStakeValue;
         uint fastUnstakePenalty;
@@ -42,7 +45,8 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     RewardsBank rewardsBank;
     LockKeeper lockKeeper;
 
-    Config public config;
+    MainConfig public mainConfig; // immutable
+    LimitsConfig public limitsConfig; // mutable
     Info public info;
 
     mapping(address => Staker) public stakers;
@@ -51,21 +55,19 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
 
     event Deactivated();
     event Activated();
-    event MinStakeValueChanged(uint minStakeValue);
-    event InterestRateChanged(uint interest, uint interestRate);
-    event LockPeriodChanged(uint period);
-    event RewardTokenPriceChanged(uint price);
-    event FastUnstakePenaltyChanged(uint penalty);
+    event LimitsConfigChanged(LimitsConfig limitsConfig);
     event StakeChanged(address indexed user, uint amount);
     event Claim(address indexed user, uint amount);
     event Interest(uint amount);
     event UnstakeLocked(address indexed user, uint amount, uint unlockTime, uint creationTime);
     event UnstakeFast(address indexed user, uint amount, uint penalty);
 
-    function initialize(RewardsBank bank_, LockKeeper keeper_, Config calldata config_) public  initializer {
+    function initialize(RewardsBank bank_, LockKeeper keeper_, MainConfig calldata mainConfig_, LimitsConfig calldata limitsConfig_) public  initializer {
+        //TODO: Should validate input params
         rewardsBank = bank_;
         lockKeeper = keeper_;
-        config = config_;
+        mainConfig = mainConfig_;
+        limitsConfig = limitsConfig_;
 
         info.lastInterestUpdate = block.timestamp;
 
@@ -75,6 +77,12 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     // OWNER METHODS
+
+    function setLimitsConfig(LimitsConfig calldata _limitsConfig) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        //TODO: Validate input params
+        limitsConfig = _limitsConfig;
+        emit LimitsConfigChanged(_limitsConfig);
+    }
 
     function activate() public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!active, "Pool is already active");
@@ -88,39 +96,12 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
         emit Deactivated();
     }
 
-    function setMinStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.minStakeValue = value;
-        emit MinStakeValueChanged(value);
-    }
-
-    function setInterest(uint _interest, uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _addInterest();
-        config.interest = _interest;
-        config.interestRate = _interestRate;
-        emit InterestRateChanged(config.interest, config.interestRate);
-    }
-
-    function setLockPeriod(uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.lockPeriod = period;
-        emit LockPeriodChanged(period);
-    }
-
-    function setRewardTokenPrice(uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.rewardTokenPrice = price;
-        emit RewardTokenPriceChanged(price);
-    }
-
-    function setFastUnstakePenalty(uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        config.fastUnstakePenalty = penalty;
-        emit FastUnstakePenaltyChanged(penalty);
-    }
-
     // PUBLIC METHODS
 
     function stake(uint amount) public {
         require(active, "Pool is not active");
-        require(amount >= config.minStakeValue, "Pool: stake value is too low");
-        require(config.token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        require(amount >= limitsConfig.minStakeValue, "Pool: stake value is too low");
+        require(mainConfig.token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
         _stake(msg.sender, amount);
 
@@ -137,17 +118,17 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
         if (lockKeeper.getLock(stakers[msg.sender].lockedWithdrawal).totalClaims > 0) // prev lock exists
             canceledAmount = lockKeeper.cancelLock(stakers[msg.sender].lockedWithdrawal);
 
-        config.token.approve(address(lockKeeper), amount + canceledAmount);
+        mainConfig.token.approve(address(lockKeeper), amount + canceledAmount);
 
         // lock funds
         stakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
-            msg.sender, address(config.token), uint64(block.timestamp + config.lockPeriod), amount + canceledAmount,
-            string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(config.token))))
+            msg.sender, address(mainConfig.token), uint64(block.timestamp + limitsConfig.lockPeriod), amount + canceledAmount,
+            string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainConfig.token))))
         );
 
         _claimRewards(msg.sender);
 
-        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + config.lockPeriod, block.timestamp);
+        emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + limitsConfig.lockPeriod, block.timestamp);
         emit StakeChanged(msg.sender, stakers[msg.sender].stake);
     }
 
@@ -156,8 +137,8 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
 
         _unstake(msg.sender, amount);
 
-        uint penalty = amount * config.fastUnstakePenalty / BILLION;
-        SafeERC20.safeTransfer(config.token, msg.sender, amount - penalty);
+        uint penalty = amount * limitsConfig.fastUnstakePenalty / BILLION;
+        SafeERC20.safeTransfer(mainConfig.token, msg.sender, amount - penalty);
 
         _claimRewards(msg.sender);
 
@@ -176,8 +157,12 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
 
     // VIEW METHODS
 
-    function getConfig() public view returns (Config memory) {
-        return config;
+    function getMainConfig() public view returns (MainConfig memory) {
+        return mainConfig;
+    }
+
+    function getLimitsConfig() public view returns (LimitsConfig memory) {
+        return limitsConfig;
     }
 
     function getInfo() public view returns (Info memory) {
@@ -208,9 +193,9 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     function _addInterest() internal {
-        if (info.lastInterestUpdate + config.interestRate > block.timestamp) return;
+        if (info.lastInterestUpdate + limitsConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - info.lastInterestUpdate;
-        uint newRewards = info.totalStake * config.interest * timePassed / BILLION / config.interestRate;
+        uint newRewards = info.totalStake * limitsConfig.interest * timePassed / BILLION / limitsConfig.interestRate;
 
         info.totalRewards += newRewards;
         info.lastInterestUpdate = block.timestamp;
@@ -251,8 +236,8 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
 
         stakers[user].claimableRewards = 0;
 
-        uint rewardTokenAmount = amount * config.rewardTokenPrice;
-        rewardsBank.withdrawErc20(config.rewardToken, payable(user), rewardTokenAmount);
+        uint rewardTokenAmount = amount * limitsConfig.rewardTokenPrice;
+        rewardsBank.withdrawErc20(mainConfig.rewardToken, payable(user), rewardTokenAmount);
         emit Claim(user, rewardTokenAmount);
     }
 

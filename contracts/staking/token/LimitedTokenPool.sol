@@ -17,12 +17,12 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         address limitsMultiplierToken;
         address profitableToken;
         address rewardToken;
-        uint rewardTokenPrice;
-        uint interest;
-        uint interestRate;
     }
 
     struct LimitsConfig {
+        uint rewardTokenPrice;
+        uint interest;
+        uint interestRate;
         uint minDepositValue;
         uint minStakeValue;
         uint fastUnstakePenalty;
@@ -66,21 +66,11 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     event Deactivated();
     event Activated();
-    event RewardTokenPriceChanged(uint price);
-    event InterestChanged(uint interest);
-    event InterestRateChanged(uint interestRate);
-    event MinDepositValueChanged(uint minDepositValue);
-    event MinStakeValueChanged(uint minStakeValue);
-    event FastUnstakePenaltyChanged(uint penalty);
-    event UnstakeLockPeriodChanged(uint period);
-    event StakeLockPeriodChanged(uint period);
-    event MaxTotalStakeValueChanged(uint poolMaxStakeValue);
-    event MaxStakePerUserValueChanged(uint maxStakePerUserValue);
-    event StakeLimitsMultiplierChanged(uint value);
+    event LimitsConfigChanged(LimitsConfig config);
 
     event Deposited(address indexed user, uint amount);
     event Withdrawn(address indexed user, uint amount);
-    event Staked(address indexed user, uint amount);
+    event Staked(address indexed user, uint amount, uint timestamp);
     event Claim(address indexed user, uint amount);
     event Interest(uint amount);
     event UnstakeLocked(address indexed user, uint amount, uint unlockTime, uint creationTime);
@@ -103,6 +93,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     function setLimitsConfig(LimitsConfig calldata config) public onlyRole(DEFAULT_ADMIN_ROLE) {
         limitsConfig = config;
+        emit LimitsConfigChanged(config);
     }
 
     function activate() public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -115,61 +106,6 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         require(active, "Pool is not active");
         active = false;
         emit Deactivated();
-    }
-
-    // SETTERS FOR PARAMS
-
-    function setRewardTokenPrice(uint price) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        mainConfig.rewardTokenPrice = price;
-        emit RewardTokenPriceChanged(price);
-    }
-
-    function setInterest(uint _interest, uint _interestRate) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        mainConfig.interest = _interest;
-        mainConfig.interestRate = _interestRate;
-
-        emit InterestRateChanged(_interestRate);
-        emit InterestChanged(_interest);
-    }
-
-    function setMinDepositValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.minDepositValue = value;
-        emit MinStakeValueChanged(value);
-    }
-
-    function setMinStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.minStakeValue = value;
-        emit MinDepositValueChanged(value);
-    }
-
-    function setFastUnstakePenalty(uint penalty) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.fastUnstakePenalty = penalty;
-        emit FastUnstakePenaltyChanged(penalty);
-    }
-
-    function setUnstakeLockPeriod(uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.unstakeLockPeriod = period;
-        emit UnstakeLockPeriodChanged(period);
-    }
-
-    function setStakeLockPeriod(uint period) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.stakeLockPeriod = period;
-        emit StakeLockPeriodChanged(period);
-    }
-
-    function setMaxTotalStakeValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.maxTotalStakeValue = value;
-        emit MaxTotalStakeValueChanged(value);
-    }
-
-    function setMaxStakePerUserValue(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.maxStakePerUserValue = value;
-        emit MaxStakePerUserValueChanged(value);
-    }
-
-    function setStakeLimitsMultiplier(uint value) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        limitsConfig.stakeLimitsMultiplier = value;
-        emit StakeLimitsMultiplierChanged(value);
     }
 
     // PUBLIC METHODS
@@ -230,7 +166,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         require(stakers[msg.sender].stake <= limitsConfig.maxStakePerUserValue, "Pool: max stake per user exceeded");
 
         _updateRewardsDebt(msg.sender, _calcRewards(stakers[msg.sender].stake));
-        emit Staked(msg.sender, amount);
+        emit Staked(msg.sender, amount, block.timestamp);
     }
 
     function unstake(uint amount) public {
@@ -339,9 +275,9 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     // INTERNAL METHODS
     function _addInterest() internal {
-        if (info.lastInterestUpdate + mainConfig.interestRate > block.timestamp) return;
+        if (info.lastInterestUpdate + limitsConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - info.lastInterestUpdate;
-        uint newRewards = info.totalStake * mainConfig.interest * timePassed / BILLION / mainConfig.interestRate;
+        uint newRewards = info.totalStake * limitsConfig.interest * timePassed / BILLION / limitsConfig.interestRate;
 
         info.totalRewards += newRewards;
         info.lastInterestUpdate = block.timestamp;
@@ -368,7 +304,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
        stakers[user].claimableRewards = 0;
 
        // TODO: Use decimals for reward token price
-       uint rewardTokenAmount = amount * mainConfig.rewardTokenPrice;
+       uint rewardTokenAmount = amount * limitsConfig.rewardTokenPrice;
        if (mainConfig.rewardToken == address(0)) {
            rewardsBank.withdrawAmb(payable(user), amount);
        } else {
