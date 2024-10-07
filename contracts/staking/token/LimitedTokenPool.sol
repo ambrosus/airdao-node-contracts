@@ -326,9 +326,4 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         else info.totalRewardsDebt += newDebt - oldDebt;
         stakers[user].rewardsDebt = newDebt;
     }
-
-    function _isLimitsConfigValid(LimitsConfig calldata config) internal pure returns (bool) {
-
-        return true;
-    }
 }

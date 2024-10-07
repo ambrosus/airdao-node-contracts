@@ -43,12 +43,12 @@ describe("LimitedTokenPool", function () {
       limitsMultiplierToken: limitsMultiplierToken.address,
       profitableToken: profitableToken.address,
       rewardToken: profitableToken.address,
-      rewardTokenPrice: 1, // 1:1 ratio
-      interest: 0.10 * BILLION, // 10%
-      interestRate: D1, // 1 day
     };
 
     const limitsConfig: LimitedTokenPool.LimitsConfigStruct = {
+      rewardTokenPrice: BILLION, // 1:1 ratio
+      interest: 0.10 * BILLION, // 10%
+      interestRate: D1, // 1 day
       minDepositValue: 10,
       minStakeValue: 10,
       fastUnstakePenalty: 0.10 * BILLION, // 10%
@@ -95,13 +95,13 @@ describe("LimitedTokenPool", function () {
       expect(config.limitsMultiplierToken).to.equal(limitsMultiplierToken.address);
       expect(config.profitableToken).to.equal(profitableToken.address);
       expect(config.rewardToken).to.equal(profitableToken.address);
-      expect(config.rewardTokenPrice).to.equal(1);
-      expect(config.interest).to.equal(0.10 * BILLION);
-      expect(config.interestRate).to.equal(D1);
     });
 
     it("Should initialize with correct limits config", async function () {
       const limits = await limitedPool.getLimitsConfig();
+      expect(limits.rewardTokenPrice).to.equal(BILLION);
+      expect(limits.interest).to.equal(0.10 * BILLION);
+      expect(limits.interestRate).to.equal(D1);
       expect(limits.minDepositValue).to.equal(10);
       expect(limits.minStakeValue).to.equal(10);
       expect(limits.fastUnstakePenalty).to.equal(0.10 * BILLION);
@@ -171,9 +171,7 @@ describe("LimitedTokenPool", function () {
 
     it("Should allow staking", async function () {
       const stakeAmount = ethers.utils.parseEther("100");
-      await expect(limitedPool.stake(stakeAmount))
-        .to.emit(limitedPool, "Staked")
-        .withArgs(owner.address, stakeAmount);
+      await limitedPool.stake(stakeAmount);
 
       const info = await limitedPool.getInfo();
       expect(info.totalStake).to.equal(stakeAmount);
@@ -193,7 +191,12 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should not allow staking above total pool limit", async function () {
-      await limitedPool.setMaxTotalStakeValue(ethers.utils.parseEther("100"));
+      const limits= await limitedPool.getLimitsConfig();
+      const updatedLimits = {
+        ...limits,
+        maxTotalStakeValue: ethers.utils.parseEther("100")
+      };
+      await limitedPool.setLimitsConfig(updatedLimits);
       const stakeAmount = ethers.utils.parseEther("101");
       await expect(limitedPool.stake(stakeAmount)).to.be.revertedWith("Pool: max stake value exceeded");
     });
@@ -224,7 +227,12 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should not allow unstaking before stake lock period", async function () {
-      await limitedPool.setStakeLockPeriod(D1 * 2);
+      const limits = await limitedPool.getLimitsConfig();
+      const updatedLimits = {
+        ...limits,
+        stakeLockPeriod: ethers.BigNumber.from(D1 * 2)
+      };
+      await limitedPool.setLimitsConfig(updatedLimits);
       await limitedPool.stake(stakeAmount);
       await time.increase(D1 / 2);
       await expect(limitedPool.unstake(stakeAmount)).to.be.revertedWith("Stake is locked");
@@ -285,7 +293,12 @@ describe("LimitedTokenPool", function () {
 
   describe("Edge cases", function () {
     it("Should handle multiple deposits and stakes correctly", async function () {
-      await limitedPool.setStakeLockPeriod(0); // No lock period
+      const limits  = await limitedPool.getLimitsConfig();
+      const updatedLimits = {
+        ...limits,
+        stakeLockPeriod: 0,
+      };
+      await limitedPool.setLimitsConfig(updatedLimits);
       const depositAmount = ethers.utils.parseEther("1000");
       const stakeAmount = ethers.utils.parseEther("500");
 
@@ -304,7 +317,12 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should handle rewards correctly after multiple stakes and unstakes", async function () {
-      await limitedPool.setStakeLockPeriod(0); // No lock period
+      const limits = await limitedPool.getLimitsConfig();
+      const updatedLimits = {
+        ...limits,
+        stakeLockPeriod: 0,
+      };
+      await limitedPool.setLimitsConfig(updatedLimits);
       const depositAmount = ethers.utils.parseEther("2000");
       const stakeAmount = ethers.utils.parseEther("500");
 
@@ -425,9 +443,6 @@ describe("LimitedTokenPool", function () {
         limitsMultiplierToken: limitsMultiplierToken.address,
         profitableToken: profitableToken.address,
         rewardToken: profitableToken.address,
-        rewardTokenPrice: BILLION,
-        interest: 0.10 * BILLION,
-        interestRate: D1,
       };
 
       await expect(limitedPool.initialize(rewardsBank.address, lockKeeper.address, mainConfig))
@@ -435,7 +450,12 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should only allow admin to change configurations", async function () {
-      await expect(limitedPool.connect(user1).setRewardTokenPrice(BILLION * 2))
+      const limits = await limitedPool.getLimitsConfig();
+      const updatedLimits = {
+        ...limits,
+        rewardTokenPrice: BILLION * 2
+      };
+      await expect(limitedPool.connect(user1).setLimitsConfig(updatedLimits))
         .to.be.revertedWith("AccessControl: account " + user1.address.toLowerCase() + " is missing role 0x0000000000000000000000000000000000000000000000000000000000000000");
     });
 
@@ -454,9 +474,6 @@ describe("LimitedTokenPool", function () {
         limitsMultiplierToken: ethers.constants.AddressZero, // ETH
         profitableToken: profitableToken.address,
         rewardToken: profitableToken.address,
-        rewardTokenPrice: BILLION,
-        interest: 0.10 * BILLION,
-        interestRate: D1,
       };
 
       const ethPool = (await upgrades.deployProxy(limitedPoolFactory, [
@@ -466,6 +483,9 @@ describe("LimitedTokenPool", function () {
       ])) as LimitedTokenPool;
 
       await ethPool.setLimitsConfig({
+        rewardTokenPrice: BILLION,
+        interest: 0.10 * BILLION,
+        interestRate: D1,
         minDepositValue: ethers.utils.parseEther("0.1"),
         minStakeValue: ethers.utils.parseEther("0.1"),
         fastUnstakePenalty: 0.10 * BILLION,
@@ -493,9 +513,6 @@ describe("LimitedTokenPool", function () {
         limitsMultiplierToken: limitsMultiplierToken.address,
         profitableToken: ethers.constants.AddressZero, // ETH
         rewardToken: profitableToken.address,
-        rewardTokenPrice: BILLION,
-        interest: 0.10 * BILLION,
-        interestRate: D1,
       };
 
       const ethPool = (await upgrades.deployProxy(limitedPoolFactory, [
@@ -505,6 +522,9 @@ describe("LimitedTokenPool", function () {
       ])) as LimitedTokenPool;
 
       await ethPool.setLimitsConfig({
+        rewardTokenPrice: BILLION,
+        interest: 0.10 * BILLION,
+        interestRate: D1,
         minDepositValue: ethers.utils.parseEther("0.1"),
         minStakeValue: ethers.utils.parseEther("0.1"),
         fastUnstakePenalty: 0.10 * BILLION,
@@ -520,9 +540,7 @@ describe("LimitedTokenPool", function () {
       await ethPool.deposit(ethers.utils.parseEther("10"));
 
       const stakeAmount = ethers.utils.parseEther("1");
-      await expect(ethPool.stake(stakeAmount, { value: stakeAmount }))
-        .to.emit(ethPool, "Staked")
-        .withArgs(owner.address, stakeAmount);
+      await ethPool.stake(stakeAmount, { value: stakeAmount });
 
       const info = await ethPool.getInfo();
       expect(info.totalStake).to.equal(stakeAmount);

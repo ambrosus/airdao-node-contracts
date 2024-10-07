@@ -16,7 +16,7 @@ const D1 = 24 * 60 * 60;
 const BILLION = 1000000000;
 
 import { expect } from "chai";
-describe("SingleSidePool", function () {
+describe("TokenPool", function () {
   let owner: SignerWithAddress;
   let tokenPool: TokenPool;
   let rewardsBank: RewardsBank;
@@ -31,19 +31,22 @@ describe("SingleSidePool", function () {
 
     const tokenPoolFactory = await ethers.getContractFactory("TokenPool");
 
-    const tokenPoolParams: TokenPool.ConfigStruct = {
+    const mainConfig: TokenPool.MainConfigStruct = {
       token: token.address,
       name: "Test",
+      rewardToken: token.address,
+    };
+
+    const limitsConfig: TokenPool.LimitsConfigStruct = {
       minStakeValue: 10,
       fastUnstakePenalty: 0.10 * BILLION, // 10%
       interest: 0.10 * BILLION, // 10%
       interestRate: D1, // 1 day
       lockPeriod: D1, // 1 day
-      rewardToken: token.address,
       rewardTokenPrice: 1,
     };
     
-    const tokenPool = (await upgrades.deployProxy(tokenPoolFactory, [rewardsBank.address, lockKeeper.address, tokenPoolParams])) as TokenPool;
+    const tokenPool = (await upgrades.deployProxy(tokenPoolFactory, [rewardsBank.address, lockKeeper.address, mainConfig, limitsConfig])) as TokenPool;
 
     await (await rewardsBank.grantRole(await rewardsBank.DEFAULT_ADMIN_ROLE(), tokenPool.address)).wait();
     await (await token.grantRole(await token.MINTER_ROLE(), owner.address)).wait();
