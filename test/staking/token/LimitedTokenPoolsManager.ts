@@ -80,7 +80,7 @@ describe("LimitedTokenPoolsManager", function () {
       await poolsManager.configurePool(poolAddress, limitsConfig);
 
       const proxyPool = new ethers.Contract(poolAddress, LimitedTokenPoolJson.abi, owner);
-      const updatedConfig = await proxyPool.getLimitsConfig();
+      const updatedConfig = await proxyPool.limitsConfig();
 
       expect(updatedConfig.rewardTokenPrice).to.equal(limitsConfig.rewardTokenPrice);
       expect(updatedConfig.interest).to.equal(limitsConfig.interest);
@@ -161,7 +161,7 @@ describe("LimitedTokenPoolsManager", function () {
       };
 
       await poolsManager.configurePool(poolAddress, newLimitsConfig);
-      const updatedConfig = await proxyPool.getLimitsConfig();
+      const updatedConfig = await proxyPool.limitsConfig();
       
       expect(updatedConfig.rewardTokenPrice).to.equal(newLimitsConfig.rewardTokenPrice);
       expect(updatedConfig.interest).to.equal(newLimitsConfig.interest);

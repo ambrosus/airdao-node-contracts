@@ -247,18 +247,6 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         return mainConfig.name;
     }
 
-    function getMainConfig() public view returns (MainConfig memory) {
-        return mainConfig;
-    }
-
-    function getLimitsConfig() public view returns (LimitsConfig memory) {
-        return limitsConfig;
-    }
-    
-    function getInfo() public view returns (Info memory) {
-        return info;
-    }
-
     function getStaker(address user) public view returns (Staker memory) {
         return stakers[user];
     }

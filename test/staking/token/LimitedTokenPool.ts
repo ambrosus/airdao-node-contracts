@@ -90,7 +90,7 @@ describe("LimitedTokenPool", function () {
 
   describe("Initialization", function () {
     it("Should initialize with correct main config", async function () {
-      const config = await limitedPool.getMainConfig();
+      const config = await limitedPool.mainConfig();
       expect(config.name).to.equal("Test Deposited Pool");
       expect(config.limitsMultiplierToken).to.equal(limitsMultiplierToken.address);
       expect(config.profitableToken).to.equal(profitableToken.address);
@@ -98,7 +98,7 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should initialize with correct limits config", async function () {
-      const limits = await limitedPool.getLimitsConfig();
+      const limits = await limitedPool.limitsConfig();
       expect(limits.rewardTokenPrice).to.equal(BILLION);
       expect(limits.interest).to.equal(0.10 * BILLION);
       expect(limits.interestRate).to.equal(D1);
@@ -120,7 +120,7 @@ describe("LimitedTokenPool", function () {
         .to.emit(limitedPool, "Deposited")
         .withArgs(owner.address, depositAmount);
 
-      const info = await limitedPool.getInfo();
+      const info = await limitedPool.info();
       expect(info.totalDeposit).to.equal(depositAmount);
 
       const staker = await limitedPool.getStaker(owner.address);
@@ -144,7 +144,7 @@ describe("LimitedTokenPool", function () {
         .to.emit(limitedPool, "Withdrawn")
         .withArgs(owner.address, withdrawAmount);
 
-      const info = await limitedPool.getInfo();
+      const info = await limitedPool.info();
       expect(info.totalDeposit).to.equal(ethers.utils.parseEther("500"));
 
       const staker = await limitedPool.getStaker(owner.address);
@@ -173,7 +173,7 @@ describe("LimitedTokenPool", function () {
       const stakeAmount = ethers.utils.parseEther("100");
       await limitedPool.stake(stakeAmount);
 
-      const info = await limitedPool.getInfo();
+      const info = await limitedPool.info();
       expect(info.totalStake).to.equal(stakeAmount);
 
       const staker = await limitedPool.getStaker(owner.address);
@@ -191,7 +191,7 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should not allow staking above total pool limit", async function () {
-      const limits= await limitedPool.getLimitsConfig();
+      const limits= await limitedPool.limitsConfig();
       const updatedLimits = {
         ...limits,
         maxTotalStakeValue: ethers.utils.parseEther("100")
@@ -215,7 +215,7 @@ describe("LimitedTokenPool", function () {
       await expect(limitedPool.unstake(stakeAmount))
         .to.emit(lockKeeper, "Locked");
 
-      const info = await limitedPool.getInfo();
+      const info = await limitedPool.info();
       expect(info.totalStake).to.equal(0);
 
       const staker = await limitedPool.getStaker(owner.address);
@@ -227,7 +227,7 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should not allow unstaking before stake lock period", async function () {
-      const limits = await limitedPool.getLimitsConfig();
+      const limits = await limitedPool.limitsConfig();
       const updatedLimits = {
         ...limits,
         stakeLockPeriod: ethers.BigNumber.from(D1 * 2)
@@ -256,7 +256,7 @@ describe("LimitedTokenPool", function () {
       const expectedReturn = stakeAmount.mul(90).div(100); // 90% due to 10% penalty
       expect(balanceAfter.sub(balanceBefore)).to.equal(expectedReturn);
 
-      const info = await limitedPool.getInfo();
+      const info = await limitedPool.info();
       expect(info.totalStake).to.equal(0);
     });
   });
@@ -293,7 +293,7 @@ describe("LimitedTokenPool", function () {
 
   describe("Edge cases", function () {
     it("Should handle multiple deposits and stakes correctly", async function () {
-      const limits  = await limitedPool.getLimitsConfig();
+      const limits  = await limitedPool.limitsConfig();
       const updatedLimits = {
         ...limits,
         stakeLockPeriod: 0,
@@ -307,7 +307,7 @@ describe("LimitedTokenPool", function () {
       await limitedPool.deposit(depositAmount);
       await limitedPool.stake(stakeAmount);
 
-      const info = await limitedPool.getInfo();
+      const info = await limitedPool.info();
       expect(info.totalDeposit).to.equal(depositAmount.mul(2));
       expect(info.totalStake).to.equal(stakeAmount.mul(2));
 
@@ -317,7 +317,7 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should handle rewards correctly after multiple stakes and unstakes", async function () {
-      const limits = await limitedPool.getLimitsConfig();
+      const limits = await limitedPool.limitsConfig();
       const updatedLimits = {
         ...limits,
         stakeLockPeriod: 0,
@@ -369,11 +369,11 @@ describe("LimitedTokenPool", function () {
 
     it("Should not add interest if called too frequently", async function () {
       await limitedPool.onBlock();
-      const infoBefore = await limitedPool.getInfo();
+      const infoBefore = await limitedPool.info();
       
       await time.increase(D1 / 2); // Half a day
       await limitedPool.onBlock();
-      const infoAfter = await limitedPool.getInfo();
+      const infoAfter = await limitedPool.info();
 
       expect(infoAfter.totalRewards).to.equal(infoBefore.totalRewards);
     });
@@ -407,7 +407,7 @@ describe("LimitedTokenPool", function () {
       expect(infoUser2.deposit).to.equal(ethers.utils.parseEther("300"));
       expect(infoUser2.stake).to.equal(ethers.utils.parseEther("100"));
 
-      const poolInfo = await limitedPool.getInfo();
+      const poolInfo = await limitedPool.info();
       expect(poolInfo.totalDeposit).to.equal(ethers.utils.parseEther("800"));
       expect(poolInfo.totalStake).to.equal(ethers.utils.parseEther("300"));
     });
@@ -450,7 +450,7 @@ describe("LimitedTokenPool", function () {
     });
 
     it("Should only allow admin to change configurations", async function () {
-      const limits = await limitedPool.getLimitsConfig();
+      const limits = await limitedPool.limitsConfig();
       const updatedLimits = {
         ...limits,
         rewardTokenPrice: BILLION * 2
@@ -501,7 +501,7 @@ describe("LimitedTokenPool", function () {
         .to.emit(ethPool, "Deposited")
         .withArgs(owner.address, depositAmount);
 
-      const info = await ethPool.getInfo();
+      const info = await ethPool.info();
       expect(info.totalDeposit).to.equal(depositAmount);
     });
 
@@ -542,7 +542,7 @@ describe("LimitedTokenPool", function () {
       const stakeAmount = ethers.utils.parseEther("1");
       await ethPool.stake(stakeAmount, { value: stakeAmount });
 
-      const info = await ethPool.getInfo();
+      const info = await ethPool.info();
       expect(info.totalStake).to.equal(stakeAmount);
     });
   });
