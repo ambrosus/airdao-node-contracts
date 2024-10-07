@@ -8,7 +8,7 @@ import "./TokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-contract TokenPoolsManager is AccessControl{
+contract TokenPoolsManager is AccessControl {
     LockKeeper lockKeeper;
     RewardsBank public bank;
     UpgradeableBeacon public beacon;

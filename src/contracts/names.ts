@@ -86,13 +86,12 @@ export enum ContractNames {
 
   Ecosystem_GovernmentMultisig = "Ecosystem_Government_Multisig",
 
-  Ecosystem_SingleSidePool = "Ecosystem_SingleSidePool",
-  Ecosystem_SingleSidePoolBeacon = "Ecosystem_SingleSidePool_Beacon",
-  Ecosystem_DoubleSidePool = "Ecosystem_DoubleSidePool",
-  Ecosystem_DoubleSidePoolBeacon = "Ecosystem_DoubleSidePool_Beacon",
   Ecosystem_TokenPoolsManager = "Ecosystem_TokenPoolsManager",
   Ecosystem_TokenPoolsManagerMultisig = "Ecosystem_TokenPoolsManager_Multisig",
   Ecosystem_TokenPoolsManagerRewardsBank = "Ecosystem_TokenPoolsManager_RewardsBank",
+  Ecosystem_LimitedTokenPoolsManager = "Ecosystem_LimitedTokenPoolsManager",
+  Ecosystem_LimitedTokenPoolsManagerMultisig = "Ecosystem_LimitedTokenPoolsManager_Multisig",
+  Ecosystem_LimitedTokenPoolsManagerRewardsBank = "Ecosystem_LimitedTokenPoolsManager_RewardsBank",
   Ecosystem_HBRToken = "Ecosystem_HBRToken",
 }
 
@@ -130,6 +129,7 @@ export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_LiquidPoolStAMB]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_LiquidPoolStakingTiers]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_TokenPoolsManager]: ContractNames.Ecosystem_TokenPoolsManagerMultisig,
+  [ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig]: ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};

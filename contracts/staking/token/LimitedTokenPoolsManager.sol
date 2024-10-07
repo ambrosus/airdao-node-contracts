@@ -8,17 +8,18 @@ import "./LimitedTokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-contract LimitedTokenPoolsManager is Ownable {
+contract LimitedTokenPoolsManager is AccessControl {
     LockKeeper lockKeeper;
     RewardsBank public bank;
     UpgradeableBeacon public limitedTokenPoolBeacon;
 
     address[] public pools;
     
-    constructor(RewardsBank bank_, LockKeeper lockKeeper_, UpgradeableBeacon doubleSideBeacon_) Ownable() {
+    constructor(RewardsBank bank_, LockKeeper lockKeeper_, UpgradeableBeacon doubleSideBeacon_) { 
         lockKeeper = lockKeeper_;
         bank = bank_;
         limitedTokenPoolBeacon = doubleSideBeacon_;
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     event LimitedPoolCreated(address pool);
@@ -27,7 +28,7 @@ contract LimitedTokenPoolsManager is Ownable {
     event LimitedPoolActivated(address pool);
 
     // LIMITED POOL METHODS
-    function createPool(LimitedTokenPool.MainConfig calldata params) public onlyOwner returns (address) {
+    function createPool(LimitedTokenPool.MainConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         bytes memory data = abi.encodeWithSignature(
             "initialize(address,address,(string,address,address,address))",
             bank, lockKeeper, params);
@@ -38,21 +39,21 @@ contract LimitedTokenPoolsManager is Ownable {
         return pool;
     }
 
-    function configurePool(address _pool, LimitedTokenPool.LimitsConfig calldata params) public onlyOwner {
+    function configurePool(address _pool, LimitedTokenPool.LimitsConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool),"Pool does not exist");
         LimitedTokenPool pool = LimitedTokenPool(_pool);
         pool.setLimitsConfig(params);
         emit LimitedPoolConfigured(_pool, params);
     }
 
-    function deactivatePool(address _pool) public onlyOwner {
+    function deactivatePool(address _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool),"Pool does not exist");
         LimitedTokenPool pool = LimitedTokenPool(_pool);
         pool.deactivate();
         emit LimitedPoolDeactivated(_pool);
     }
 
-    function activatePool(address _pool) public onlyOwner {
+    function activatePool(address _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool),"Pool does not exist");
         LimitedTokenPool pool = LimitedTokenPool(_pool);
         pool.activate();

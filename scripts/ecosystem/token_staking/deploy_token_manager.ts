@@ -44,17 +44,11 @@ export async function main() {
   await tokenPoolBeacon.deployed();
   console.log("TokenPool Beacon deployed to:", tokenPoolBeacon.address);
 
-  console.log("deploying LimitedTokenPool Beacon");
-  const limitedTokenPoolFactory = await ethers.getContractFactory("LimitedTokenPool");
-  const limitedTokenPoolBeacon = await upgrades.deployBeacon(limitedTokenPoolFactory);
-  await limitedTokenPoolBeacon.deployed();
-  console.log("LimitedTokenPool Beacon deployed to:", limitedTokenPoolBeacon.address);
-
   console.log("deploying TokenPoolsManager");
   const poolsManager = await deploy<TokenPoolsManager__factory>({
     contractName: ContractNames.Ecosystem_TokenPoolsManager,
     artifactName: "TokenPoolsManager",
-    deployArgs: [rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address, limitedTokenPoolBeacon.address],
+    deployArgs: [rewardsBank.address, lockKeeper.address, tokenPoolBeacon.address],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
