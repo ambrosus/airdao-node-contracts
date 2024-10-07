@@ -123,8 +123,8 @@ describe("LimitedTokenPool", function () {
       const info = await limitedPool.info();
       expect(info.totalDeposit).to.equal(depositAmount);
 
-      const staker = await limitedPool.getStaker(owner.address);
-      expect(staker.deposit).to.equal(depositAmount);
+      const deposit = await limitedPool.getDeposit(owner.address);
+      expect(deposit).to.equal(depositAmount);
     });
 
     it("Should not allow deposit below minimum", async function () {
@@ -147,8 +147,8 @@ describe("LimitedTokenPool", function () {
       const info = await limitedPool.info();
       expect(info.totalDeposit).to.equal(ethers.utils.parseEther("500"));
 
-      const staker = await limitedPool.getStaker(owner.address);
-      expect(staker.deposit).to.equal(ethers.utils.parseEther("500"));
+      const deposit = await limitedPool.getDeposit(owner.address);
+      expect(deposit).to.equal(ethers.utils.parseEther("500"));
     });
 
     it("Should not allow withdrawal more than deposited", async function () {
@@ -176,8 +176,8 @@ describe("LimitedTokenPool", function () {
       const info = await limitedPool.info();
       expect(info.totalStake).to.equal(stakeAmount);
 
-      const staker = await limitedPool.getStaker(owner.address);
-      expect(staker.stake).to.equal(stakeAmount);
+      const stake = await limitedPool.getStake(owner.address);
+      expect(stake).to.equal(stakeAmount);
     });
 
     it("Should not allow staking below minimum", async function () {
@@ -218,8 +218,8 @@ describe("LimitedTokenPool", function () {
       const info = await limitedPool.info();
       expect(info.totalStake).to.equal(0);
 
-      const staker = await limitedPool.getStaker(owner.address);
-      expect(staker.stake).to.equal(0);
+      const stake = await limitedPool.getStake(owner.address);
+      expect(stake).to.equal(0);
     });
 
     it("Should not allow unstaking more than staked", async function () {
@@ -311,9 +311,10 @@ describe("LimitedTokenPool", function () {
       expect(info.totalDeposit).to.equal(depositAmount.mul(2));
       expect(info.totalStake).to.equal(stakeAmount.mul(2));
 
-      const staker = await limitedPool.getStaker(owner.address);
-      expect(staker.deposit).to.equal(depositAmount.mul(2));
-      expect(staker.stake).to.equal(stakeAmount.mul(2));
+      const deposit = await limitedPool.getDeposit(owner.address);
+      const stake = await limitedPool.getStake(owner.address);
+      expect(deposit).to.equal(depositAmount.mul(2));
+      expect(stake).to.equal(stakeAmount.mul(2));
     });
 
     it("Should handle rewards correctly after multiple stakes and unstakes", async function () {
@@ -399,13 +400,15 @@ describe("LimitedTokenPool", function () {
       await limitedPool.connect(user1).stake(ethers.utils.parseEther("200"));
       await limitedPool.connect(user2).stake(ethers.utils.parseEther("100"));
 
-      const infoUser1 = await limitedPool.getStaker(user1.address);
-      const infoUser2 = await limitedPool.getStaker(user2.address);
+      const depositUser1 = await limitedPool.getDeposit(user1.address);
+      const stakeUser1 = await limitedPool.getStake(user1.address);
+      const depositUser2 = await limitedPool.getDeposit(user2.address);
+      const stakeUser2 = await limitedPool.getStake(user2.address);
 
-      expect(infoUser1.deposit).to.equal(ethers.utils.parseEther("500"));
-      expect(infoUser1.stake).to.equal(ethers.utils.parseEther("200"));
-      expect(infoUser2.deposit).to.equal(ethers.utils.parseEther("300"));
-      expect(infoUser2.stake).to.equal(ethers.utils.parseEther("100"));
+      expect(depositUser1).to.equal(ethers.utils.parseEther("500"));
+      expect(stakeUser1).to.equal(ethers.utils.parseEther("200"));
+      expect(depositUser2).to.equal(ethers.utils.parseEther("300"));
+      expect(stakeUser2).to.equal(ethers.utils.parseEther("100"));
 
       const poolInfo = await limitedPool.info();
       expect(poolInfo.totalDeposit).to.equal(ethers.utils.parseEther("800"));

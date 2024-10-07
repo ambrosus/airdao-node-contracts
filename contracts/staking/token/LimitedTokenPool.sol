@@ -56,11 +56,11 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
     LockKeeper public lockKeeper;
     RewardsBank public rewardsBank;
 
-    MainConfig public mainConfig;
-    LimitsConfig public limitsConfig;
+    MainConfig public mainConfig; // immutable
+    LimitsConfig public limitsConfig; // mutable
     Info public info;
 
-    mapping(address => Staker) public stakers;
+    mapping(address => Staker) private stakers;
 
     //EVENTS
 
@@ -247,8 +247,12 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         return mainConfig.name;
     }
 
-    function getStaker(address user) public view returns (Staker memory) {
-        return stakers[user];
+    function getStake(address user) public view returns (uint) {
+        return stakers[user].stake;
+    }
+
+    function getDeposit(address user) public view returns (uint) {
+        return stakers[user].deposit;
     }
 
     function getUserRewards(address user) public view returns (uint) {

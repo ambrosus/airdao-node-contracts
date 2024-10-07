@@ -49,7 +49,7 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     LimitsConfig public limitsConfig; // mutable
     Info public info;
 
-    mapping(address => Staker) public stakers;
+    mapping(address => Staker) private stakers;
 
     //EVENTS
 
@@ -63,7 +63,6 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     event UnstakeFast(address indexed user, uint amount, uint penalty);
 
     function initialize(RewardsBank bank_, LockKeeper keeper_, MainConfig calldata mainConfig_, LimitsConfig calldata limitsConfig_) public  initializer {
-        //TODO: Should validate input params
         rewardsBank = bank_;
         lockKeeper = keeper_;
         mainConfig = mainConfig_;
@@ -123,7 +122,7 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
         // lock funds
         stakers[msg.sender].lockedWithdrawal = lockKeeper.lockSingle(
             msg.sender, address(mainConfig.token), uint64(block.timestamp + limitsConfig.lockPeriod), amount + canceledAmount,
-            string(abi.encodePacked("TokenStaking unstake: ", _addressToString(address(mainConfig.token))))
+            string(abi.encodePacked("TokenStaking unstake"))
         );
 
         _claimRewards(msg.sender);
@@ -156,18 +155,6 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     // VIEW METHODS
-
-    function getMainConfig() public view returns (MainConfig memory) {
-        return mainConfig;
-    }
-
-    function getLimitsConfig() public view returns (LimitsConfig memory) {
-        return limitsConfig;
-    }
-
-    function getInfo() public view returns (Info memory) {
-        return info;
-    }
 
     function getStake(address user) public view returns (uint) {
         return stakers[user].stake;
@@ -245,21 +232,4 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
         if (info.totalStake == 0 && info.totalRewards == 0) return amount;
         return amount * info.totalRewards /info.totalStake;
     }
-
-    function _addressToString(address x) internal pure returns (string memory) {
-        bytes memory s = new bytes(40);
-        for (uint i = 0; i < 20; i++) {
-            uint8 b = uint8(uint(uint160(x)) / (2 ** (8 * (19 - i))));
-            uint8 hi = (b / 16);
-            uint8 lo = (b - 16 * hi);
-            s[2 * i] = _char(hi);
-            s[2 * i + 1] = _char(lo);
-        }
-        return string(s);
-    }
-
-    function _char(uint8 b) internal pure returns (bytes1 c) {
-        return bytes1(b + (b < 10 ? 0x30 : 0x57));
-    }
-
 }
