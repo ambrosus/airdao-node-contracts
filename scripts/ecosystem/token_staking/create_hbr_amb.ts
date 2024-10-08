@@ -3,7 +3,8 @@ import { wrapProviderToError } from "../../../src/utils/AmbErrorProvider";
 import {  loadDeployment } from "@airdao/deployments/deploying";
 
 import {
-  LimitedTokenPool
+  LimitedTokenPool,
+  LimitedTokenPoolsManager
 } from "../../../typechain-types";
 
 const BILLIION = 1_000_000_000;
@@ -16,7 +17,10 @@ async function main() {
 
   const hbrToken = loadDeployment("Ecosystem_HBRToken", chainId, deployer);
 
-  const poolsManager = loadDeployment("Ecosystem_TokenPoolsManager", chainId, deployer);
+  const poolsManager = loadDeployment("Ecosystem_LimitedTokenPoolsManager", chainId, deployer) as LimitedTokenPoolsManager;
+
+  //const pools = await poolsManager.pools(0);
+  //console.log("pools", pools);
 
   const mainConfig: LimitedTokenPool.MainConfigStruct = {
     name: "HBR-AMB",
@@ -25,9 +29,9 @@ async function main() {
     rewardToken: ethers.constants.AddressZero,
   };
 
-  const createTx = await poolsManager.createLimitedTokenPool(mainConfig);
-  const createReceipt = await createTx.wait();
-  console.log("createReceipt", createReceipt);
+  //const createTx = await poolsManager.createPool(mainConfig);
+  //const createReceipt = await createTx.wait();
+  //console.log("createReceipt", createReceipt);
 
   const limitsConfig: LimitedTokenPool.LimitsConfigStruct = {
     rewardTokenPrice: BILLIION,
@@ -43,12 +47,9 @@ async function main() {
     stakeLimitsMultiplier: 10 * BILLIION,
   };
 
-  const configureLimitsTx = await poolsManager.configureLimitedTokenPoolLimits("HBR-AMB", limitsConfig);
+  const configureLimitsTx = await poolsManager.configurePool("0x93381ADEC72b8201fFe12E47e47f390f4132764f", limitsConfig);
   const configureLimitsReceipt = await configureLimitsTx.wait();
   console.log("configureLimitsReceipt", configureLimitsReceipt);
-
-  const poolAddress = await poolsManager.getLimitedTokenPoolAdress("HBR-AMB");
-  console.log("poolAddress:", poolAddress);
 }
 
 

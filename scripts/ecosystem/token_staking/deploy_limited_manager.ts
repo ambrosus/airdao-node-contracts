@@ -18,7 +18,7 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
   wrapProviderToError(deployer.provider!);
 
-  const multisig = await deployMultisig(ContractNames.Ecosystem_LimitedTokenPoolsManager, deployer);
+  const multisig = await deployMultisig(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, deployer);
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.Ecosystem_LimitedTokenPoolsManagerRewardsBank,
@@ -45,8 +45,8 @@ export async function main() {
 
   console.log("deploying TokenPoolsManager");
   const poolsManager = await deploy<LimitedTokenPoolsManager__factory>({
-    contractName: ContractNames.Ecosystem_TokenPoolsManager,
-    artifactName: "TokenPoolsManager",
+    contractName: ContractNames.Ecosystem_LimitedTokenPoolsManager,
+    artifactName: "LimitedTokenPoolsManager",
     deployArgs: [rewardsBank.address, lockKeeper.address, limitedTokenPoolBeacon.address],
     signer: deployer,
     loadIfAlreadyDeployed: true,

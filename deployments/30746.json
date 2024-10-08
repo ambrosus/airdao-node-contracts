@@ -1696,8 +1696,8 @@
     "deployTx": "0xdda8f77783e2347249ba80546a99665569b58c1399a175d8fa9d3b1c0153485c",
     "fullyQualifiedName": "contracts/staking/token/HBRToken.sol:HBRToken"
   },
-  "Ecosystem_LimitedTokenPoolsManager": {
-    "address": "0xB68Cb4770225B20E1967a2E2FEAf82da56568503",
+  "Ecosystem_LimitedTokenPoolsManager_Multisig": {
+    "address": "0x8DEE68BD82d3d69DF1005b361D2d9F16AB6E8FA5",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1733,11 +1733,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xf684813eabc73c9c55280cb13dd8e0a39896b970c6f961e001743ae19457b10e",
+    "deployTx": "0x3a87ab0d4493e14f81847957a8af1def71ea8fdaea344249f8688fa21b6ae445",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_LimitedTokenPoolsManager_RewardsBank": {
-    "address": "0x47111CEAc3a13E7e8C17eFeA0112b10e51D02efe",
+    "address": "0x8D11A2398F4CB7d6b06196c5a6E7c75D4780E9bc",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1753,36 +1753,36 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xc130fcca18a397e3c3374c9914289d7a6a9a0b4a0891e199a34165a45eb873af",
+    "deployTx": "0xfb329fe45d71da60c228a9609aed2c851b1e114df3cf08ed3262916b680ddc42",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "Ecosystem_TokenPoolsManager": {
-    "address": "0xF954533519A87Fa88da6B4CeF5d84Ea4a3aEdaDe",
+  "Ecosystem_LimitedTokenPoolsManager": {
+    "address": "0x2540Ca7ccAcD8452a411a3c4004f7b5338a74418",
     "abi": [
-      "constructor(address bank_, address lockKeeper_, address _beacon)",
-      "event PoolActivated(address pool)",
-      "event PoolConfigured(address pool, tuple(uint256 rewardTokenPrice, uint256 minStakeValue, uint256 fastUnstakePenalty, uint256 interest, uint256 interestRate, uint256 lockPeriod) params)",
-      "event PoolCreated(address pool)",
-      "event PoolDeactivated(address pool)",
+      "constructor(address bank_, address lockKeeper_, address doubleSideBeacon_)",
+      "event LimitedPoolActivated(address pool)",
+      "event LimitedPoolConfigured(address pool, tuple(uint256 rewardTokenPrice, uint256 interest, uint256 interestRate, uint256 minDepositValue, uint256 minStakeValue, uint256 fastUnstakePenalty, uint256 unstakeLockPeriod, uint256 stakeLockPeriod, uint256 maxTotalStakeValue, uint256 maxStakePerUserValue, uint256 stakeLimitsMultiplier) params)",
+      "event LimitedPoolCreated(address pool)",
+      "event LimitedPoolDeactivated(address pool)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
       "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
       "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
       "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function activateTokenPool(address _pool)",
+      "function activatePool(address _pool)",
       "function bank() view returns (address)",
-      "function beacon() view returns (address)",
-      "function configurePool(address pool, tuple(uint256 rewardTokenPrice, uint256 minStakeValue, uint256 fastUnstakePenalty, uint256 interest, uint256 interestRate, uint256 lockPeriod) limitsConfig)",
-      "function createPool(tuple(address token, string name, address rewardToken) mainConfig, tuple(uint256 rewardTokenPrice, uint256 minStakeValue, uint256 fastUnstakePenalty, uint256 interest, uint256 interestRate, uint256 lockPeriod) limitsConfig) returns (address)",
-      "function deactivateTokenPool(address _pool)",
+      "function configurePool(address _pool, tuple(uint256 rewardTokenPrice, uint256 interest, uint256 interestRate, uint256 minDepositValue, uint256 minStakeValue, uint256 fastUnstakePenalty, uint256 unstakeLockPeriod, uint256 stakeLockPeriod, uint256 maxTotalStakeValue, uint256 maxStakePerUserValue, uint256 stakeLimitsMultiplier) params)",
+      "function createPool(tuple(string name, address limitsMultiplierToken, address profitableToken, address rewardToken) params) returns (address)",
+      "function deactivatePool(address _pool)",
       "function getRoleAdmin(bytes32 role) view returns (bytes32)",
       "function grantRole(bytes32 role, address account)",
       "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function limitedTokenPoolBeacon() view returns (address)",
       "function pools(uint256) view returns (address)",
       "function renounceRole(bytes32 role, address account)",
       "function revokeRole(bytes32 role, address account)",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)"
     ],
-    "deployTx": "0x14eba9d4f3d2694bc5cf56f5ef854430ad984f925afceea9d95dd0943d2edbe5",
-    "fullyQualifiedName": "contracts/staking/token/TokenPoolsManager.sol:TokenPoolsManager"
+    "deployTx": "0x94e1f558116c4d7d27aad21616e1f696dc99670750d72612f917141340d3d52e",
+    "fullyQualifiedName": "contracts/staking/token/LimitedTokenPoolsManager.sol:LimitedTokenPoolsManager"
   }
 }
