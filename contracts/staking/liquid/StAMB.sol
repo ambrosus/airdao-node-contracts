@@ -14,7 +14,7 @@ contract StAMB is ERC20, AccessControl {
     mapping(address => uint) public obtainedAt;
     mapping(address => uint) public holdingTime;
 
-    constructor() ERC20("Staked AMB", "StAMB") {
+    constructor() ERC20("Staked AMB", "stAMB") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
