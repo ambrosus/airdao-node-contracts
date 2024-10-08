@@ -23,9 +23,6 @@ async function main() {
     limitsMultiplierToken: hbrToken.address,
     profitableToken: ethers.constants.AddressZero,
     rewardToken: ethers.constants.AddressZero,
-    rewardTokenPrice: 1,
-    interest: 0.1 * BILLIION,
-    interestRate: 24 * 60 * 60,
   };
 
   const createTx = await poolsManager.createLimitedTokenPool(mainConfig);
@@ -33,14 +30,17 @@ async function main() {
   console.log("createReceipt", createReceipt);
 
   const limitsConfig: LimitedTokenPool.LimitsConfigStruct = {
+    rewardTokenPrice: BILLIION,
+    interest: 0.1 * BILLIION,
+    interestRate: 24 * 60 * 60,
     minDepositValue: 1,
     minStakeValue: 1,
     fastUnstakePenalty: 0,
     unstakeLockPeriod: 24 * 60 * 60,
     stakeLockPeriod: 24 * 60 * 60,
     maxTotalStakeValue: 1 * BILLIION,
-    maxStakePerUserValue: 0.01 * BILLIION,
-    stakeLimitsMultiplier: 10,
+    maxStakePerUserValue: 0.1 * BILLIION,
+    stakeLimitsMultiplier: 10 * BILLIION,
   };
 
   const configureLimitsTx = await poolsManager.configureLimitedTokenPoolLimits("HBR-AMB", limitsConfig);
