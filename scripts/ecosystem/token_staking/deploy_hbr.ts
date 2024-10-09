@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 import { ContractNames } from "../../../src";
 import { deploy } from "@airdao/deployments/deploying";
 import { HBRToken__factory } from "../../../typechain-types";
+import { deployMultisig } from "../../utils/deployMultisig";
 
 async function main() {
   const {chainId} = await ethers.provider.getNetwork();
@@ -19,8 +20,16 @@ async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-  await (await airBond.grantRole(await airBond.DEFAULT_ADMIN_ROLE(), deployer.address)).wait(); // 
-  await (await airBond.grantRole(await airBond.MINTER_ROLE(), deployer.address)).wait();
+  if (chainId != 16718) {
+    console.log("Granting roles to deployer (dev and test envs only)");
+    await (await airBond.grantRole(await airBond.DEFAULT_ADMIN_ROLE(), deployer.address)).wait(); // 
+    await (await airBond.grantRole(await airBond.MINTER_ROLE(), deployer.address)).wait();
+  } else {
+    console.log("Granting roles to multisig (mainnet only)");
+    const multisig = await deployMultisig(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, deployer);
+    await (await airBond.grantRole(await airBond.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+    await (await airBond.grantRole(await airBond.MINTER_ROLE(), multisig.address)).wait();
+  }
 }
 
 if (require.main === module) {
