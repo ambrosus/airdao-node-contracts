@@ -19,9 +19,10 @@ contract LimitedTokenPoolsManager is AccessControl, IOnBlockListener {
         lockKeeper = lockKeeper_;
         bank = bank_;
         limitedTokenPoolBeacon = doubleSideBeacon_;
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    event LimitedPoolCreated(address pool);
+    event LimitedPoolCreated(address pool, string name);
     event LimitedPoolConfigured(address pool, LimitedTokenPool.LimitsConfig params);
     event LimitedPoolDeactivated(address pool);
     event LimitedPoolActivated(address pool);
@@ -34,7 +35,7 @@ contract LimitedTokenPoolsManager is AccessControl, IOnBlockListener {
         address pool = address(new BeaconProxy(address(limitedTokenPoolBeacon), data));
         pools.push(pool);
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
-        emit LimitedPoolCreated(pool);
+        emit LimitedPoolCreated(pool, params.name);
         return pool;
     }
 

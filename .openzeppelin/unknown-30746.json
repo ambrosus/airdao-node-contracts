@@ -2732,6 +2732,340 @@
           }
         }
       }
+    },
+    "d6c19fc1e6ecf1fb85b82e03b82bee2e34b22939df785a00a152c88bc12e230d": {
+      "address": "0x241508Ba310C292fD1F5bE8A616BD16449C958e4",
+      "txHash": "0x9f8ab16482ce0e16e78a056c567ac3951cad22e8af700424bebf7ee95947b362",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)2225_storage)",
+            "contract": "AccessControl",
+            "src": "@openzeppelin/contracts/access/AccessControl.sol:56"
+          },
+          {
+            "label": "active",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "LimitedTokenPool",
+            "src": "contracts/staking/token/LimitedTokenPool.sol:54"
+          },
+          {
+            "label": "lockKeeper",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_contract(LockKeeper)6343",
+            "contract": "LimitedTokenPool",
+            "src": "contracts/staking/token/LimitedTokenPool.sol:56"
+          },
+          {
+            "label": "rewardsBank",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(RewardsBank)6551",
+            "contract": "LimitedTokenPool",
+            "src": "contracts/staking/token/LimitedTokenPool.sol:57"
+          },
+          {
+            "label": "mainConfig",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_struct(MainConfig)6577_storage",
+            "contract": "LimitedTokenPool",
+            "src": "contracts/staking/token/LimitedTokenPool.sol:59"
+          },
+          {
+            "label": "limitsConfig",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_struct(LimitsConfig)6600_storage",
+            "contract": "LimitedTokenPool",
+            "src": "contracts/staking/token/LimitedTokenPool.sol:60"
+          },
+          {
+            "label": "info",
+            "offset": 0,
+            "slot": "19",
+            "type": "t_struct(Info)6611_storage",
+            "contract": "LimitedTokenPool",
+            "src": "contracts/staking/token/LimitedTokenPool.sol:61"
+          },
+          {
+            "label": "stakers",
+            "offset": 0,
+            "slot": "24",
+            "type": "t_mapping(t_address,t_struct(Staker)6624_storage)",
+            "contract": "LimitedTokenPool",
+            "src": "contracts/staking/token/LimitedTokenPool.sol:63"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(LockKeeper)6343": {
+            "label": "contract LockKeeper",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RewardsBank)6551": {
+            "label": "contract RewardsBank",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Staker)6624_storage)": {
+            "label": "mapping(address => struct LimitedTokenPool.Staker)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)2225_storage)": {
+            "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Info)6611_storage": {
+            "label": "struct LimitedTokenPool.Info",
+            "members": [
+              {
+                "label": "totalStake",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "totalDeposit",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "totalRewards",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "lastInterestUpdate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "totalRewardsDebt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(LimitsConfig)6600_storage": {
+            "label": "struct LimitedTokenPool.LimitsConfig",
+            "members": [
+              {
+                "label": "rewardTokenPrice",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "interest",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "interestRate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "minDepositValue",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "minStakeValue",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "fastUnstakePenalty",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "unstakeLockPeriod",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "stakeLockPeriod",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "maxTotalStakeValue",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "maxStakePerUserValue",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "stakeLimitsMultiplier",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "10"
+              }
+            ],
+            "numberOfBytes": "352"
+          },
+          "t_struct(MainConfig)6577_storage": {
+            "label": "struct LimitedTokenPool.MainConfig",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "limitsMultiplierToken",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "profitableToken",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "rewardToken",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(RoleData)2225_storage": {
+            "label": "struct AccessControl.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Staker)6624_storage": {
+            "label": "struct LimitedTokenPool.Staker",
+            "members": [
+              {
+                "label": "stake",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "deposit",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rewardsDebt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "claimableRewards",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "lockedWithdrawal",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "stakedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }

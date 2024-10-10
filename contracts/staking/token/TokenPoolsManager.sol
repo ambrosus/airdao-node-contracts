@@ -22,7 +22,7 @@ contract TokenPoolsManager is AccessControl, IOnBlockListener {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    event PoolCreated(address pool);
+    event PoolCreated(address pool, string name);
     event PoolConfigured(address pool, TokenPool.LimitsConfig params);
     event PoolDeactivated(address pool);
     event PoolActivated(address pool);
@@ -36,7 +36,7 @@ contract TokenPoolsManager is AccessControl, IOnBlockListener {
         address pool = address(new BeaconProxy(address(beacon), data));
         pools.push(pool);
         bank.grantRole(bank.DEFAULT_ADMIN_ROLE(), address(pool));
-        emit PoolCreated(pool);
+        emit PoolCreated(pool, mainConfig.name);
         return pool;
     }
 
