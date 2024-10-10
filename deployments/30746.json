@@ -1717,7 +1717,7 @@
     }
   },
   "Ecosystem_LimitedTokenPoolsManager_Multisig": {
-    "address": "0x07Fc48A302517ee4F78db39b64faa252ca868227",
+    "address": "0xD3DB63d658e108060b334512C22bA3b640290207",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1753,11 +1753,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x7cc3475a14219fe75c321e2d412c0927de013f6cfa4ce198b6f38782db18a1de",
+    "deployTx": "0x65eacd887a173eb872bc096a3aa940a7d172f4b135b0c19fc68cc79566bf5daf",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_LimitedTokenPoolsManager_RewardsBank": {
-    "address": "0x8E4b7C6e186B50C67Bb3eEACE91c82D1B5f78194",
+    "address": "0xb23A1D12147f01eE4A6e3C4c0f0ac8c7DC3B3D97",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1773,11 +1773,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x52e239066915d614595343e1d94883eb91ffb7611adcd368796f0591aeffe84e",
+    "deployTx": "0x0eb2e9f216afeaa0dc8ff2a87a813ee829670cbff28039c4ba2d8b1dad5aa07c",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "Ecosystem_LimitedTokenPoolsManager": {
-    "address": "0x6A2Df3Bf4D3226320654adD161c0019D19BDfEF3",
+    "address": "0x8E5EAa7CCef240EF54dbeC2582300a63a8d19183",
     "abi": [
       "constructor(address bank_, address lockKeeper_, address doubleSideBeacon_)",
       "event LimitedPoolActivated(address pool)",
@@ -1803,7 +1803,7 @@
       "function revokeRole(bytes32 role, address account)",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)"
     ],
-    "deployTx": "0xf3e6344273a8ffe08552b25c31a951c34f6e2612b9018b0a001afcc7f82206c5",
+    "deployTx": "0xb3988828f64355e84693dbd7a17b9f564becaad040d0efe3960addf2f7beb300",
     "fullyQualifiedName": "contracts/staking/token/LimitedTokenPoolsManager.sol:LimitedTokenPoolsManager"
   }
 }

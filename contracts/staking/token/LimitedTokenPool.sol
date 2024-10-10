@@ -238,7 +238,8 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
     }
 
     function onBlock() external {
-        _addInterest();
+        if (info.lastInterestUpdate + limitsConfig.interestRate < block.timestamp)
+            _addInterest();
     }
 
     // VIEW METHODS
@@ -269,7 +270,6 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     // INTERNAL METHODS
     function _addInterest() internal {
-        if (info.lastInterestUpdate + limitsConfig.interestRate > block.timestamp) return;
         uint timePassed = block.timestamp - info.lastInterestUpdate;
         uint newRewards = info.totalStake * limitsConfig.interest * timePassed / BILLION / limitsConfig.interestRate;
 
