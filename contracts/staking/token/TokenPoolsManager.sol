@@ -8,7 +8,7 @@ import "./TokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-contract TokenPoolsManager is AccessControl {
+contract TokenPoolsManager is AccessControl, IOnBlockListener {
     LockKeeper lockKeeper;
     RewardsBank public bank;
     UpgradeableBeacon public beacon;
@@ -42,22 +42,28 @@ contract TokenPoolsManager is AccessControl {
 
     function configurePool(address pool, TokenPool.LimitsConfig calldata limitsConfig) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(pool), "Pool does not exist");
-        TokenPool(pool).setLimitsConfig(limitsConfig);
+        TokenPool(payable(pool)).setLimitsConfig(limitsConfig);
         emit PoolConfigured(pool, limitsConfig);
     }
 
     function deactivateTokenPool(address _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool), "Pool does not exist");
-        TokenPool pool = TokenPool(_pool);
+        TokenPool pool = TokenPool(payable(_pool));
         pool.deactivate();
         emit PoolDeactivated(_pool);
     }
 
     function activateTokenPool(address _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool), "Pool does not exist");
-        TokenPool pool = TokenPool(_pool);
+        TokenPool pool = TokenPool(payable(_pool));
         pool.activate();
         emit PoolActivated(_pool);
+    }
+
+    function onBlock() external {
+        for (uint i = 0; i < pools.length; i++) {
+            TokenPool(payable(pools[i])).onBlock();
+        }
     }
 
     // INTERNAL METHODS

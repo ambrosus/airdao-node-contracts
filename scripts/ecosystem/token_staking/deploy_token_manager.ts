@@ -1,5 +1,5 @@
 import { ethers, upgrades } from "hardhat";
-import { deploy } from "@airdao/deployments/deploying";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 
 import { ContractNames } from "../../../src";
 
@@ -18,6 +18,7 @@ export async function main() {
   const [deployer] = await ethers.getSigners();
   wrapProviderToError(deployer.provider!);
 
+  const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
   const multisig = await deployMultisig(ContractNames.Ecosystem_TokenPoolsManagerMultisig, deployer, "eco");
 
   const rewardsBank = await deploy<RewardsBank__factory>({
@@ -61,6 +62,17 @@ export async function main() {
 
   console.log("Grant multisig poolsManager admin role");
   await (await poolsManager.grantRole(await poolsManager.DEFAULT_ADMIN_ROLE(), multisig.address)).wait();
+
+  // on prod - multisig only
+  if (chainId != 16718) {
+    console.log("Add block listeners");
+    await (await validatorSet.addBlockListener(poolsManager.address)).wait();
+  } else {
+    console.log("Add block listeners calldata");
+    const calldata2 = await validatorSet.populateTransaction.addBlockListener(poolsManager.address);
+    const multisigTx2 = await multisig.populateTransaction.submitTransaction(validatorSet.address, 0, calldata2.data!);
+    console.log(multisigTx2);
+  }
 
   if (chainId != 16718) return;  // continue only on prod
 

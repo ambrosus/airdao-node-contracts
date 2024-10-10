@@ -8,18 +8,17 @@ import "./LimitedTokenPool.sol";
 import "../../funds/RewardsBank.sol";
 import "../../LockKeeper.sol";
 
-contract LimitedTokenPoolsManager is AccessControl {
+contract LimitedTokenPoolsManager is AccessControl, IOnBlockListener {
     LockKeeper lockKeeper;
     RewardsBank public bank;
     UpgradeableBeacon public limitedTokenPoolBeacon;
 
     address[] public pools;
     
-    constructor(RewardsBank bank_, LockKeeper lockKeeper_, UpgradeableBeacon doubleSideBeacon_) { 
+    constructor(RewardsBank bank_, LockKeeper lockKeeper_, UpgradeableBeacon doubleSideBeacon_)  {
         lockKeeper = lockKeeper_;
         bank = bank_;
         limitedTokenPoolBeacon = doubleSideBeacon_;
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     event LimitedPoolCreated(address pool);
@@ -41,23 +40,30 @@ contract LimitedTokenPoolsManager is AccessControl {
 
     function configurePool(address _pool, LimitedTokenPool.LimitsConfig calldata params) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool),"Pool does not exist");
-        LimitedTokenPool pool = LimitedTokenPool(_pool);
+        LimitedTokenPool pool = LimitedTokenPool(payable(_pool));
         pool.setLimitsConfig(params);
         emit LimitedPoolConfigured(_pool, params);
     }
 
     function deactivatePool(address _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool),"Pool does not exist");
-        LimitedTokenPool pool = LimitedTokenPool(_pool);
+        LimitedTokenPool pool = LimitedTokenPool(payable(_pool));
         pool.deactivate();
         emit LimitedPoolDeactivated(_pool);
     }
 
     function activatePool(address _pool) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_isPool(_pool),"Pool does not exist");
-        LimitedTokenPool pool = LimitedTokenPool(_pool);
+        LimitedTokenPool pool = LimitedTokenPool(payable(_pool));
         pool.activate();
         emit LimitedPoolActivated(_pool);
+    }
+
+    function onBlock() external {
+        for (uint i = 0; i < pools.length; i++) {
+            LimitedTokenPool pool = LimitedTokenPool(payable(pools[i]));
+            pool.onBlock();
+        }
     }
 
     function _isPool(address pool) internal view returns (bool) {

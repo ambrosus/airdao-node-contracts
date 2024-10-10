@@ -232,4 +232,7 @@ contract TokenPool is Initializable, AccessControl, IOnBlockListener {
         if (info.totalStake == 0 && info.totalRewards == 0) return amount;
         return amount * info.totalRewards /info.totalStake;
     }
+
+    receive() external payable {
+    }
 }
