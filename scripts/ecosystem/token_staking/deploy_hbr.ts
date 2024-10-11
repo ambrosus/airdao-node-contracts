@@ -7,21 +7,15 @@ async function main() {
   const {chainId} = await ethers.provider.getNetwork();
   const [deployer] = await ethers.getSigners();
 
-  if (chainId == 16718) {
-    return;
-  }
+  const multisig = loadDeployment(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, chainId, deployer);
 
-  const token = await deploy<HBRToken__factory>({
+  await deploy<HBRToken__factory>({
     contractName: ContractNames.Ecosystem_HBRToken,
     artifactName: "HBRToken",
-    deployArgs: [deployer.address],
+    deployArgs: [multisig.address],
     signer: deployer,
     loadIfAlreadyDeployed: true,
   });
-
-  console.log("Transfering ownership of HBR token to multisig...");
-  const multisig = loadDeployment(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, chainId, deployer);
-  await token.transferOwnership(multisig.address);
 }
 
 if (require.main === module) {
