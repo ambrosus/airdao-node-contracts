@@ -1,8 +1,7 @@
 import { ethers } from "hardhat";
 import { ContractNames } from "../../../src";
-import { deploy } from "@airdao/deployments/deploying";
+import { deploy, loadDeployment } from "@airdao/deployments/deploying";
 import { HBRToken__factory } from "../../../typechain-types";
-import { deployMultisig } from "../../utils/deployMultisig";
 
 async function main() {
   const {chainId} = await ethers.provider.getNetwork();
@@ -21,7 +20,7 @@ async function main() {
   });
 
   console.log("Transfering ownership of HBR token to multisig...");
-  const multisig = await deployMultisig(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, deployer);
+  const multisig = loadDeployment(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, chainId, deployer);
   await token.transferOwnership(multisig.address);
 }
 

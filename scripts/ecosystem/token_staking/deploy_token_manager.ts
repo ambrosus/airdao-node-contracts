@@ -19,7 +19,7 @@ export async function main() {
   wrapProviderToError(deployer.provider!);
 
   const validatorSet = loadDeployment(ContractNames.ValidatorSet, chainId, deployer);
-  const multisig = await deployMultisig(ContractNames.Ecosystem_TokenPoolsManagerMultisig, deployer, "eco");
+  const multisig = loadDeployment(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, chainId, deployer);
 
   const rewardsBank = await deploy<RewardsBank__factory>({
     contractName: ContractNames.Ecosystem_TokenPoolsManagerRewardsBank,

@@ -5,7 +5,7 @@ import { deployMultisig } from "../../utils/deployMultisig";
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  const multisig = await deployMultisig(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, deployer, "eco");
+  await deployMultisig(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, deployer, "eco");
 
 }
 
