@@ -20,7 +20,7 @@ async function main() {
     loadIfAlreadyDeployed: true,
   });
 
-  console.log("Granting roles to multisig (mainnet only)");
+  console.log("Transfering ownership of HBR token to multisig...");
   const multisig = await deployMultisig(ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig, deployer);
   await token.transferOwnership(multisig.address);
 }

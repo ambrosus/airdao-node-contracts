@@ -34,10 +34,10 @@
     "deploy_astradex_fee_collector": "hardhat run scripts/ecosystem/astradex/deployFeeCollector.ts --network dev",
     "deploy_government": "hardhat run scripts/ecosystem/government/deploy.ts --network dev",
     "deploy_liquid_staking": "hardhat run scripts/ecosystem/liquid_staking/deploy.ts --network dev",
+    "deploy_limited_token_staking_multisig": "hardhat run scripts/multisig/deploy_multisig.ts --network dev",
     "deploy_limited_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy_limited_manager.ts --network dev",
     "deploy_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy_token_manager.ts --network dev",
     "deploy_hbr_token": "hardhat run scripts/ecosystem/token_staking/deploy_hbr.ts --network dev",
-    "create_hbr_amb_pool": "hardhat run scripts/ecosystem/token_staking/create_hbr_amb.ts --network dev",
 
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",
