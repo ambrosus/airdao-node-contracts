@@ -1377,40 +1377,6 @@
     "deployTx": "0x3a94e30223e152ac765d206067cebe693f82b2b56fb9fde758105c1276161c0f",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
-  "Ecosystem_HBRToken": {
-    "address": "0x7b6B4cc8704EC9533F69E46682c9aD010F30F0C9",
-    "abi": [
-      "constructor(address admin)",
-      "event Approval(address indexed owner, address indexed spender, uint256 value)",
-      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event Transfer(address indexed from, address indexed to, uint256 value)",
-      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function MINTER_ROLE() view returns (bytes32)",
-      "function allowance(address owner, address spender) view returns (uint256)",
-      "function approve(address spender, uint256 amount) returns (bool)",
-      "function balanceOf(address account) view returns (uint256)",
-      "function burn(address account, uint256 amount)",
-      "function decimals() view returns (uint8)",
-      "function decreaseAllowance(address spender, uint256 subtractedValue) returns (bool)",
-      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-      "function grantRole(bytes32 role, address account)",
-      "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function increaseAllowance(address spender, uint256 addedValue) returns (bool)",
-      "function mint(address account, uint256 amount)",
-      "function name() view returns (string)",
-      "function renounceRole(bytes32 role, address account)",
-      "function revokeRole(bytes32 role, address account)",
-      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-      "function symbol() view returns (string)",
-      "function totalSupply() view returns (uint256)",
-      "function transfer(address to, uint256 amount) returns (bool)",
-      "function transferFrom(address from, address to, uint256 amount) returns (bool)"
-    ],
-    "deployTx": "0xdda8f77783e2347249ba80546a99665569b58c1399a175d8fa9d3b1c0153485c",
-    "fullyQualifiedName": "contracts/staking/token/HBRToken.sol:HBRToken"
-  },
   "Ecosystem_LiquidPool_Multisig": {
     "address": "0x96E3E855AB4614f5108C636F0024C4833c2A2677",
     "abi": [
@@ -1805,5 +1771,37 @@
     ],
     "deployTx": "0xb3988828f64355e84693dbd7a17b9f564becaad040d0efe3960addf2f7beb300",
     "fullyQualifiedName": "contracts/staking/token/LimitedTokenPoolsManager.sol:LimitedTokenPoolsManager"
+  },
+  "Ecosystem_HBRToken": {
+    "address": "0xc38A62887B1D04f25Aa05DbdB235C20C6468c554",
+    "abi": [
+      "constructor(address admin)",
+      "event Approval(address indexed owner, address indexed spender, uint256 value)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Paused(address account)",
+      "event Transfer(address indexed from, address indexed to, uint256 value)",
+      "event Unpaused(address account)",
+      "function allowance(address owner, address spender) view returns (uint256)",
+      "function approve(address spender, uint256 amount) returns (bool)",
+      "function balanceOf(address account) view returns (uint256)",
+      "function burn(address account, uint256 amount)",
+      "function decimals() view returns (uint8)",
+      "function decreaseAllowance(address spender, uint256 subtractedValue) returns (bool)",
+      "function increaseAllowance(address spender, uint256 addedValue) returns (bool)",
+      "function mint(address account, uint256 amount)",
+      "function name() view returns (string)",
+      "function owner() view returns (address)",
+      "function pause()",
+      "function paused() view returns (bool)",
+      "function renounceOwnership()",
+      "function symbol() view returns (string)",
+      "function totalSupply() view returns (uint256)",
+      "function transfer(address to, uint256 amount) returns (bool)",
+      "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+      "function transferOwnership(address newOwner)",
+      "function unpause()"
+    ],
+    "deployTx": "0x3be6afb8552f11edbe207655c1fff35dff043b63e73d20baa4179f6428f5992d",
+    "fullyQualifiedName": "contracts/staking/token/HBRToken.sol:HBRToken"
   }
 }
