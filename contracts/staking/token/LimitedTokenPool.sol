@@ -272,6 +272,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
 
     // INTERNAL METHODS
     function _addInterest() internal {
+        if (!active) return;
         uint timePassed = block.timestamp - info.lastInterestUpdate;
         uint newRewards = info.totalStake * limitsConfig.interest * timePassed / BILLION / limitsConfig.interestRate;
 
