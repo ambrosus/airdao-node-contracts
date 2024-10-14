@@ -82,6 +82,9 @@ export async function main() {
   console.log("Revoke poolsManager admin role from deployer");
   await (await poolsManager.revokeRole(await poolsManager.DEFAULT_ADMIN_ROLE(), deployer.address)).wait();
 
+  console.log("Transfer ownership of upgradeable beacon to multisig");
+  await (await limitedTokenPoolBeacon.transferOwnership(multisig.address)).wait();
+
 }
 
 if (require.main === module) {
