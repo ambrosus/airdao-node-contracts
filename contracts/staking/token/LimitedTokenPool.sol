@@ -155,6 +155,7 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
             IERC20(mainConfig.profitableToken).safeTransferFrom(msg.sender, address(this), amount);
         }
 
+        _calcClaimableRewards(msg.sender);
         uint rewardsAmount = _calcRewards(amount);
 
         stakers[msg.sender].stake += amount;
@@ -175,6 +176,8 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         require(stakers[msg.sender].stake >= amount, "Not enough stake");
         require(block.timestamp - stakers[msg.sender].stakedAt >= limitsConfig.stakeLockPeriod, "Stake is locked");
 
+        _calcClaimableRewards(msg.sender);
+        _claimRewards(msg.sender);
         uint rewardsAmount = _calcRewards(amount);
 
         stakers[msg.sender].stake -= amount;
@@ -205,8 +208,6 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
             );
         }
 
-        _claimRewards(msg.sender);
-
         emit UnstakeLocked(msg.sender, amount + canceledAmount, block.timestamp + limitsConfig.unstakeLockPeriod, block.timestamp);
     }
 
@@ -214,6 +215,8 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         require(stakers[msg.sender].stake >= amount, "Not enough stake");
         require(block.timestamp - stakers[msg.sender].stakedAt >= limitsConfig.stakeLockPeriod, "Stake is locked");
 
+        _calcClaimableRewards(msg.sender);
+        _claimRewards(msg.sender);
         uint rewardsAmount = _calcRewards(amount);
 
         stakers[msg.sender].stake -= amount;
@@ -229,7 +232,6 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
         } else {
             IERC20(mainConfig.profitableToken).safeTransfer(msg.sender, amount - penalty);
         }
-        _claimRewards(msg.sender);
     }
 
     function claim() public {
