@@ -135,6 +135,7 @@ export const MULTISIGS_ECOSYSTEM = {
   [ContractNames.Ecosystem_LiquidPoolStakingTiers]: ContractNames.Ecosystem_LiquidPoolMultisig,
   [ContractNames.Ecosystem_TokenPoolsManager]: ContractNames.Ecosystem_TokenPoolsManagerMultisig,
   [ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig]: ContractNames.Ecosystem_LimitedTokenPoolsManagerMultisig,
+  [ContractNames.Ecosystem_GeneralTokenBank_Multisig]: ContractNames.Ecosystem_GeneralTokenBank_Multisig,
 };
 
 export const MULTISIGS = {...MULTISIGS_COMMON, ...MULTISIGS_ECOSYSTEM};
