@@ -92,7 +92,8 @@ contract LimitedTokenPool is Initializable, AccessControl, IOnBlockListener {
     // OWNER METHODS
 
     function setLimitsConfig(LimitsConfig calldata config) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        //TODO: Validate config
+        require(config.maxTotalStakeValue >= config.maxStakePerUserValue, "Pool: max stake per user is greater than max total stake");
+        require(config.maxStakePerUserValue >= config.minStakeValue, "Pool: min stake value is greater than max stake per user");
         limitsConfig = config;
         emit LimitsConfigChanged(config);
     }
