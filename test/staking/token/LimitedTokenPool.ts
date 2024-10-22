@@ -194,7 +194,8 @@ describe("LimitedTokenPool", function () {
       const limits= await limitedPool.limitsConfig();
       const updatedLimits = {
         ...limits,
-        maxTotalStakeValue: ethers.utils.parseEther("100")
+        maxTotalStakeValue: ethers.utils.parseEther("100"),
+        maxStakePerUserValue: ethers.utils.parseEther("100")
       };
       await limitedPool.setLimitsConfig(updatedLimits);
       const stakeAmount = ethers.utils.parseEther("101");
