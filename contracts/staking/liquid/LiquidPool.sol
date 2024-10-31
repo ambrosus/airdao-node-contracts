@@ -173,9 +173,8 @@ contract LiquidPool is UUPSUpgradeable, AccessControlUpgradeable, IOnBlockListen
 
 
         if (from != address(0) && to != address(0)) {
-            uint transferredDebt = rewardsDebt[from] * amount / getStake(from);
-            rewardsDebt[from] -= transferredDebt;
-            rewardsDebt[to] += transferredDebt;
+            _updateRewardsDebt(from, _calcRewards(getStake(from) - amount));
+            _updateRewardsDebt(to, _calcRewards(getStake(to) + amount));
         }
     }
 
