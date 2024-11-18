@@ -14,10 +14,7 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
     // Track ecosystem and common multisigs separately
     mapping(string => address) public multisigs;
     
-    function initialize(address ecosystemMaster, address commonMaster) public initializer {
-        require(ecosystemMaster != address(0), "Invalid ecosystem master");
-        require(commonMaster != address(0), "Invalid common master");
-
+    function initialize() public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(CREATOR_ROLE, msg.sender);
         __UUPSUpgradeable_init();

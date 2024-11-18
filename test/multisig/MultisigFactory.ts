@@ -16,8 +16,7 @@ describe("MultisigFactory", function () {
     
     const MultisigFactoryFactory = await ethers.getContractFactory("MultisigFactory");
     multisigFactory = await upgrades.deployProxy(
-      MultisigFactoryFactory,
-      [ecosystemMaster.address, commonMaster.address]
+      MultisigFactoryFactory
     ) as MultisigFactory;
     
     // Grant CREATOR_ROLE to owner
