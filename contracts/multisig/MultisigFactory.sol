@@ -43,7 +43,7 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
             string memory name = _names[i];
             address multisigAddress = _multisigs[i];
             require(multisigAddress != address(0), "Invalid multisig address");
-            require(multisigs[name] != address(0), "Already registered");
+            require(multisigs[name] == address(0), "Already registered");
             
             multisigs[name] = multisigAddress;
             
