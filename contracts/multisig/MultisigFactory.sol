@@ -12,8 +12,7 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
     bytes32 constant public CREATOR_ROLE = keccak256("CREATOR_ROLE");
     
     // Track ecosystem and common multisigs separately
-    Multisig[] public multisigs;
-    mapping(address => bool) public isRegisteredMultisig;
+    mapping(string => address) public multisigs;
     
     function initialize(address ecosystemMaster, address commonMaster) public initializer {
         require(ecosystemMaster != address(0), "Invalid ecosystem master");
@@ -24,7 +23,7 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
         __UUPSUpgradeable_init();
     }
 
-    function createMultisig(MultisigSettings calldata settings) external onlyRole(CREATOR_ROLE) returns (address) {
+    function createMultisig(string calldata name, MultisigSettings calldata settings) external onlyRole(CREATOR_ROLE) returns (address) {
         Multisig newMultisig = new Multisig(
             settings.signers,
             settings.isInitiatorFlags,
@@ -32,39 +31,29 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
             settings.owner
         );
 
-        multisigs.push(newMultisig);
-        isRegisteredMultisig[address(newMultisig)] = true;
+        multisigs[name] = address(newMultisig);
         
         emit MultisigCreated(address(newMultisig));
         return address(newMultisig);
     }
     
     // Register previously deployed multisigs in batch
-    function registerMultisigs(address[] calldata _multisigs) external onlyRole(CREATOR_ROLE) {
+    function registerMultisigs(address[] calldata _multisigs, string[] calldata _names) external onlyRole(CREATOR_ROLE) {
         for (uint i = 0; i < _multisigs.length; i++) {
+            string memory name = _names[i];
             address multisigAddress = _multisigs[i];
             require(multisigAddress != address(0), "Invalid multisig address");
-            require(!isRegisteredMultisig[multisigAddress], "Already registered");
+            require(multisigs[name] != address(0), "Already registered");
             
-            Multisig multisig = Multisig(multisigAddress);
-            multisigs.push(multisig);
-            isRegisteredMultisig[multisigAddress] = true;
+            multisigs[name] = multisigAddress;
             
             emit MultisigRegistered(multisigAddress);
         }
     }
     
     // View functions
-    function getMultisigsCount() external view returns (uint256) {
-        return multisigs.length;
-    }
-    
-    function getMultisigsAddresses() external view returns (address[] memory) {
-        address[] memory addresses = new address[](multisigs.length);
-        for (uint i = 0; i < multisigs.length; i++) {
-            addresses[i] = address(multisigs[i]);
-        }
-        return addresses;
+    function getMultisigAddress(string calldata _name) external view override returns (address) {
+        return multisigs[_name];
     }
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
