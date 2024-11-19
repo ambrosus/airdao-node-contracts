@@ -53,5 +53,14 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
         return multisigs[_name];
     }
 
+    function deleteMultisig(string calldata name) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        address multisigAddress = multisigs[name];
+        require(multisigAddress != address(0), "Multisig not found");
+        
+        delete multisigs[name];
+        
+        emit MultisigDeleted(multisigAddress);
+    }
+
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 }

@@ -15,8 +15,10 @@ interface IMultisigFactory {
     // Events
     event MultisigCreated(address indexed multisig);
     event MultisigRegistered(address indexed multisig);
+    event MultisigDeleted(address indexed multisig);
 
     function createMultisig(string calldata name, MultisigSettings calldata settings) external returns (address);
+    function deleteMultisig(string calldata name) external;
     function registerMultisigs(address[] calldata _multisigsAddresses, string[] calldata _multisigsNames) external;
     function getMultisigAddress(string calldata _name) external view returns (address);
 
