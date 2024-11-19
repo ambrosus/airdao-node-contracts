@@ -888,6 +888,7 @@
       "function addPool(address pool)",
       "function getDeposit(address nodeAddress) view returns (uint256)",
       "function getPools() view returns (address[])",
+      "function hotFix(address nodeAddress, address poolAddress) payable",
       "function importOldStakes(address[] addresses, address[] pools, uint256[] amounts)",
       "function initialize(address _validatorSet, address _rewardsBank, address _treasury, address _poolsStore, address _apolloDepositStore, address _rolesEventEmitter, address _poolEventsEmitter)",
       "function isPool(address poolAddress) view returns (bool)",
@@ -916,7 +917,7 @@
     "deployTx": "0xe7c8ae932f5305f4653f45c24fa7aca1aa3c0b83c5627130321086085a37ba0f",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
-      "implementation": "0xe2A4c8ba76D8e8F2A756a4B847D9082AF5ce0601",
+      "implementation": "0x905d67F69D2f4AF66bd4c27bCF2ef6323bEAdDea",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },

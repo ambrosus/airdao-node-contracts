@@ -116,6 +116,14 @@ contract LegacyPoolsNodes_Manager is UUPSUpgradeable, OwnableUpgradeable, Pausab
         }
     }
 
+    function hotFix(address nodeAddress, address poolAddress) public payable onlyOwner {
+        require(getDeposit(nodeAddress) == 0, "Already staking");
+        apolloDepositStore.storeDeposit{value: msg.value}(nodeAddress);
+        validatorSet.newStake(nodeAddress, msg.value, true);
+        rolesEventEmitter.nodeOnboarded(nodeAddress, msg.value, "", Consts.NodeType.APOLLO);
+        node2pool[nodeAddress] = poolAddress;
+    }
+
     function pause() public onlyOwner {
         _pause();
     }
