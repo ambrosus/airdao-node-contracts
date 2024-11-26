@@ -97,6 +97,8 @@ export enum ContractNames {
 
   Ecosystem_GeneralTokenBank_Multisig = "Ecosystem_GeneralTokenBank_Multisig",
   Ecosystem_GeneralTokenBank = "Ecosystem_GeneralTokenBank",
+
+  RewardDistribution_Multisig = "RewardDistribution_Multisig",
 }
 
 export const MULTISIGS_COMMON = {
@@ -155,7 +157,11 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
   if (version == MultisigVersions.common) {
     return {
       master: ContractNames.MasterMultisig,
-      slaves: [...new Set(Object.values(MULTISIGS_COMMON))]
+      slaves: [
+        ...new Set(Object.values(MULTISIGS_COMMON)),
+        // multisigs below are not listed in the MULTISIGS_COMMON, so we add them manually
+        ContractNames.RewardDistribution_Multisig,
+      ]
     };
   }
   throw new Error("Unknown environment");
