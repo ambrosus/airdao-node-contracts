@@ -15,10 +15,9 @@ export async function main() {
     isUpgradeableProxy: true,
   });
 
-  // Initialize the factory
-  await factory.initialize();
-  
-  console.log("MultisigFactory deployed and initialized");
+  console.log("MultisigFactory deployed at", factory.address);
+
+  console.log("MultisigFactory deployed");
 }
 
 if (require.main === module) {

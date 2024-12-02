@@ -1898,5 +1898,43 @@
     ],
     "deployTx": "0xfa38d1e01829005fe34eafa81be95f8fe78d20e77c59c3451141cb93e6e2d0a8",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+  },
+  "MultisigFactory": {
+    "address": "0x930bafD4580f0ce20E8985Cd38Ee5526A252B14d",
+    "abi": [
+      "event AdminChanged(address previousAdmin, address newAdmin)",
+      "event BeaconUpgraded(address indexed beacon)",
+      "event Initialized(uint8 version)",
+      "event MultisigCreated(address indexed multisig)",
+      "event MultisigDeleted(address indexed multisig)",
+      "event MultisigRegistered(address indexed multisig)",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event Upgraded(address indexed implementation)",
+      "function CREATOR_ROLE() view returns (bytes32)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function createMultisig(string name, tuple(address[] signers, bool[] isInitiatorFlags, uint256 threshold, address owner) settings) returns (address)",
+      "function deleteMultisig(string name)",
+      "function getMultisigAddress(string _name) view returns (address)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function initialize()",
+      "function multisigs(string) view returns (address)",
+      "function proxiableUUID() view returns (bytes32)",
+      "function registerMultisigs(address[] _multisigs, string[] _names)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function upgradeTo(address newImplementation)",
+      "function upgradeToAndCall(address newImplementation, bytes data) payable"
+    ],
+    "deployTx": "0xe40cbce5a553f2acd6b8f3fc5651a565735394d2ecf3fd52ce5f460f72334ee5",
+    "fullyQualifiedName": "contracts/multisig/MultisigFactory.sol:MultisigFactory",
+    "proxy": {
+      "implementation": "0xB37751C4E07630602cdDC964c15BAF8EeFc872dE",
+      "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    }
   }
 }

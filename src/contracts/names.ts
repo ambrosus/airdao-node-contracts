@@ -60,6 +60,8 @@ export enum ContractNames {
   FeesMultisig = "Fees_Multisig",
   FeesTreasure = "Fees_Treasure",
 
+  MultisigFactory = "MultisigFactory",
+
   // bond marketplace
 
   Ecosystem_MasterMultisig = "Ecosystem_MasterMultisig",
