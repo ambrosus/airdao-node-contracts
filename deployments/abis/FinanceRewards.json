@@ -1,0 +1,9 @@
+[
+  "constructor(address owner)",
+  "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+  "event Withdraw(address addressTo, uint256 amount)",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function transferOwnership(address newOwner)",
+  "function withdraw(address addressTo, uint256 amount)"
+]

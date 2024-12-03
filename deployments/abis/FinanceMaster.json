@@ -1,0 +1,12 @@
+[
+  "constructor(address owner, uint256 maxBanks_, uint256 maxBankBalance_)",
+  "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+  "event Withdraw(address addressTo, uint256 amount)",
+  "function banks(uint256) view returns (address)",
+  "function getBalances() view returns (address[] addresses, uint256[] balances)",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function transferOwnership(address newOwner)",
+  "function transferToBanks()",
+  "function withdraw(address addressTo, uint256 amount)"
+]

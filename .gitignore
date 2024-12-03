@@ -19,3 +19,5 @@ deployments/5256.json
 .DS_Store
 
 .aider*
+yalc.lock
+.yalc
