@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 constant public CREATOR_ROLE = keccak256("CREATOR_ROLE");
     
-    mapping(string => address) public multisigs;
+    mapping(address => bool) public registeredMultisigs;
     
     function initialize() public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -19,7 +19,7 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
         __UUPSUpgradeable_init();
     }
 
-    function createMultisig(string calldata name, MultisigSettings calldata settings) external onlyRole(CREATOR_ROLE) returns (address) {
+    function createMultisig(MultisigSettings calldata settings) external onlyRole(CREATOR_ROLE) returns (address) {
         Multisig newMultisig = new Multisig(
             settings.signers,
             settings.isInitiatorFlags,
@@ -27,36 +27,33 @@ contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgr
             settings.owner
         );
 
-        multisigs[name] = address(newMultisig);
+        registeredMultisigs[address(newMultisig)] = true;
         
         emit MultisigCreated(address(newMultisig));
         return address(newMultisig);
     }
     
     // Register previously deployed multisigs in batch
-    function registerMultisigs(address[] calldata _multisigs, string[] calldata _names) external onlyRole(CREATOR_ROLE) {
+    function registerMultisigs(address[] calldata _multisigs) external onlyRole(CREATOR_ROLE) {
         for (uint i = 0; i < _multisigs.length; i++) {
-            string memory name = _names[i];
             address multisigAddress = _multisigs[i];
             require(multisigAddress != address(0), "Invalid multisig address");
-            require(multisigs[name] == address(0), "Already registered");
+            require(!registeredMultisigs[multisigAddress], "Already registered");
             
-            multisigs[name] = multisigAddress;
+            registeredMultisigs[multisigAddress] = true;
             
             emit MultisigRegistered(multisigAddress);
         }
     }
     
-    // View functions
-    function getMultisigAddress(string calldata _name) external view override returns (address) {
-        return multisigs[_name];
+    function isRegisteredMultisig(address multisig) external view override returns (bool) {
+        return registeredMultisigs[multisig];
     }
 
-    function deleteMultisig(string calldata name) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        address multisigAddress = multisigs[name];
-        require(multisigAddress != address(0), "Multisig not found");
+    function deleteMultisig(address multisigAddress) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(registeredMultisigs[multisigAddress], "Multisig not found");
         
-        delete multisigs[name];
+        delete registeredMultisigs[multisigAddress];
         
         emit MultisigDeleted(multisigAddress);
     }
