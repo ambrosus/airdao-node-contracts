@@ -15,7 +15,11 @@
     "address": "0x68c66f1C56CC6341856cf4427650978B653C78D6",
     "abiPath": "./abis/FinanceMaster.json",
     "deployTx": "0xe42984dfaae33628e9749c8cf1fa3e32dad88374075fa752aceefca33b6aa807",
-    "fullyQualifiedName": "contracts/finance/MasterFinance.sol:MasterFinance"
+    "fullyQualifiedName": "contracts/finance/MasterFinance.sol:MasterFinance",
+    "multisig": {
+        "address": "0x5C62B48A985938eD8944b54Ce1FaEF9A7938D290",
+        "type": "COMMON"
+    }
   },
   "FinanceRewards_Multisig": {
     "address": "0x3224a48b63991a989e5326b69D0d3663bA7F087f",
@@ -27,7 +31,11 @@
     "address": "0xA9aFf50ABE9997EBe09834493cB675F8b13feB50",
     "abiPath": "./abis/FinanceRewards.json",
     "deployTx": "0x2e828c2a206b0738eb045fbf5ed4119b01a39ab948f7099e54c9156001aa1c42",
-    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance",
+    "multisig": {
+        "address": "0x3224a48b63991a989e5326b69D0d3663bA7F087f",
+        "type": "COMMON"
+    }
   },
   "FinanceInvestors_Multisig": {
     "address": "0x50c023Be318DFf1D8dDfa00Bb5dF0D7E18656F44",
@@ -39,7 +47,11 @@
     "address": "0xC24b4c73dc9002c8aaBc3620965D727C29E0126F",
     "abiPath": "./abis/FinanceInvestors.json",
     "deployTx": "0xcb8e35bd5474a4a1a57d6561c816923f0dbb6cb56dd0f8ef9539f277adfb5c09",
-    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance",
+    "multisig" : {
+        "address": "0x50c023Be318DFf1D8dDfa00Bb5dF0D7E18656F44",
+        "type": "COMMON"
+    }
   },
   "FinanceTeam_Multisig": {
     "address": "0x0Fcd3f7bB7C22BC92E80B7E26cC19F8Df8F502e0",
@@ -51,7 +63,11 @@
     "address": "0xfaE424EA67c94a510f9230b551bfE13340d9cA15",
     "abiPath": "./abis/FinanceTeam.json",
     "deployTx": "0x77773efe37e0d69e6cf1d89768fa9aa0c258303cfe0ad15a7332bfaab4b3d92d",
-    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance",
+    "multisig" : {
+        "address": "0x0Fcd3f7bB7C22BC92E80B7E26cC19F8Df8F502e0",
+        "type": "COMMON"
+    }
   },
   "FinanceEcosystem_Multisig": {
     "address": "0x48A768523Aa2a68c33B711F825749D27C651fEd3",
@@ -63,7 +79,11 @@
     "address": "0xAfaBC47C72440037Db5F5F6011Dc2ac34fc52Fa6",
     "abiPath": "./abis/FinanceEcosystem.json",
     "deployTx": "0x3f167d4ba9de22fc23cdf8d0378543e97a0fb9ba386776489edb804abfd9d6eb",
-    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance",
+    "multisig" : {
+        "address": "0x48A768523Aa2a68c33B711F825749D27C651fEd3",
+        "type": "COMMON"
+    }
   },
   "FinanceRevenue_Multisig": {
     "address": "0x1A4D8ECc2277599d1Da5ffc43Ad91f5e81E79296",
@@ -75,7 +95,11 @@
     "address": "0xD6F26AfFA195C145BBe9aabF188F2c56dee40018",
     "abiPath": "./abis/FinanceRevenue.json",
     "deployTx": "0x218f4e4cdca52c335cabfce4425066a50812f6044c8a8d973efe8ae467def9aa",
-    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
+    "fullyQualifiedName": "contracts/finance/Finance.sol:Finance",
+    "multisig" : {
+        "address": "0x1A4D8ECc2277599d1Da5ffc43Ad91f5e81E79296",
+        "type": "COMMON"
+    }
   },
   "AirBond": {
     "address": "0x096B5914C95C34Df19500DAff77470C845EC749D",
@@ -103,6 +127,10 @@
     "proxy": {
       "implementation": "0xb1662957A9e38441b2C6FE58dF2A1974B138e233",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    },
+    "multisig": {
+        "address": "0x448da646517389ce148791CCB6CeA4a9966FA2E5",
+        "type": "COMMON"
     }
   },
   "Treasury_Multisig": {
@@ -115,7 +143,11 @@
     "address": "0xF938841dc2889Ab0cC9fB3F198a01FAfA2852a0c",
     "abiPath": "./abis/Treasury.json",
     "deployTx": "0x2ed8dca668211bbf649bc445585a1555654909fdd4a875a4c6bf0a2c95b15398",
-    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
+    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury",
+    "multisig": {
+        "address": "0xF1136c049c8ad60d750BF6056Ce7510b2D3909a4",
+        "type": "COMMON"
+    }
   },
   "BaseNodesManager_Multisig": {
     "address": "0x5A6D7162c59966046D1119550954D4e3B6C39dA3",
@@ -137,6 +169,10 @@
     "proxy": {
       "implementation": "0x1cde89EE9654296dDA9c7a263E0475C1FECe232D",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    },
+    "multisig": {
+        "address": "0x5A6D7162c59966046D1119550954D4e3B6C39dA3",
+        "type": "COMMON"
     }
   },
   "ServerNodesManager_Multisig": {
@@ -159,6 +195,10 @@
     "proxy": {
       "implementation": "0x2fc6Ad39bdd9Ad47Ee42782eDAec58Da2124D055",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    },
+    "multisig": {
+        "address": "0xE7C1ae9EB8376159d9b4f64789A42bE5517A5077",
+        "type": "COMMON"
     }
   },
   "LegacyPoolManager_Multisig": {
@@ -181,6 +221,10 @@
     "proxy": {
       "implementation": "0xe2A4c8ba76D8e8F2A756a4B847D9082AF5ce0601",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    },
+    "multisig": {
+        "address": "0xa7f4FB51457e19A08EDF94Bc3A768acec3AdabdA",
+        "type": "COMMON"
     }
   },
   "LockKeeper": {
@@ -209,7 +253,11 @@
     "address": "0x3629C36d39992bF8ece9748EfCa7AD279236A599",
     "abiPath": "./abis/Ecosystem_BondMarketplace_RewardsBank.json",
     "deployTx": "0x18f81408f4148feebf6d8093d4b66bc12c3e2d9837e7f411a5ad14fbac238db7",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0xe96c6206631615a78c94eaF256E3F360BA8603F1",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_Starfleet_Multisig": {
     "address": "0x56f8d46C3D088576880204f6E840293841708766",
@@ -221,7 +269,11 @@
     "address": "0x8D310fEd1C8154bD00688d77b05722210CCBf52f",
     "abiPath": "./abis/Ecosystem_Starfleet_RewardsBank.json",
     "deployTx": "0x81293bdfc0acce762bec7f54258659fd94cc615d2a9a533c9dd0e6e7fe67deda",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0x56f8d46C3D088576880204f6E840293841708766",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_Astradex_Multisig": {
     "address": "0x3AfEbeE38E5A4e3E7EDD66dAdEeD475Dc7287F6d",
@@ -239,7 +291,11 @@
     "address": "0x321FbD2cB1EA2073D554FD2b77063276B8C9331F",
     "abiPath": "./abis/Ecosystem_Astradex_TokenSafe.json",
     "deployTx": "0x632f1a52ba35c09ea4f633570060b3ad42a87fb29c1217ffcde0737e5941dcc8",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0xa2a5ea8cEc4F6968d4aa54359FECA8b02D6B5878",
+        "type": "COMMON"
+    }
   },
   "Ecosystem_Government_Multisig": {
     "address": "0x0EDf3f28648b5a84563dCc9CA41f51BE59090948",
@@ -257,31 +313,51 @@
     "address": "0xA53444cb6Eb61c915F27Cc4eF8576500fC187B24",
     "abiPath": "./abis/Ecosystem_LiquidNodesManager_RewardsBank.json",
     "deployTx": "0x9d2bc0418dbb7a72db054f078cbf0f8e2aa28df33acb757d0915b3f6d2305334",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LiquidNodesManager_Treasury": {
     "address": "0x29ADdcdDed146B8764825555AdB47Bf4784997bF",
     "abiPath": "./abis/Ecosystem_LiquidNodesManager_Treasury.json",
     "deployTx": "0x2a82ece37847b0bb0d06b54e57dcdb8eb52b070db573c9f0d7834292a3dfdaf7",
-    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
+    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury",
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LiquidNodesManager_TreasuryFees": {
     "address": "0xee0dD0af0757DaBC46ea2fE6Dc75e17046617a66",
     "abiPath": "./abis/Ecosystem_LiquidNodesManager_TreasuryFees.json",
     "deployTx": "0xcc7b242045acf553330b5bc46de124f8e5aab484d0bf4877658cae71e04e3354",
-    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
+    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury",
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LiquidPool_RewardsBank": {
     "address": "0xEaFb27cF593609885856F68CC74524aBec81C5c8",
     "abiPath": "./abis/Ecosystem_LiquidPool_RewardsBank.json",
     "deployTx": "0x811e0a7f40520ec231871ba6b7560b373b2759a4d7bd520773efbdd99a85782b",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LiquidPool_StAMB": {
     "address": "0x2834C436d04ED155e736F994c1F3a0d05C4A8dE4",
     "abiPath": "./abis/Ecosystem_LiquidPool_StAMB.json",
     "deployTx": "0x1705263ad6adf4f1f87f62f87e73950b9bb69070a518062ee75fb399f7aa6d9d",
-    "fullyQualifiedName": "contracts/staking/liquid/StAMB.sol:StAMB"
+    "fullyQualifiedName": "contracts/staking/liquid/StAMB.sol:StAMB",
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LiquidPool_StakingTiers": {
     "address": "0xD0442B6d4cCf2fEe0B48bc1be607390F4f8EB987",
@@ -291,6 +367,10 @@
     "proxy": {
       "implementation": "0x220bB4D0d16AA509D126907d3fAe4EF55bE7316C",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    },
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
     }
   },
   "Ecosystem_LiquidNodesManager": {
@@ -301,6 +381,10 @@
     "proxy": {
       "implementation": "0xC54450028dAE52c1DC1bb9Dabe553457eABd4Aa3",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    },
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
     }
   },
   "Ecosystem_LiquidPool": {
@@ -311,13 +395,21 @@
     "proxy": {
       "implementation": "0xf8EB6FfA7b37406aB7FA4F55c2E38D6fE3652C55",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
+    },
+    "multisig": {
+        "address": "0x623f45fBCFa5f3B5eD518C7Ef753307dc438EF2C",
+        "type": "ECOSYSTEM"
     }
   },
   "Ecosystem_Astradex_ChronosFeeCollector": {
     "address": "0x97B7bDAcE8672a2aA553938FA5C289538E7449Ac",
     "abiPath": "./abis/Ecosystem_Astradex_ChronosFeeCollector.json",
     "deployTx": "0xf21babb4ad16277b8ef36ddac63adf4a99f909c0175e832a4ae5c33e55aa9d18",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0x3AfEbeE38E5A4e3E7EDD66dAdEeD475Dc7287F6d",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LimitedTokenPoolsManager_Multisig": {
     "address": "0x31baD4443e66E625b83D6EEC392Fec832A99945e",
@@ -329,7 +421,11 @@
     "address": "0xd09270E917024E75086e27854740871F1C8E0E10",
     "abiPath": "./abis/Ecosystem_HBRToken.json",
     "deployTx": "0x8217c563de8c3bae1cd041968cf3e67fcb6fdfcf9ef3d828483ad1cbdb10ab69",
-    "fullyQualifiedName": "contracts/staking/token/HBRToken.sol:HBRToken"
+    "fullyQualifiedName": "contracts/staking/token/HBRToken.sol:HBRToken",
+    "multisig": {
+        "address": "0x31baD4443e66E625b83D6EEC392Fec832A99945e",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_GeneralTokenBank_Multisig": {
     "address": "0x7ebCde7D910A2A1167391D24E929e1c3a021Aa2C",
@@ -341,18 +437,30 @@
     "address": "0xaa2EE244E7644D42FD995AF7d45d4ecFD0F2bF6F",
     "abiPath": "./abis/Ecosystem_GeneralTokenBank.json",
     "deployTx": "0x1d6552e36b5ccf075e239ea8789747b9682947929ab8081947469264dae4dee2",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0x7ebCde7D910A2A1167391D24E929e1c3a021Aa2C",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LimitedTokenPoolsManager_RewardsBank": {
     "address": "0xd8E8819F9A3160F561a754a3f8c499BFd76947cb",
     "abiPath": "./abis/Ecosystem_LimitedTokenPoolsManager_RewardsBank.json",
     "deployTx": "0x785297bb1786ea24cf6ec7ef84eac28a2e92b9cf83a270cfa3da69edcdd1df19",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank",
+    "multisig": {
+        "address": "0x31baD4443e66E625b83D6EEC392Fec832A99945e",
+        "type": "ECOSYSTEM"
+    }
   },
   "Ecosystem_LimitedTokenPoolsManager": {
     "address": "0x4A0dbD61d017198a9eC5B444CdD307D55d4d879A",
     "abiPath": "./abis/Ecosystem_LimitedTokenPoolsManager.json",
     "deployTx": "0xb9778368eba50a55a4606d480ea3d6e4e572963b911096c949d7486fb3bdc377",
-    "fullyQualifiedName": "contracts/staking/token/LimitedTokenPoolsManager.sol:LimitedTokenPoolsManager"
+    "fullyQualifiedName": "contracts/staking/token/LimitedTokenPoolsManager.sol:LimitedTokenPoolsManager",
+    "multisig": {
+        "address": "0x31baD4443e66E625b83D6EEC392Fec832A99945e",
+        "type": "ECOSYSTEM"
+    }
   }
 }
