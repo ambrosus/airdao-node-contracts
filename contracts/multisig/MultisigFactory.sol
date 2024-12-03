@@ -11,7 +11,6 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 contract MultisigFactory is IMultisigFactory, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 constant public CREATOR_ROLE = keccak256("CREATOR_ROLE");
     
-    // Track ecosystem and common multisigs separately
     mapping(string => address) public multisigs;
     
     function initialize() public initializer {
