@@ -31,7 +31,7 @@ npx hardhat run scripts/ecosystem/bond-marketplace/deploy.ts --network "${NETWOR
 npx hardhat run scripts/ecosystem/starfleet/deploy.ts --network "${NETWORK}"
 npx hardhat run scripts/ecosystem/astradex/deploy.ts --network "${NETWORK}"
 npx hardhat run scripts/ecosystem/astradex/deployTokensSafe.ts --network "${NETWORK}"
-npx hardhat run scripts/ecosystem/liquid_staking/deploy.ts --network
+npx hardhat run scripts/ecosystem/liquid_staking/deploy.ts --network "${NETWORK}"
 
 npx hardhat sourcify --network "${NETWORK}"
 
