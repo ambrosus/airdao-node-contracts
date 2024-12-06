@@ -16,7 +16,7 @@ export async function main() {
     signer: deployer,
   });
 
-  const gasPrice = 10;
+  const gasPrice = 0;
   const payAddress = treasure.address;
   const feePercent = 300000;
 

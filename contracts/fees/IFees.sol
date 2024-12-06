@@ -14,4 +14,5 @@ interface IFees {
     function getGasPrice() external view returns (uint);
     function setFeesParams(address addr, uint percent) external;
     function getFeesParams() external view returns (address, uint);
+    function report(address author, uint256 authorFee, address treasure, uint256 treasureFee) external;
 }
