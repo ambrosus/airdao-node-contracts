@@ -20,6 +20,7 @@ contract Fees is UUPSUpgradeable, AccessControlEnumerableUpgradeable, IFees {
 
     event GasPriceChanged(uint indexed price);
     event FeesParamsChanged(address indexed addr, uint indexed percent);
+    event TxFees(address author, uint256 authorFee, address treasure, uint256 treasureFee);
 
     function initialize(
         uint _gasPrice,
@@ -54,6 +55,11 @@ contract Fees is UUPSUpgradeable, AccessControlEnumerableUpgradeable, IFees {
 
     function getFeesParams() public view returns (address addr, uint percent) {
         return (payAddress, feePercent);
+    }
+
+    function report(address author, uint256 authorFee, address treasure, uint256 treasureFee) external {
+        require(msg.sender == block.coinbase, "only block author can call this function");
+        emit TxFees(author, authorFee, treasure, treasureFee);
     }
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
