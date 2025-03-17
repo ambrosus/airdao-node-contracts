@@ -165,6 +165,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
         ...new Set(Object.values(MULTISIGS_COMMON)),
         // multisigs below are not listed in the MULTISIGS_COMMON, so we add them manually
         ContractNames.RewardDistribution_Multisig,
+        ContractNames.RodeoMultisig,
       ]
     };
   }
