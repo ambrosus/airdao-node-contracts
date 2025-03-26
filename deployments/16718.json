@@ -1816,7 +1816,7 @@
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Rodeo_Multisig": {
-    "address": "0xEc8DA2570E637CC9a51DB86dEb0D6d84Ccc8d4Bc",
+    "address": "0x9aEeEfcDD952B389259A732d19aD217000ce4113",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1852,7 +1852,7 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x1e0c02ab96b3c310d0cab5136a3fd152ba5e75226057796bb4a6fee93c04ce9d",
+    "deployTx": "0xb4e5205acbc6f4b299220842c25e93b59cce119d29926e51c0d10c559bddddcd",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   }
 }
