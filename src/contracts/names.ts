@@ -60,6 +60,10 @@ export enum ContractNames {
   FeesMultisig = "Fees_Multisig",
   FeesTreasure = "Fees_Treasure",
 
+  // rodeo
+
+  RodeoMultisig = "Rodeo_Multisig",
+
   // bond marketplace
 
   Ecosystem_MasterMultisig = "Ecosystem_MasterMultisig",
@@ -166,6 +170,7 @@ export function getEnvironment(version: MultisigVersions = MultisigVersions.comm
         ...new Set(Object.values(MULTISIGS_COMMON)),
         // multisigs below are not listed in the MULTISIGS_COMMON, so we add them manually
         ContractNames.RewardDistribution_Multisig,
+        ContractNames.RodeoMultisig,
       ]
     };
   }
