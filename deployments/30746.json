@@ -1604,7 +1604,7 @@
     }
   },
   "BlockRewardsMode2_Multisig": {
-    "address": "0x0130d99d07Fc75FABF8fd656164cc50b14279302",
+    "address": "0x021de22a8b1B021f07a94B047AA557079BbCa6ed",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1640,11 +1640,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x3314aab979d40d36d0ae6b4497a4a6d47150ec7b9de628260f76fe2a3ce3f572",
+    "deployTx": "0x99fd30b7a81a69616417a121074f0a0dfecbc15373c44abc76937e2b7dd0e222",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "BlockRewardsMode2": {
-    "address": "0x32B5C34A837345e221a589F44C7738B01073c8bF",
+    "address": "0x55B47c47F90cD3434c86D02A46136Bd4E00C8332",
     "abi": [
       "constructor(address owner)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1666,7 +1666,7 @@
       "function supportsInterface(bytes4 interfaceId) view returns (bool)",
       "function treasury() view returns (address)"
     ],
-    "deployTx": "0xeeb5d3b6052db40a831f7f931a7cf4658c53a4181dadbf88a4913209c56f7e57",
+    "deployTx": "0x44dbd23a8a77f0f54ee7b847020469e44b7f326d90cbcaa5ebe5d6b9de9cd6fc",
     "fullyQualifiedName": "contracts/BlockRewardsMode2.sol:BlockRewardsMode2"
   }
 }
