@@ -99,6 +99,9 @@ export enum ContractNames {
   Ecosystem_GeneralTokenBank = "Ecosystem_GeneralTokenBank",
 
   RewardDistribution_Multisig = "RewardDistribution_Multisig",
+
+  BlockRewardsMode2 = "BlockRewardsMode2",
+  BlockRewardsMode2_Multisig = "BlockRewardsMode2_Multisig",
 }
 
 export const MULTISIGS_COMMON = {
@@ -121,6 +124,8 @@ export const MULTISIGS_COMMON = {
   [ContractNames.FeesTreasure]: ContractNames.FeesMultisig,
 
   [ContractNames.Ecosystem_AstradexTokenSafe]: ContractNames.Ecosystem_AstradexTokenSafeMultisig,  // yes, this should be under master multisig
+
+  [ContractNames.BlockRewardsMode2]: ContractNames.BlockRewardsMode2_Multisig,
 };
 
 export const MULTISIGS_ECOSYSTEM = {
