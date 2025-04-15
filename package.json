@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.3.46",
+  "version": "1.3.47",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
@@ -38,26 +38,37 @@
     "deploy_limited_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy_limited_manager.ts --network dev",
     "deploy_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy_token_manager.ts --network dev",
     "deploy_hbr_token": "hardhat run scripts/ecosystem/token_staking/deploy_hbr.ts --network dev",
-
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"
   },
   "devDependencies": {
     "@airdao/deployments": "0.2.4",
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "4.9.0",
     "@openzeppelin/hardhat-upgrades": "^1.26.0",
+    "@typechain/ethers-v5": "^10.2.1",
+    "@typechain/hardhat": "^6.1.6",
+    "@types/chai": "^4.3.20",
+    "@types/mocha": "^10.0.10",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
+    "chai": "^4.5.0",
     "dotenv": "^16.0.3",
     "eslint": "8.35.0",
     "eslint-config-prettier": "^8.7.0",
     "hardhat": "^2.12.6",
+    "hardhat-gas-reporter": "^1.0.10",
     "openzeppelin-solidity": "^1.12.0",
     "prettier": "2.8.4",
+    "solidity-coverage": "^0.8.14",
     "ts-node": "^10.9.1",
+    "typechain": "^8.3.2",
     "typescript": "^4.9.5"
   },
   "dependencies": {
