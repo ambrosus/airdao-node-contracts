@@ -1,6 +1,6 @@
 import { Multisig__factory } from "../../typechain-types";
 import { ContractNames } from "../../src";
-import { EcosystemMultisigSettings, Roadmap2023MultisigSettings } from "./addresses";
+import { CommonMultisigSettings, EcosystemMultisigSettings } from "./addresses";
 import { Signer } from "ethers";
 import { loadDeployment, deploy } from "@airdao/deployments/deploying";
 
@@ -17,7 +17,7 @@ export async function deployMultisig(contractName: string, signer: Signer, versi
     deployArgs = [...EcosystemMultisigSettings, ecosystemMasterMultisig];
   } else {
     const masterMultisig = loadDeployment(ContractNames.MasterMultisig, chainId).address;
-    deployArgs = [...Roadmap2023MultisigSettings, masterMultisig];
+    deployArgs = [...CommonMultisigSettings, masterMultisig];
   }
 
   const isMainnet = chainId === 16718;
