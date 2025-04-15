@@ -60,7 +60,7 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
     mapping(address => uint) public latestNodeRewardTime; // timestamp when reward was called last time for node
 
-    IBlockRewards internal _blockRewardsContract;
+    IBlockRewards public blockRewardsContract;
 
     uint256[18] private __gap;
 
@@ -215,8 +215,8 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         _baseRewardSettings = newSettings;
     }
 
-    function setBlockRewardsContract(IBlockRewards blockRewardsContract) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _blockRewardsContract = blockRewardsContract;
+    function setBlockRewardsContract(IBlockRewards blockRewardsContract_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        blockRewardsContract = blockRewardsContract_;
     }
 
 
@@ -256,12 +256,12 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
     }
 
     function reward(address[] calldata benefactors, uint16[] calldata kind) external virtual returns (address[] memory, uint256[] memory) {
-        if (address(_blockRewardsContract) == address(0)) {
+        if (address(blockRewardsContract) == address(0)) {
             address[] memory retAddresses = new address[](0);
             uint256[] memory retAmounts = new uint256[](0);
             return (retAddresses, retAmounts);
         }
-        return _blockRewardsContract.reward(benefactors, kind);
+        return blockRewardsContract.reward(benefactors, kind);
     }
 
     // PRIVATE METHODS

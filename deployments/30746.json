@@ -471,6 +471,7 @@
       "function _updateExternal()",
       "function addBlockListener(address listener)",
       "function baseReward() view returns (uint256)",
+      "function blockRewardsContract() view returns (address)",
       "function changeTopStakesCount(uint256 newTopStakesCount)",
       "function emitReward(address rewardsBank, address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
       "function finalizeChange()",
@@ -494,6 +495,8 @@
       "function removeBlockListener(address listener)",
       "function renounceRole(bytes32 role, address account)",
       "function revokeRole(bytes32 role, address account)",
+      "function reward(address[] benefactors, uint16[] kind) returns (address[], uint256[])",
+      "function setBlockRewardsContract(address blockRewardsContract_)",
       "function setReward(uint256 _baseReward)",
       "function setRewardSettings(uint64[5] newSettings)",
       "function stake(address nodeAddress, uint256 amount)",
@@ -508,7 +511,7 @@
     "deployTx": "0xb1122e898fb0a043e7b108ea5b0d815a470758be61e9b9bfbe61410b1c3c53c1",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xB17eEc1d977bea26c67c8Be86DF98C33a21F7fE9",
+      "implementation": "0xac71AF25f26298bAa96469816b4b24A7a74597a6",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
@@ -1667,6 +1670,6 @@
       "function treasury() view returns (address)"
     ],
     "deployTx": "0x44dbd23a8a77f0f54ee7b847020469e44b7f326d90cbcaa5ebe5d6b9de9cd6fc",
-    "fullyQualifiedName": "contracts/BlockRewardsMode2.sol:BlockRewardsMode2"
+    "fullyQualifiedName": "contracts/blockrewards/BlockRewardsMode2.sol:BlockRewardsMode2"
   }
 }
