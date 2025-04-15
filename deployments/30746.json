@@ -1,6 +1,6 @@
 {
   "MasterMultisig": {
-    "address": "0x97464F18b71cbF5f42B134CE48b47341f4B4fddf",
+    "address": "0x8eb921E5F4C3e04a6cd9D7934e533225aEf722e5",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -39,11 +39,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x794ae50daad0296e626ab35f1f45553f7edb9977bfd8e44a2e485f7200455e4a",
+    "deployTx": "0x29790fc24a849ac4bf641c4c44dd81a13c15cdb2739da94d30fdf20c54c361fa",
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   },
   "FinanceMaster_Multisig": {
-    "address": "0xc2fCf18eCFDEf92393552f1016470F1F4059580c",
+    "address": "0x8e21c4FD0FBEb51484272a9DaA626740B3817e48",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -79,11 +79,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xdbb28845f921721f8af246d3e625a4927dcc3200b34ef2b0f88742944be8c9d5",
+    "deployTx": "0xd35c5ec5389e23fdc757933903a0473678e73ddb2f926d91626183e4f18a37a4",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceMaster": {
-    "address": "0xE2Fb2d9014B4c7b2705F81D21a6693219Cc518Ba",
+    "address": "0x1D49c49CD99d149142a4B9c673bbeacB8cBe194c",
     "abi": [
       "constructor(address owner, uint256 maxBanks_, uint256 maxBankBalance_)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -96,11 +96,11 @@
       "function transferToBanks()",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x7571eb48ca1942069901b8745d503a9fade2efb79abc5aaee30c2a59b10e64c6",
+    "deployTx": "0x498143beb600414ee62cf867bbb4558bde42d116de1cda55bd9e820cad11cc83",
     "fullyQualifiedName": "contracts/finance/MasterFinance.sol:MasterFinance"
   },
   "FinanceRewards_Multisig": {
-    "address": "0x689020fd1aa4e064bdf9c6D1d19F0Cf378b19753",
+    "address": "0xc050F45e9394C47c020AE3322F7017D67D4e215b",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -136,11 +136,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xc00aba791915590166db37e00e7b5132afa4f33550e1601c7c26e4a3aea1148c",
+    "deployTx": "0x9476d509a948724292493a6563c77665bf3204824a946d276f1f34569da7f5bb",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceRewards": {
-    "address": "0xb08cFc95eEA0F1d9Bb79002d23FA204B8836A536",
+    "address": "0x1D1c26e0b8DAFa08FD678A888a8f4de175B1d060",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -150,11 +150,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x8f367a8b20a25c3a155f6fd5f2cfb22b9e1611d935412f59b7f4f6e3fb61d411",
+    "deployTx": "0xf2949e7d2692b99bd0959524905a7041922eb38af9f1e3cba3d1a70dd6fff176",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceInvestors_Multisig": {
-    "address": "0x3fbb4BfEfB478fcE4fb52503ce95e7602E4BB760",
+    "address": "0x765e3e03f8dfca312EfdAb378e386E1EA60ee93F",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -190,11 +190,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xad3b32ede80c5b085e6866ced361260536e8c0bb98fc27c5a8afdf8d513bbef8",
+    "deployTx": "0x96c83f002d9fa30847c11f399ce07b1020b86d3ae0f1c50599402ff034a53446",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceInvestors": {
-    "address": "0x585896742516DF0703D72018E5c049D2C293718F",
+    "address": "0x130c0e94E79DbA9F8A63D6452210C89e5942130c",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -204,11 +204,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x71f89d471009f6224f23e5c4b1e2add7aef74de920957ec9f580b04d4ee80796",
+    "deployTx": "0x5002ad241d24ebd787ff38180507cd78b16fe5c8fb2706590e02a260162d050c",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceTeam_Multisig": {
-    "address": "0x00385a84F8ea4A244B2E084D81460e768fAE8ec3",
+    "address": "0x7cee2ae3042D2C646Aa24FACfA92dfeE589046f0",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -244,11 +244,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x5f23aa8469f3d754329d515864c7df1bee958db35b100368770f3ba044a8c62b",
+    "deployTx": "0x4e04973958f81ce766e26d84e9a0c45626c8b94e0df819ce6761b094c911e51b",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceTeam": {
-    "address": "0x99B1A627604dB1479379c2c576dAFdC8AE4C546E",
+    "address": "0x871c1F199bD17F1cbed559DE974a7F1568b6E1Ea",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -258,11 +258,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x291e4a3e3b5e78776ffcd3046f96a00a02ee7b572ced8ea457bf1bc3c26dfbf2",
+    "deployTx": "0xbb5cee9caa8d910b174b36e3f4a41dafa48456db8e0a40406dd2365c3ebdc802",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceEcosystem_Multisig": {
-    "address": "0xC54007213080526139d38eAe66777dFac413772C",
+    "address": "0x952b98DBDa3319BF0e339cC9CC574fF768F80f3c",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -298,11 +298,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xbbc6fd9222787245edec631212a75e6cac0e56a2a013e2f4c95abf6c50e2ebae",
+    "deployTx": "0xba30bbe5e087e09a41ea49dcb2368ccddae5682a4deb361b026c3980528b2974",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceEcosystem": {
-    "address": "0x55C402b5F9C2c3DfE3d866B36598f0Fd53e03B89",
+    "address": "0x1bB13b68DbA3571415B4092802777B5cA15de897",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -312,11 +312,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xdc0b1837a637e4f389b1d7c8b94483fe5ced2e93a8f8532fe45ce26635e8d470",
+    "deployTx": "0x59382481b80a321acf605bae5213e703b5cf0e57ee15d2c98cb656e7ff36d2e3",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "FinanceRevenue_Multisig": {
-    "address": "0xA9646A0281996fDcB88f8f6f01Af52BB0268c494",
+    "address": "0xfB069aFFe6e75674FaBf67108e9094fb988A31D9",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -352,11 +352,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x773de1eac2944aaa98b52ffa0d681ded13b489d3ec9bb7769de7580bc816884d",
+    "deployTx": "0x496556b5969eb9349490e6d911cae40e3d42394a173c90cfbed54e8ac44d67a2",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "FinanceRevenue": {
-    "address": "0x4798Cbd108e3D7b531ef2f3d67E7fFabdEe29867",
+    "address": "0x5f0EA6276D40A3529E060EA5Acb9bf963f5c430a",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -366,11 +366,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0xd5ffa59b9a887aec7c932282cbaf5465b4e830cde1c4d80853f02f66c125d9ed",
+    "deployTx": "0xcf3cd170aba80e3727bc04dbda325b6d2cef3ca4d1332da0b1d0d030e81cf6cd",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "AirBond": {
-    "address": "0xb805D144dCF9eEEe0E12e1a55E9AD46905Ef47fe",
+    "address": "0xdC103bf9a3789f78958f365321F3BA07e369667A",
     "abi": [
       "constructor(address admin)",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -400,11 +400,11 @@
       "function transfer(address to, uint256 amount) returns (bool)",
       "function transferFrom(address from, address to, uint256 amount) returns (bool)"
     ],
-    "deployTx": "0x8857574ea38ea98f0aa3f4335202e173359d4440173aa45f4271bdcf24829348",
+    "deployTx": "0x08c2843b06df9332d9a139153d137ac89c59968b67b43f9c875908f5a17e31c1",
     "fullyQualifiedName": "contracts/funds/AirBond.sol:AirBond"
   },
   "ValidatorSet_Multisig": {
-    "address": "0x81DC178E336C0Fd916982028065497ffdCa01F40",
+    "address": "0x7aE1eAFC7a9b106b392ddEE027449b09dbDE1347",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -440,11 +440,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xc4aad1708441b1f53dbea6989f557823605e3c45be7e1cd114c81af0ac90f488",
+    "deployTx": "0xdaa20fba054ed0830534f5d9a6e0999c2b5d301b8c5da21b34b1c2477272eef1",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "ValidatorSet": {
-    "address": "0xE6b3585c2E2Fe8C39EECB163e5D8C90346c873F4",
+    "address": "0xc2fCf18eCFDEf92393552f1016470F1F4059580c",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -508,15 +508,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0xb1122e898fb0a043e7b108ea5b0d815a470758be61e9b9bfbe61410b1c3c53c1",
+    "deployTx": "0x3be80601afe38b4a3af5d6848aaad5c1f4366a4694690a5f5d3a7af96ef3827f",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xac71AF25f26298bAa96469816b4b24A7a74597a6",
+      "implementation": "0x97464F18b71cbF5f42B134CE48b47341f4B4fddf",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Treasury_Multisig": {
-    "address": "0x0aE9a337A10F1E31cAf4Ff7b0F915277361708c6",
+    "address": "0xb08cFc95eEA0F1d9Bb79002d23FA204B8836A536",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -552,11 +552,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xc85682741f0cfe72aa48b29862c7d14723ec82529af1f46b765b062d60a7ec62",
+    "deployTx": "0x10875f11a7d90a4ffdff7c582555ec4f25ac5eba6a7fb6c5760ae1b692ad2ab6",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Treasury": {
-    "address": "0x761314376Ac00758DB402b47F44104529768605b",
+    "address": "0x3fbb4BfEfB478fcE4fb52503ce95e7602E4BB760",
     "abi": [
       "constructor(address owner, uint256 _fee)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -569,11 +569,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x184040fb7a80793ee2e52aff3497911f12e406069d034747561288cfe852cdab",
+    "deployTx": "0x6fb59e74dc507bdb5f490d6d1863e0d5ffc0d4aee1f8dec0b620617fbf36f471",
     "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
   },
   "BaseNodesManager_Multisig": {
-    "address": "0xFFafaD16D4C174cA8E403E764704eb2784037b26",
+    "address": "0x585896742516DF0703D72018E5c049D2C293718F",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -609,11 +609,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x150e4702196484d4aad0509485ffbe940276355aa624b237639e01e879a3b896",
+    "deployTx": "0x28f9dcfeb852c04838f125fdc3e1d095e075ab614a41af813a94e67056260a3d",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "BaseNodesManager_RewardsBank": {
-    "address": "0x5705Cf73136EDeE17Ce481Da589c4c0CaA36C693",
+    "address": "0x00385a84F8ea4A244B2E084D81460e768fAE8ec3",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -629,11 +629,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x6c5cf97faed1def27074e6976865b9e5814e207ee8f80069d8e59622523a7d72",
+    "deployTx": "0x8bcbeeb47973d7f0e50accd2b84d1e5b85eb559a01fb7d947e5fcc10479c8ee2",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "BaseNodesManager": {
-    "address": "0xebd013e82004a58f0599d2f45918250e04d80Abf",
+    "address": "0xC54007213080526139d38eAe66777dFac413772C",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -661,15 +661,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0xdec2624833ace09087f2a84b6879fb03d0d767819856334905d9efabe2420517",
+    "deployTx": "0xed77b97013b9e6f8bb4151d32c60f068a1b1bf6e61c008eed3fe2f54cfc3d02f",
     "fullyQualifiedName": "contracts/staking/BaseNodes_Manager.sol:BaseNodes_Manager",
     "proxy": {
-      "implementation": "0x8C52c360270b324A65Cd4bD4a5e2DCBe6aF8f500",
+      "implementation": "0x99B1A627604dB1479379c2c576dAFdC8AE4C546E",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "ServerNodesManager_Multisig": {
-    "address": "0xC6613c683f2d4684D806FAcb9D413f41221537c6",
+    "address": "0x073F6D7a999aa5F9172f4Fe1AB4604268ecbFd0E",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -705,11 +705,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xfd70051e61b5084f5976ce7cb974ff1e100d892381115080d9f415047b653cb5",
+    "deployTx": "0x9959f9bd319143b5ecf19fac3db7536723ec2f55be59e78c03a18150a1bd0c18",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LockKeeper": {
-    "address": "0xBE94eFB16edFCB44b3De6C452062D1B599d3d40d",
+    "address": "0xB17eEc1d977bea26c67c8Be86DF98C33a21F7fE9",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -745,15 +745,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0xbe0736668122c1e9a7ac36792210c44bdb4ece0096dbcdf38a07ee426e487413",
+    "deployTx": "0x39e65eb23acc4fbfe6f8a2b3041134432fb5d384fcd9be962b047aa14b906c6b",
     "fullyQualifiedName": "contracts/LockKeeper.sol:LockKeeper",
     "proxy": {
-      "implementation": "0x7A70536307a0411d2Df2FE832CFa16231089dD6F",
+      "implementation": "0x81DC178E336C0Fd916982028065497ffdCa01F40",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "ServerNodesManager_RewardsBank": {
-    "address": "0xe2672E824C249b24851389e69225959d1c6c1A1F",
+    "address": "0xE6b3585c2E2Fe8C39EECB163e5D8C90346c873F4",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -769,11 +769,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x3024a119136e5cba50839c5a552851ca752b4d36ee41956c883b855ebbf92939",
+    "deployTx": "0x0853b6c85a804c496dda56b5157e4c594987667ea1fbfcbc7c4d5e8ca8035dab",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "ServerNodesManager": {
-    "address": "0x1fEf4FA0e0a5988F02Ba11786c91d25e0d352eEA",
+    "address": "0x91c2F6725a1e076929E1fDECCfD72209D0694af0",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -828,15 +828,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0xa7d0446450187cfbcbf11c4a50e6f478f90a50fcdeb5ec0590e41b906941936d",
+    "deployTx": "0xb6baeb9d43e93c86390aec7dff57f49baa23035dbef8133d55fd9d215d112e85",
     "fullyQualifiedName": "contracts/staking/ServerNodes_Manager.sol:ServerNodes_Manager",
     "proxy": {
-      "implementation": "0x2B6d32BADB2F3C6f5D7CfEF07962a50109A57fA9",
+      "implementation": "0xF3EE25f6600B68cDBeECa955B4bCcF9c9ABF9a40",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "LegacyPoolManager_Multisig": {
-    "address": "0xE3C532aD50B16e59c1866DCC0C672F7b4c685f00",
+    "address": "0x31Ec9254bf00cF1429c250398d30A711E19BffC3",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -872,11 +872,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xbe1dfdca0ac509688a953e5ca76c0a206f5b62649eba127658235e70dd4bbb9c",
+    "deployTx": "0xd1f596c28c743a89ffc44599ea1fa04be42e5eb044988937389638da4c2a46ef",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "LegacyPoolManager_RewardsBank": {
-    "address": "0xD3A7E420Aa128Cb6AcFDd998258Ea938E50Ae600",
+    "address": "0x0784273B3eb7EC159bb48Da834e230fe583D11CC",
     "abi": [
       "constructor()",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -892,11 +892,11 @@
       "function withdrawAmb(address addressTo, uint256 amount)",
       "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x73f492812cb708a1d6112db6997fdeac56ba5ef8f1bad6093a1bb73217933d1c",
+    "deployTx": "0x7e744098d494a933b61ab6a089dc81d409461ec79aa46bf59f875afb0e8bf571",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
   "LegacyPoolManager": {
-    "address": "0x1de2419B8CD823A23B534df136506C37A816947F",
+    "address": "0xb04D84FC6BA3202f741d0db0124d890e7A3493b7",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -938,15 +938,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x5dd9d13deb680423301fbfed8171e33d1b3160be77fe92f326899bc8a99c1ee8",
+    "deployTx": "0x22924339bfac1d99c171f3a7191006ac6f4c729f1e0c84035879d86d3d7d4345",
     "fullyQualifiedName": "contracts/staking/pools/LegacyPoolsNodes_Manager.sol:LegacyPoolsNodes_Manager",
     "proxy": {
-      "implementation": "0x51781501C27a7D6503652CA280BF5e92F3Eb03CD",
+      "implementation": "0xB45121Ea4DB3878b564c617287bf9BDDD17CfD2A",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Fees_Multisig": {
-    "address": "0x63a75D14e6Adf3Cce709FddCd489dFFBA4e437e5",
+    "address": "0x160fb9e3a978F44c5E7fd82b17aAe27773e5b58D",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -982,11 +982,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xb131af9efceae0472e84d415090514dc444058ba6d2eb9d6d60c2451676c037c",
+    "deployTx": "0x8171a376f60cf43b70f27e88c1594319ee9b55b4105e1e9d5ef9877a4b2cafb3",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Fees_Treasure": {
-    "address": "0xbfFD6436a923D7bb93775edb79A10EB8A69d4381",
+    "address": "0xe5A673b4BfCc7c6804185F35b94693b4CAfCF43c",
     "abi": [
       "constructor(address owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
@@ -996,11 +996,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address addressTo, uint256 amount)"
     ],
-    "deployTx": "0x93839de098ad02dac73eecbee3bed682c928cc81219b66f7828473ec9f448c56",
+    "deployTx": "0xb3dddfc8ab59c1172f394e2d75051da8962f5174a805775305c600961886c3fe",
     "fullyQualifiedName": "contracts/finance/Finance.sol:Finance"
   },
   "Fees": {
-    "address": "0xaa52FB83135FEfBB71fAcE1C2f7D654d52C08a37",
+    "address": "0x220bB4D0d16AA509D126907d3fAe4EF55bE7316C",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1031,15 +1031,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0xec78ece02e3e67e88faed51a05b0965bc30f6759c443d34705a34dd6060d9e31",
+    "deployTx": "0xa40b6f1ad043b890590d31db34bc152e9a5827387aa41ad020f790562cebdbe1",
     "fullyQualifiedName": "contracts/fees/Fees.sol:Fees",
     "proxy": {
-      "implementation": "0x2C55f7d6B1c2aF6b06Fba942e01B39Ae1dd7B9D7",
+      "implementation": "0xd0322ae33ff5E14E4F200a2AAd57748F0899FAD9",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Ecosystem_MasterMultisig": {
-    "address": "0xE4B71A6d487455d3Dc81292418b78214Ad4d4345",
+    "address": "0xC54450028dAE52c1DC1bb9Dabe553457eABd4Aa3",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1078,11 +1078,11 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0x4acc7c6c07228a9a261232873a4e64237948255883d332784242c225c2d114c9",
+    "deployTx": "0x20ecf644a58df17c695e3242603626684aa4c1aa13f554cba03f64eea7985004",
     "fullyQualifiedName": "contracts/multisig/MasterMultisig.sol:MasterMultisig"
   },
   "Ecosystem_BondMarketplace_Multisig": {
-    "address": "0xEBf3C264A54fB892901c43BF831f53C8bBdB2C43",
+    "address": "0x44E2880c2d4f1b806FD106a209EEDf0e7dC9C4aE",
     "abi": [
       "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
       "event Confirmation(address indexed sender, uint256 indexed txId)",
@@ -1118,10 +1118,284 @@
       "function transferOwnership(address newOwner)",
       "function withdraw(address to, uint256 amount)"
     ],
-    "deployTx": "0xbe7461a9d313bfc0e4c588822401179bf06b5fe896039490057cfc468486eebd",
+    "deployTx": "0xd62d94ac4fbcbdf6151b69a29c529e47b13ea8374d6d147ce8e61f7b5816a351",
     "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
   },
   "Ecosystem_BondMarketplace_RewardsBank": {
+    "address": "0xeAAd95c57BC920A175767f1b6187820B193E0889",
+    "abi": [
+      "constructor()",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function withdrawAmb(address addressTo, uint256 amount)",
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0x17df10c6e27b496363984dce40ff5a0aa462cda891bb93309b34d5519eca5c3c",
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+  },
+  "Ecosystem_Starfleet_Multisig": {
+    "address": "0x52d026B38b3382Fe1b8a28EA55895aF875191750",
+    "abi": [
+      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
+      "event Confirmation(address indexed sender, uint256 indexed txId)",
+      "event Execution(uint256 indexed txId)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Revocation(address indexed sender, uint256 indexed txId)",
+      "event SignerAddition(address indexed signer, bool isInitiator)",
+      "event SignerRemoval(address indexed signer)",
+      "event Submission(uint256 indexed txId)",
+      "event ThresholdChange(uint256 required)",
+      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
+      "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
+      "function confirmTransaction(uint256 txId)",
+      "function confirmations(uint256, address) view returns (bool)",
+      "function getConfirmations(uint256 txId) view returns (address[])",
+      "function getInitiatorsCount() view returns (uint256)",
+      "function getRequiredSignersCount() view returns (uint256)",
+      "function getSigners() view returns (address[], bool[])",
+      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
+      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
+      "function isConfirmed(uint256 txId) view returns (bool)",
+      "function isInitiator(address) view returns (bool)",
+      "function isSigner(address) view returns (bool)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function revokeConfirmation(uint256 txId)",
+      "function signers(uint256) view returns (address)",
+      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
+      "function threshold() view returns (uint256)",
+      "function transactionCount() view returns (uint256)",
+      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
+      "function transferOwnership(address newOwner)",
+      "function withdraw(address to, uint256 amount)"
+    ],
+    "deployTx": "0x34f4950c53cedc7c4e2d542e307b97b87500b95ee44827d36c7506d8fa2d0481",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
+  },
+  "Ecosystem_Starfleet_RewardsBank": {
+    "address": "0xe208a39e3F988f1565628457F17E9Aa469B78F76",
+    "abi": [
+      "constructor()",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function withdrawAmb(address addressTo, uint256 amount)",
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0xaaec3adaee5a1c0106a1775dbcf592445343bf49c29e94a598e0dd7720f8df52",
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+  },
+  "Ecosystem_Astradex_Multisig": {
+    "address": "0x5b4Dc8dA222eb0e19581D95Ff08b8809caE1d801",
+    "abi": [
+      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
+      "event Confirmation(address indexed sender, uint256 indexed txId)",
+      "event Execution(uint256 indexed txId)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Revocation(address indexed sender, uint256 indexed txId)",
+      "event SignerAddition(address indexed signer, bool isInitiator)",
+      "event SignerRemoval(address indexed signer)",
+      "event Submission(uint256 indexed txId)",
+      "event ThresholdChange(uint256 required)",
+      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
+      "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
+      "function confirmTransaction(uint256 txId)",
+      "function confirmations(uint256, address) view returns (bool)",
+      "function getConfirmations(uint256 txId) view returns (address[])",
+      "function getInitiatorsCount() view returns (uint256)",
+      "function getRequiredSignersCount() view returns (uint256)",
+      "function getSigners() view returns (address[], bool[])",
+      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
+      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
+      "function isConfirmed(uint256 txId) view returns (bool)",
+      "function isInitiator(address) view returns (bool)",
+      "function isSigner(address) view returns (bool)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function revokeConfirmation(uint256 txId)",
+      "function signers(uint256) view returns (address)",
+      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
+      "function threshold() view returns (uint256)",
+      "function transactionCount() view returns (uint256)",
+      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
+      "function transferOwnership(address newOwner)",
+      "function withdraw(address to, uint256 amount)"
+    ],
+    "deployTx": "0x0dbb1b4460da70031d11b1a434d21779eb03a7aad50093cb38f89604831e0528",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
+  },
+  "Ecosystem_Astradex_TokenSafe_Multisig": {
+    "address": "0xb51C3D68E21C5A6d2F5514b7337F7f055a383B26",
+    "abi": [
+      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
+      "event Confirmation(address indexed sender, uint256 indexed txId)",
+      "event Execution(uint256 indexed txId)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Revocation(address indexed sender, uint256 indexed txId)",
+      "event SignerAddition(address indexed signer, bool isInitiator)",
+      "event SignerRemoval(address indexed signer)",
+      "event Submission(uint256 indexed txId)",
+      "event ThresholdChange(uint256 required)",
+      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
+      "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
+      "function confirmTransaction(uint256 txId)",
+      "function confirmations(uint256, address) view returns (bool)",
+      "function getConfirmations(uint256 txId) view returns (address[])",
+      "function getInitiatorsCount() view returns (uint256)",
+      "function getRequiredSignersCount() view returns (uint256)",
+      "function getSigners() view returns (address[], bool[])",
+      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
+      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
+      "function isConfirmed(uint256 txId) view returns (bool)",
+      "function isInitiator(address) view returns (bool)",
+      "function isSigner(address) view returns (bool)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function revokeConfirmation(uint256 txId)",
+      "function signers(uint256) view returns (address)",
+      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
+      "function threshold() view returns (uint256)",
+      "function transactionCount() view returns (uint256)",
+      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
+      "function transferOwnership(address newOwner)",
+      "function withdraw(address to, uint256 amount)"
+    ],
+    "deployTx": "0xf082c5f0034c264293e368d9649fb8f54a4ee9830dccc86113497d139bac8af9",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
+  },
+  "Ecosystem_Astradex_TokenSafe": {
+    "address": "0x63a75D14e6Adf3Cce709FddCd489dFFBA4e437e5",
+    "abi": [
+      "constructor()",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function withdrawAmb(address addressTo, uint256 amount)",
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0xf9dc313b5c26afdf0c5a25f6dade228f3b45f179a120a52b3385c0aaaa01f9df",
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+  },
+  "Ecosystem_LiquidPool_Multisig": {
+    "address": "0xaa52FB83135FEfBB71fAcE1C2f7D654d52C08a37",
+    "abi": [
+      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
+      "event Confirmation(address indexed sender, uint256 indexed txId)",
+      "event Execution(uint256 indexed txId)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Revocation(address indexed sender, uint256 indexed txId)",
+      "event SignerAddition(address indexed signer, bool isInitiator)",
+      "event SignerRemoval(address indexed signer)",
+      "event Submission(uint256 indexed txId)",
+      "event ThresholdChange(uint256 required)",
+      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
+      "function changeThreshold(uint256 _threshold)",
+      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
+      "function confirmTransaction(uint256 txId)",
+      "function confirmations(uint256, address) view returns (bool)",
+      "function getConfirmations(uint256 txId) view returns (address[])",
+      "function getInitiatorsCount() view returns (uint256)",
+      "function getRequiredSignersCount() view returns (uint256)",
+      "function getSigners() view returns (address[], bool[])",
+      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
+      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
+      "function isConfirmed(uint256 txId) view returns (bool)",
+      "function isInitiator(address) view returns (bool)",
+      "function isSigner(address) view returns (bool)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function revokeConfirmation(uint256 txId)",
+      "function signers(uint256) view returns (address)",
+      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
+      "function threshold() view returns (uint256)",
+      "function transactionCount() view returns (uint256)",
+      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
+      "function transferOwnership(address newOwner)",
+      "function withdraw(address to, uint256 amount)"
+    ],
+    "deployTx": "0xd26eb218c4bda8cc87ba4f133a8ed64663580c6cec1c72bb8df35a88d2214c93",
+    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
+  },
+  "Ecosystem_LiquidNodesManager_RewardsBank": {
+    "address": "0x5Fb2adefDC0cF350B87E6Ac31A66E3844afFcfD1",
+    "abi": [
+      "constructor()",
+      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+      "function grantRole(bytes32 role, address account)",
+      "function hasRole(bytes32 role, address account) view returns (bool)",
+      "function renounceRole(bytes32 role, address account)",
+      "function revokeRole(bytes32 role, address account)",
+      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+      "function withdrawAmb(address addressTo, uint256 amount)",
+      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0x35e859a77a1f7e92092a33e4ea1e33fa59790d341d8b9aa559099172c96e3728",
+    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
+  },
+  "Ecosystem_LiquidNodesManager_Treasury": {
+    "address": "0xE4B71A6d487455d3Dc81292418b78214Ad4d4345",
+    "abi": [
+      "constructor(address owner, uint256 _fee)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Withdraw(address addressTo, uint256 amount)",
+      "function calcFee(uint256 amount) view returns (uint256)",
+      "function fee() view returns (uint256)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function setFee(uint256 _fee)",
+      "function transferOwnership(address newOwner)",
+      "function withdraw(address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0x3dce202bfb6a0409452010e0365403b2c559bbb30ce8923bb7f9bf408bd3ca4b",
+    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
+  },
+  "Ecosystem_LiquidNodesManager_TreasuryFees": {
+    "address": "0xEBf3C264A54fB892901c43BF831f53C8bBdB2C43",
+    "abi": [
+      "constructor(address owner, uint256 _fee)",
+      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "event Withdraw(address addressTo, uint256 amount)",
+      "function calcFee(uint256 amount) view returns (uint256)",
+      "function fee() view returns (uint256)",
+      "function owner() view returns (address)",
+      "function renounceOwnership()",
+      "function setFee(uint256 _fee)",
+      "function transferOwnership(address newOwner)",
+      "function withdraw(address addressTo, uint256 amount)"
+    ],
+    "deployTx": "0x43bcfee0e8164f8ec894ba2cd108ba211905f5d156dd75e6979fdab2605852ad",
+    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
+  },
+  "Ecosystem_LiquidPool_RewardsBank": {
     "address": "0x4c11D569EF7fF8f5706166532BCe1d1e8d5a7292",
     "abi": [
       "constructor()",
@@ -1141,282 +1415,8 @@
     "deployTx": "0x890a8a9620e5926e7267b05262eef3c7ad0e78f4e53786708b2729dc1ea744e2",
     "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
   },
-  "Ecosystem_Starfleet_Multisig": {
-    "address": "0x9c13fAF8A042Aa2D73b0CE4C9A24C78d5C5a61cD",
-    "abi": [
-      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
-      "event Confirmation(address indexed sender, uint256 indexed txId)",
-      "event Execution(uint256 indexed txId)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Revocation(address indexed sender, uint256 indexed txId)",
-      "event SignerAddition(address indexed signer, bool isInitiator)",
-      "event SignerRemoval(address indexed signer)",
-      "event Submission(uint256 indexed txId)",
-      "event ThresholdChange(uint256 required)",
-      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
-      "function changeThreshold(uint256 _threshold)",
-      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
-      "function confirmTransaction(uint256 txId)",
-      "function confirmations(uint256, address) view returns (bool)",
-      "function getConfirmations(uint256 txId) view returns (address[])",
-      "function getInitiatorsCount() view returns (uint256)",
-      "function getRequiredSignersCount() view returns (uint256)",
-      "function getSigners() view returns (address[], bool[])",
-      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
-      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
-      "function isConfirmed(uint256 txId) view returns (bool)",
-      "function isInitiator(address) view returns (bool)",
-      "function isSigner(address) view returns (bool)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function revokeConfirmation(uint256 txId)",
-      "function signers(uint256) view returns (address)",
-      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
-      "function threshold() view returns (uint256)",
-      "function transactionCount() view returns (uint256)",
-      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
-      "function transferOwnership(address newOwner)",
-      "function withdraw(address to, uint256 amount)"
-    ],
-    "deployTx": "0x4b1fbae976bf3470ff5eb81cc2a72216a116111797fb4ba0e7948f626e8a21c7",
-    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
-  },
-  "Ecosystem_Starfleet_RewardsBank": {
-    "address": "0xbda417dD2541213bcfcf3eCD9F38682Ce28eB223",
-    "abi": [
-      "constructor()",
-      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-      "function grantRole(bytes32 role, address account)",
-      "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function renounceRole(bytes32 role, address account)",
-      "function revokeRole(bytes32 role, address account)",
-      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-      "function withdrawAmb(address addressTo, uint256 amount)",
-      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
-    ],
-    "deployTx": "0x5633234ae76d61aa82e7a83ee5b74d4ffec32a09b577ef5b8c1d01e61b4f3a2a",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
-  },
-  "Ecosystem_Astradex_Multisig": {
-    "address": "0x36B2fCc7DbCebB7Ddb052e6815b0bB13112B1D24",
-    "abi": [
-      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
-      "event Confirmation(address indexed sender, uint256 indexed txId)",
-      "event Execution(uint256 indexed txId)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Revocation(address indexed sender, uint256 indexed txId)",
-      "event SignerAddition(address indexed signer, bool isInitiator)",
-      "event SignerRemoval(address indexed signer)",
-      "event Submission(uint256 indexed txId)",
-      "event ThresholdChange(uint256 required)",
-      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
-      "function changeThreshold(uint256 _threshold)",
-      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
-      "function confirmTransaction(uint256 txId)",
-      "function confirmations(uint256, address) view returns (bool)",
-      "function getConfirmations(uint256 txId) view returns (address[])",
-      "function getInitiatorsCount() view returns (uint256)",
-      "function getRequiredSignersCount() view returns (uint256)",
-      "function getSigners() view returns (address[], bool[])",
-      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
-      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
-      "function isConfirmed(uint256 txId) view returns (bool)",
-      "function isInitiator(address) view returns (bool)",
-      "function isSigner(address) view returns (bool)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function revokeConfirmation(uint256 txId)",
-      "function signers(uint256) view returns (address)",
-      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
-      "function threshold() view returns (uint256)",
-      "function transactionCount() view returns (uint256)",
-      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
-      "function transferOwnership(address newOwner)",
-      "function withdraw(address to, uint256 amount)"
-    ],
-    "deployTx": "0x9536f8ffe01f384bb133858528112bb0fb6e0baa44aadc2e1f96d685c763613d",
-    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
-  },
-  "Ecosystem_Astradex_TokenSafe_Multisig": {
-    "address": "0x954337374C55Faf504B52a0370b0933654c3eA0c",
-    "abi": [
-      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
-      "event Confirmation(address indexed sender, uint256 indexed txId)",
-      "event Execution(uint256 indexed txId)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Revocation(address indexed sender, uint256 indexed txId)",
-      "event SignerAddition(address indexed signer, bool isInitiator)",
-      "event SignerRemoval(address indexed signer)",
-      "event Submission(uint256 indexed txId)",
-      "event ThresholdChange(uint256 required)",
-      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
-      "function changeThreshold(uint256 _threshold)",
-      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
-      "function confirmTransaction(uint256 txId)",
-      "function confirmations(uint256, address) view returns (bool)",
-      "function getConfirmations(uint256 txId) view returns (address[])",
-      "function getInitiatorsCount() view returns (uint256)",
-      "function getRequiredSignersCount() view returns (uint256)",
-      "function getSigners() view returns (address[], bool[])",
-      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
-      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
-      "function isConfirmed(uint256 txId) view returns (bool)",
-      "function isInitiator(address) view returns (bool)",
-      "function isSigner(address) view returns (bool)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function revokeConfirmation(uint256 txId)",
-      "function signers(uint256) view returns (address)",
-      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
-      "function threshold() view returns (uint256)",
-      "function transactionCount() view returns (uint256)",
-      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
-      "function transferOwnership(address newOwner)",
-      "function withdraw(address to, uint256 amount)"
-    ],
-    "deployTx": "0x51946ecb058ba17df3ddaf0deeb4c2a25c247215ef0412b61dc6cda4420f9269",
-    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
-  },
-  "Ecosystem_Astradex_TokenSafe": {
-    "address": "0x6bA4560Da6A7AC58ACaA686aB811C3d2b1cf3576",
-    "abi": [
-      "constructor()",
-      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-      "function grantRole(bytes32 role, address account)",
-      "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function renounceRole(bytes32 role, address account)",
-      "function revokeRole(bytes32 role, address account)",
-      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-      "function withdrawAmb(address addressTo, uint256 amount)",
-      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
-    ],
-    "deployTx": "0xbce09ee1abc019d49d2ca415b38a3c797e361bceae534b4c1bc35706ca7c63c7",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
-  },
-  "Ecosystem_LiquidPool_Multisig": {
-    "address": "0xcC73baa39EFcB6eb9a0e4db04A9c98F24E87E9AA",
-    "abi": [
-      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
-      "event Confirmation(address indexed sender, uint256 indexed txId)",
-      "event Execution(uint256 indexed txId)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Revocation(address indexed sender, uint256 indexed txId)",
-      "event SignerAddition(address indexed signer, bool isInitiator)",
-      "event SignerRemoval(address indexed signer)",
-      "event Submission(uint256 indexed txId)",
-      "event ThresholdChange(uint256 required)",
-      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
-      "function changeThreshold(uint256 _threshold)",
-      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
-      "function confirmTransaction(uint256 txId)",
-      "function confirmations(uint256, address) view returns (bool)",
-      "function getConfirmations(uint256 txId) view returns (address[])",
-      "function getInitiatorsCount() view returns (uint256)",
-      "function getRequiredSignersCount() view returns (uint256)",
-      "function getSigners() view returns (address[], bool[])",
-      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
-      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
-      "function isConfirmed(uint256 txId) view returns (bool)",
-      "function isInitiator(address) view returns (bool)",
-      "function isSigner(address) view returns (bool)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function revokeConfirmation(uint256 txId)",
-      "function signers(uint256) view returns (address)",
-      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
-      "function threshold() view returns (uint256)",
-      "function transactionCount() view returns (uint256)",
-      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
-      "function transferOwnership(address newOwner)",
-      "function withdraw(address to, uint256 amount)"
-    ],
-    "deployTx": "0xde688921f8a0e8ba9b42dc4e373c1c9d65d688f756d74881fe1a6c5f4ec4bdd2",
-    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
-  },
-  "Ecosystem_LiquidNodesManager_RewardsBank": {
-    "address": "0x0FFf92E115307D9Eb3485e9a2dfEABcEF7c8d428",
-    "abi": [
-      "constructor()",
-      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-      "function grantRole(bytes32 role, address account)",
-      "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function renounceRole(bytes32 role, address account)",
-      "function revokeRole(bytes32 role, address account)",
-      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-      "function withdrawAmb(address addressTo, uint256 amount)",
-      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
-    ],
-    "deployTx": "0xd99d7b17cd0cdd97223e73ea98579804c053c5729284f6b3fbc6383b633d8b44",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
-  },
-  "Ecosystem_LiquidNodesManager_Treasury": {
-    "address": "0x0322b0b7A39CfB06DC92845005D18E4cc7bf0203",
-    "abi": [
-      "constructor(address owner, uint256 _fee)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Withdraw(address addressTo, uint256 amount)",
-      "function calcFee(uint256 amount) view returns (uint256)",
-      "function fee() view returns (uint256)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function setFee(uint256 _fee)",
-      "function transferOwnership(address newOwner)",
-      "function withdraw(address addressTo, uint256 amount)"
-    ],
-    "deployTx": "0xa993c2bf865b892880e1c1172bbc1873ff9e1967198633ddd3c10063a7de14ca",
-    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
-  },
-  "Ecosystem_LiquidNodesManager_TreasuryFees": {
-    "address": "0xaef99b8C1C4755d49cf6042cB3BCE031970b10b6",
-    "abi": [
-      "constructor(address owner, uint256 _fee)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Withdraw(address addressTo, uint256 amount)",
-      "function calcFee(uint256 amount) view returns (uint256)",
-      "function fee() view returns (uint256)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function setFee(uint256 _fee)",
-      "function transferOwnership(address newOwner)",
-      "function withdraw(address addressTo, uint256 amount)"
-    ],
-    "deployTx": "0xd63c5bba532b93a18df50a6af5a5a7d471399665024105ade0f4f124789858dc",
-    "fullyQualifiedName": "contracts/finance/Treasury.sol:Treasury"
-  },
-  "Ecosystem_LiquidPool_RewardsBank": {
-    "address": "0x3aDcA1f673b3E659A319e5a0fa8d817d07e2816f",
-    "abi": [
-      "constructor()",
-      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-      "function grantRole(bytes32 role, address account)",
-      "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function renounceRole(bytes32 role, address account)",
-      "function revokeRole(bytes32 role, address account)",
-      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-      "function withdrawAmb(address addressTo, uint256 amount)",
-      "function withdrawErc20(address tokenAddress, address addressTo, uint256 amount)"
-    ],
-    "deployTx": "0xd4378e787ccc06fe5b86900d124d6a95f885120f3f7786018d3e611f1c232c3a",
-    "fullyQualifiedName": "contracts/funds/RewardsBank.sol:RewardsBank"
-  },
   "Ecosystem_LiquidPool_StAMB": {
-    "address": "0x90cc3777ce7aD357E686E10F3480D800f3687cFd",
+    "address": "0x41ACd2b04024e0722BEc2A6A79EDe812B6E1C5c8",
     "abi": [
       "constructor()",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -1451,11 +1451,11 @@
       "function transfer(address to, uint256 amount) returns (bool)",
       "function transferFrom(address from, address to, uint256 amount) returns (bool)"
     ],
-    "deployTx": "0x4a0e15cb7c4929da183c850b1d4a6fbfbd0e0c96b452e718ae671be48c3fcfa0",
+    "deployTx": "0xa26dcdca9a02bbc6cedfa3b49189b5ded9a6db2ca3e696ad505b0e5ef9d98d30",
     "fullyQualifiedName": "contracts/staking/liquid/StAMB.sol:StAMB"
   },
   "Ecosystem_LiquidPool_StakingTiers": {
-    "address": "0x638d7ABE51CE0FFddDb382caAfAfb32cdfb9aa84",
+    "address": "0x9c13fAF8A042Aa2D73b0CE4C9A24C78d5C5a61cD",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1483,15 +1483,15 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x964bc16afb6ec252371c7c19ab4000890f75cd16d4aed5e31a4743f8c6b44984",
+    "deployTx": "0x5096d411327e83954ec309fc963fc9115fde2da061aa41447229ac9d0ec38736",
     "fullyQualifiedName": "contracts/staking/liquid/StakingTiers.sol:StakingTiers",
     "proxy": {
-      "implementation": "0xB9B33d7008Fd0DCA9459260e50F4D3C934340008",
+      "implementation": "0x13BAE98762100CD918f936dA98e186E9a88A5C1E",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Ecosystem_LiquidNodesManager": {
-    "address": "0xDA791532438489BD526A3bdF8E94857CDeC87DA7",
+    "address": "0x87d598Deb91485C77741fD06Cb62932587e3910e",
     "abi": [
       "event AddNodeRequest(uint256 indexed requestId, uint256 indexed nodeId, uint256 stake)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
@@ -1536,15 +1536,15 @@
       "function upgradeToAndCall(address newImplementation, bytes data) payable",
       "function validatorSet() view returns (address)"
     ],
-    "deployTx": "0x866e29a609648ba6137ecdfc6ac5dbf5c30f27ff9b2a8d80d098ac8346c82a92",
+    "deployTx": "0x251f7a0e08f2944d2e6ddb87c5f2eb8e2ac152faa4b1a5100a2c072536961931",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidNodesManager.sol:LiquidNodesManager",
     "proxy": {
-      "implementation": "0x8F77533c4503ee52cbF5dDb1FeF96De4aba9E284",
+      "implementation": "0xbda417dD2541213bcfcf3eCD9F38682Ce28eB223",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
   "Ecosystem_LiquidPool": {
-    "address": "0x1D335E8B7787fB6c51F98713df5BCb56884FD023",
+    "address": "0x36B2fCc7DbCebB7Ddb052e6815b0bB13112B1D24",
     "abi": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1599,77 +1599,11 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "deployTx": "0x09f3721c50eb986490b9f97477414113b916162de264a0119ac12c72d85fc7f2",
+    "deployTx": "0xb643eaa10003d228095d9644e0ad7f2bdcbf54e15e9bad4f631954e1848a57cf",
     "fullyQualifiedName": "contracts/staking/liquid/LiquidPool.sol:LiquidPool",
     "proxy": {
-      "implementation": "0x3EAD9E226A4ae30ED5fC85d06a0B0Cde3A8e26F1",
+      "implementation": "0x108bECe9CC0DEbc40f849A37B58774b68BCA90BA",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
-  },
-  "BlockRewardsMode2_Multisig": {
-    "address": "0x021de22a8b1B021f07a94B047AA557079BbCa6ed",
-    "abi": [
-      "constructor(address[] _signers, bool[] isInitiatorFlags, uint256 _threshold, address owner)",
-      "event Confirmation(address indexed sender, uint256 indexed txId)",
-      "event Execution(uint256 indexed txId)",
-      "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-      "event Revocation(address indexed sender, uint256 indexed txId)",
-      "event SignerAddition(address indexed signer, bool isInitiator)",
-      "event SignerRemoval(address indexed signer)",
-      "event Submission(uint256 indexed txId)",
-      "event ThresholdChange(uint256 required)",
-      "function changeSigners(address[] signersToRemove, address[] signersToAdd, bool[] isInitiatorFlags)",
-      "function changeThreshold(uint256 _threshold)",
-      "function checkBeforeSubmitTransaction(address destination, uint256 value, bytes data) payable",
-      "function confirmTransaction(uint256 txId)",
-      "function confirmations(uint256, address) view returns (bool)",
-      "function getConfirmations(uint256 txId) view returns (address[])",
-      "function getInitiatorsCount() view returns (uint256)",
-      "function getRequiredSignersCount() view returns (uint256)",
-      "function getSigners() view returns (address[], bool[])",
-      "function getTransactionData(uint256 txId) view returns (tuple(address destination, uint256 value, bytes data, bool executed), address[])",
-      "function getTransactionIds(uint256 from, uint256 to, bool pending, bool executed) view returns (uint256[] result)",
-      "function isConfirmed(uint256 txId) view returns (bool)",
-      "function isInitiator(address) view returns (bool)",
-      "function isSigner(address) view returns (bool)",
-      "function owner() view returns (address)",
-      "function renounceOwnership()",
-      "function revokeConfirmation(uint256 txId)",
-      "function signers(uint256) view returns (address)",
-      "function submitTransaction(address destination, uint256 value, bytes data) payable returns (uint256 txId)",
-      "function threshold() view returns (uint256)",
-      "function transactionCount() view returns (uint256)",
-      "function transactions(uint256) view returns (address destination, uint256 value, bytes data, bool executed)",
-      "function transferOwnership(address newOwner)",
-      "function withdraw(address to, uint256 amount)"
-    ],
-    "deployTx": "0x99fd30b7a81a69616417a121074f0a0dfecbc15373c44abc76937e2b7dd0e222",
-    "fullyQualifiedName": "contracts/multisig/Multisig.sol:Multisig"
-  },
-  "BlockRewardsMode2": {
-    "address": "0x55B47c47F90cD3434c86D02A46136Bd4E00C8332",
-    "abi": [
-      "constructor(address owner)",
-      "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
-      "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
-      "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
-      "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
-      "function blockReward() view returns (uint256)",
-      "function getRoleAdmin(bytes32 role) view returns (bytes32)",
-      "function grantRole(bytes32 role, address account)",
-      "function hasRole(bytes32 role, address account) view returns (bool)",
-      "function ppm() view returns (uint256)",
-      "function renounceRole(bytes32 role, address account)",
-      "function revokeRole(bytes32 role, address account)",
-      "function reward(address[], uint16[]) returns (address[], uint256[])",
-      "function setBlockReward(uint256 reward_)",
-      "function setSupportFee(address support_, uint256 ppm_)",
-      "function setTreasuryAddress(address treasury_)",
-      "function support() view returns (address)",
-      "function supportsInterface(bytes4 interfaceId) view returns (bool)",
-      "function treasury() view returns (address)"
-    ],
-    "deployTx": "0x44dbd23a8a77f0f54ee7b847020469e44b7f326d90cbcaa5ebe5d6b9de9cd6fc",
-    "fullyQualifiedName": "contracts/blockrewards/BlockRewardsMode2.sol:BlockRewardsMode2"
   }
 }
