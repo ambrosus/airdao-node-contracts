@@ -16,6 +16,7 @@ import "../LockKeeper.sol";
 import "../staking/IStakeManager.sol";
 import "./IValidatorSet.sol";
 import "./OnBlockNotifier.sol";
+import "../blockrewards/IBlockRewards.sol";
 
 /**
 @title Implementation of Parities ValidatorSet contract with:
@@ -59,7 +60,9 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
 
     mapping(address => uint) public latestNodeRewardTime; // timestamp when reward was called last time for node
 
-    uint256[19] private __gap;
+    IBlockRewards internal _blockRewardsContract;
+
+    uint256[18] private __gap;
 
     event InitiateChange(bytes32 indexed parentHash, address[] newSet);  // emitted when topStakes changes and need to be finalized
     event ValidatorSetFinalized(address[] newSet);  // emitted when topStakes finalized to finalizedValidators
@@ -212,6 +215,10 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         _baseRewardSettings = newSettings;
     }
 
+    function setBlockRewardsContract(IBlockRewards blockRewardsContract) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _blockRewardsContract = blockRewardsContract;
+    }
+
 
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
@@ -246,6 +253,15 @@ contract ValidatorSet is UUPSUpgradeable, OnBlockNotifier, AccessControlEnumerab
         require(msg.sender == address(this));
         _tryMoveToQueue();
         _tryMoveFromQueue();
+    }
+
+    function reward(address[] calldata benefactors, uint16[] calldata kind) external virtual returns (address[] memory, uint256[] memory) {
+        if (address(_blockRewardsContract) == address(0)) {
+            address[] memory retAddresses = new address[](0);
+            uint256[] memory retAmounts = new uint256[](0);
+            return (retAddresses, retAmounts);
+        }
+        return _blockRewardsContract.reward(benefactors, kind);
     }
 
     // PRIVATE METHODS
