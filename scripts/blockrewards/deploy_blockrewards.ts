@@ -1,12 +1,10 @@
-import {deploy, loadDeployment} from "@airdao/deployments/deploying";
+import {deploy} from "@airdao/deployments/deploying";
 import {ethers} from "hardhat";
-import {RewardsBank__factory, StarfleetStaking, Multisig__factory} from "../../typechain-types";
+import {BlockRewardsMode2__factory, BlockRewardsMode2, Multisig__factory} from "../../typechain-types";
 import { ContractNames } from "../../src";
 import { deployMultisig } from "../utils/deployMultisig";
 
 export async function main() {
-  const { chainId } = await ethers.provider.getNetwork();
-
   const [deployer] = await ethers.getSigners();
 
   const multisig = await deployMultisig(ContractNames.BlockRewardsMode2_Multisig, deployer);

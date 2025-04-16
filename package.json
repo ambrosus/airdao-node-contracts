@@ -1,6 +1,6 @@
 {
   "name": "@airdao/airdao-node-contracts",
-  "version": "1.3.48",
+  "version": "1.3.49",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
@@ -38,6 +38,7 @@
     "deploy_limited_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy_limited_manager.ts --network dev",
     "deploy_token_staking": "hardhat run scripts/ecosystem/token_staking/deploy_token_manager.ts --network dev",
     "deploy_hbr_token": "hardhat run scripts/ecosystem/token_staking/deploy_hbr.ts --network dev",
+    "deploy_blockrewards": "hardhat run scripts/blockrewards/deploy_blockrewards.ts --network dev",
     "sourcify:dev": "hardhat sourcify --network dev",
     "sourcify:test": "hardhat sourcify --network test",
     "sourcify:main": "hardhat sourcify --network main"
@@ -66,7 +67,7 @@
     "hardhat-gas-reporter": "^1.0.10",
     "openzeppelin-solidity": "^1.12.0",
     "prettier": "2.8.4",
-    "solidity-coverage": "^0.8.14",
+    "solidity-coverage": "^0.8.15",
     "ts-node": "^10.9.1",
     "typechain": "^8.3.2",
     "typescript": "^4.9.5"
