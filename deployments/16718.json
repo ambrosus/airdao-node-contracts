@@ -493,6 +493,7 @@
       "function _updateExternal()",
       "function addBlockListener(address listener)",
       "function baseReward() view returns (uint256)",
+      "function blockRewardsContract() view returns (address)",
       "function changeTopStakesCount(uint256 newTopStakesCount)",
       "function emitReward(address rewardsBank, address nodeAddress, address nodeOwner, address rewardReceiver, address tokenAddress, uint256 amount)",
       "function finalizeChange()",
@@ -516,6 +517,8 @@
       "function removeBlockListener(address listener)",
       "function renounceRole(bytes32 role, address account)",
       "function revokeRole(bytes32 role, address account)",
+      "function reward(address[] benefactors, uint16[] kind) returns (address[], uint256[])",
+      "function setBlockRewardsContract(address blockRewardsContract_)",
       "function setReward(uint256 _baseReward)",
       "function setRewardSettings(uint64[5] newSettings)",
       "function stake(address nodeAddress, uint256 amount)",
@@ -530,7 +533,7 @@
     "deployTx": "0x9ee8e13979f5ab5d8421cf6c5513d103fd91baab8dd81c3709702abbe1696ae7",
     "fullyQualifiedName": "contracts/consensus/ValidatorSet.sol:ValidatorSet",
     "proxy": {
-      "implementation": "0xb1662957A9e38441b2C6FE58dF2A1974B138e233",
+      "implementation": "0x6bC7c6BbCA81DE35698FA0C29fc3025be93376B0",
       "fullyQualifiedName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy"
     }
   },
