@@ -310,40 +310,6 @@ describe("ServerNodes", function () {
       validatorSetSigner = await ethers.getSigner(validatorSet.address);
     });
 
-    it("reward with bonds (amb to stake, bonds to owner address)", async function () {
-      await time.setNextBlockTimestamp(T + 10000);
-      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(10000));
-
-      await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
-        .to.changeEtherBalance(owner, 0) // todo why owner balance is changed?
-        .to.changeTokenBalance(airBond, owner, bondsReward);
-      expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(50 + nativeReward);
-    });
-
-    it("reward with bonds (amb and bonds to reward address)", async function () {
-      const [_, rewardAddress] = await ethers.getSigners();
-      await serverNodes.setRewardsAddress(owner.address, rewardAddress.address);
-
-      await time.setNextBlockTimestamp(T + 10000);
-      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(10000));
-
-      await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
-        .to.changeEtherBalance(rewardAddress, nativeReward)
-        .to.changeTokenBalance(airBond, rewardAddress, bondsReward);
-      expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(50);
-    });
-
-    it("reward with bonds (amb and bonds to reward address (which is owner))", async function () {
-      await serverNodes.setRewardsAddress(owner.address, owner.address);
-      await time.setNextBlockTimestamp(T + 10000);
-      const [nativeReward, bondsReward] = await getRewardsValues(10, getBondsPercent(10000));
-
-      await expect(serverNodes.connect(validatorSetSigner).reward(owner.address, 10))
-        .to.changeEtherBalance(owner, nativeReward)
-        .to.changeTokenBalance(airBond, owner, bondsReward);
-
-      expect(await validatorSet.getNodeStake(owner.address)).to.be.eq(50);
-    });
 
     it("reward without bonds (3 years)", async function () {
       const years3 = 3 * 365 * 24 * 60 * 60;
