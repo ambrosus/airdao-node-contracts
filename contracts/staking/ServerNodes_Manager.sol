@@ -25,7 +25,7 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
     IValidatorSet public validatorSet; // contract that manages validator set
     LockKeeper public lockKeeper; // contract that locks stakes
     RewardsBank public rewardsBank;
-    address public airBond;
+    address public airBond;  // NOTE: no longer used
     Treasury public treasury;
 
     uint public onboardingDelay;  // time that new node will be in queueStakes even if it has enough stake (only affects nodes without FLAG_ALWAYS_IN_TOP)
@@ -170,33 +170,24 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
         rewardsBank.withdrawAmb(payable(address(treasury)), treasuryAmount);
         amount -= treasuryAmount;
 
-        uint bondsReward = amount * _getBondsPercent(stakeStruct.timestampStake) / 100;
-        uint nativeReward = amount - bondsReward;
-
         if (stakeStruct.rewardsAddress == address(0)) {
-            rewardsBank.withdrawAmb(payable(address(this)), nativeReward);
-            _addStake(nodeAddress, nativeReward);
-            validatorSet.emitReward(address(rewardsBank), nodeAddress, stakeStruct.ownerAddress, stakeStruct.ownerAddress, address(0), nativeReward);
+            rewardsBank.withdrawAmb(payable(address(this)), amount);
+            _addStake(nodeAddress, amount);
+            validatorSet.emitReward(address(rewardsBank), nodeAddress, stakeStruct.ownerAddress, stakeStruct.ownerAddress, address(0), amount);
         } else {
-            rewardsBank.withdrawAmb(payable(stakeStruct.rewardsAddress), nativeReward);
-            validatorSet.emitReward(address(rewardsBank), nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), nativeReward);
+            rewardsBank.withdrawAmb(payable(stakeStruct.rewardsAddress), amount);
+            validatorSet.emitReward(address(rewardsBank), nodeAddress, stakeStruct.ownerAddress, stakeStruct.rewardsAddress, address(0), amount);
         }
 
-        if (bondsReward > 0) {
-            address bondsRewardsAddress = stakeStruct.rewardsAddress == address(0) ? stakeStruct.ownerAddress : stakeStruct.rewardsAddress;
-            rewardsBank.withdrawErc20(airBond, bondsRewardsAddress, bondsReward);
-            validatorSet.emitReward(address(rewardsBank), nodeAddress, stakeStruct.ownerAddress, bondsRewardsAddress, airBond, bondsReward);
-        }
 
     }
 
-    // todo tests
     function onBlock() external {
         _checkOnboardingWaitingList();
     }
 
     function report(address nodeAddress) external {
-        // todo
+        // not yet
     }
 
     // MULTISIG METHODS
@@ -311,15 +302,6 @@ contract ServerNodes_Manager is UUPSUpgradeable, IStakeManager, IOnBlockListener
             }
         }
 
-    }
-
-
-    function _getBondsPercent(uint timestampStake) internal view returns (uint) {
-        uint stakingTime = block.timestamp - timestampStake;
-        uint nativePercent = 25 + stakingTime * 75 / (3 * 365  days);
-        if (nativePercent > 100) nativePercent = 100;
-
-        return 100 - nativePercent;
     }
 
     function _addressToString(address x) internal pure returns (string memory) {
